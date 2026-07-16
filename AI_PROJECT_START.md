@@ -23,6 +23,7 @@ Public languages: Armenian (`hy`, default), English (`en`) and Russian (`ru`).
 - Vercel for hosting, CDN and WAF rate limiting.
 - No Redis, NestJS, separate backend, payments, attendee accounts or questionnaire in MVP.
 - Public landing pages are static/CDN-cacheable; registration writes and admin data are never publicly cached.
+- Public and admin UI must be modern, creative and minimal, use solid colors, and contain no gradients; see the design specification.
 
 ## Read in this order
 
@@ -31,7 +32,8 @@ Public languages: Armenian (`hy`, default), English (`en`) and Russian (`ru`).
 3. [`docs/TECH_CARD.md`](./docs/TECH_CARD.md) — approved stack and boundaries.
 4. [`docs/01-ARCHITECTURE.md`](./docs/01-ARCHITECTURE.md) — system architecture and data flows.
 5. [`docs/technical-specification/00-INDEX.md`](./docs/technical-specification/00-INDEX.md) — complete specification map.
-6. [`docs/PROGRESS.md`](./docs/PROGRESS.md) — current delivery status.
+6. [`docs/technical-specification/12-DESIGN-DIRECTION.md`](./docs/technical-specification/12-DESIGN-DIRECTION.md) — mandatory public/admin visual direction.
+7. [`docs/PROGRESS.md`](./docs/PROGRESS.md) — current delivery status.
 
 Use the linked detailed specification files as the source of truth for implementation and acceptance criteria. Do not infer missing event content.
 

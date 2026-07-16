@@ -21,6 +21,7 @@
 | [`09-ACCEPTANCE-CRITERIA.md`](./09-ACCEPTANCE-CRITERIA.md) | Definition of done for MVP |
 | [`10-IMPLEMENTATION-PLAN.md`](./10-IMPLEMENTATION-PLAN.md) | Authorized delivery sequence |
 | [`11-VERCEL-PRODUCTION-CHECKLIST.md`](./11-VERCEL-PRODUCTION-CHECKLIST.md) | Short list of manual production actions |
+| [`12-DESIGN-DIRECTION.md`](./12-DESIGN-DIRECTION.md) | Visual direction for the public landing page and admin panel |
 
 ## Confirmed decisions
 
