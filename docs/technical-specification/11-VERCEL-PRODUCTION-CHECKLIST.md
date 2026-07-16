@@ -9,6 +9,7 @@ This file contains only actions that an owner/operator must perform in external 
 - [ ] Confirm privacy policy, controller contact and retention/deletion policy.
 - [ ] Create the Neon production project/branch in a region close to the selected Vercel function region.
 - [ ] Create separate Neon migration and least-privilege runtime roles.
+- [ ] Create the Neon project with PostgreSQL 18.
 - [ ] Copy the pooled TLS runtime URL for `DATABASE_URL`; keep the direct/migration URL separate.
 - [ ] Enable/confirm Neon backups or PITR for the selected plan and test restore to a non-production branch.
 - [ ] Verify the sending domain in Resend and configure required DNS records (SPF/DKIM and any provider-required records).
@@ -26,9 +27,8 @@ This file contains only actions that an owner/operator must perform in external 
 In **Project → Settings → Environment Variables**, add production values only to the Production scope:
 
 - [ ] `DATABASE_URL` — Neon pooled TLS runtime URL.
-- [ ] Migration/direct database URL under the exact name implemented by Prisma tooling; do not expose it to runtime code unnecessarily.
 - [ ] `AUTH_SECRET` — a new high-entropy production secret.
-- [ ] `NEXT_PUBLIC_SITE_URL` or the exact documented public-site variable — final HTTPS origin.
+- [ ] `SITE_URL` — final HTTPS origin.
 - [ ] `RESEND_API_KEY` — production Resend key with minimum required access.
 - [ ] `EMAIL_FROM` — verified Toon Expo sender address.
 - [ ] Any additional variable present in the implemented `.env.example`.
@@ -36,6 +36,7 @@ In **Project → Settings → Environment Variables**, add production values onl
 Then:
 
 - [ ] Use separate non-production values for Preview.
+- [ ] Keep `DIRECT_URL` only in the controlled migration environment; do not add it to Vercel runtime variables.
 - [ ] Confirm no variable containing a secret begins with `NEXT_PUBLIC_`.
 - [ ] Redeploy after environment changes.
 - [ ] Never keep the initial administrator plaintext password as a long-lived Vercel variable.

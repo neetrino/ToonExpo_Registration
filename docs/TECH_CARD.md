@@ -50,7 +50,7 @@
 
 | Parameter | Decision | Status |
 |---|---|---|
-| Database | PostgreSQL 17 on Neon | Approved |
+| Database | PostgreSQL 18 on Neon | Approved |
 | ORM | Prisma 7 | Approved |
 | Connection mode | Neon pooled TLS connection for application runtime | Approved |
 | Core entities | Event, Registration, Admin | Approved |
