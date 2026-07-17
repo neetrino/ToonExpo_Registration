@@ -20,6 +20,7 @@ type ErrorBody = {
   ok: false;
   code: string;
   requestId: string;
+  errors?: Record<string, string[]>;
 };
 
 type SuccessBody = {
@@ -47,7 +48,28 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const parsed = registrationBodySchema.safeParse(rawBody);
   if (!parsed.success) {
-    return jsonError(400, 'VALIDATION_ERROR', requestId);
+    const errors: Record<string, string[]> = {};
+
+    for (const issue of parsed.error.issues) {
+      const key = issue.path[0];
+      if (typeof key !== 'string') {
+        continue;
+      }
+
+      const bucket = errors[key] ?? [];
+      bucket.push(issue.message);
+      errors[key] = bucket;
+    }
+
+    logger.info('Registration validation failed', {
+      requestId,
+      fields: Object.keys(errors).join(','),
+    });
+
+    return NextResponse.json(
+      { ok: false, code: 'VALIDATION_ERROR', requestId, errors } satisfies ErrorBody,
+      { status: 400, headers: responseHeaders(requestId) },
+    );
   }
 
   if (isHoneypotFilled(parsed.data.website)) {

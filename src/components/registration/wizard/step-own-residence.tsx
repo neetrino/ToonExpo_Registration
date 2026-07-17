@@ -145,7 +145,7 @@ export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUp
   );
 }
 
-export function OwnResidenceDetailsStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+export function OwnResidenceSizeStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
     <div className="space-y-8">
       <QuestionField legend={getQuestionLabel('areaSqm', locale)} error={errors.areaSqm}>
@@ -174,7 +174,13 @@ export function OwnResidenceDetailsStep({ state, errors, disabled, locale, onUpd
           error={Boolean(errors.purchaseMethod)}
         />
       </QuestionField>
+    </div>
+  );
+}
 
+export function OwnResidenceBudgetStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <div className="space-y-8">
       <QuestionField
         legend={getQuestionLabel('monthlyBudget', locale)}
         error={errors.monthlyBudget}

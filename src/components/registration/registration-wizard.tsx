@@ -4,8 +4,6 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import type { Locale } from '@/types/locale';
 import { submitRegistration } from './submit-registration';
@@ -17,8 +15,9 @@ import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
 import { InvestmentStep } from './wizard/step-investment';
 import { MarketResearchStep } from './wizard/step-market-research';
 import {
-  OwnResidenceDetailsStep,
+  OwnResidenceBudgetStep,
   OwnResidenceInterestStep,
+  OwnResidenceSizeStep,
 } from './wizard/step-own-residence';
 import {
   initialWizardState,
@@ -159,6 +158,21 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
       return;
     }
 
+    // Re-check identity on final submit — draft/old sessions can carry an invalid phone.
+    const identityErrors = validateWizardStep('identity', state, errorTranslator);
+    if (Object.keys(identityErrors).length > 0) {
+      setFieldErrors(identityErrors);
+      setCurrentStep('identity');
+      setFormError(
+        identityErrors.phone
+          ? tErrors('invalidPhone')
+          : identityErrors.email
+            ? tErrors('invalidEmail')
+            : tErrors('validation'),
+      );
+      return;
+    }
+
     const payload = buildRegistrationPayload(state, locale);
     if (!payload) {
       setFormError(tErrors('validation'));
@@ -176,7 +190,29 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     }
 
     if (result.fieldErrors) {
-      setFieldErrors(result.fieldErrors);
+      const localized: WizardFieldErrors = { ...result.fieldErrors };
+      if (localized.phone) {
+        localized.phone = tErrors('invalidPhone');
+      }
+      if (localized.email) {
+        localized.email = tErrors('invalidEmail');
+      }
+      if (localized.privacyConsent) {
+        localized.privacyConsent = tErrors('consentRequired');
+      }
+      setFieldErrors(localized);
+
+      if (localized.phone || localized.email || localized.firstName || localized.lastName) {
+        setCurrentStep('identity');
+        setFormError(
+          localized.phone
+            ? tErrors('invalidPhone')
+            : localized.email
+              ? tErrors('invalidEmail')
+              : tErrors('validation'),
+        );
+        return;
+      }
     }
 
     if (result.status === 409 || result.code === 'DUPLICATE_EMAIL') {
@@ -221,8 +257,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           {currentStep === 'own-residence-interest' ? (
             <OwnResidenceInterestStep {...stepProps} />
           ) : null}
-          {currentStep === 'own-residence-details' ? (
-            <OwnResidenceDetailsStep {...stepProps} />
+          {currentStep === 'own-residence-size' ? <OwnResidenceSizeStep {...stepProps} /> : null}
+          {currentStep === 'own-residence-budget' ? (
+            <OwnResidenceBudgetStep {...stepProps} />
           ) : null}
           {currentStep === 'investment' ? <InvestmentStep {...stepProps} /> : null}
           {currentStep === 'market-research' ? <MarketResearchStep {...stepProps} /> : null}
@@ -230,11 +267,11 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
         </div>
       </WizardStepPanel>
 
-      <div className="absolute -left-[9999px]" aria-hidden="true">
-        <Label htmlFor="website">Website</Label>
-        <Input
-          id="website"
-          name="website"
+      <div className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0" aria-hidden="true">
+        <input
+          id="companyUrl"
+          name="companyUrl"
+          type="text"
           tabIndex={-1}
           autoComplete="off"
           value={state.website}

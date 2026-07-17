@@ -25,6 +25,7 @@ import {
 } from '@/lib/questionnaire';
 import { MARKET_INTERESTS_MAX, OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { normalizePhone } from '@/lib/validation/phone';
 import type { WizardFieldErrors, WizardState, WizardStepId } from './types';
 
 type ErrorTranslator = {
@@ -36,12 +37,22 @@ type ErrorTranslator = {
   maxSelections: (max: number) => string;
 };
 
-const identityStepSchema = z.object({
-  firstName: z.string().trim().min(1).max(100),
-  lastName: z.string().trim().min(1).max(100),
-  email: z.string().trim().email().max(254),
-  phone: z.string().trim().min(5).max(20),
-});
+const identityStepSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(100),
+    lastName: z.string().trim().min(1).max(100),
+    email: z.string().trim().email().max(254),
+    phone: z.string().trim().min(1).max(64),
+  })
+  .superRefine((data, ctx) => {
+    if (!normalizePhone(data.phone)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['phone'],
+        message: 'invalidPhone',
+      });
+    }
+  });
 
 const profileStepSchema = z.object({
   ageBand: z.enum(AGE_BANDS),
@@ -101,9 +112,12 @@ const ownResidenceInterestSchema = z
     }
   });
 
-const ownResidenceDetailsSchema = z.object({
+const ownResidenceSizeSchema = z.object({
   areaSqm: z.enum(AREA_SQM_BANDS),
   purchaseMethod: z.enum(PURCHASE_METHODS),
+});
+
+const ownResidenceBudgetSchema = z.object({
   monthlyBudget: z.enum(MONTHLY_BUDGETS),
   decisionStage: z.enum(DECISION_STAGES),
 });
@@ -188,7 +202,7 @@ function mapIssueMessage(issue: z.ZodIssue, t: ErrorTranslator): string {
     return t.invalidEmail;
   }
 
-  if (issue.path[0] === 'phone') {
+  if (issue.path[0] === 'phone' || issue.message === 'invalidPhone') {
     return t.invalidPhone;
   }
 
@@ -242,10 +256,13 @@ function pickState<T extends WizardStepId>(
         yerevanDistricts: state.yerevanDistricts,
         marzRegions: state.marzRegions,
       };
-    case 'own-residence-details':
+    case 'own-residence-size':
       return {
         areaSqm: state.areaSqm || undefined,
         purchaseMethod: state.purchaseMethod || undefined,
+      };
+    case 'own-residence-budget':
+      return {
         monthlyBudget: state.monthlyBudget || undefined,
         decisionStage: state.decisionStage || undefined,
       };
@@ -298,8 +315,11 @@ export function validateWizardStep(
     case 'own-residence-interest':
       result = ownResidenceInterestSchema.safeParse(data);
       break;
-    case 'own-residence-details':
-      result = ownResidenceDetailsSchema.safeParse(data);
+    case 'own-residence-size':
+      result = ownResidenceSizeSchema.safeParse(data);
+      break;
+    case 'own-residence-budget':
+      result = ownResidenceBudgetSchema.safeParse(data);
       break;
     case 'investment':
       result = investmentStepSchema.safeParse(data);

@@ -27,7 +27,8 @@ export type WizardStepId =
   | 'identity'
   | 'profile'
   | 'own-residence-interest'
-  | 'own-residence-details'
+  | 'own-residence-size'
+  | 'own-residence-budget'
   | 'investment'
   | 'market-research'
   | 'finish';

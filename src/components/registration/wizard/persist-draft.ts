@@ -13,11 +13,21 @@ function isWizardStepId(value: unknown): value is WizardStepId {
     value === 'identity' ||
     value === 'profile' ||
     value === 'own-residence-interest' ||
-    value === 'own-residence-details' ||
+    value === 'own-residence-size' ||
+    value === 'own-residence-budget' ||
     value === 'investment' ||
     value === 'market-research' ||
     value === 'finish'
   );
+}
+
+/** Maps legacy draft step ids after step splits. */
+function migrateStepId(value: unknown): WizardStepId | null {
+  if (value === 'own-residence-details') {
+    return 'own-residence-size';
+  }
+
+  return isWizardStepId(value) ? value : null;
 }
 
 /**
@@ -40,13 +50,14 @@ export function loadWizardDraft(): PersistedWizard | null {
     }
 
     const draft = parsed as { state?: unknown; currentStep?: unknown };
-    if (!draft.state || typeof draft.state !== 'object' || !isWizardStepId(draft.currentStep)) {
+    const currentStep = migrateStepId(draft.currentStep);
+    if (!draft.state || typeof draft.state !== 'object' || !currentStep) {
       return null;
     }
 
     return {
       state: { ...initialWizardState, ...(draft.state as WizardState) },
-      currentStep: draft.currentStep,
+      currentStep,
     };
   } catch {
     return null;

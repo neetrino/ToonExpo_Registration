@@ -41,10 +41,6 @@ export async function submitRegistration(
   locale: Locale,
   honeypot: string,
 ): Promise<SubmitRegistrationResult> {
-  if (honeypot.trim().length > 0) {
-    return { ok: true };
-  }
-
   let response: Response;
 
   try {

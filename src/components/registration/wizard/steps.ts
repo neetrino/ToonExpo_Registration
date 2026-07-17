@@ -4,7 +4,7 @@ import type { WizardStepId } from './types';
 const BASE_STEPS: WizardStepId[] = ['identity', 'profile'];
 
 const BRANCH_STEPS: Record<VisitPurpose, WizardStepId[]> = {
-  own_residence: ['own-residence-interest', 'own-residence-details'],
+  own_residence: ['own-residence-interest', 'own-residence-size', 'own-residence-budget'],
   investment: ['investment'],
   market_research: ['market-research'],
 };

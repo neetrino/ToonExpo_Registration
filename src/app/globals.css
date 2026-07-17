@@ -18,6 +18,7 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --font-sans: var(--font-noto-armenian), var(--font-noto-sans), var(--font-geist-sans), system-ui,
     sans-serif;
   --font-display: var(--font-unbounded), var(--font-noto-sans), system-ui, sans-serif;
@@ -41,6 +42,7 @@
   --card: #ffffff;
   --card-foreground: #00303d;
   --destructive: #b42318;
+  --success: #1f9d63;
 }
 
 html {
@@ -102,6 +104,30 @@ body {
   }
 }
 
+@keyframes success-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes success-check-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes admin-sheet-enter {
   from {
     transform: translateX(100%);
@@ -120,11 +146,21 @@ body {
   animation: admin-sheet-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.success-card-enter {
+  animation: success-card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.success-check-enter {
+  animation: success-check-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-card-enter,
   .wizard-step-panel,
   .admin-login-enter,
-  .admin-sheet-enter {
+  .admin-sheet-enter,
+  .success-card-enter,
+  .success-check-enter {
     animation: none;
   }
 
