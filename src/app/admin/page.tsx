@@ -36,59 +36,65 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
 
   return (
     <div className="min-h-dvh bg-muted">
-      <header className="sticky top-0 z-20 border-b border-border/70 bg-background/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3.5">
-            <ToonExpoLogo size={36} />
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-primary">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/95 shadow-sm">
+              <ToonExpoLogo size={28} />
+            </div>
             <div className="min-w-0">
-              <h1 className="truncate font-display text-xl font-bold tracking-tight text-primary">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+                Admin
+              </p>
+              <h1 className="truncate font-display text-lg font-bold tracking-tight text-white sm:text-xl">
                 Registrations
               </h1>
-              <div className="mt-1.5 h-0.5 w-10 bg-highlight" aria-hidden="true" />
               {data.event ? (
-                <p className="mt-2 truncate text-xs text-muted-foreground">{data.event.name}</p>
+                <p className="mt-0.5 truncate text-xs text-white/55">{data.event.name}</p>
               ) : null}
             </div>
           </div>
-          <AdminLogoutButton />
+          <AdminLogoutButton variant="inverse" />
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-8">
-        <section className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex items-end gap-4">
-            <div className="border-l-4 border-accent pl-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                Total
-              </p>
-              <p className="mt-0.5 font-display text-4xl font-bold tabular-nums leading-none text-primary">
-                {data.totalCount}
+      <main className="mx-auto max-w-6xl space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-8">
+        <section className="rounded-2xl border border-border/80 bg-background p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-end gap-5">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                  Total
+                </p>
+                <p className="mt-1 font-display text-4xl font-bold tabular-nums leading-none text-primary">
+                  {data.totalCount}
+                </p>
+              </div>
+              <p className="hidden pb-1 text-xs text-muted-foreground sm:block">
+                Times in Asia/Yerevan (UTC+4)
               </p>
             </div>
-            <p className="hidden pb-1 text-xs text-muted-foreground sm:block">
-              Times in Asia/Yerevan (UTC+4)
+
+            <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:items-center lg:max-w-xl lg:justify-end">
+              <AdminSearchForm initialQuery={query} variant="toolbar" className="flex-1" />
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                className="h-11 shrink-0 px-4 sm:h-10 sm:w-auto"
+              >
+                <a href={exportHref}>Export CSV</a>
+              </Button>
+            </div>
+          </div>
+
+          {query ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'} for &ldquo;
+              {query}&rdquo;
             </p>
-          </div>
-
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:justify-end">
-            <AdminSearchForm initialQuery={query} variant="toolbar" className="flex-1" />
-            <Button
-              asChild
-              variant="secondary"
-              size="sm"
-              className="h-10 shrink-0 px-4 shadow-sm sm:w-auto"
-            >
-              <a href={exportHref}>Export CSV</a>
-            </Button>
-          </div>
+          ) : null}
         </section>
-
-        {query ? (
-          <p className="text-sm text-muted-foreground">
-            Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'} for &ldquo;
-            {query}&rdquo;
-          </p>
-        ) : null}
 
         <section className="overflow-hidden rounded-2xl border border-border/80 bg-background shadow-sm">
           {!data.event ? (
@@ -119,18 +125,18 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           )}
 
           {data.event && data.filteredCount > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/30 px-5 py-3.5 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/40 px-4 py-3.5 text-sm sm:px-5">
               <p className="text-muted-foreground">
                 Page {data.page} of {totalPages}
               </p>
               <div className="flex gap-2">
                 {data.page > 1 ? (
-                  <Button asChild variant="outline" size="sm">
+                  <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
                     <Link href={listHref(data.page - 1)}>Previous</Link>
                   </Button>
                 ) : null}
                 {data.page < totalPages ? (
-                  <Button asChild variant="outline" size="sm">
+                  <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
                     <Link href={listHref(data.page + 1)}>Next</Link>
                   </Button>
                 ) : null}

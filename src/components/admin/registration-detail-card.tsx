@@ -23,7 +23,7 @@ function formatAdminDateTime(date: Date): string {
 function emailStatusTone(status: string): string {
   switch (status) {
     case 'SENT':
-      return 'bg-accent/10 text-secondary';
+      return 'bg-success/10 text-success';
     case 'FAILED':
       return 'bg-destructive/10 text-destructive';
     default:
@@ -33,9 +33,11 @@ function emailStatusTone(status: string): string {
 
 function DetailField({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="grid gap-1 sm:grid-cols-[minmax(0,11rem)_1fr] sm:gap-4">
-      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="text-sm text-foreground">{value}</dd>
+    <div className="grid gap-1">
+      <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="text-sm leading-relaxed text-foreground">{value}</dd>
     </div>
   );
 }
@@ -74,10 +76,10 @@ export function RegistrationDetailCard({
   const questionnaire = formatRegistrationAnswersForDisplay(registration.answers);
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-5 py-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Registration details
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-4 py-3 sm:px-5 sm:py-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Details
         </p>
         <div className="flex items-center gap-1">
           <DeleteRegistrationButton
@@ -86,40 +88,67 @@ export function RegistrationDetailCard({
             redirectTo={closeHref}
             iconOnly
           />
-          <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            aria-label="Close"
+            className="size-11 shrink-0 sm:size-9"
+          >
             <CloseIcon />
           </Button>
         </div>
       </div>
 
-      <article className="flex-1 overflow-y-auto">
-        <header className="border-b border-border/70 bg-muted/20 px-5 py-5 sm:px-6 sm:py-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+      <article className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        <header className="border-b border-border/70 bg-muted/30 px-4 py-5 sm:px-6 sm:py-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-secondary">
             {registration.event.name}
           </p>
           <h1 id={titleId} className="mt-2 font-display text-2xl font-bold text-primary">
             {fullName}
           </h1>
           <div className="mt-2 h-0.5 w-8 bg-highlight" aria-hidden="true" />
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             Registered {formatAdminDateTime(registration.createdAt)}
           </p>
         </header>
 
-        <section className="border-b border-border px-5 py-5 sm:px-6 sm:py-6">
+        <section className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Contact</h2>
-          <dl className="mt-4 space-y-4">
-            <DetailField label="Email" value={registration.email} />
-            <DetailField label="Phone" value={registration.phone} />
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+            <DetailField
+              label="Email"
+              value={
+                <a
+                  href={`mailto:${registration.email}`}
+                  className="break-all text-secondary underline-offset-2 hover:underline"
+                >
+                  {registration.email}
+                </a>
+              }
+            />
+            <DetailField
+              label="Phone"
+              value={
+                <a
+                  href={`tel:${registration.phone}`}
+                  className="text-secondary underline-offset-2 hover:underline"
+                >
+                  {registration.phone}
+                </a>
+              }
+            />
             <DetailField label="Form locale" value={registration.locale.toUpperCase()} />
           </dl>
         </section>
 
-        <section className="border-b border-border px-5 py-5 sm:px-6 sm:py-6">
+        <section className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
             Registration meta
           </h2>
-          <dl className="mt-4 space-y-4">
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
             <DetailField label="Form version" value={registration.formVersion ?? '—'} />
             <DetailField
               label="Email delivery"
@@ -139,8 +168,10 @@ export function RegistrationDetailCard({
           </dl>
         </section>
 
-        <section className="px-5 py-5 sm:px-6 sm:py-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Questionnaire</h2>
+        <section className="px-4 py-5 sm:px-6 sm:py-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Questionnaire
+          </h2>
           {!registration.formVersion && !questionnaire.visitPurposeLabel ? (
             <p className="mt-4 text-sm text-muted-foreground">
               No questionnaire answers recorded for this registration.
@@ -148,25 +179,22 @@ export function RegistrationDetailCard({
           ) : (
             <div className="mt-4 space-y-4">
               {questionnaire.visitPurposeLabel ? (
-                <div className="rounded-md border border-highlight/40 bg-highlight/10 px-4 py-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <div className="rounded-xl border border-highlight/40 bg-highlight/10 px-4 py-3.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                     Visit purpose
                   </p>
-                  <p className="mt-1 text-sm font-medium text-foreground">
+                  <p className="mt-1.5 text-sm font-medium text-foreground">
                     {questionnaire.visitPurposeLabel}
                   </p>
                 </div>
               ) : null}
 
               {questionnaire.rows.length > 0 ? (
-                <dl className="divide-y divide-border rounded-md border border-border">
+                <dl className="overflow-hidden rounded-xl border border-border divide-y divide-border">
                   {questionnaire.rows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="grid gap-1 px-4 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4"
-                    >
+                    <div key={row.label} className="grid gap-1 px-4 py-3.5">
                       <dt className="text-sm font-medium text-foreground">{row.label}</dt>
-                      <dd className="text-sm text-muted-foreground">{row.value}</dd>
+                      <dd className="text-sm leading-relaxed text-muted-foreground">{row.value}</dd>
                     </div>
                   ))}
                 </dl>

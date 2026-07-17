@@ -153,7 +153,7 @@ export function DeleteRegistrationButton({
           disabled={pending}
           onClick={() => setConfirmOpen(true)}
           className={cn(
-            'inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors',
+            'inline-flex size-11 shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors sm:size-8',
             'hover:border-destructive/20 hover:bg-destructive/10 hover:text-destructive',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'disabled:pointer-events-none disabled:opacity-50',

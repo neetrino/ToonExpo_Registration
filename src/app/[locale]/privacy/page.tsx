@@ -1,9 +1,15 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
+import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 
 type PrivacyPageProps = {
   params: Promise<{ locale: string }>;
+};
+
+type PrivacySection = {
+  title: string;
+  body: string;
 };
 
 export default async function PrivacyPage({ params }: PrivacyPageProps) {
@@ -11,6 +17,7 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
   setRequestLocale(locale);
 
   const t = await getTranslations('privacy');
+  const sections = t.raw('sections') as PrivacySection[];
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:py-16">
@@ -39,7 +46,7 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
 
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
-                {t('status')}
+                {t('status', { version: PRIVACY_POLICY_VERSION })}
               </p>
               <h1 className="mt-1 font-display text-2xl font-extrabold text-primary md:text-3xl">
                 {t('title')}
@@ -47,11 +54,15 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
             </div>
           </header>
 
-          <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
-            <p>{t('placeholder')}</p>
-            <div className="rounded-xl border border-highlight/40 bg-highlight/10 px-4 py-3 text-sm leading-relaxed text-foreground">
-              {t('notice')}
-            </div>
+          <div className="mt-6 space-y-6 text-base leading-relaxed text-muted-foreground">
+            <p>{t('intro')}</p>
+
+            {sections.map((section) => (
+              <section key={section.title} className="space-y-2">
+                <h2 className="font-display text-lg font-bold text-foreground">{section.title}</h2>
+                <p>{section.body}</p>
+              </section>
+            ))}
           </div>
 
           <div className="mt-8">

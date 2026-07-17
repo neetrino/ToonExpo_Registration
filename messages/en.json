@@ -20,9 +20,42 @@
   },
   "privacy": {
     "title": "Privacy policy",
-    "status": "Draft — pending approval",
-    "placeholder": "The final privacy policy text for Toon Expo registration is not yet published.",
-    "notice": "This page is a placeholder only. Do not treat the content below as legal advice or a binding policy until the organizer publishes the approved version.",
+    "status": "Version {version}",
+    "intro": "This policy explains how the Toon Expo organizer processes personal data collected through the registration form.",
+    "sections": [
+      {
+        "title": "Who processes the data",
+        "body": "The data controller is the Toon Expo event organizer. For requests and to exercise your rights, contact the organizer using the address shown in the registration confirmation email."
+      },
+      {
+        "title": "What we collect",
+        "body": "First name, last name, email, phone number, selected language, registration questionnaire answers, privacy-consent evidence and policy version, and technical email-delivery status. If you opt in to newsletters, we also store that consent."
+      },
+      {
+        "title": "Why we process data",
+        "body": "We process data to register you for the event, confirm registration, send organizational messages, and manage event statistics. Marketing emails are sent only with separate consent."
+      },
+      {
+        "title": "Legal basis",
+        "body": "Processing is based on your voluntary consent, given before registration by accepting this privacy policy."
+      },
+      {
+        "title": "Retention",
+        "body": "Data is kept for a reasonable organizational period after the event ends, or until a valid deletion request, unless a longer retention is required by law."
+      },
+      {
+        "title": "Who we share data with",
+        "body": "Data is available only to the authorized administrator and to technical providers needed to run the site, database, and email delivery. We do not sell personal data."
+      },
+      {
+        "title": "Your rights",
+        "body": "You may request access to your data, correction of errors, or deletion by contacting the organizer. You may also withdraw consent for future processing to the extent permitted by law."
+      },
+      {
+        "title": "Updates",
+        "body": "This policy may be updated. The version you accepted at registration is stored with your record."
+      }
+    ],
     "backToHome": "Back to home"
   },
   "success": {

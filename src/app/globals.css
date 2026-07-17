@@ -138,12 +138,28 @@ body {
   }
 }
 
+@keyframes admin-sheet-enter-mobile {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
 .admin-login-enter {
   animation: admin-login-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .admin-sheet-enter {
-  animation: admin-sheet-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: admin-sheet-enter-mobile 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (min-width: 768px) {
+  .admin-sheet-enter {
+    animation-name: admin-sheet-enter;
+  }
 }
 
 .success-card-enter {

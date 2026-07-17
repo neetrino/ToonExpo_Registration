@@ -44,15 +44,26 @@ export function AdminSearchForm({
           placeholder="Name, email, or phone"
           maxLength={100}
           aria-label={isToolbar ? 'Search registrations' : undefined}
-          className={cn(isToolbar && 'h-10 border-border/80 bg-background shadow-sm')}
+          className={cn(isToolbar && 'h-11 border-border/80 bg-background shadow-sm sm:h-10')}
         />
       </div>
       <div className="flex shrink-0 gap-2">
-        <Button type="submit" variant={isToolbar ? 'outline' : 'secondary'} size="sm">
+        <Button
+          type="submit"
+          variant={isToolbar ? 'outline' : 'secondary'}
+          size="sm"
+          className="min-h-11 flex-1 sm:min-h-10 sm:flex-none"
+        >
           Search
         </Button>
         {initialQuery ? (
-          <Button type="button" variant="ghost" size="sm" asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            asChild
+            className="min-h-11 sm:min-h-10"
+          >
             <Link href={buildAdminHref()}>Clear</Link>
           </Button>
         ) : null}
