@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import type { Locale } from '@/types/locale';
 import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
+import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
 import { getWizardSteps } from './wizard/steps';
 import { FinishStep } from './wizard/step-finish';
 import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
@@ -58,6 +59,23 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attemptedNext, setAttemptedNext] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+
+  useEffect(() => {
+    const draft = loadWizardDraft();
+    if (draft) {
+      setState(draft.state);
+      setCurrentStep(draft.currentStep);
+    }
+    setDraftReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) {
+      return;
+    }
+    saveWizardDraft(state, currentStep);
+  }, [state, currentStep, draftReady]);
 
   const steps = getWizardSteps(state.visitPurpose);
   const stepIndex = steps.indexOf(currentStep);
@@ -152,6 +170,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     setIsSubmitting(false);
 
     if (result.ok) {
+      clearWizardDraft();
       router.push('/success');
       return;
     }

@@ -1,6 +1,5 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { Label } from '@/components/ui/label';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
@@ -44,12 +43,19 @@ export function FinishStep({ state, errors, disabled, locale, onUpdate }: StepPr
             className="mt-1 size-4 shrink-0 rounded border border-input accent-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onChange={(event) => onUpdate('privacyConsent', event.target.checked)}
           />
-          <Label htmlFor="privacyConsent" className="font-normal leading-snug text-muted-foreground">
-            {tForm('consentPrefix')}{' '}
-            <Link href="/privacy" className="text-secondary underline-offset-4 hover:underline">
+          <p className="text-sm leading-snug text-muted-foreground">
+            <label htmlFor="privacyConsent" className="cursor-pointer">
+              {tForm('consentPrefix')}
+            </label>{' '}
+            <Link
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline text-secondary underline underline-offset-4 hover:text-primary"
+            >
               {tForm('consentLink')}
             </Link>
-          </Label>
+          </p>
         </div>
         {errors.privacyConsent ? (
           <p className="text-sm text-destructive" role="alert">
