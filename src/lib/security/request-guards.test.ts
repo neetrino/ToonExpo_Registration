@@ -54,4 +54,53 @@ describe('isAllowedOrigin', () => {
     });
     expect(check(request)).toBe(false);
   });
+
+  it('allows matching Referer when Origin is absent', async () => {
+    process.env = {
+      ...originalEnv,
+      SITE_URL: 'http://localhost:3000',
+      DATABASE_URL: 'postgresql://u:p@h/db',
+      DIRECT_URL: 'postgresql://u:p@h/db',
+      AUTH_SECRET: 'a'.repeat(32),
+      RESEND_API_KEY: 're_test',
+      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+    };
+    const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
+    const request = new Request('http://localhost:3000/api/registrations', {
+      headers: { referer: 'http://localhost:3000/en' },
+    });
+    expect(check(request)).toBe(true);
+  });
+
+  it('allows missing Origin/Referer outside production', async () => {
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'test',
+      SITE_URL: 'http://localhost:3000',
+      DATABASE_URL: 'postgresql://u:p@h/db',
+      DIRECT_URL: 'postgresql://u:p@h/db',
+      AUTH_SECRET: 'a'.repeat(32),
+      RESEND_API_KEY: 're_test',
+      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+    };
+    const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
+    const request = new Request('http://localhost:3000/api/registrations');
+    expect(check(request)).toBe(true);
+  });
+
+  it('rejects missing Origin/Referer in production', async () => {
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'production',
+      SITE_URL: 'https://example.com',
+      DATABASE_URL: 'postgresql://u:p@h/db',
+      DIRECT_URL: 'postgresql://u:p@h/db',
+      AUTH_SECRET: 'a'.repeat(32),
+      RESEND_API_KEY: 're_test',
+      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+    };
+    const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
+    const request = new Request('https://example.com/api/registrations');
+    expect(check(request)).toBe(false);
+  });
 });

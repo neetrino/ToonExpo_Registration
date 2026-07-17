@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { deleteRegistration } from '@/lib/admin';
 import { getAdminSession, signIn, signOut } from '@/lib/auth';
 import { logger } from '@/lib/logger';
+import { createRequestId } from '@/lib/security';
 
 const GENERIC_AUTH_ERROR = 'Invalid email or password.';
 
@@ -12,8 +13,11 @@ export type LoginActionResult = { ok: true } | { ok: false; error: string };
 
 /**
  * Credentials sign-in for the single administrator. Errors are intentionally generic.
+ * Relies on Next.js Server Action origin checks (CSRF-safe) plus Auth.js CSRF on
+ * `/api/auth/*` when credentials flow through Auth.js handlers.
  */
 export async function loginAdminAction(formData: FormData): Promise<LoginActionResult> {
+  const requestId = createRequestId();
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
 
@@ -25,6 +29,7 @@ export async function loginAdminAction(formData: FormData): Promise<LoginActionR
     });
   } catch (error: unknown) {
     if (error instanceof AuthError) {
+      logger.warn('Admin login failed', { requestId });
       return { ok: false, error: GENERIC_AUTH_ERROR };
     }
     throw error;
@@ -44,8 +49,10 @@ export type DeleteActionResult = { ok: true } | { ok: false; error: string };
 
 /**
  * Hard-delete one registration after server-side session check.
+ * Protected by Next.js Server Action CSRF/origin checks and session RBAC.
  */
 export async function deleteRegistrationAction(registrationId: string): Promise<DeleteActionResult> {
+  const requestId = createRequestId();
   const session = await getAdminSession();
   if (!session) {
     return { ok: false, error: 'Unauthorized.' };
@@ -60,6 +67,6 @@ export async function deleteRegistrationAction(registrationId: string): Promise<
     return { ok: false, error: 'Could not delete registration. It may already be gone.' };
   }
 
-  logger.info('Admin deleted registration');
+  logger.info('Admin deleted registration', { requestId, registrationId });
   return { ok: true };
 }

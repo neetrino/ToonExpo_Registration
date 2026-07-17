@@ -1,8 +1,13 @@
-import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { createRegistration } from '@/lib/registrations';
 import { logger } from '@/lib/logger';
-import { isAllowedOrigin, isHoneypotFilled } from '@/lib/security';
+import {
+  createRequestId,
+  getOrCreateRequestId,
+  isAllowedOrigin,
+  isHoneypotFilled,
+  requestIdHeaders,
+} from '@/lib/security';
 import { registrationBodySchema } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +32,7 @@ type SuccessBody = {
  * Public registration mutation. Resolves the active event server-side.
  */
 export async function POST(request: Request): Promise<NextResponse> {
-  const requestId = randomUUID();
+  const requestId = getOrCreateRequestId(request);
 
   if (!isAllowedOrigin(request)) {
     return jsonError(403, 'ORIGIN_REJECTED', requestId);
@@ -49,8 +54,12 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Reject bots without revealing the honeypot rule.
     logger.info('Honeypot submission rejected', { requestId });
     return NextResponse.json(
-      { ok: true, requestId, registrationId: randomUUID() } satisfies SuccessBody,
-      { status: 201, headers: NO_STORE_HEADERS },
+      {
+        ok: true,
+        requestId,
+        registrationId: createRequestId(),
+      } satisfies SuccessBody,
+      { status: 201, headers: responseHeaders(requestId) },
     );
   }
 
@@ -77,12 +86,19 @@ export async function POST(request: Request): Promise<NextResponse> {
         requestId,
         registrationId: result.registrationId,
       } satisfies SuccessBody,
-      { status: 201, headers: NO_STORE_HEADERS },
+      { status: 201, headers: responseHeaders(requestId) },
     );
   } catch {
     logger.error('Unhandled registration route error', { requestId });
     return jsonError(500, 'INTERNAL_ERROR', requestId);
   }
+}
+
+function responseHeaders(requestId: string): Record<string, string> {
+  return {
+    ...NO_STORE_HEADERS,
+    ...requestIdHeaders(requestId),
+  };
 }
 
 function jsonError(
@@ -92,6 +108,6 @@ function jsonError(
 ): NextResponse<ErrorBody> {
   return NextResponse.json(
     { ok: false, code, requestId } satisfies ErrorBody,
-    { status, headers: NO_STORE_HEADERS },
+    { status, headers: responseHeaders(requestId) },
   );
 }

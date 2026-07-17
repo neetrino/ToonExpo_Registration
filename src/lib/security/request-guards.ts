@@ -2,7 +2,9 @@ import { getEnv } from '@/lib/env';
 
 /**
  * Returns true when Origin or Referer matches the configured SITE_URL origin.
- * Requests without Origin/Referer are allowed (same-origin navigations / non-browser clients).
+ *
+ * Production requires Origin or Referer (browser CSRF defense). Development and
+ * test allow missing headers so local tooling and Vitest can call the API.
  */
 export function isAllowedOrigin(request: Request): boolean {
   const { SITE_URL } = getEnv();
@@ -28,7 +30,7 @@ export function isAllowedOrigin(request: Request): boolean {
     }
   }
 
-  return true;
+  return process.env.NODE_ENV !== 'production';
 }
 
 /**

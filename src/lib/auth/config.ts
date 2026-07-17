@@ -5,6 +5,8 @@ import '@/lib/auth/types';
  * Edge-compatible Auth.js config (no Prisma / argon2 imports).
  * Full Credentials provider is registered in `auth.ts`.
  */
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const authConfig = {
   providers: [],
   pages: {
@@ -13,6 +15,21 @@ export const authConfig = {
   session: {
     strategy: 'jwt',
     maxAge: 60 * 60 * 8,
+    updateAge: 60 * 60,
+  },
+  useSecureCookies: isProduction,
+  cookies: {
+    sessionToken: {
+      name: isProduction
+        ? '__Secure-authjs.session-token'
+        : 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: isProduction,
+      },
+    },
   },
   trustHost: true,
   callbacks: {

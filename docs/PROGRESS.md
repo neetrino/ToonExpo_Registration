@@ -12,6 +12,7 @@
 | Landing and localization | Phase 3 UI done | Branded landing + form; final copy/assets still pending |
 | Email confirmation | Phase 4 done | Localized hy/en/ru text+HTML via Resend fetch; commit-first; placeholder key → FAILED safely |
 | Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV; English UI pending owner language |
+| Security hardening (mid-dev) | Done (code 🤖) | Headers, origin tighten, request-id, audit CI gate; see `docs/SECURITY_CHECKLIST_STATUS.md` |
 | Verification/load testing | Not started | Preview environment only |
 | Production setup/release | Not started | Owner-operated; no deployment authorized yet |
 
@@ -83,6 +84,14 @@ Login throttling is process-local memory. It resets on deploy/restart and does n
 - [x] Commit-first delivery; placeholder Resend key skips send safely
 - [x] Redacted logging preserved; unit tests for all locales
 
+## Mid-dev security hardening (code 🤖)
+
+- [x] Security headers + pragmatic CSP in `next.config.ts` (`docs/SECURITY_CHECKLIST_STATUS.md`)
+- [x] Production Origin/Referer required for registration; Cache-Control no-store on API/admin
+- [x] Request-id on registration, admin export, and admin mutating action logs
+- [x] Informational `pnpm audit --prod` CI step (`continue-on-error`)
+- [x] Auth.js secure cookie options + session `updateAge`; CSRF paths verified (Server Actions + Auth.js)
+
 ## Next authorized decision
 
-Verification/load testing and production Resend domain setup. Production migrate/deploy remains owner-only.
+Verification/load testing and production Resend domain setup. Production migrate/deploy remains owner-only. Owner security actions listed in `docs/SECURITY_CHECKLIST_STATUS.md`.
