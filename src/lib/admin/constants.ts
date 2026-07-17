@@ -17,6 +17,8 @@ export const CSV_EXPORT_COLUMNS = [
   'phone',
   'locale',
   'emailDeliveryStatus',
+  'formVersion',
+  'answers',
 ] as const;
 
 export type CsvExportColumn = (typeof CSV_EXPORT_COLUMNS)[number];

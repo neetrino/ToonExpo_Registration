@@ -26,6 +26,8 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
     phone: row.phone,
     locale: row.locale,
     emailDeliveryStatus: row.emailDeliveryStatus,
+    formVersion: row.formVersion ?? '',
+    answers: row.answers == null ? '' : JSON.stringify(row.answers),
   }));
 
   return {

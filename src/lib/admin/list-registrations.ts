@@ -11,6 +11,8 @@ export type AdminRegistrationRow = {
   phone: string;
   locale: string;
   emailDeliveryStatus: string;
+  formVersion: string | null;
+  answers: unknown;
 };
 
 export type AdminListResult = {
@@ -99,6 +101,8 @@ export async function listAdminRegistrations(options: {
         phone: true,
         locale: true,
         emailDeliveryStatus: true,
+        formVersion: true,
+        answers: true,
       },
     }),
   ]);
@@ -144,6 +148,8 @@ export async function listRegistrationsForExport(search?: string): Promise<{
       phone: true,
       locale: true,
       emailDeliveryStatus: true,
+      formVersion: true,
+      answers: true,
     },
   });
 

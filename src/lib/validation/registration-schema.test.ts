@@ -1,8 +1,24 @@
 import { describe, expect, it } from 'vitest';
+import { FORM_VERSION } from '@/lib/questionnaire';
 import { normalizeEmail, normalizeName } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
 import { PRIVACY_POLICY_VERSION } from '@/lib/validation/constants';
 import { registrationBodySchema } from '@/lib/validation/registration-schema';
+
+const validAnswers = {
+  ageBand: '35-44' as const,
+  visitPurpose: 'own_residence' as const,
+  interestType: 'apartment_new' as const,
+  locationSeek: {
+    scope: 'yerevan' as const,
+    districts: ['kentron'] as const,
+  },
+  areaSqm: '70-90' as const,
+  purchaseMethod: 'mortgage' as const,
+  monthlyBudget: '300k-500k' as const,
+  decisionStage: 'searching_6_months' as const,
+  newsletter: true,
+};
 
 describe('normalizeName', () => {
   it('trims and collapses whitespace without changing case or script', () => {
@@ -46,6 +62,8 @@ describe('registrationBodySchema', () => {
     privacyConsent: true as const,
     privacyPolicyVersion: PRIVACY_POLICY_VERSION,
     website: '',
+    formVersion: FORM_VERSION,
+    answers: validAnswers,
   };
 
   it('accepts and normalizes a valid payload', () => {
@@ -58,6 +76,8 @@ describe('registrationBodySchema', () => {
     expect(parsed.data.email).toBe('Anna@Example.com');
     expect(parsed.data.emailNormalized).toBe('anna@example.com');
     expect(parsed.data.phoneNormalized).toBe('+37499123456');
+    expect(parsed.data.formVersion).toBe(FORM_VERSION);
+    expect(parsed.data.answers.visitPurpose).toBe('own_residence');
   });
 
   it('rejects missing consent', () => {
@@ -75,6 +95,20 @@ describe('registrationBodySchema', () => {
 
   it('rejects invalid email', () => {
     const parsed = registrationBodySchema.safeParse({ ...valid, email: 'not-an-email' });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('rejects missing questionnaire answers', () => {
+    const { answers: _answers, ...withoutAnswers } = valid;
+    const parsed = registrationBodySchema.safeParse(withoutAnswers);
+    expect(parsed.success).toBe(false);
+  });
+
+  it('rejects wrong formVersion', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      formVersion: 'legacy',
+    });
     expect(parsed.success).toBe(false);
   });
 });

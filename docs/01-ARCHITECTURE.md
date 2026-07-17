@@ -4,7 +4,7 @@
 
 **Architecture:** Small full-stack modular monolith
 
-**Updated:** 2026-07-16
+**Updated:** 2026-07-17
 
 ## Purpose
 
@@ -63,6 +63,7 @@ src/
 │   ├── db/
 │   ├── email/
 │   ├── i18n/
+│   ├── questionnaire/
 │   ├── registrations/
 │   ├── security/
 │   └── validation/
@@ -92,9 +93,9 @@ The exact route grouping may be refined during implementation without changing t
 ### Registration
 
 1. Vercel WAF evaluates the registration endpoint limit.
-2. The server validates origin, honeypot, payload shape and consent.
-3. Values are trimmed and normalized; email is lowercased and phone is normalized.
-4. PostgreSQL creates the registration under the per-event email uniqueness constraint.
+2. The server validates origin, honeypot, payload shape, consent, `formVersion`, and questionnaire `answers`.
+3. Values are trimmed and normalized; email is lowercased and phone is normalized. Answers are validated against the typed branch definition for the active form version.
+4. PostgreSQL creates the registration under the per-event email uniqueness constraint, storing identity columns plus `formVersion` and structured `answers` JSON.
 5. Duplicate constraint errors return the same safe user-facing outcome regardless of concurrent requests.
 6. After commit, the system attempts to send a localized confirmation email through Resend.
 7. Delivery state is persisted without logging the full email address or phone number.
@@ -135,9 +136,14 @@ The exact route grouping may be refined during implementation without changing t
 - Secrets stored only in Vercel environment variables.
 - Logs contain request IDs and safe operational fields, not raw PII.
 
-## Extension path
+## Questionnaire storage
 
-Future questionnaire functionality can add `Question`, `QuestionOption`, `FormVersion` and `RegistrationAnswer` entities linked to `Event` and `Registration`. These entities are intentionally excluded from the first migration until question requirements are approved.
+Visitor questionnaire answers are stored on `Registration` as:
+
+- `formVersion` — string constant for the active definition (e.g. `2026-vis-reg-v1`)
+- `answers` — structured JSON validated server-side against `src/lib/questionnaire`
+
+There is no CMS-style `FormVersion` / `Question` / `RegistrationAnswer` table set. Branching follows `answers.visitPurpose` (`own_residence` | `investment` | `market_research`). Labels for `hy` / `en` / `ru` live in `src/lib/questionnaire/i18n.ts`.
 
 ## Deployment boundary
 

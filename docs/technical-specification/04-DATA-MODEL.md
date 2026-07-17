@@ -32,6 +32,8 @@ MVP operates one active event. The database MUST prevent ambiguous active-event 
 | `locale` | `hy`, `en` or `ru` |
 | `consentAcceptedAt` | Server-recorded consent time |
 | `privacyPolicyVersion` | Version accepted by participant |
+| `formVersion` | Active questionnaire definition id (nullable for pre-questionnaire rows) |
+| `answers` | Structured questionnaire JSON (nullable for pre-questionnaire rows) |
 | `emailDeliveryStatus` | Technical state: `PENDING`, `SENT` or `FAILED` |
 | `emailLastAttemptAt` | Last Resend attempt timestamp |
 | `emailProviderMessageId` | Provider ID when available; not exposed publicly |
@@ -75,13 +77,6 @@ Before migration approval, the owner must choose one of these policies:
 
 No hidden retention of full participant data is permitted without an approved purpose and disclosed policy.
 
-## Future questionnaire extension
+## Questionnaire (implemented without CMS tables)
 
-Not included in the MVP migration:
-
-```text
-Event 1 ── * FormVersion 1 ── * Question 1 ── * QuestionOption
-Registration 1 ── * RegistrationAnswer * ── 1 Question
-```
-
-Versioning prevents later question edits from changing the meaning of previously submitted answers.
+Answers are validated in application code (`src/lib/questionnaire`) and persisted on `Registration.answers` with `Registration.formVersion`. Changing question meaning requires a new `formVersion` string; historical rows keep their original version and JSON shape.

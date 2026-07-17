@@ -60,6 +60,10 @@ model Registration {
   locale                 Locale
   consentAcceptedAt      DateTime
   privacyPolicyVersion   String
+  /// Questionnaire form version (e.g. 2026-vis-reg-v1). Null for pre-questionnaire rows.
+  formVersion            String?
+  /// Structured questionnaire answers validated against the typed definition for formVersion.
+  answers                Json?
   emailDeliveryStatus    EmailDeliveryStatus @default(PENDING)
   emailLastAttemptAt     DateTime?
   emailProviderMessageId String?

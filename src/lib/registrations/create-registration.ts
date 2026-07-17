@@ -51,6 +51,8 @@ export async function createRegistration(
         locale: input.locale,
         consentAcceptedAt: new Date(),
         privacyPolicyVersion: input.privacyPolicyVersion,
+        formVersion: input.formVersion,
+        answers: input.answers,
         emailDeliveryStatus: 'PENDING',
       },
       select: { id: true },

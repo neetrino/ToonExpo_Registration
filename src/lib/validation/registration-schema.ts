@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
 import {
   EMAIL_MAX_LENGTH,
   NAME_MAX_LENGTH,
@@ -12,6 +13,7 @@ const localeSchema = z.enum(['hy', 'en', 'ru']);
 
 /**
  * Raw registration body schema (pre-normalization transforms applied via Zod).
+ * Identity fields are top-level; questionnaire fields live in `answers`.
  */
 export const registrationBodySchema = z
   .object({
@@ -32,6 +34,8 @@ export const registrationBodySchema = z
     privacyConsent: z.literal(true),
     privacyPolicyVersion: z.literal(PRIVACY_POLICY_VERSION),
     website: z.string().optional().default(''),
+    formVersion: z.literal(FORM_VERSION),
+    answers: questionnaireAnswersSchema,
   })
   .superRefine((data, ctx) => {
     const phone = normalizePhone(data.phone);
@@ -60,6 +64,8 @@ export const registrationBodySchema = z
       privacyConsent: data.privacyConsent,
       privacyPolicyVersion: data.privacyPolicyVersion,
       website: data.website,
+      formVersion: data.formVersion,
+      answers: data.answers,
     };
   });
 

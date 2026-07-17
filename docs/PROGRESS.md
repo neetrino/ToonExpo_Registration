@@ -8,8 +8,8 @@
 | Technical specification | Complete | See `docs/technical-specification/` |
 | Final event content/assets | Pending | Date, venue, final translations, legal text and source assets required |
 | Application foundation | Complete (Phase 1) | Next.js scaffold, locale routes, tokens, i18n, env schema, CI baseline |
-| Database and registration | Phase 2 core done | Prisma 7 + Neon; migrate applied on non-prod Neon; `POST /api/registrations` |
-| Landing and localization | Phase 3 UI done | Branded landing + form; final copy/assets still pending |
+| Database and registration | Phase 2 + questionnaire | Prisma fields + typed answers API; wizard UI pending |
+| Landing and localization | Phase 3 UI done | Branded landing + form; questionnaire wizard UI pending |
 | Email confirmation | Phase 4 done | Localized hy/en/ru text+HTML via Resend fetch; commit-first; placeholder key → FAILED safely |
 | Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV; English UI pending owner language |
 | Security hardening (mid-dev) | Done (code 🤖) | Headers, origin tighten, request-id, audit CI gate; see `docs/SECURITY_CHECKLIST_STATUS.md` |
@@ -37,9 +37,14 @@
 - [x] Origin/honeypot helpers (`src/lib/security`)
 - [x] `POST /api/registrations` — active event server-side, unique→409, Cache-Control no-store
 - [x] Email: commit with `PENDING`, then `sendConfirmationEmail` → `SENT`/`FAILED` (registration kept)
-- [x] Migration applied to non-prod Neon (`20260717054700_init_mvp` via `pnpm db:migrate:deploy`)
+- [x] Migration applied to non-prod Neon (`20260717054700_init_mvp`, `20260717062000_registration_questionnaire`)
 - [x] Seed active event `toon-expo-2026` (`pnpm db:seed`)
 - [x] Admin seed from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (Argon2id; skips with warn if unset)
+- [x] Questionnaire data model: `Registration.formVersion` + `answers` Json (nullable for legacy rows)
+- [x] Typed definition + Zod branch validation (`src/lib/questionnaire`, form version `2026-vis-reg-v1`)
+- [x] Registration API accepts/persists `formVersion` + `answers`; hy/en/ru labels in questionnaire i18n
+- [x] Admin list/CSV select includes `formVersion` and `answers`
+- [ ] Multi-step questionnaire wizard UI (separate delivery)
 
 ### Scripts
 

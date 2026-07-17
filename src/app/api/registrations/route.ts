@@ -72,6 +72,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     phoneNormalized: parsed.data.phoneNormalized,
     locale: parsed.data.locale,
     privacyPolicyVersion: parsed.data.privacyPolicyVersion,
+    formVersion: parsed.data.formVersion,
+    answers: parsed.data.answers,
   };
 
   try {
