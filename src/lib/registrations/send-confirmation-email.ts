@@ -1,4 +1,5 @@
 import { getEnv } from '@/lib/env';
+import { buildConfirmationMessage } from '@/lib/email/confirmation-messages';
 import { logger } from '@/lib/logger';
 import type { Locale } from '@/generated/prisma';
 
@@ -24,11 +25,13 @@ export async function sendConfirmationEmail(
 ): Promise<ConfirmationEmailResult> {
   let apiKey: string;
   let from: string;
+  let siteUrl: string;
 
   try {
     const env = getEnv();
     apiKey = env.RESEND_API_KEY;
     from = env.EMAIL_FROM;
+    siteUrl = env.SITE_URL;
   } catch {
     return { ok: false, reason: 'env_unavailable' };
   }
@@ -39,6 +42,11 @@ export async function sendConfirmationEmail(
     });
     return { ok: false, reason: 'placeholder_key' };
   }
+
+  const message = buildConfirmationMessage(input.locale, {
+    firstName: input.firstName,
+    siteUrl,
+  });
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), EMAIL_TIMEOUT_MS);
@@ -54,8 +62,9 @@ export async function sendConfirmationEmail(
       body: JSON.stringify({
         from,
         to: [input.email],
-        subject: confirmationSubject(input.locale),
-        text: confirmationBody(input),
+        subject: message.subject,
+        text: message.text,
+        html: message.html,
       }),
     });
 
@@ -83,26 +92,4 @@ export async function sendConfirmationEmail(
 
 function isPlaceholderResendKey(key: string): boolean {
   return key.includes('replace') || key === 're_test';
-}
-
-function confirmationSubject(locale: Locale): string {
-  switch (locale) {
-    case 'hy':
-      return 'Toon Expo — գրանցումը հաստատված է';
-    case 'ru':
-      return 'Toon Expo — регистрация подтверждена';
-    default:
-      return 'Toon Expo — registration confirmed';
-  }
-}
-
-function confirmationBody(input: ConfirmationEmailInput): string {
-  switch (input.locale) {
-    case 'hy':
-      return `Բարև, ${input.firstName}.\n\nՁեր գրանցումը Toon Expo-ին հաստատված է։`;
-    case 'ru':
-      return `Здравствуйте, ${input.firstName}.\n\nВаша регистрация на Toon Expo подтверждена.`;
-    default:
-      return `Hello, ${input.firstName}.\n\nYour Toon Expo registration is confirmed.`;
-  }
 }

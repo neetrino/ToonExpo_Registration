@@ -10,7 +10,7 @@
 | Application foundation | Complete (Phase 1) | Next.js scaffold, locale routes, tokens, i18n, env schema, CI baseline |
 | Database and registration | Phase 2 core done | Prisma 7 + Neon; migrate applied on non-prod Neon; `POST /api/registrations` |
 | Landing and localization | Phase 3 UI done | Branded landing + form; final copy/assets still pending |
-| Email confirmation | Partial stub | Commit-first + Resend attempt; placeholder key → FAILED safely |
+| Email confirmation | Phase 4 done | Localized hy/en/ru text+HTML via Resend fetch; commit-first; placeholder key → FAILED safely |
 | Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV; English UI pending owner language |
 | Verification/load testing | Not started | Preview environment only |
 | Production setup/release | Not started | Owner-operated; no deployment authorized yet |
@@ -75,6 +75,14 @@ Clients must send `privacyPolicyVersion: "2026-07-16"` (single source: `src/lib/
 
 Login throttling is process-local memory. It resets on deploy/restart and does not sync across multiple Vercel instances. Prefer WAF/edge limits before production multi-instance traffic.
 
+## Phase 4 — Email confirmation (done)
+
+- [x] Localized confirmation messages (`src/lib/email/confirmation-messages.ts`) for `hy`, `en`, `ru`
+- [x] Plain text + simple HTML multipart via existing Resend fetch sender
+- [x] Event date/venue use explicit TBA wording (no invented venue)
+- [x] Commit-first delivery; placeholder Resend key skips send safely
+- [x] Redacted logging preserved; unit tests for all locales
+
 ## Next authorized decision
 
-Resend localized email templates and verification/load testing. Production migrate/deploy remains owner-only.
+Verification/load testing and production Resend domain setup. Production migrate/deploy remains owner-only.
