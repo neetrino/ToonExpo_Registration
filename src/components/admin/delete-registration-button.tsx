@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition, type MouseEvent, type ReactElement } from 'react';
+import { useEffect, useState, useTransition, type ReactElement } from 'react';
+import { createPortal } from 'react-dom';
 import { deleteRegistrationAction } from '@/app/admin/actions';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,7 +12,7 @@ type DeleteRegistrationButtonProps = {
   label: string;
   /** When set, navigate here after a successful delete instead of refreshing. */
   redirectTo?: string;
-  /** Compact trash icon for list rows and sheet header. */
+  /** Compact trash icon trigger (sheet header). */
   iconOnly?: boolean;
 };
 
@@ -38,10 +39,6 @@ function TrashIcon(): ReactElement {
   );
 }
 
-function stopRowClick(event: MouseEvent<HTMLElement>): void {
-  event.stopPropagation();
-}
-
 export function DeleteRegistrationButton({
   registrationId,
   label,
@@ -50,8 +47,29 @@ export function DeleteRegistrationButton({
 }: DeleteRegistrationButtonProps) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!confirmOpen) {
+      return;
+    }
+
+    function onKeyDown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') {
+        setConfirmOpen(false);
+        setError(null);
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [confirmOpen]);
 
   function onConfirm(): void {
     setError(null);
@@ -75,13 +93,63 @@ export function DeleteRegistrationButton({
     setError(null);
   }
 
-  if (iconOnly) {
-    return (
-      <div className="relative inline-flex" onClick={stopRowClick}>
+  const dialog =
+    confirmOpen && mounted
+      ? createPortal(
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <button
+              type="button"
+              aria-label="Close delete confirmation"
+              className="absolute inset-0 bg-[#00303D]/50"
+              onClick={onCancel}
+            />
+            <div
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="delete-registration-title"
+              aria-describedby="delete-registration-description"
+              className="relative z-10 w-full max-w-sm rounded-2xl border border-border bg-background p-5 shadow-xl"
+            >
+              <h2
+                id="delete-registration-title"
+                className="font-display text-lg font-bold text-primary"
+              >
+                Delete registration?
+              </h2>
+              <p
+                id="delete-registration-description"
+                className="mt-2 text-sm leading-relaxed text-muted-foreground"
+              >
+                Delete <span className="font-medium text-foreground">{label}</span>? This cannot be
+                undone.
+              </p>
+              <div className="mt-5 flex justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" disabled={pending} onClick={onCancel}>
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={pending}
+                  onClick={onConfirm}
+                >
+                  {pending ? 'Deleting…' : 'Delete'}
+                </Button>
+              </div>
+              {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
+
+  return (
+    <>
+      {iconOnly ? (
         <button
           type="button"
           aria-label={`Delete ${label}`}
-          aria-expanded={confirmOpen}
           disabled={pending}
           onClick={() => setConfirmOpen(true)}
           className={cn(
@@ -93,60 +161,12 @@ export function DeleteRegistrationButton({
         >
           <TrashIcon />
         </button>
-
-        {confirmOpen ? (
-          <div
-            role="dialog"
-            aria-label="Confirm delete"
-            className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-border bg-background p-3 shadow-lg"
-          >
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Delete <span className="font-medium text-foreground">{label}</span>? This cannot be
-              undone.
-            </p>
-            <div className="mt-3 flex justify-end gap-2">
-              <Button type="button" variant="outline" size="sm" disabled={pending} onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                disabled={pending}
-                onClick={onConfirm}
-              >
-                {pending ? 'Deleting…' : 'Delete'}
-              </Button>
-            </div>
-            {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}
-          </div>
-        ) : null}
-      </div>
-    );
-  }
-
-  if (!confirmOpen) {
-    return (
-      <Button type="button" variant="destructive" size="sm" onClick={() => setConfirmOpen(true)}>
-        Delete
-      </Button>
-    );
-  }
-
-  return (
-    <div className="flex flex-col items-end gap-2">
-      <p className="max-w-xs text-right text-xs text-muted-foreground">
-        Delete <span className="font-medium text-foreground">{label}</span>? This cannot be undone.
-      </p>
-      <div className="flex gap-2">
-        <Button type="button" variant="outline" size="sm" disabled={pending} onClick={onCancel}>
-          Cancel
+      ) : (
+        <Button type="button" variant="destructive" size="sm" onClick={() => setConfirmOpen(true)}>
+          Delete
         </Button>
-        <Button type="button" variant="destructive" size="sm" disabled={pending} onClick={onConfirm}>
-          {pending ? 'Deleting…' : 'Confirm delete'}
-        </Button>
-      </div>
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
-    </div>
+      )}
+      {dialog}
+    </>
   );
 }

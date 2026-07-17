@@ -51,7 +51,6 @@ export function RegistrationDetailSheet({ registration, closeHref }: Registratio
       >
         <RegistrationDetailCard
           registration={registration}
-          variant="sheet"
           onClose={close}
           closeHref={closeHref}
           titleId="registration-detail-title"

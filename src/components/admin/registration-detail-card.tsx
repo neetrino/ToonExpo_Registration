@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { DeleteRegistrationButton } from '@/components/admin/delete-registration-button';
 import { Button } from '@/components/ui/button';
@@ -7,9 +6,8 @@ import { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers'
 
 type RegistrationDetailCardProps = {
   registration: AdminRegistrationDetail;
-  variant?: 'page' | 'sheet';
-  onClose?: () => void;
-  closeHref?: string;
+  onClose: () => void;
+  closeHref: string;
   titleId?: string;
   fullName?: string;
 };
@@ -63,39 +61,24 @@ function CloseIcon(): ReactNode {
 }
 
 /**
- * Admin participant detail card with identity, meta, and localized questionnaire answers.
+ * Admin participant detail content for the right-side sheet.
  */
 export function RegistrationDetailCard({
   registration,
-  variant = 'page',
   onClose,
-  closeHref = '/admin',
+  closeHref,
   titleId,
   fullName: fullNameProp,
 }: RegistrationDetailCardProps) {
   const fullName = fullNameProp ?? `${registration.firstName} ${registration.lastName}`;
   const questionnaire = formatRegistrationAnswersForDisplay(registration.answers);
-  const isSheet = variant === 'sheet';
 
   return (
-    <div className={isSheet ? 'flex h-full flex-col' : 'space-y-6'}>
-      <div
-        className={
-          isSheet
-            ? 'flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-5 py-4'
-            : 'flex flex-wrap items-center justify-between gap-3'
-        }
-      >
-        {isSheet ? (
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Registration details
-          </p>
-        ) : (
-          <Button asChild variant="outline" size="sm">
-            <Link href="/admin">&larr; Back to registrations</Link>
-          </Button>
-        )}
-
+    <div className="flex h-full flex-col">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-5 py-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Registration details
+        </p>
         <div className="flex items-center gap-1">
           <DeleteRegistrationButton
             registrationId={registration.id}
@@ -103,21 +86,13 @@ export function RegistrationDetailCard({
             redirectTo={closeHref}
             iconOnly
           />
-          {isSheet && onClose ? (
-            <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close">
-              <CloseIcon />
-            </Button>
-          ) : null}
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close">
+            <CloseIcon />
+          </Button>
         </div>
       </div>
 
-      <article
-        className={
-          isSheet
-            ? 'flex-1 overflow-y-auto'
-            : 'overflow-hidden rounded-lg border border-border bg-background'
-        }
-      >
+      <article className="flex-1 overflow-y-auto">
         <header className="border-b border-border/70 bg-muted/20 px-5 py-5 sm:px-6 sm:py-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
             {registration.event.name}
