@@ -43,8 +43,13 @@
   --destructive: #b42318;
 }
 
+html {
+  background-color: var(--primary);
+}
+
 body {
-  background-color: var(--background);
+  min-height: 100dvh;
+  background-color: var(--primary);
   color: var(--foreground);
   font-family: var(--font-sans);
 }

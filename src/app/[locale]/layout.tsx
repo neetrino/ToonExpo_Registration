@@ -25,9 +25,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-dvh flex-col bg-primary">
         <SiteHeader />
-        <main className="flex-1">{children}</main>
+        <main className="flex flex-1 flex-col bg-primary">{children}</main>
       </div>
     </NextIntlClientProvider>
   );

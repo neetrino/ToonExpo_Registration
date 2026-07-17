@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="hy" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${notoSans.variable} ${notoSansArmenian.variable} ${unbounded.variable} min-h-screen antialiased`}
+        className={`${geistSans.variable} ${notoSans.variable} ${notoSansArmenian.variable} ${unbounded.variable} min-h-dvh bg-primary antialiased`}
       >
         {children}
       </body>
