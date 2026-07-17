@@ -75,15 +75,30 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               </p>
             </div>
 
-            <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:items-center lg:max-w-xl lg:justify-end">
-              <AdminSearchForm initialQuery={query} variant="toolbar" className="flex-1" />
+            <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5 sm:flex-row sm:items-center lg:justify-end">
+              <AdminSearchForm initialQuery={query} variant="toolbar" className="min-w-0 flex-1" />
               <Button
                 asChild
                 variant="secondary"
                 size="sm"
-                className="h-11 shrink-0 px-4 sm:h-10 sm:w-auto"
+                className="size-11 shrink-0 p-0 sm:size-10"
               >
-                <a href={exportHref}>Export CSV</a>
+                <a href={exportHref} aria-label="Export CSV" title="Export CSV">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="size-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M12 15V3" />
+                  </svg>
+                </a>
               </Button>
             </div>
           </div>

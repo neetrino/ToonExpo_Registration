@@ -23,7 +23,7 @@ export function AdminSearchForm({
       action="/admin"
       className={cn(
         'flex w-full flex-col gap-3 sm:flex-row sm:items-center',
-        isToolbar ? 'sm:max-w-md' : 'sm:items-end',
+        !isToolbar && 'sm:items-end',
         className,
       )}
     >
