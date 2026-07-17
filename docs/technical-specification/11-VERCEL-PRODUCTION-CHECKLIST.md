@@ -30,7 +30,7 @@ In **Project → Settings → Environment Variables**, add production values onl
 - [ ] `AUTH_SECRET` — a new high-entropy production secret.
 - [ ] `SITE_URL` — final HTTPS origin.
 - [ ] `RESEND_API_KEY` — production Resend key with minimum required access.
-- [ ] `EMAIL_FROM` — verified Toon Expo sender address.
+- [ ] `RESEND_FROM_EMAIL` — verified Toon Expo sender address.
 - [ ] Any additional variable present in the implemented `.env.example`.
 
 Then:

@@ -29,7 +29,7 @@ describe('isAllowedOrigin', () => {
       DIRECT_URL: 'postgresql://u:p@h/db',
       AUTH_SECRET: 'a'.repeat(32),
       RESEND_API_KEY: 're_test',
-      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
     };
     const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
     const request = new Request('http://localhost:3000/api/registrations', {
@@ -46,7 +46,7 @@ describe('isAllowedOrigin', () => {
       DIRECT_URL: 'postgresql://u:p@h/db',
       AUTH_SECRET: 'a'.repeat(32),
       RESEND_API_KEY: 're_test',
-      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
     };
     const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
     const request = new Request('http://localhost:3000/api/registrations', {
@@ -63,7 +63,7 @@ describe('isAllowedOrigin', () => {
       DIRECT_URL: 'postgresql://u:p@h/db',
       AUTH_SECRET: 'a'.repeat(32),
       RESEND_API_KEY: 're_test',
-      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
     };
     const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
     const request = new Request('http://localhost:3000/api/registrations', {
@@ -81,7 +81,7 @@ describe('isAllowedOrigin', () => {
       DIRECT_URL: 'postgresql://u:p@h/db',
       AUTH_SECRET: 'a'.repeat(32),
       RESEND_API_KEY: 're_test',
-      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
     };
     const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
     const request = new Request('http://localhost:3000/api/registrations');
@@ -97,7 +97,7 @@ describe('isAllowedOrigin', () => {
       DIRECT_URL: 'postgresql://u:p@h/db',
       AUTH_SECRET: 'a'.repeat(32),
       RESEND_API_KEY: 're_test',
-      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
     };
     const { isAllowedOrigin: check } = await import('@/lib/security/request-guards');
     const request = new Request('https://example.com/api/registrations');

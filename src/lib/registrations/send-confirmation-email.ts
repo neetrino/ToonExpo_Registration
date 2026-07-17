@@ -30,7 +30,7 @@ export async function sendConfirmationEmail(
   try {
     const env = getEnv();
     apiKey = env.RESEND_API_KEY;
-    from = env.EMAIL_FROM;
+    from = env.RESEND_FROM_EMAIL;
     siteUrl = env.SITE_URL;
   } catch {
     return { ok: false, reason: 'env_unavailable' };

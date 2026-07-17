@@ -6,7 +6,7 @@ const envSchema = z.object({
   DIRECT_URL: z.string().min(1),
   AUTH_SECRET: z.string().min(32),
   RESEND_API_KEY: z.string().min(1),
-  EMAIL_FROM: z.string().min(1),
+  RESEND_FROM_EMAIL: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

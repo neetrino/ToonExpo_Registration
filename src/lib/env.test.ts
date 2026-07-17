@@ -9,7 +9,7 @@ describe('envSchema', () => {
       DIRECT_URL: 'postgresql://user:pass@host/db',
       AUTH_SECRET: 'a'.repeat(32),
       RESEND_API_KEY: 're_test',
-      EMAIL_FROM: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
     });
 
     expect(parsed.success).toBe(true);
