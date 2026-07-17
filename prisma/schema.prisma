@@ -1,0 +1,89 @@
+// Toon Expo Registration — MVP data model (Prisma 7 + PostgreSQL / Neon)
+//
+// Connection URLs (Prisma 7):
+// - Runtime (pooled): DATABASE_URL — used by @prisma/adapter-neon in app code
+// - CLI / migrations (direct): DIRECT_URL — configured in root prisma.config.ts
+// Do not put `url` / `directUrl` in this datasource block (Prisma 7+).
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Locale {
+  hy
+  en
+  ru
+}
+
+enum EmailDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum AdminRole {
+  ADMIN
+}
+
+model Event {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  name         String
+  startsAt     DateTime?
+  venueName    String?
+  venueAddress String?
+  /// MVP expects one active event. Partial unique index (isActive = true) is
+  /// applied in migration SQL — Prisma cannot express WHERE-filtered uniques.
+  /// App-level guard: never set a second Event.isActive = true without clearing
+  /// the previous active row in the same transaction.
+  isActive     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  registrations Registration[]
+}
+
+model Registration {
+  id                     String              @id @default(cuid())
+  eventId                String
+  firstName              String
+  lastName               String
+  email                  String
+  emailNormalized        String
+  phone                  String
+  phoneNormalized        String
+  locale                 Locale
+  consentAcceptedAt      DateTime
+  privacyPolicyVersion   String
+  emailDeliveryStatus    EmailDeliveryStatus @default(PENDING)
+  emailLastAttemptAt     DateTime?
+  emailProviderMessageId String?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  /// Unique email per event (normalized). Also supports event-scoped email search.
+  /// Hard delete only — no deletedAt.
+  @@unique([eventId, emailNormalized])
+  /// Stable admin list ordering / cursor pagination.
+  @@index([eventId, createdAt, id])
+  /// Search: phoneNormalized scoped by event (phone is intentionally not unique).
+  @@index([eventId, phoneNormalized])
+}
+
+model Admin {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  /// Argon2id hash only — never store plaintext passwords.
+  passwordHash String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
