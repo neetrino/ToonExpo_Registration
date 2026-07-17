@@ -1,29 +1,33 @@
 {
   "common": {
     "siteName": "Toon Expo",
-    "privacy": "Գաղտնիություն"
+    "privacy": "Գաղտնիություն",
+    "languageSwitcher": "Լեզու"
   },
   "landing": {
-    "eyebrow": "[PLACEHOLDER] Միջոցառում",
-    "title": "[PLACEHOLDER] Toon Expo գրանցում",
-    "description": "[PLACEHOLDER] Գրանցվեք Toon Expo-ի համար։ Միջոցառման ամսաթիվը և վայրը կհաստատվեն ավելի ուշ։",
+    "eyebrow": "Անիմացիայի և կոմիքսների միջոցառում",
+    "title": "Toon Expo",
+    "description": "Գրանցվեք Toon Expo-ի համար՝ անիմացիայի և կոմիքսների տոն։ Միջոցառման ամսաթիվը և վայրը կհայտարարվեն ավելի ուշ։",
     "eventDetailsTitle": "Միջոցառման մանրամասներ",
     "dateLabel": "Ամսաթիվ",
-    "dateValue": "[PLACEHOLDER] TBD",
+    "dateValue": "[PLACEHOLDER] Ամսաթիվը կհայտարարվի ավելի ուշ",
     "venueLabel": "Վայր",
-    "venueValue": "[PLACEHOLDER] TBD",
+    "venueValue": "[PLACEHOLDER] Վայրը կհայտարարվի ավելի ուշ",
     "registrationTitle": "Գրանցում",
-    "registrationPlaceholder": "[PLACEHOLDER] Գրանցման ձևը կհասանելի լինի հաջորդ փուլում։",
-    "registerCta": "[PLACEHOLDER] Գրանցվել",
-    "privacyLink": "Դիտել գաղտնիության քաղաքականությունը"
+    "registrationDescription": "Լրացրեք ստորևի ձևը գրանցվելու համար։ Բոլոր դաշտերը պարտադիր են։",
+    "registerCta": "Գրանցվել",
+    "privacyLink": "Գաղտնիության քաղաքականություն"
   },
   "privacy": {
     "title": "Գաղտնիության քաղաքականություն",
-    "placeholder": "[PLACEHOLDER] Վերջնական իրավական տեքստը կհաստատվի ավելի ուշ։"
+    "status": "Սևագիր — հաստատման սպասում",
+    "placeholder": "Toon Expo գրանցման վերջնական գաղտնիության տեքստը դեռևս չի հրապարակվել։",
+    "notice": "Սա միայն տեղապահ է։ Մի համարեք բովանդակությունը իրավական խորհրդատվություն կամ կապող քաղաքականություն, մինչև կազմակերպիչը հրապարակի հաստատված տարբերակը։",
+    "backToHome": "Վերադառնալ գլխավոր էջ"
   },
   "success": {
     "title": "Գրանցումը ստացվել է",
-    "description": "[PLACEHOLDER] Հաստատման նամակը կուղարկվի հաջորդ փուլում։",
+    "description": "Շնորհակալություն Toon Expo-ի գրանցման համար։ Ձեր տվյալները հաջողությամբ պահպանվել են։",
     "backToHome": "Վերադառնալ գլխավոր էջ"
   },
   "admin": {
@@ -31,10 +35,26 @@
     "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
   },
   "form": {
-    "firstName": "[PLACEHOLDER] Անուն",
-    "lastName": "[PLACEHOLDER] Ազգանուն",
-    "email": "[PLACEHOLDER] Էլ. փոստ",
-    "phone": "[PLACEHOLDER] Հեռախոս",
-    "consent": "[PLACEHOLDER] Համաձայնություն"
+    "firstName": "Անուն",
+    "lastName": "Ազգանուն",
+    "email": "Էլ. փոստ",
+    "phone": "Հեռախոս",
+    "phoneHint": "Նշեք երկրի կոդը, եթե հնարավոր է։ Հայաստանի համարներն սովորաբար սկսվում են +374-ից։",
+    "phonePlaceholder": "+374 XX XXX XXX",
+    "consentPrefix": "Համաձայն եմ",
+    "consentLink": "գաղտնիության քաղաքականության",
+    "submit": "Ուղարկել գրանցումը",
+    "submitting": "Ուղարկվում է…"
+  },
+  "errors": {
+    "required": "Այս դաշտը պարտադիր է։",
+    "invalidEmail": "Մուտքագրեք վավեր էլ. փոստի հասցե։",
+    "invalidPhone": "Մուտքագրեք վավեր հեռախոսահամար։",
+    "consentRequired": "Պետք է համաձայնել գաղտնիության քաղաքականության։",
+    "validation": "Ստուգեք նշված դաշտերը և կրկին փորձեք։",
+    "duplicate": "Այս էլ. փոստը արդեն գրանցված է միջոցառման համար։",
+    "rateLimit": "Չափազանց շատ փորձեր։ Սպասեք մի փոքր և կրկին փորձեք։",
+    "network": "Հնարավոր չէ կապվել սերվերի հետ։ Ստուգեք կապը և կրկին փորձեք։",
+    "server": "Ինչ-որ բան սխալ է գնացել։ Խնդրում ենք կրկին փորձել ավելի ուշ։"
   }
 }

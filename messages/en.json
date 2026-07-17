@@ -1,29 +1,33 @@
 {
   "common": {
     "siteName": "Toon Expo",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "languageSwitcher": "Language"
   },
   "landing": {
-    "eyebrow": "[PLACEHOLDER] Event",
-    "title": "[PLACEHOLDER] Toon Expo registration",
-    "description": "[PLACEHOLDER] Register for Toon Expo. Event date and venue will be confirmed later.",
+    "eyebrow": "Animation & comics event",
+    "title": "Toon Expo",
+    "description": "Register for Toon Expo — a celebration of animation and comics. Event date and venue will be announced soon.",
     "eventDetailsTitle": "Event details",
     "dateLabel": "Date",
-    "dateValue": "[PLACEHOLDER] TBD",
+    "dateValue": "[PLACEHOLDER] Date TBA",
     "venueLabel": "Venue",
-    "venueValue": "[PLACEHOLDER] TBD",
+    "venueValue": "[PLACEHOLDER] Venue TBA",
     "registrationTitle": "Registration",
-    "registrationPlaceholder": "[PLACEHOLDER] The registration form will be available in a later phase.",
-    "registerCta": "[PLACEHOLDER] Register",
-    "privacyLink": "View privacy policy"
+    "registrationDescription": "Complete the form below to register. All fields are required.",
+    "registerCta": "Register now",
+    "privacyLink": "Privacy policy"
   },
   "privacy": {
     "title": "Privacy policy",
-    "placeholder": "[PLACEHOLDER] Final legal text will be confirmed later."
+    "status": "Draft — pending approval",
+    "placeholder": "The final privacy policy text for Toon Expo registration is not yet published.",
+    "notice": "This page is a placeholder only. Do not treat the content below as legal advice or a binding policy until the organizer publishes the approved version.",
+    "backToHome": "Back to home"
   },
   "success": {
     "title": "Registration received",
-    "description": "[PLACEHOLDER] A confirmation email will be sent in a later phase.",
+    "description": "Thank you for registering for Toon Expo. We have saved your details successfully.",
     "backToHome": "Back to home"
   },
   "admin": {
@@ -31,10 +35,26 @@
     "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
   },
   "form": {
-    "firstName": "[PLACEHOLDER] First name",
-    "lastName": "[PLACEHOLDER] Last name",
-    "email": "[PLACEHOLDER] Email",
-    "phone": "[PLACEHOLDER] Phone",
-    "consent": "[PLACEHOLDER] Consent"
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "phoneHint": "Include country code where possible. Armenia numbers often start with +374.",
+    "phonePlaceholder": "+374 XX XXX XXX",
+    "consentPrefix": "I agree to the",
+    "consentLink": "privacy policy",
+    "submit": "Submit registration",
+    "submitting": "Submitting…"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidPhone": "Enter a valid phone number.",
+    "consentRequired": "You must agree to the privacy policy.",
+    "validation": "Please check the highlighted fields and try again.",
+    "duplicate": "This email is already registered for the event.",
+    "rateLimit": "Too many attempts. Please wait a moment and try again.",
+    "network": "Could not reach the server. Check your connection and try again.",
+    "server": "Something went wrong on our side. Please try again later."
   }
 }

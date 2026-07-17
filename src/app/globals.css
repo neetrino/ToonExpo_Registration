@@ -17,6 +17,7 @@
   --color-ring: var(--ring);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-destructive: var(--destructive);
   --font-sans: var(--font-geist-sans);
 }
 
@@ -37,6 +38,7 @@
   --ring: #2ba8b0;
   --card: #ffffff;
   --card-foreground: #00303d;
+  --destructive: #b42318;
 }
 
 body {

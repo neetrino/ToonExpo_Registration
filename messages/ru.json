@@ -1,29 +1,33 @@
 {
   "common": {
     "siteName": "Toon Expo",
-    "privacy": "Конфиденциальность"
+    "privacy": "Конфиденциальность",
+    "languageSwitcher": "Язык"
   },
   "landing": {
-    "eyebrow": "[PLACEHOLDER] Мероприятие",
-    "title": "[PLACEHOLDER] Регистрация на Toon Expo",
-    "description": "[PLACEHOLDER] Зарегистрируйтесь на Toon Expo. Дата и место проведения будут подтверждены позже.",
+    "eyebrow": "Мероприятие анимации и комиксов",
+    "title": "Toon Expo",
+    "description": "Зарегистрируйтесь на Toon Expo — праздник анимации и комиксов. Дата и место проведения будут объявлены позже.",
     "eventDetailsTitle": "Детали мероприятия",
     "dateLabel": "Дата",
-    "dateValue": "[PLACEHOLDER] TBD",
+    "dateValue": "[PLACEHOLDER] Дата будет объявлена позже",
     "venueLabel": "Место",
-    "venueValue": "[PLACEHOLDER] TBD",
+    "venueValue": "[PLACEHOLDER] Место будет объявлено позже",
     "registrationTitle": "Регистрация",
-    "registrationPlaceholder": "[PLACEHOLDER] Форма регистрации будет доступна на следующем этапе.",
-    "registerCta": "[PLACEHOLDER] Зарегистрироваться",
+    "registrationDescription": "Заполните форму ниже для регистрации. Все поля обязательны.",
+    "registerCta": "Зарегистрироваться",
     "privacyLink": "Политика конфиденциальности"
   },
   "privacy": {
     "title": "Политика конфиденциальности",
-    "placeholder": "[PLACEHOLDER] Финальный юридический текст будет подтверждён позже."
+    "status": "Черновик — ожидает утверждения",
+    "placeholder": "Финальный текст политики конфиденциальности для регистрации на Toon Expo ещё не опубликован.",
+    "notice": "Это страница-заглушка. Не считайте содержимое юридической консультацией или обязательной политикой, пока организатор не опубликует утверждённую версию.",
+    "backToHome": "На главную"
   },
   "success": {
     "title": "Регистрация получена",
-    "description": "[PLACEHOLDER] Письмо с подтверждением будет отправлено на следующем этапе.",
+    "description": "Спасибо за регистрацию на Toon Expo. Ваши данные успешно сохранены.",
     "backToHome": "На главную"
   },
   "admin": {
@@ -31,10 +35,26 @@
     "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
   },
   "form": {
-    "firstName": "[PLACEHOLDER] Имя",
-    "lastName": "[PLACEHOLDER] Фамилия",
-    "email": "[PLACEHOLDER] Email",
-    "phone": "[PLACEHOLDER] Телефон",
-    "consent": "[PLACEHOLDER] Согласие"
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "email": "Email",
+    "phone": "Телефон",
+    "phoneHint": "Укажите код страны, если возможно. Армянские номера обычно начинаются с +374.",
+    "phonePlaceholder": "+374 XX XXX XXX",
+    "consentPrefix": "Я согласен с",
+    "consentLink": "политикой конфиденциальности",
+    "submit": "Отправить регистрацию",
+    "submitting": "Отправка…"
+  },
+  "errors": {
+    "required": "Это поле обязательно.",
+    "invalidEmail": "Введите корректный email.",
+    "invalidPhone": "Введите корректный номер телефона.",
+    "consentRequired": "Необходимо согласие с политикой конфиденциальности.",
+    "validation": "Проверьте выделенные поля и попробуйте снова.",
+    "duplicate": "Этот email уже зарегистрирован на мероприятие.",
+    "rateLimit": "Слишком много попыток. Подождите немного и попробуйте снова.",
+    "network": "Не удалось связаться с сервером. Проверьте соединение и попробуйте снова.",
+    "server": "Что-то пошло не так. Попробуйте позже."
   }
 }
