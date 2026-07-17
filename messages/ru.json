@@ -46,6 +46,13 @@
     "submit": "Отправить регистрацию",
     "submitting": "Отправка…"
   },
+  "wizard": {
+    "progress": "Шаг {current} из {total}",
+    "back": "Назад",
+    "next": "Далее",
+    "marketInterestsHint": "Выберите до {max} вариантов",
+    "maxSelections": "Выберите не более {max} вариантов"
+  },
   "errors": {
     "required": "Это поле обязательно.",
     "invalidEmail": "Введите корректный email.",

@@ -1,6 +1,6 @@
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 import type { Locale } from '@/types/locale';
-import type { RegistrationFormValues } from './registration-schema';
+import type { RegistrationSubmitPayload } from './wizard/build-payload';
 import type {
   RegistrationApiErrorBody,
   RegistrationFieldErrors,
@@ -37,7 +37,7 @@ function mapServerFieldErrors(
 }
 
 export async function submitRegistration(
-  values: Omit<RegistrationFormValues, 'website'>,
+  values: RegistrationSubmitPayload,
   locale: Locale,
   honeypot: string,
 ): Promise<SubmitRegistrationResult> {
@@ -52,9 +52,15 @@ export async function submitRegistration(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...values,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
         locale,
+        privacyConsent: values.privacyConsent,
         privacyPolicyVersion: PRIVACY_POLICY_VERSION,
+        formVersion: values.formVersion,
+        answers: values.answers,
         website: honeypot,
       }),
     });

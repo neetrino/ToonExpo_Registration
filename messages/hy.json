@@ -46,6 +46,13 @@
     "submit": "Ուղարկել գրանցումը",
     "submitting": "Ուղարկվում է…"
   },
+  "wizard": {
+    "progress": "Քայլ {current}/{total}",
+    "back": "Հետ",
+    "next": "Հաջորդ",
+    "marketInterestsHint": "Ընտրեք առավելագույնը {max} տարբերակ",
+    "maxSelections": "Ընտրեք ոչ ավելի, քան {max} տարբերակ"
+  },
   "errors": {
     "required": "Այս դաշտը պարտադիր է։",
     "invalidEmail": "Մուտքագրեք վավեր էլ. փոստի հասցե։",

@@ -46,6 +46,13 @@
     "submit": "Submit registration",
     "submitting": "Submitting…"
   },
+  "wizard": {
+    "progress": "Step {current} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "marketInterestsHint": "Select up to {max} options",
+    "maxSelections": "Select at most {max} options"
+  },
   "errors": {
     "required": "This field is required.",
     "invalidEmail": "Enter a valid email address.",

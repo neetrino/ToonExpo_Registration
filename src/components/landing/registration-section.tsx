@@ -1,5 +1,5 @@
 import type { Locale } from '@/types/locale';
-import { RegistrationForm } from '@/components/registration/registration-form';
+import { RegistrationWizard } from '@/components/registration/registration-wizard';
 
 type RegistrationSectionProps = {
   locale: Locale;
@@ -16,7 +16,7 @@ export function RegistrationSection({ locale, title, description }: Registration
           <p className="mt-3 text-muted-foreground">{description}</p>
         </div>
         <div className="mt-10 max-w-xl border border-border bg-card p-6 md:p-8">
-          <RegistrationForm locale={locale} />
+          <RegistrationWizard locale={locale} />
         </div>
       </div>
     </section>
