@@ -13,6 +13,8 @@ export type AdminRegistrationRow = {
   emailDeliveryStatus: string;
   formVersion: string | null;
   answers: unknown;
+  consentAcceptedAt: Date;
+  privacyPolicyVersion: string;
 };
 
 export type AdminListResult = {
@@ -103,6 +105,8 @@ export async function listAdminRegistrations(options: {
         emailDeliveryStatus: true,
         formVersion: true,
         answers: true,
+        consentAcceptedAt: true,
+        privacyPolicyVersion: true,
       },
     }),
   ]);
@@ -150,6 +154,8 @@ export async function listRegistrationsForExport(search?: string): Promise<{
       emailDeliveryStatus: true,
       formVersion: true,
       answers: true,
+      consentAcceptedAt: true,
+      privacyPolicyVersion: true,
     },
   });
 

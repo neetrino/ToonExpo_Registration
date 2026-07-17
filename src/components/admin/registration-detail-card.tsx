@@ -12,12 +12,12 @@ type RegistrationDetailCardProps = {
   fullName?: string;
 };
 
-function formatAdminDateTime(date: Date): string {
+function formatAdminDateTime(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', {
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: 'Asia/Yerevan',
-  }).format(date);
+  }).format(new Date(date));
 }
 
 function emailStatusTone(status: string): string {

@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import type { AdminRegistrationDetail } from '@/lib/admin/get-registration';
 import { RegistrationDetailCard } from '@/components/admin/registration-detail-card';
@@ -8,14 +7,23 @@ import { RegistrationDetailCard } from '@/components/admin/registration-detail-c
 type RegistrationDetailSheetProps = {
   registration: AdminRegistrationDetail;
   closeHref: string;
+  /** Prefer client close without full RSC navigation when provided. */
+  onClose?: () => void;
 };
 
-export function RegistrationDetailSheet({ registration, closeHref }: RegistrationDetailSheetProps) {
-  const router = useRouter();
-
+export function RegistrationDetailSheet({
+  registration,
+  closeHref,
+  onClose,
+}: RegistrationDetailSheetProps) {
   const close = useCallback(() => {
-    router.push(closeHref);
-  }, [router, closeHref]);
+    if (onClose) {
+      onClose();
+      return;
+    }
+
+    window.location.assign(closeHref);
+  }, [closeHref, onClose]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent): void {

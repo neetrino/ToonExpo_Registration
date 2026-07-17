@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { ToonExpoLogo } from '@/components/brand/toon-expo-logo';
 import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
-import { AdminRegistrationsList } from '@/components/admin/admin-registrations-list';
+import { AdminRegistrationsPanel } from '@/components/admin/admin-registrations-panel';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
-import { RegistrationDetailSheet } from '@/components/admin/registration-detail-sheet';
 import { Button } from '@/components/ui/button';
 import { buildAdminHref } from '@/lib/admin/admin-url';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
@@ -30,7 +29,6 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   const exportHref = query
     ? `/api/admin/registrations/export?q=${encodeURIComponent(query)}`
     : '/api/admin/registrations/export';
-  const closeHref = buildAdminHref({ q: query || undefined, page });
   const listHref = (targetPage: number) =>
     buildAdminHref({ q: query || undefined, page: targetPage });
 
@@ -61,17 +59,12 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
       <main className="mx-auto max-w-6xl space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-8">
         <section className="rounded-2xl border border-border/80 bg-background p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-end gap-5">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Total
-                </p>
-                <p className="mt-1 font-display text-4xl font-bold tabular-nums leading-none text-primary">
-                  {data.totalCount}
-                </p>
-              </div>
-              <p className="hidden pb-1 text-xs text-muted-foreground sm:block">
-                Times in Asia/Yerevan (UTC+4)
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                Total
+              </p>
+              <p className="mt-1 font-display text-4xl font-bold tabular-nums leading-none text-primary">
+                {data.totalCount}
               </p>
             </div>
 
@@ -136,7 +129,13 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               ) : null}
             </div>
           ) : (
-            <AdminRegistrationsList rows={data.rows} query={query} page={page} />
+            <AdminRegistrationsPanel
+              rows={data.rows}
+              event={data.event}
+              query={query}
+              page={page}
+              initialView={viewRegistration}
+            />
           )}
 
           {data.event && data.filteredCount > 0 ? (
@@ -160,10 +159,6 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           ) : null}
         </section>
       </main>
-
-      {viewRegistration ? (
-        <RegistrationDetailSheet registration={viewRegistration} closeHref={closeHref} />
-      ) : null}
     </div>
   );
 }

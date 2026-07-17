@@ -1,32 +1,29 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { buildAdminHref } from '@/lib/admin/admin-url';
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
 import { cn } from '@/lib/utils';
 
 type AdminRegistrationsListProps = {
   rows: AdminRegistrationRow[];
-  query: string;
-  page: number;
+  onOpen: (row: AdminRegistrationRow) => void;
 };
 
-function formatRegisteredAt(date: Date): string {
+function formatRegisteredAt(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', {
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: 'Asia/Yerevan',
-  }).format(date);
+  }).format(new Date(date));
 }
 
-function formatRegisteredAtShort(date: Date): string {
+function formatRegisteredAtShort(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'Asia/Yerevan',
-  }).format(date);
+  }).format(new Date(date));
 }
 
 function emailStatusClass(status: string): string {
@@ -76,13 +73,7 @@ function ChevronIcon() {
   );
 }
 
-export function AdminRegistrationsList({ rows, query, page }: AdminRegistrationsListProps) {
-  const router = useRouter();
-
-  function openRegistration(id: string): void {
-    router.push(buildAdminHref({ q: query || undefined, page, view: id }));
-  }
-
+export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListProps) {
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
@@ -114,11 +105,11 @@ export function AdminRegistrationsList({ rows, query, page }: AdminRegistrations
             {rows.map((row) => (
               <tr
                 key={row.id}
-                onClick={() => openRegistration(row.id)}
+                onClick={() => onOpen(row)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    openRegistration(row.id);
+                    onOpen(row);
                   }
                 }}
                 tabIndex={0}
@@ -162,7 +153,7 @@ export function AdminRegistrationsList({ rows, query, page }: AdminRegistrations
           <button
             key={row.id}
             type="button"
-            onClick={() => openRegistration(row.id)}
+            onClick={() => onOpen(row)}
             className="flex w-full min-h-[4.5rem] items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-accent/[0.07] focus-visible:bg-accent/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:bg-accent/[0.1]"
           >
             <span
