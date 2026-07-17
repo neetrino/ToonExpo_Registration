@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
@@ -12,11 +12,19 @@ import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/per
 import { getWizardSteps } from './wizard/steps';
 import { FinishStep } from './wizard/step-finish';
 import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
-import { InvestmentStep } from './wizard/step-investment';
-import { MarketResearchStep } from './wizard/step-market-research';
+import {
+  InvestmentBudgetStep,
+  InvestmentGoalStep,
+  InvestmentTypeStep,
+} from './wizard/step-investment';
+import {
+  MarketResearchFocusStep,
+  MarketResearchWhereStep,
+} from './wizard/step-market-research';
 import {
   OwnResidenceBudgetStep,
   OwnResidenceInterestStep,
+  OwnResidenceLocationStep,
   OwnResidenceSizeStep,
 } from './wizard/step-own-residence';
 import {
@@ -33,11 +41,20 @@ type RegistrationWizardProps = {
   locale: Locale;
 };
 
+function scrollWizardToTop(element: HTMLElement | null): void {
+  if (!element) {
+    return;
+  }
+
+  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const tWizard = useTranslations('wizard');
   const tForm = useTranslations('form');
   const tErrors = useTranslations('errors');
   const router = useRouter();
+  const formTopRef = useRef<HTMLDivElement>(null);
 
   const questionnaireLocale = locale as QuestionnaireLocale;
   const errorTranslator = useMemo(
@@ -63,8 +80,18 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   useEffect(() => {
     const draft = loadWizardDraft();
     if (draft) {
+      const draftSteps = getWizardSteps(draft.state.visitPurpose, draft.state.interestType);
+      const restoredStep = draftSteps.includes(draft.currentStep)
+        ? draft.currentStep
+        : draftSteps.includes('own-residence-interest')
+          ? 'own-residence-interest'
+          : draftSteps.includes('profile')
+            ? 'profile'
+            : (draftSteps[0] ?? 'identity');
+      // sessionStorage is client-only; restore after mount to avoid SSR mismatch.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate draft from sessionStorage
       setState(draft.state);
-      setCurrentStep(draft.currentStep);
+      setCurrentStep(restoredStep);
     }
     setDraftReady(true);
   }, []);
@@ -76,11 +103,20 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     saveWizardDraft(state, currentStep);
   }, [state, currentStep, draftReady]);
 
-  const steps = getWizardSteps(state.visitPurpose);
+  const steps = getWizardSteps(state.visitPurpose, state.interestType);
   const stepIndex = steps.indexOf(currentStep);
-  const isFirstStep = stepIndex <= 0;
-  const isLastStep = currentStep === 'finish';
-  const stepIsValid = isWizardStepValid(currentStep, state, errorTranslator);
+  const safeStep: WizardStepId =
+    stepIndex >= 0
+      ? currentStep
+      : steps.includes('own-residence-interest')
+        ? 'own-residence-interest'
+        : steps.includes('profile')
+          ? 'profile'
+          : (steps[0] ?? 'identity');
+  const safeStepIndex = steps.indexOf(safeStep);
+  const isFirstStep = safeStepIndex <= 0;
+  const isLastStep = safeStep === 'finish';
+  const stepIsValid = isWizardStepValid(safeStep, state, errorTranslator);
   const showErrors = attemptedNext || isLastStep;
 
   const updateField = <K extends keyof WizardState>(key: K, value: WizardState[K]) => {
@@ -132,21 +168,23 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   };
 
   const goBack = () => {
-    if (isFirstStep || stepIndex <= 0) {
+    if (isFirstStep || safeStepIndex <= 0) {
       return;
     }
 
     setAttemptedNext(false);
     setFieldErrors({});
-    setCurrentStep(steps[stepIndex - 1] ?? 'identity');
+    setCurrentStep(steps[safeStepIndex - 1] ?? 'identity');
+    scrollWizardToTop(formTopRef.current);
   };
 
   const goNext = async () => {
     setAttemptedNext(true);
-    const errors = validateWizardStep(currentStep, state, errorTranslator);
+    const errors = validateWizardStep(safeStep, state, errorTranslator);
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
+      scrollWizardToTop(formTopRef.current);
       return;
     }
 
@@ -154,7 +192,8 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
     if (!isLastStep) {
       setAttemptedNext(false);
-      setCurrentStep(steps[stepIndex + 1] ?? 'finish');
+      setCurrentStep(steps[safeStepIndex + 1] ?? 'finish');
+      scrollWizardToTop(formTopRef.current);
       return;
     }
 
@@ -170,6 +209,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
             ? tErrors('invalidEmail')
             : tErrors('validation'),
       );
+      scrollWizardToTop(formTopRef.current);
       return;
     }
 
@@ -211,6 +251,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
               ? tErrors('invalidEmail')
               : tErrors('validation'),
         );
+        scrollWizardToTop(formTopRef.current);
         return;
       }
     }
@@ -247,23 +288,33 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   };
 
   return (
-    <div aria-busy={isSubmitting}>
-      <WizardProgress currentStep={currentStep} steps={steps} />
+    <div ref={formTopRef} className="scroll-mt-6" aria-busy={isSubmitting}>
+      <WizardProgress currentStep={safeStep} steps={steps} />
 
-      <WizardStepPanel stepKey={currentStep}>
+      <WizardStepPanel stepKey={safeStep}>
         <div className="space-y-6">
-          {currentStep === 'identity' ? <IdentityStep {...stepProps} /> : null}
-          {currentStep === 'profile' ? <ProfileStep {...stepProps} /> : null}
-          {currentStep === 'own-residence-interest' ? (
+          {safeStep === 'identity' ? <IdentityStep {...stepProps} /> : null}
+          {safeStep === 'profile' ? <ProfileStep {...stepProps} /> : null}
+          {safeStep === 'own-residence-interest' ? (
             <OwnResidenceInterestStep {...stepProps} />
           ) : null}
-          {currentStep === 'own-residence-size' ? <OwnResidenceSizeStep {...stepProps} /> : null}
-          {currentStep === 'own-residence-budget' ? (
+          {safeStep === 'own-residence-location' ? (
+            <OwnResidenceLocationStep {...stepProps} />
+          ) : null}
+          {safeStep === 'own-residence-size' ? <OwnResidenceSizeStep {...stepProps} /> : null}
+          {safeStep === 'own-residence-budget' ? (
             <OwnResidenceBudgetStep {...stepProps} />
           ) : null}
-          {currentStep === 'investment' ? <InvestmentStep {...stepProps} /> : null}
-          {currentStep === 'market-research' ? <MarketResearchStep {...stepProps} /> : null}
-          {currentStep === 'finish' ? <FinishStep {...stepProps} /> : null}
+          {safeStep === 'investment-type' ? <InvestmentTypeStep {...stepProps} /> : null}
+          {safeStep === 'investment-goal' ? <InvestmentGoalStep {...stepProps} /> : null}
+          {safeStep === 'investment-budget' ? <InvestmentBudgetStep {...stepProps} /> : null}
+          {safeStep === 'market-research-focus' ? (
+            <MarketResearchFocusStep {...stepProps} />
+          ) : null}
+          {safeStep === 'market-research-where' ? (
+            <MarketResearchWhereStep {...stepProps} />
+          ) : null}
+          {safeStep === 'finish' ? <FinishStep {...stepProps} /> : null}
         </div>
       </WizardStepPanel>
 

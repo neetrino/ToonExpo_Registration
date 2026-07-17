@@ -10,7 +10,6 @@ import type {
   InvestmentMarket,
   InvestmentPropertyType,
   InvestmentTimeline,
-  LocationSeek,
   LocationSeekScope,
   MarketInterest,
   MarzRegion,
@@ -27,10 +26,14 @@ export type WizardStepId =
   | 'identity'
   | 'profile'
   | 'own-residence-interest'
+  | 'own-residence-location'
   | 'own-residence-size'
   | 'own-residence-budget'
-  | 'investment'
-  | 'market-research'
+  | 'investment-type'
+  | 'investment-goal'
+  | 'investment-budget'
+  | 'market-research-focus'
+  | 'market-research-where'
   | 'finish';
 
 export type WizardState = {

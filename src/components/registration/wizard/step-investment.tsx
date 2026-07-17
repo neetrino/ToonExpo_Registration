@@ -16,7 +16,7 @@ type StepProps = {
 
 const { investment } = QUESTIONNAIRE_DEFINITION.branches;
 
-export function InvestmentStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+export function InvestmentTypeStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
     <div className="space-y-8">
       <QuestionField
@@ -92,7 +92,13 @@ export function InvestmentStep({ state, errors, disabled, locale, onUpdate }: St
           }
         />
       ) : null}
+    </div>
+  );
+}
 
+export function InvestmentGoalStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <div className="space-y-8">
       <QuestionField legend={getQuestionLabel('investmentGoal', locale)} error={errors.investmentGoal}>
         <OptionRadioGroup
           name="investmentGoal"
@@ -119,7 +125,13 @@ export function InvestmentStep({ state, errors, disabled, locale, onUpdate }: St
           error={Boolean(errors.investmentTimeline)}
         />
       </QuestionField>
+    </div>
+  );
+}
 
+export function InvestmentBudgetStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <div className="space-y-8">
       <QuestionField
         legend={getQuestionLabel('investmentBudgetUsd', locale)}
         error={errors.investmentBudgetUsd}

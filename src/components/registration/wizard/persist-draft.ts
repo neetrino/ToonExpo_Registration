@@ -8,23 +8,37 @@ type PersistedWizard = {
   currentStep: WizardStepId;
 };
 
+const CURRENT_STEP_IDS: ReadonlySet<string> = new Set([
+  'identity',
+  'profile',
+  'own-residence-interest',
+  'own-residence-location',
+  'own-residence-size',
+  'own-residence-budget',
+  'investment-type',
+  'investment-goal',
+  'investment-budget',
+  'market-research-focus',
+  'market-research-where',
+  'finish',
+]);
+
 function isWizardStepId(value: unknown): value is WizardStepId {
-  return (
-    value === 'identity' ||
-    value === 'profile' ||
-    value === 'own-residence-interest' ||
-    value === 'own-residence-size' ||
-    value === 'own-residence-budget' ||
-    value === 'investment' ||
-    value === 'market-research' ||
-    value === 'finish'
-  );
+  return typeof value === 'string' && CURRENT_STEP_IDS.has(value);
 }
 
 /** Maps legacy draft step ids after step splits. */
 function migrateStepId(value: unknown): WizardStepId | null {
   if (value === 'own-residence-details') {
     return 'own-residence-size';
+  }
+
+  if (value === 'investment') {
+    return 'investment-type';
+  }
+
+  if (value === 'market-research') {
+    return 'market-research-focus';
   }
 
   return isWizardStepId(value) ? value : null;

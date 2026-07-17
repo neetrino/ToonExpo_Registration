@@ -1,21 +1,54 @@
-import type { VisitPurpose } from '@/lib/questionnaire/types';
+import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
+import type { InterestType, VisitPurpose } from '@/lib/questionnaire/types';
 import type { WizardStepId } from './types';
 
 const BASE_STEPS: WizardStepId[] = ['identity', 'profile'];
 
-const BRANCH_STEPS: Record<VisitPurpose, WizardStepId[]> = {
-  own_residence: ['own-residence-interest', 'own-residence-size', 'own-residence-budget'],
-  investment: ['investment'],
-  market_research: ['market-research'],
-};
+const OWN_RESIDENCE_TAIL: WizardStepId[] = ['own-residence-size', 'own-residence-budget'];
 
-/** Resolves wizard steps for the selected visit purpose. */
-export function getWizardSteps(visitPurpose: VisitPurpose | ''): WizardStepId[] {
+const INVESTMENT_STEPS: WizardStepId[] = [
+  'investment-type',
+  'investment-goal',
+  'investment-budget',
+];
+
+const MARKET_RESEARCH_STEPS: WizardStepId[] = [
+  'market-research-focus',
+  'market-research-where',
+];
+
+function needsOwnResidenceLocation(interestType: InterestType | ''): boolean {
+  if (interestType !== 'house_townhouse' && interestType !== 'apartment_new') {
+    return false;
+  }
+
+  return QUESTIONNAIRE_DEFINITION.branches.own_residence.interestType.locationSeekFor.includes(
+    interestType,
+  );
+}
+
+/** Resolves wizard steps for the selected visit purpose (and interest type when relevant). */
+export function getWizardSteps(
+  visitPurpose: VisitPurpose | '',
+  interestType: InterestType | '' = '',
+): WizardStepId[] {
   if (!visitPurpose) {
     return [...BASE_STEPS, 'finish'];
   }
 
-  return [...BASE_STEPS, ...BRANCH_STEPS[visitPurpose], 'finish'];
+  if (visitPurpose === 'own_residence') {
+    const branch: WizardStepId[] = ['own-residence-interest'];
+    if (needsOwnResidenceLocation(interestType)) {
+      branch.push('own-residence-location');
+    }
+    return [...BASE_STEPS, ...branch, ...OWN_RESIDENCE_TAIL, 'finish'];
+  }
+
+  if (visitPurpose === 'investment') {
+    return [...BASE_STEPS, ...INVESTMENT_STEPS, 'finish'];
+  }
+
+  return [...BASE_STEPS, ...MARKET_RESEARCH_STEPS, 'finish'];
 }
 
 export function getStepIndex(steps: WizardStepId[], stepId: WizardStepId): number {

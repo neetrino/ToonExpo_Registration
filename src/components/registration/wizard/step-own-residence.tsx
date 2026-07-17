@@ -16,14 +16,6 @@ type StepProps = {
 
 const { own_residence: ownResidence } = QUESTIONNAIRE_DEFINITION.branches;
 
-function needsLocationSeek(state: WizardState): boolean {
-  if (state.interestType !== 'house_townhouse' && state.interestType !== 'apartment_new') {
-    return false;
-  }
-
-  return ownResidence.interestType.locationSeekFor.includes(state.interestType);
-}
-
 export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
     <div className="space-y-8">
@@ -84,62 +76,61 @@ export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUp
           ) : null}
         </>
       ) : null}
+    </div>
+  );
+}
 
-      {needsLocationSeek(state) ? (
-        <>
-          <QuestionField
-            legend={getQuestionLabel('locationSeek', locale)}
-            error={errors.locationSeekScope}
-          >
-            <OptionRadioGroup
-              name="locationSeekScope"
-              value={state.locationSeekScope}
-              options={ownResidence.locationSeek.scopes}
-              getLabel={(value) => getOptionLabel('locationSeekScope', value, locale)}
-              onChange={(value) => {
-                onUpdate('locationSeekScope', value);
-                onUpdate('yerevanDistricts', []);
-                onUpdate('marzRegions', []);
-              }}
-              disabled={disabled}
-              error={Boolean(errors.locationSeekScope)}
-            />
-          </QuestionField>
+export function OwnResidenceLocationStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <div className="space-y-8">
+      <QuestionField
+        legend={getQuestionLabel('locationSeek', locale)}
+        error={errors.locationSeekScope}
+      >
+        <OptionRadioGroup
+          name="locationSeekScope"
+          value={state.locationSeekScope}
+          options={ownResidence.locationSeek.scopes}
+          getLabel={(value) => getOptionLabel('locationSeekScope', value, locale)}
+          onChange={(value) => {
+            onUpdate('locationSeekScope', value);
+            onUpdate('yerevanDistricts', []);
+            onUpdate('marzRegions', []);
+          }}
+          disabled={disabled}
+          error={Boolean(errors.locationSeekScope)}
+        />
+      </QuestionField>
 
-          {state.locationSeekScope === 'yerevan' ? (
-            <QuestionField
-              legend={getQuestionLabel('yerevanDistricts', locale)}
-              error={errors.yerevanDistricts}
-            >
-              <OptionCheckboxGroup
-                name="yerevanDistricts"
-                values={state.yerevanDistricts}
-                options={ownResidence.locationSeek.yerevanDistricts}
-                getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
-                onChange={(values) => onUpdate('yerevanDistricts', values)}
-                disabled={disabled}
-                error={Boolean(errors.yerevanDistricts)}
-              />
-            </QuestionField>
-          ) : null}
+      {state.locationSeekScope === 'yerevan' ? (
+        <QuestionField
+          legend={getQuestionLabel('yerevanDistricts', locale)}
+          error={errors.yerevanDistricts}
+        >
+          <OptionCheckboxGroup
+            name="yerevanDistricts"
+            values={state.yerevanDistricts}
+            options={ownResidence.locationSeek.yerevanDistricts}
+            getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
+            onChange={(values) => onUpdate('yerevanDistricts', values)}
+            disabled={disabled}
+            error={Boolean(errors.yerevanDistricts)}
+          />
+        </QuestionField>
+      ) : null}
 
-          {state.locationSeekScope === 'marz' ? (
-            <QuestionField
-              legend={getQuestionLabel('marzRegions', locale)}
-              error={errors.marzRegions}
-            >
-              <OptionCheckboxGroup
-                name="marzRegions"
-                values={state.marzRegions}
-                options={ownResidence.locationSeek.marzRegions}
-                getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
-                onChange={(values) => onUpdate('marzRegions', values)}
-                disabled={disabled}
-                error={Boolean(errors.marzRegions)}
-              />
-            </QuestionField>
-          ) : null}
-        </>
+      {state.locationSeekScope === 'marz' ? (
+        <QuestionField legend={getQuestionLabel('marzRegions', locale)} error={errors.marzRegions}>
+          <OptionCheckboxGroup
+            name="marzRegions"
+            values={state.marzRegions}
+            options={ownResidence.locationSeek.marzRegions}
+            getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
+            onChange={(values) => onUpdate('marzRegions', values)}
+            disabled={disabled}
+            error={Boolean(errors.marzRegions)}
+          />
+        </QuestionField>
       ) : null}
     </div>
   );

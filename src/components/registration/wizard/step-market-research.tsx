@@ -18,7 +18,7 @@ type StepProps = {
 
 const { market_research: marketResearch } = QUESTIONNAIRE_DEFINITION.branches;
 
-export function MarketResearchStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+export function MarketResearchFocusStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   const tWizard = useTranslations('wizard');
 
   return (
@@ -51,7 +51,13 @@ export function MarketResearchStep({ state, errors, disabled, locale, onUpdate }
           error={Boolean(errors.researchGoal)}
         />
       </QuestionField>
+    </div>
+  );
+}
 
+export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <div className="space-y-8">
       <QuestionField
         legend={getQuestionLabel('interestedWhere', locale)}
         error={errors.interestedWhere}

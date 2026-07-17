@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,
@@ -66,38 +65,35 @@ const ownResidenceInterestSchema = z
     interestType: z.enum(INTEREST_TYPES),
     abroadCountries: z.array(z.enum(ABROAD_COUNTRIES)),
     abroadCountriesOther: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.interestType !== 'abroad') {
+      return;
+    }
+
+    if (data.abroadCountries.length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['abroadCountries'], message: 'required' });
+    }
+
+    if (data.abroadCountries.includes('other')) {
+      const other = otherTextSchema.safeParse(data.abroadCountriesOther);
+      if (!other.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['abroadCountriesOther'],
+          message: 'required',
+        });
+      }
+    }
+  });
+
+const ownResidenceLocationSchema = z
+  .object({
     locationSeekScope: z.enum(LOCATION_SEEK_SCOPES).or(z.literal('')),
     yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
     marzRegions: z.array(z.enum(MARZ_REGIONS)),
   })
   .superRefine((data, ctx) => {
-    if (data.interestType === 'abroad') {
-      if (data.abroadCountries.length === 0) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['abroadCountries'], message: 'required' });
-      }
-
-      if (data.abroadCountries.includes('other')) {
-        const other = otherTextSchema.safeParse(data.abroadCountriesOther);
-        if (!other.success) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['abroadCountriesOther'],
-            message: 'required',
-          });
-        }
-      }
-
-      return;
-    }
-
-    const needsLocationSeek = QUESTIONNAIRE_DEFINITION.branches.own_residence.interestType.locationSeekFor.includes(
-      data.interestType,
-    );
-
-    if (!needsLocationSeek) {
-      return;
-    }
-
     if (!data.locationSeekScope) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['locationSeekScope'], message: 'required' });
       return;
@@ -122,16 +118,12 @@ const ownResidenceBudgetSchema = z.object({
   decisionStage: z.enum(DECISION_STAGES),
 });
 
-const investmentStepSchema = z
+const investmentTypeSchema = z
   .object({
     investmentPropertyType: z.enum(INVESTMENT_PROPERTY_TYPES),
     investmentPropertyTypeOther: z.string(),
     investmentMarket: z.enum(INVESTMENT_MARKETS),
     investmentMarketOther: z.string(),
-    investmentGoal: z.enum(INVESTMENT_GOALS),
-    investmentTimeline: z.enum(INVESTMENT_TIMELINES),
-    investmentBudgetUsd: z.enum(INVESTMENT_BUDGETS_USD),
-    priorInvestmentExperience: z.enum(PRIOR_INVESTMENT_EXPERIENCES),
   })
   .superRefine((data, ctx) => {
     if (data.investmentPropertyType === 'other') {
@@ -157,16 +149,29 @@ const investmentStepSchema = z
     }
   });
 
-const marketResearchStepSchema = z
+const investmentGoalSchema = z.object({
+  investmentGoal: z.enum(INVESTMENT_GOALS),
+  investmentTimeline: z.enum(INVESTMENT_TIMELINES),
+});
+
+const investmentBudgetSchema = z.object({
+  investmentBudgetUsd: z.enum(INVESTMENT_BUDGETS_USD),
+  priorInvestmentExperience: z.enum(PRIOR_INVESTMENT_EXPERIENCES),
+});
+
+const marketResearchFocusSchema = z.object({
+  marketInterests: z
+    .array(z.enum(MARKET_INTERESTS))
+    .min(1)
+    .max(MARKET_INTERESTS_MAX)
+    .refine((values) => new Set(values).size === values.length, {
+      message: 'unique',
+    }),
+  researchGoal: z.enum(RESEARCH_GOALS),
+});
+
+const marketResearchWhereSchema = z
   .object({
-    marketInterests: z
-      .array(z.enum(MARKET_INTERESTS))
-      .min(1)
-      .max(MARKET_INTERESTS_MAX)
-      .refine((values) => new Set(values).size === values.length, {
-        message: 'unique',
-      }),
-    researchGoal: z.enum(RESEARCH_GOALS),
     interestedWhere: z.enum(INTERESTED_WHERE_OPTIONS),
     interestedWhereOther: z.string(),
     purchaseHorizon: z.enum(PURCHASE_HORIZONS),
@@ -230,10 +235,7 @@ function issuesToFieldErrors(issues: z.ZodIssue[], t: ErrorTranslator): WizardFi
   return errors;
 }
 
-function pickState<T extends WizardStepId>(
-  stepId: T,
-  state: WizardState,
-): Record<string, unknown> {
+function pickState(stepId: WizardStepId, state: WizardState): Record<string, unknown> {
   switch (stepId) {
     case 'identity':
       return {
@@ -252,6 +254,9 @@ function pickState<T extends WizardStepId>(
         interestType: state.interestType || undefined,
         abroadCountries: state.abroadCountries,
         abroadCountriesOther: state.abroadCountriesOther,
+      };
+    case 'own-residence-location':
+      return {
         locationSeekScope: state.locationSeekScope,
         yerevanDistricts: state.yerevanDistricts,
         marzRegions: state.marzRegions,
@@ -266,21 +271,30 @@ function pickState<T extends WizardStepId>(
         monthlyBudget: state.monthlyBudget || undefined,
         decisionStage: state.decisionStage || undefined,
       };
-    case 'investment':
+    case 'investment-type':
       return {
         investmentPropertyType: state.investmentPropertyType || undefined,
         investmentPropertyTypeOther: state.investmentPropertyTypeOther,
         investmentMarket: state.investmentMarket || undefined,
         investmentMarketOther: state.investmentMarketOther,
+      };
+    case 'investment-goal':
+      return {
         investmentGoal: state.investmentGoal || undefined,
         investmentTimeline: state.investmentTimeline || undefined,
+      };
+    case 'investment-budget':
+      return {
         investmentBudgetUsd: state.investmentBudgetUsd || undefined,
         priorInvestmentExperience: state.priorInvestmentExperience || undefined,
       };
-    case 'market-research':
+    case 'market-research-focus':
       return {
         marketInterests: state.marketInterests,
         researchGoal: state.researchGoal || undefined,
+      };
+    case 'market-research-where':
+      return {
         interestedWhere: state.interestedWhere || undefined,
         interestedWhereOther: state.interestedWhereOther,
         purchaseHorizon: state.purchaseHorizon || undefined,
@@ -315,17 +329,29 @@ export function validateWizardStep(
     case 'own-residence-interest':
       result = ownResidenceInterestSchema.safeParse(data);
       break;
+    case 'own-residence-location':
+      result = ownResidenceLocationSchema.safeParse(data);
+      break;
     case 'own-residence-size':
       result = ownResidenceSizeSchema.safeParse(data);
       break;
     case 'own-residence-budget':
       result = ownResidenceBudgetSchema.safeParse(data);
       break;
-    case 'investment':
-      result = investmentStepSchema.safeParse(data);
+    case 'investment-type':
+      result = investmentTypeSchema.safeParse(data);
       break;
-    case 'market-research':
-      result = marketResearchStepSchema.safeParse(data);
+    case 'investment-goal':
+      result = investmentGoalSchema.safeParse(data);
+      break;
+    case 'investment-budget':
+      result = investmentBudgetSchema.safeParse(data);
+      break;
+    case 'market-research-focus':
+      result = marketResearchFocusSchema.safeParse(data);
+      break;
+    case 'market-research-where':
+      result = marketResearchWhereSchema.safeParse(data);
       break;
     case 'finish':
       result = finishStepSchema.safeParse(data);
