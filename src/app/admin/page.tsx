@@ -36,14 +36,17 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
 
   return (
     <div className="min-h-dvh bg-muted">
-      <header className="sticky top-0 z-20 border-b border-border bg-background">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <ToonExpoLogo size={32} />
+      <header className="sticky top-0 z-20 border-b border-border/70 bg-background/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <ToonExpoLogo size={36} />
             <div className="min-w-0">
-              <h1 className="truncate font-display text-lg font-bold text-primary">Registrations</h1>
+              <h1 className="truncate font-display text-xl font-bold tracking-tight text-primary">
+                Registrations
+              </h1>
+              <div className="mt-1.5 h-0.5 w-10 bg-highlight" aria-hidden="true" />
               {data.event ? (
-                <p className="truncate text-xs text-muted-foreground">{data.event.name}</p>
+                <p className="mt-2 truncate text-xs text-muted-foreground">{data.event.name}</p>
               ) : null}
             </div>
           </div>
@@ -51,50 +54,62 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-        <section className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <div className="rounded-xl border border-border bg-primary px-5 py-4 text-primary-foreground">
-            <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
-              Total registrations
+      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-8">
+        <section className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex items-end gap-4">
+            <div className="border-l-4 border-accent pl-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                Total
+              </p>
+              <p className="mt-0.5 font-display text-4xl font-bold tabular-nums leading-none text-primary">
+                {data.totalCount}
+              </p>
+            </div>
+            <p className="hidden pb-1 text-xs text-muted-foreground sm:block">
+              Times in Asia/Yerevan (UTC+4)
             </p>
-            <p className="mt-1 font-display text-4xl font-extrabold">{data.totalCount}</p>
-            <p className="mt-2 text-xs text-white/60">Times shown in Asia/Yerevan (UTC+4).</p>
           </div>
-          <Button asChild variant="secondary" className="w-full sm:w-auto">
-            <a href={exportHref}>Export CSV</a>
-          </Button>
+
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:justify-end">
+            <AdminSearchForm initialQuery={query} variant="toolbar" className="flex-1" />
+            <Button
+              asChild
+              variant="secondary"
+              size="sm"
+              className="h-10 shrink-0 px-4 shadow-sm sm:w-auto"
+            >
+              <a href={exportHref}>Export CSV</a>
+            </Button>
+          </div>
         </section>
 
-        <section className="rounded-xl border border-border bg-background p-4 sm:p-5">
-          <AdminSearchForm initialQuery={query} />
-          {query ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'} for &ldquo;
-              {query}&rdquo;
-            </p>
-          ) : null}
-        </section>
+        {query ? (
+          <p className="text-sm text-muted-foreground">
+            Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'} for &ldquo;
+            {query}&rdquo;
+          </p>
+        ) : null}
 
-        <section className="overflow-hidden rounded-xl border border-border bg-background">
+        <section className="overflow-hidden rounded-2xl border border-border/80 bg-background shadow-sm">
           {!data.event ? (
-            <div className="px-6 py-12 text-center">
-              <p className="font-display text-lg font-bold text-primary">No active event</p>
-              <p className="mt-2 text-sm text-muted-foreground">
+            <div className="px-6 py-16 text-center">
+              <p className="font-display text-lg font-semibold text-primary">No active event</p>
+              <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
                 Configure an active event before registrations can appear here.
               </p>
             </div>
           ) : data.rows.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="font-display text-lg font-bold text-primary">
+            <div className="px-6 py-16 text-center">
+              <p className="font-display text-lg font-semibold text-primary">
                 {query ? 'No results' : 'No registrations yet'}
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
                 {query
                   ? 'Try a different name, email, or phone number.'
                   : 'New registrations will show up here as visitors complete the form.'}
               </p>
               {query ? (
-                <Button asChild variant="outline" size="sm" className="mt-4">
+                <Button asChild variant="outline" size="sm" className="mt-5">
                   <Link href={buildAdminHref()}>Clear search</Link>
                 </Button>
               ) : null}
@@ -104,7 +119,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           )}
 
           {data.event && data.filteredCount > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/30 px-5 py-3.5 text-sm">
               <p className="text-muted-foreground">
                 Page {data.page} of {totalPages}
               </p>

@@ -47,7 +47,7 @@ export function RegistrationDetailSheet({ registration, closeHref }: Registratio
         role="dialog"
         aria-modal="true"
         aria-labelledby="registration-detail-title"
-        className="admin-sheet-enter relative z-10 flex h-full w-full max-w-[480px] flex-col border-l border-border bg-background shadow-[-4px_0_24px_rgba(0,48,61,0.12)]"
+        className="admin-sheet-enter relative z-10 flex h-full w-full max-w-[480px] flex-col border-l border-border/80 bg-background shadow-[-8px_0_32px_rgba(0,48,61,0.08)]"
       >
         <RegistrationDetailCard
           registration={registration}

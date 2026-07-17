@@ -25,7 +25,7 @@ function formatAdminDateTime(date: Date): string {
 function emailStatusTone(status: string): string {
   switch (status) {
     case 'SENT':
-      return 'bg-secondary/10 text-secondary';
+      return 'bg-accent/10 text-secondary';
     case 'FAILED':
       return 'bg-destructive/10 text-destructive';
     default:
@@ -82,7 +82,7 @@ export function RegistrationDetailCard({
       <div
         className={
           isSheet
-            ? 'flex shrink-0 items-center justify-between gap-3 border-b border-border px-5 py-4'
+            ? 'flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-5 py-4'
             : 'flex flex-wrap items-center justify-between gap-3'
         }
       >
@@ -96,11 +96,12 @@ export function RegistrationDetailCard({
           </Button>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <DeleteRegistrationButton
             registrationId={registration.id}
             label={`${fullName} (${registration.email})`}
             redirectTo={closeHref}
+            iconOnly
           />
           {isSheet && onClose ? (
             <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close">
@@ -117,14 +118,15 @@ export function RegistrationDetailCard({
             : 'overflow-hidden rounded-lg border border-border bg-background'
         }
       >
-        <header className="border-b-4 border-primary bg-card px-5 py-5 sm:px-6 sm:py-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <header className="border-b border-border/70 bg-muted/20 px-5 py-5 sm:px-6 sm:py-6">
+          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
             {registration.event.name}
           </p>
           <h1 id={titleId} className="mt-2 font-display text-2xl font-bold text-primary">
             {fullName}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <div className="mt-2 h-0.5 w-8 bg-highlight" aria-hidden="true" />
+          <p className="mt-2 text-sm text-muted-foreground">
             Registered {formatAdminDateTime(registration.createdAt)}
           </p>
         </header>
@@ -148,7 +150,7 @@ export function RegistrationDetailCard({
               label="Email delivery"
               value={
                 <span
-                  className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${emailStatusTone(registration.emailDeliveryStatus)}`}
+                  className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium tracking-wide ${emailStatusTone(registration.emailDeliveryStatus)}`}
                 >
                   {registration.emailDeliveryStatus}
                 </span>
