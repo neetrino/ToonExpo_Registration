@@ -7,6 +7,7 @@ export {
 export { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 export { normalizePhone, type NormalizedPhone } from '@/lib/validation/phone';
 export {
+  filterPhoneCountries,
   isPhoneCountry,
   listPhoneCountries,
   resolvePhoneCountry,

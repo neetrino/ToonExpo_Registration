@@ -73,6 +73,8 @@
     "email": "Email",
     "phone": "Телефон",
     "phoneCountry": "Код страны",
+    "phoneCountrySearch": "Поиск по стране или коду",
+    "phoneCountryEmpty": "Страны не найдены",
     "phoneHint": "Выберите страну, затем введите локальный номер без кода страны.",
     "phonePlaceholder": "XX XXX XXX",
     "consentPrefix": "Я согласен с",

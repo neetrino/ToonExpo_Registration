@@ -333,7 +333,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
         </p>
       ) : null}
 
-      <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+      <div className="relative z-0 mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Button
           type="button"
           variant="outline"

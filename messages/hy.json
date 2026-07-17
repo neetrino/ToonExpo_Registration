@@ -73,6 +73,8 @@
     "email": "Էլ. փոստ",
     "phone": "Հեռախոս",
     "phoneCountry": "Երկրի կոդ",
+    "phoneCountrySearch": "Որոնել ըստ երկրի կամ կոդի",
+    "phoneCountryEmpty": "Երկրներ չեն գտնվել",
     "phoneHint": "Ընտրեք երկիրը, ապա մուտքագրեք տեղական համարը՝ առանց երկրի կոդի։",
     "phonePlaceholder": "XX XXX XXX",
     "consentPrefix": "Համաձայն եմ",
