@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-highlight: var(--highlight);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --font-sans:
+    var(--font-noto-armenian), var(--font-noto-sans), var(--font-geist-sans), system-ui, sans-serif;
+  --font-display: var(--font-unbounded), var(--font-noto-sans), system-ui, sans-serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #00303d;
+  --primary: #00303d;
+  --primary-foreground: #ffffff;
+  --secondary: #246976;
+  --secondary-foreground: #ffffff;
+  --accent: #2ba8b0;
+  --accent-foreground: #ffffff;
+  --highlight: #ffd700;
+  --muted: #f4f7f8;
+  --muted-foreground: #4a5f66;
+  --border: #d7e2e5;
+  --input: #d7e2e5;
+  --ring: #2ba8b0;
+  --card: #ffffff;
+  --card-foreground: #00303d;
+  --destructive: #b42318;
+  --success: #1f9d63;
+}
+
+html {
+  background-color: var(--primary);
+}
+
+body {
+  min-height: 100dvh;
+  background-color: var(--primary);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+@keyframes landing-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wizard-step-enter {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.landing-card-enter {
+  animation: landing-card-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wizard-step-panel {
+  animation: wizard-step-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wizard-progress-fill {
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes admin-login-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes success-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes success-check-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes admin-sheet-enter {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes admin-sheet-enter-mobile {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.admin-login-enter {
+  animation: admin-login-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-sheet-enter {
+  animation: admin-sheet-enter-mobile 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (min-width: 768px) {
+  .admin-sheet-enter {
+    animation-name: admin-sheet-enter;
+  }
+}
+
+.success-card-enter {
+  animation: success-card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.success-check-enter {
+  animation: success-check-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-card-enter,
+  .wizard-step-panel,
+  .admin-login-enter,
+  .admin-sheet-enter,
+  .success-card-enter,
+  .success-check-enter {
+    animation: none;
+  }
+
+  .wizard-progress-fill {
+    transition: none;
+  }
+}

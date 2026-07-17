@@ -1,0 +1,100 @@
+{
+  "common": {
+    "siteName": "Toon Expo",
+    "privacy": "Privacy",
+    "languageSwitcher": "Language"
+  },
+  "landing": {
+    "eyebrow": "Animation & comics event",
+    "title": "Toon Expo",
+    "description": "Register for Toon Expo — a celebration of animation and comics. Event date and venue will be announced soon.",
+    "eventDetailsTitle": "Event details",
+    "dateLabel": "Date",
+    "dateValue": "[PLACEHOLDER] Date TBA",
+    "venueLabel": "Venue",
+    "venueValue": "[PLACEHOLDER] Venue TBA",
+    "registrationTitle": "Registration",
+    "registrationDescription": "Complete the form below to register. All fields are required.",
+    "registerCta": "Register now",
+    "privacyLink": "Privacy policy"
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "status": "Version {version}",
+    "intro": "This policy explains how the Toon Expo organizer processes personal data collected through the registration form.",
+    "sections": [
+      {
+        "title": "Who processes the data",
+        "body": "The data controller is the Toon Expo event organizer. For requests and to exercise your rights, contact the organizer using the address shown in the registration confirmation email."
+      },
+      {
+        "title": "What we collect",
+        "body": "First name, last name, email, phone number, selected language, registration questionnaire answers, privacy-consent evidence and policy version, and technical email-delivery status. If you opt in to newsletters, we also store that consent."
+      },
+      {
+        "title": "Why we process data",
+        "body": "We process data to register you for the event, confirm registration, send organizational messages, and manage event statistics. Marketing emails are sent only with separate consent."
+      },
+      {
+        "title": "Legal basis",
+        "body": "Processing is based on your voluntary consent, given before registration by accepting this privacy policy."
+      },
+      {
+        "title": "Retention",
+        "body": "Data is kept for a reasonable organizational period after the event ends, or until a valid deletion request, unless a longer retention is required by law."
+      },
+      {
+        "title": "Who we share data with",
+        "body": "Data is available only to the authorized administrator and to technical providers needed to run the site, database, and email delivery. We do not sell personal data."
+      },
+      {
+        "title": "Your rights",
+        "body": "You may request access to your data, correction of errors, or deletion by contacting the organizer. You may also withdraw consent for future processing to the extent permitted by law."
+      },
+      {
+        "title": "Updates",
+        "body": "This policy may be updated. The version you accepted at registration is stored with your record."
+      }
+    ],
+    "backToHome": "Back to home"
+  },
+  "success": {
+    "title": "Registration received",
+    "description": "Thank you for registering for Toon Expo. We have saved your details successfully.",
+    "backToHome": "Back to home"
+  },
+  "admin": {
+    "loginTitle": "[PLACEHOLDER] Admin login",
+    "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
+  },
+  "form": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "phoneHint": "Include country code where possible. Armenia numbers often start with +374.",
+    "phonePlaceholder": "+374 XX XXX XXX",
+    "consentPrefix": "I agree to the",
+    "consentLink": "privacy policy",
+    "submit": "Submit registration",
+    "submitting": "Submitting…"
+  },
+  "wizard": {
+    "progress": "Step {current} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "marketInterestsHint": "Select up to {max} options",
+    "maxSelections": "Select at most {max} options"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidPhone": "Enter a valid phone number.",
+    "consentRequired": "You must agree to the privacy policy.",
+    "validation": "Please check the highlighted fields and try again.",
+    "duplicate": "This email is already registered for the event.",
+    "rateLimit": "Too many attempts. Please wait a moment and try again.",
+    "network": "Could not reach the server. Check your connection and try again.",
+    "server": "Something went wrong on our side. Please try again later."
+  }
+}

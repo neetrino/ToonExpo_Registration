@@ -15,6 +15,14 @@ node_modules/
 dist/
 build/
 coverage/
+*.tsbuildinfo
+
+# Playwright
+test-results/
+playwright-report/
+
+# Prisma generated client
+src/generated/
 
 # Logs and temp
 *.log
