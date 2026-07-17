@@ -75,7 +75,9 @@ The final hard-delete/soft-delete policy must match [`04-DATA-MODEL.md`](./04-DA
 
 - Export is generated on the server after session validation.
 - File name includes event slug and export date.
-- Columns are allowlisted and human-readable.
+- Columns are allowlisted and human-readable (English headers).
+- Questionnaire `answers` JSON is flattened into one column per question with localized option labels; unused branch fields stay empty.
+- UTF-8 with BOM so Excel opens non-ASCII names correctly.
 - Formula-injection protection is mandatory.
 - The endpoint must not include administrator credentials, internal delivery IDs or security metadata.
 - Export of the expected dataset should stream or use bounded memory if dataset size later grows materially.

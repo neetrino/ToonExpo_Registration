@@ -1,9 +1,11 @@
 import { buildCsv } from '@/lib/admin/csv';
 import { CSV_EXPORT_COLUMNS } from '@/lib/admin/constants';
+import { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
 import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
 
 /**
- * Build a formula-safe CSV for the active event (optional search filter).
+ * Build a formula-safe, human-readable CSV for the active event (optional search filter).
+ * Questionnaire answers are flattened into separate English-labeled columns.
  */
 export async function buildRegistrationsCsv(search?: string): Promise<{
   filename: string;
@@ -27,7 +29,7 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
     locale: row.locale,
     emailDeliveryStatus: row.emailDeliveryStatus,
     formVersion: row.formVersion ?? '',
-    answers: row.answers == null ? '' : JSON.stringify(row.answers),
+    ...flattenRegistrationAnswersForExport(row.answers),
   }));
 
   return {
@@ -40,10 +42,13 @@ export { neutralizeCsvValue, formatCsvCell, buildCsv } from '@/lib/admin/csv';
 export { listAdminRegistrations, listRegistrationsForExport } from '@/lib/admin/list-registrations';
 export { getAdminRegistration } from '@/lib/admin/get-registration';
 export { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers';
+export { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
 export { deleteRegistration } from '@/lib/admin/delete-registration';
 export {
   ADMIN_PAGE_SIZE,
   ADMIN_SEARCH_MAX_LENGTH,
   ADMIN_NO_STORE_HEADERS,
   CSV_EXPORT_COLUMNS,
+  CSV_ANSWER_COLUMNS,
+  CSV_IDENTITY_COLUMNS,
 } from '@/lib/admin/constants';

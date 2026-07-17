@@ -41,18 +41,24 @@ export function formatCsvCell(value: string): string {
   return `"${neutralized.replaceAll('"', '""')}"`;
 }
 
+export type CsvColumn = {
+  key: string;
+  header: string;
+};
+
 /**
- * Build a UTF-8 CSV document from allowlisted headers and row objects.
+ * Build a UTF-8 CSV document (Excel-friendly BOM) from column defs and row objects.
+ * Column `header` is written in the first row; values are read from `row[key]`.
  */
 export function buildCsv(
-  headers: readonly string[],
+  columns: readonly CsvColumn[],
   rows: ReadonlyArray<Record<string, string>>,
 ): string {
-  const lines: string[] = [headers.map(formatCsvCell).join(',')];
+  const lines: string[] = [columns.map((column) => formatCsvCell(column.header)).join(',')];
 
   for (const row of rows) {
-    lines.push(headers.map((header) => formatCsvCell(row[header] ?? '')).join(','));
+    lines.push(columns.map((column) => formatCsvCell(row[column.key] ?? '')).join(','));
   }
 
-  return `${lines.join('\r\n')}\r\n`;
+  return `\uFEFF${lines.join('\r\n')}\r\n`;
 }

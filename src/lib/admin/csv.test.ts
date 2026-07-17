@@ -34,8 +34,14 @@ describe('formatCsvCell', () => {
 });
 
 describe('buildCsv', () => {
-  it('builds a formula-safe document with headers', () => {
-    const csv = buildCsv(['name', 'note'], [{ name: 'Ann', note: '=1+1' }]);
-    expect(csv).toBe("name,note\r\nAnn,'=1+1\r\n");
+  it('builds a formula-safe document with display headers and Excel BOM', () => {
+    const csv = buildCsv(
+      [
+        { key: 'name', header: 'Name' },
+        { key: 'note', header: 'Note' },
+      ],
+      [{ name: 'Ann', note: '=1+1' }],
+    );
+    expect(csv).toBe("\uFEFFName,Note\r\nAnn,'=1+1\r\n");
   });
 });
