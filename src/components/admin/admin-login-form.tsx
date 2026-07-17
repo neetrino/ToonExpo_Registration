@@ -12,7 +12,7 @@ const initialState: LoginActionResult | null = null;
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full" disabled={pending}>
+    <Button type="submit" className="w-full" size="lg" disabled={pending}>
       {pending ? 'Signing in…' : 'Sign in'}
     </Button>
   );
@@ -29,7 +29,7 @@ export function AdminLoginForm() {
   const [state, formAction] = useActionState(loginFormAction, initialState);
 
   return (
-    <form action={formAction} className="mt-6 space-y-4">
+    <form action={formAction} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="admin-email">Email</Label>
         <Input
@@ -39,6 +39,7 @@ export function AdminLoginForm() {
           autoComplete="username"
           required
           maxLength={254}
+          className="bg-background"
         />
       </div>
       <div className="space-y-2">
@@ -50,12 +51,16 @@ export function AdminLoginForm() {
           autoComplete="current-password"
           required
           maxLength={256}
+          className="bg-background"
         />
       </div>
       {state && !state.ok ? (
-        <p className="text-sm text-destructive" role="alert">
+        <div
+          className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          role="alert"
+        >
           {state.error}
-        </p>
+        </div>
       ) : null}
       <SubmitButton />
     </form>

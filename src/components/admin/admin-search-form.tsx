@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { buildAdminHref } from '@/lib/admin/admin-url';
 
 type AdminSearchFormProps = {
   initialQuery: string;
@@ -8,9 +9,9 @@ type AdminSearchFormProps = {
 
 export function AdminSearchForm({ initialQuery }: AdminSearchFormProps) {
   return (
-    <form method="get" action="/admin" className="flex flex-wrap items-end gap-3">
-      <div className="min-w-[16rem] flex-1 space-y-1">
-        <label htmlFor="admin-search" className="text-sm font-medium text-foreground">
+    <form method="get" action="/admin" className="flex w-full flex-col gap-3 sm:flex-row sm:items-end">
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <label htmlFor="admin-search" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Search
         </label>
         <Input
@@ -22,14 +23,16 @@ export function AdminSearchForm({ initialQuery }: AdminSearchFormProps) {
           maxLength={100}
         />
       </div>
-      <Button type="submit" variant="secondary">
-        Search
-      </Button>
-      {initialQuery ? (
-        <Button type="button" variant="ghost" asChild>
-          <Link href="/admin">Clear</Link>
+      <div className="flex shrink-0 gap-2">
+        <Button type="submit" variant="secondary">
+          Search
         </Button>
-      ) : null}
+        {initialQuery ? (
+          <Button type="button" variant="ghost" asChild>
+            <Link href={buildAdminHref()}>Clear</Link>
+          </Button>
+        ) : null}
+      </div>
     </form>
   );
 }

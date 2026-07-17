@@ -90,9 +90,41 @@ body {
   transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes admin-login-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes admin-sheet-enter {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.admin-login-enter {
+  animation: admin-login-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-sheet-enter {
+  animation: admin-sheet-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-card-enter,
-  .wizard-step-panel {
+  .wizard-step-panel,
+  .admin-login-enter,
+  .admin-sheet-enter {
     animation: none;
   }
 

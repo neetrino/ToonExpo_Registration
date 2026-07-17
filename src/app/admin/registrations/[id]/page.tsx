@@ -1,20 +1,14 @@
-import { notFound } from 'next/navigation';
-import { RegistrationDetailCard } from '@/components/admin/registration-detail-card';
-import { getAdminRegistration } from '@/lib/admin/get-registration';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-type RegistrationDetailPageProps = {
+type RegistrationDetailRedirectProps = {
   params: Promise<{ id: string }>;
 };
 
-export default async function RegistrationDetailPage({ params }: RegistrationDetailPageProps) {
+export default async function RegistrationDetailRedirectPage({
+  params,
+}: RegistrationDetailRedirectProps) {
   const { id } = await params;
-  const registration = await getAdminRegistration(id);
-
-  if (!registration) {
-    notFound();
-  }
-
-  return <RegistrationDetailCard registration={registration} />;
+  redirect(`/admin?view=${encodeURIComponent(id)}`);
 }
