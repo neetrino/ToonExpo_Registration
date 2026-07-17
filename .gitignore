@@ -17,6 +17,9 @@ build/
 coverage/
 *.tsbuildinfo
 
+# Prisma generated client
+src/generated/
+
 # Logs and temp
 *.log
 npm-debug.log*
