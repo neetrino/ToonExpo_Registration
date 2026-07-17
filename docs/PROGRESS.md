@@ -11,7 +11,7 @@
 | Database and registration | Phase 2 + questionnaire | Prisma fields + typed answers API; wizard UI pending |
 | Landing and localization | Phase 3 UI done | Branded landing + form; questionnaire wizard UI pending |
 | Email confirmation | Phase 4 done | Localized hy/en/ru text+HTML via Resend fetch; commit-first; placeholder key → FAILED safely |
-| Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV; English UI pending owner language |
+| Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV + registration detail card; English UI |
 | Security hardening (mid-dev) | Done (code 🤖) | Headers, origin tighten, request-id, audit CI gate; see `docs/SECURITY_CHECKLIST_STATUS.md` |
 | Verification/load testing | Not started | Preview environment only |
 | Production setup/release | Not started | Owner-operated; no deployment authorized yet |
@@ -65,6 +65,7 @@ Clients must send `privacyPolicyVersion: "2026-07-16"` (single source: `src/lib/
 - [x] Secure HTTP-only JWT session cookie; middleware protects `/admin/**` except login
 - [x] Login: generic errors, in-memory attempt throttle (5 failures → 60s lock; **single-instance only**)
 - [x] Dashboard: total count, search (name/email/phone), pagination (25, newest first), confirmed hard delete
+- [x] Registration detail at `/admin/registrations/[id]` — identity, meta, questionnaire answers (English labels)
 - [x] CSV export at `GET /api/admin/registrations/export` with formula neutralization
 - [x] `Cache-Control: private, no-store` on admin pages/export
 - [x] Admin UI language: **English for now** (owner language choice still pending)

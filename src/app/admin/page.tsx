@@ -94,10 +94,15 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
                     <td className="px-4 py-3 uppercase">{row.locale}</td>
                     <td className="px-4 py-3">{row.emailDeliveryStatus}</td>
                     <td className="px-4 py-3">
-                      <DeleteRegistrationButton
-                        registrationId={row.id}
-                        label={`${row.firstName} ${row.lastName} (${row.email})`}
-                      />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/admin/registrations/${row.id}`}>View</Link>
+                        </Button>
+                        <DeleteRegistrationButton
+                          registrationId={row.id}
+                          label={`${row.firstName} ${row.lastName} (${row.email})`}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

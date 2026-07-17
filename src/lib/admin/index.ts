@@ -38,6 +38,8 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
 
 export { neutralizeCsvValue, formatCsvCell, buildCsv } from '@/lib/admin/csv';
 export { listAdminRegistrations, listRegistrationsForExport } from '@/lib/admin/list-registrations';
+export { getAdminRegistration } from '@/lib/admin/get-registration';
+export { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers';
 export { deleteRegistration } from '@/lib/admin/delete-registration';
 export {
   ADMIN_PAGE_SIZE,

@@ -8,9 +8,15 @@ import { Button } from '@/components/ui/button';
 type DeleteRegistrationButtonProps = {
   registrationId: string;
   label: string;
+  /** When set, navigate here after a successful delete instead of refreshing. */
+  redirectTo?: string;
 };
 
-export function DeleteRegistrationButton({ registrationId, label }: DeleteRegistrationButtonProps) {
+export function DeleteRegistrationButton({
+  registrationId,
+  label,
+  redirectTo,
+}: DeleteRegistrationButtonProps) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +31,10 @@ export function DeleteRegistrationButton({ registrationId, label }: DeleteRegist
         return;
       }
       setConfirmOpen(false);
+      if (redirectTo) {
+        router.push(redirectTo);
+        return;
+      }
       router.refresh();
     });
   }
