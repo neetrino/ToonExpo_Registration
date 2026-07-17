@@ -11,21 +11,33 @@ export function WizardProgress({ currentStep, steps }: WizardProgressProps) {
   const currentIndex = steps.indexOf(currentStep);
   const stepNumber = currentIndex >= 0 ? currentIndex + 1 : 1;
   const totalSteps = steps.length;
+  const progressPercent = totalSteps > 0 ? (stepNumber / totalSteps) * 100 : 0;
 
   return (
-    <div className="mb-6 space-y-2">
-      <p className="text-sm font-medium text-muted-foreground">
-        {tWizard('progress', { current: stepNumber, total: totalSteps })}
-      </p>
-      <div className="flex gap-1.5" aria-hidden="true">
-        {steps.map((step, index) => (
-          <span
-            key={step}
-            className={`h-1.5 flex-1 rounded-full ${
-              index <= currentIndex ? 'bg-accent' : 'bg-muted'
-            }`}
-          />
-        ))}
+    <div className="mb-8 space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          {tWizard('progress', { current: stepNumber, total: totalSteps })}
+        </p>
+        <span className="text-xs font-medium tabular-nums text-accent">{stepNumber}</span>
+      </div>
+      <div
+        className="relative h-1.5 overflow-hidden rounded-full bg-muted"
+        role="progressbar"
+        aria-valuenow={stepNumber}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
+        aria-label={tWizard('progress', { current: stepNumber, total: totalSteps })}
+      >
+        <div
+          className="wizard-progress-fill absolute inset-y-0 left-0 rounded-full bg-accent"
+          style={{ width: `${progressPercent}%` }}
+        />
+        <div
+          className="wizard-progress-fill absolute top-1/2 size-2.5 -translate-y-1/2 rounded-full bg-highlight"
+          style={{ left: `calc(${progressPercent}% - 5px)` }}
+          aria-hidden="true"
+        />
       </div>
     </div>
   );

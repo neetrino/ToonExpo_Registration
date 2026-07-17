@@ -1,7 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { EventDetails } from '@/components/landing/event-details';
-import { LandingHero } from '@/components/landing/landing-hero';
-import { RegistrationSection } from '@/components/landing/registration-section';
+import { LandingBrand } from '@/components/landing/landing-brand';
+import { LandingRegistrationCard } from '@/components/landing/landing-registration-card';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { locales, type Locale } from '@/types/locale';
 
@@ -17,26 +16,12 @@ export default async function LandingPage({ params }: LandingPageProps) {
   const resolvedLocale = locales.includes(locale as Locale) ? (locale as Locale) : 'hy';
 
   return (
-    <>
-      <LandingHero
-        eyebrow={t('eyebrow')}
-        title={t('title')}
-        description={t('description')}
-        ctaLabel={t('registerCta')}
-      />
-      <EventDetails
-        title={t('eventDetailsTitle')}
-        dateLabel={t('dateLabel')}
-        dateValue={t('dateValue')}
-        venueLabel={t('venueLabel')}
-        venueValue={t('venueValue')}
-      />
-      <RegistrationSection
-        locale={resolvedLocale}
-        title={t('registrationTitle')}
-        description={t('registrationDescription')}
-      />
+    <div className="flex min-h-full flex-1 flex-col bg-primary">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-8 px-4 py-10 md:gap-10 md:py-14 lg:py-16">
+        <LandingBrand title={t('title')} tagline={t('description')} />
+        <LandingRegistrationCard locale={resolvedLocale} />
+      </div>
       <SiteFooter privacyLabel={t('privacyLink')} />
-    </>
+    </div>
   );
 }

@@ -18,7 +18,9 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-destructive: var(--destructive);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-noto-armenian), var(--font-noto-sans), var(--font-geist-sans), system-ui,
+    sans-serif;
+  --font-display: var(--font-unbounded), var(--font-noto-sans), system-ui, sans-serif;
 }
 
 :root {
@@ -44,5 +46,52 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+@keyframes landing-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wizard-step-enter {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.landing-card-enter {
+  animation: landing-card-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wizard-step-panel {
+  animation: wizard-step-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wizard-progress-fill {
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-card-enter,
+  .wizard-step-panel {
+    animation: none;
+  }
+
+  .wizard-progress-fill {
+    transition: none;
+  }
 }

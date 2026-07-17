@@ -30,9 +30,12 @@ export function OptionRadioGroup<T extends string>({
             key={option}
             htmlFor={id}
             className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-md border px-4 py-3 transition-colors',
-              checked ? 'border-accent bg-accent/5' : 'border-input bg-background hover:bg-muted/50',
+              'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+              checked
+                ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
+                : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
               disabled && 'cursor-not-allowed opacity-50',
+              error && !checked && 'border-destructive/40',
             )}
           >
             <input
@@ -42,10 +45,12 @@ export function OptionRadioGroup<T extends string>({
               value={option}
               checked={checked}
               disabled={disabled}
-              className="mt-0.5 size-4 shrink-0 accent-accent"
+              className="mt-0.5 size-4 shrink-0 accent-highlight"
               onChange={() => onChange(option)}
             />
-            <span className="text-sm leading-snug text-foreground">{getLabel(option)}</span>
+            <span className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}>
+              {getLabel(option)}
+            </span>
           </label>
         );
       })}
@@ -99,9 +104,12 @@ export function OptionCheckboxGroup<T extends string>({
             key={option}
             htmlFor={id}
             className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-md border px-4 py-3 transition-colors',
-              checked ? 'border-accent bg-accent/5' : 'border-input bg-background hover:bg-muted/50',
+              'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+              checked
+                ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
+                : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
               (disabled || atMax) && 'cursor-not-allowed opacity-50',
+              error && !checked && 'border-destructive/40',
             )}
           >
             <input
@@ -111,10 +119,12 @@ export function OptionCheckboxGroup<T extends string>({
               value={option}
               checked={checked}
               disabled={disabled || atMax}
-              className="mt-0.5 size-4 shrink-0 rounded border border-input accent-accent"
+              className="mt-0.5 size-4 shrink-0 rounded border border-input accent-highlight"
               onChange={() => toggle(option)}
             />
-            <span className="text-sm leading-snug text-foreground">{getLabel(option)}</span>
+            <span className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}>
+              {getLabel(option)}
+            </span>
           </label>
         );
       })}

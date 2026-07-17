@@ -27,6 +27,7 @@ import {
 } from './wizard/types';
 import { isWizardStepValid, validateWizardStep } from './wizard/validation';
 import { WizardProgress } from './wizard/wizard-progress';
+import { WizardStepPanel } from './wizard/wizard-step-panel';
 
 type RegistrationWizardProps = {
   locale: Locale;
@@ -194,19 +195,21 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     <div aria-busy={isSubmitting}>
       <WizardProgress currentStep={currentStep} steps={steps} />
 
-      <div className="space-y-6">
-        {currentStep === 'identity' ? <IdentityStep {...stepProps} /> : null}
-        {currentStep === 'profile' ? <ProfileStep {...stepProps} /> : null}
-        {currentStep === 'own-residence-interest' ? (
-          <OwnResidenceInterestStep {...stepProps} />
-        ) : null}
-        {currentStep === 'own-residence-details' ? (
-          <OwnResidenceDetailsStep {...stepProps} />
-        ) : null}
-        {currentStep === 'investment' ? <InvestmentStep {...stepProps} /> : null}
-        {currentStep === 'market-research' ? <MarketResearchStep {...stepProps} /> : null}
-        {currentStep === 'finish' ? <FinishStep {...stepProps} /> : null}
-      </div>
+      <WizardStepPanel stepKey={currentStep}>
+        <div className="space-y-6">
+          {currentStep === 'identity' ? <IdentityStep {...stepProps} /> : null}
+          {currentStep === 'profile' ? <ProfileStep {...stepProps} /> : null}
+          {currentStep === 'own-residence-interest' ? (
+            <OwnResidenceInterestStep {...stepProps} />
+          ) : null}
+          {currentStep === 'own-residence-details' ? (
+            <OwnResidenceDetailsStep {...stepProps} />
+          ) : null}
+          {currentStep === 'investment' ? <InvestmentStep {...stepProps} /> : null}
+          {currentStep === 'market-research' ? <MarketResearchStep {...stepProps} /> : null}
+          {currentStep === 'finish' ? <FinishStep {...stepProps} /> : null}
+        </div>
+      </WizardStepPanel>
 
       <div className="absolute -left-[9999px]" aria-hidden="true">
         <Label htmlFor="website">Website</Label>

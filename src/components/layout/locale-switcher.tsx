@@ -11,11 +11,16 @@ const localeLabels: Record<Locale, string> = {
   ru: 'RU',
 };
 
-export function LocaleSwitcher() {
+type LocaleSwitcherProps = {
+  tone?: 'default' | 'inverse';
+};
+
+export function LocaleSwitcher({ tone = 'default' }: LocaleSwitcherProps) {
   const t = useTranslations('common');
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const router = useRouter();
+  const isInverse = tone === 'inverse';
 
   const handleChange = (nextLocale: Locale) => {
     if (nextLocale === locale) {
@@ -27,7 +32,10 @@ export function LocaleSwitcher() {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-md border border-border p-1"
+      className={cn(
+        'flex items-center gap-0.5 rounded-full p-0.5',
+        isInverse ? 'border border-white/20 bg-white/5' : 'border border-border bg-background',
+      )}
       role="group"
       aria-label={t('languageSwitcher')}
     >
@@ -37,10 +45,16 @@ export function LocaleSwitcher() {
           type="button"
           aria-current={code === locale ? 'true' : undefined}
           className={cn(
-            'min-h-9 min-w-9 rounded px-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'min-h-8 min-w-8 rounded-full px-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 motion-reduce:transition-none',
+            isInverse && 'focus-visible:ring-offset-primary',
+            !isInverse && 'focus-visible:ring-offset-background',
             code === locale
-              ? 'bg-primary text-primary-foreground'
-              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              ? isInverse
+                ? 'bg-white text-primary'
+                : 'bg-primary text-primary-foreground'
+              : isInverse
+                ? 'text-white/70 hover:bg-white/10 hover:text-white'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
           )}
           onClick={() => handleChange(code)}
         >
