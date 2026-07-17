@@ -47,11 +47,11 @@ function buildEnMessage(input: ConfirmationMessageInput): ConfirmationMessage {
 }
 
 function buildHyMessage(input: ConfirmationMessageInput): ConfirmationMessage {
-  const subject = "Toon Expo — գրանցումը հաստատված է";
+  const subject = 'Toon Expo — գրանցումը հաստատված է';
   const paragraphs = [
     `Բարև, ${input.firstName}։`,
-    "Ձեր Toon Expo-ի գրանցումը հաստատված է։",
-    "Միջոցառման մանրամասներ (TBA).\n• Ամսաթիվ. կհայտարարվի ավելի ուշ\n• Վայր. կհայտարարվի ավելի ուշ",
+    'Ձեր Toon Expo-ի գրանցումը հաստատված է։',
+    'Միջոցառման մանրամասներ (TBA).\n• Ամսաթիվ. կհայտարարվի ավելի ուշ\n• Վայր. կհայտարարվի ավելի ուշ',
     `Թարմացումները կհրապարակենք Միջոցառման կայքը.\n${input.siteUrl}`,
     '— Toon Expo',
   ];
@@ -64,11 +64,11 @@ function buildHyMessage(input: ConfirmationMessageInput): ConfirmationMessage {
 }
 
 function buildRuMessage(input: ConfirmationMessageInput): ConfirmationMessage {
-  const subject = "Toon Expo — регистрация подтверждена";
+  const subject = 'Toon Expo — регистрация подтверждена';
   const paragraphs = [
     `Здравствуйте, ${input.firstName}.`,
-    "Ваша регистрация на Toon Expo подтверждена.",
-    "Детали мероприятия (TBA):\n• Дата: будет объявлена позже\n• Место: будет объявлено позже",
+    'Ваша регистрация на Toon Expo подтверждена.',
+    'Детали мероприятия (TBA):\n• Дата: будет объявлена позже\n• Место: будет объявлено позже',
     `Обновления будут на сайте мероприятия:\n${input.siteUrl}`,
     '— Toon Expo',
   ];

@@ -25,10 +25,7 @@ export const registrationBodySchema = z
       .string()
       .transform(normalizeName)
       .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
-    email: z
-      .string()
-      .transform(trimEmail)
-      .pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
+    email: z.string().transform(trimEmail).pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
     phone: z.string().min(1).max(64),
     locale: localeSchema,
     privacyConsent: z.literal(true),

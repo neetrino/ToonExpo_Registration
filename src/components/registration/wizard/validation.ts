@@ -95,12 +95,20 @@ const ownResidenceLocationSchema = z
   })
   .superRefine((data, ctx) => {
     if (!data.locationSeekScope) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['locationSeekScope'], message: 'required' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['locationSeekScope'],
+        message: 'required',
+      });
       return;
     }
 
     if (data.locationSeekScope === 'yerevan' && data.yerevanDistricts.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['yerevanDistricts'], message: 'required' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['yerevanDistricts'],
+        message: 'required',
+      });
     }
 
     if (data.locationSeekScope === 'marz' && data.marzRegions.length === 0) {
@@ -199,11 +207,7 @@ function mapIssueMessage(issue: z.ZodIssue, t: ErrorTranslator): string {
     return t.consentRequired;
   }
 
-  if (
-    issue.code === 'invalid_string' &&
-    'validation' in issue &&
-    issue.validation === 'email'
-  ) {
+  if (issue.code === 'invalid_string' && 'validation' in issue && issue.validation === 'email') {
     return t.invalidEmail;
   }
 

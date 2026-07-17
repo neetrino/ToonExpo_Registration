@@ -34,10 +34,7 @@ const OPTION_GROUP_BY_FIELD = {
 type OptionGroupKey = (typeof OPTION_GROUP_BY_FIELD)[keyof typeof OPTION_GROUP_BY_FIELD];
 
 /** Localized questionnaire question prompt. */
-export function getQuestionLabel(
-  questionKey: QuestionKey,
-  locale: QuestionnaireLocale,
-): string {
+export function getQuestionLabel(questionKey: QuestionKey, locale: QuestionnaireLocale): string {
   return getQuestionnaireLabel(questionnaireI18n.questions[questionKey], locale);
 }
 
@@ -48,7 +45,10 @@ export function getOptionLabel(
   locale: QuestionnaireLocale,
 ): string {
   const groupKey = OPTION_GROUP_BY_FIELD[field] as OptionGroupKey;
-  const group = questionnaireI18n.options[groupKey] as Record<string, { hy: string; en: string; ru: string }>;
+  const group = questionnaireI18n.options[groupKey] as Record<
+    string,
+    { hy: string; en: string; ru: string }
+  >;
   const localized = group[value];
 
   if (!localized) {

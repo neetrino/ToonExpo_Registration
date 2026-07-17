@@ -48,7 +48,9 @@ export function OptionRadioGroup<T extends string>({
               className="mt-0.5 size-4 shrink-0 accent-highlight"
               onChange={() => onChange(option)}
             />
-            <span className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}>
+            <span
+              className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+            >
               {getLabel(option)}
             </span>
           </label>
@@ -122,7 +124,9 @@ export function OptionCheckboxGroup<T extends string>({
               className="mt-0.5 size-4 shrink-0 rounded border border-input accent-highlight"
               onChange={() => toggle(option)}
             />
-            <span className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}>
+            <span
+              className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+            >
               {getLabel(option)}
             </span>
           </label>

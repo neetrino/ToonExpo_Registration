@@ -19,8 +19,8 @@
   --color-card-foreground: var(--card-foreground);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
-  --font-sans: var(--font-noto-armenian), var(--font-noto-sans), var(--font-geist-sans), system-ui,
-    sans-serif;
+  --font-sans:
+    var(--font-noto-armenian), var(--font-noto-sans), var(--font-geist-sans), system-ui, sans-serif;
   --font-display: var(--font-unbounded), var(--font-noto-sans), system-ui, sans-serif;
 }
 

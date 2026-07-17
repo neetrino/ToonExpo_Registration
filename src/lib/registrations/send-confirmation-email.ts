@@ -13,8 +13,7 @@ export type ConfirmationEmailInput = {
 };
 
 export type ConfirmationEmailResult =
-  | { ok: true; messageId: string | undefined }
-  | { ok: false; reason: string };
+  { ok: true; messageId: string | undefined } | { ok: false; reason: string };
 
 /**
  * Attempt confirmation email via Resend. Never throws; failures are returned.

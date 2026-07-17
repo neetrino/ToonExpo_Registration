@@ -9,31 +9,19 @@ function L(hy: string, en: string, ru: string): Localized {
 /** Question prompts and option labels for form version 2026-vis-reg-v1. */
 export const questionnaireI18n = {
   questions: {
-    ageBand: L(
-      'Տարիք',
-      'Age',
-      'Возраст',
-    ),
+    ageBand: L('Տարիք', 'Age', 'Возраст'),
     visitPurpose: L(
       'Ձեր այցի հիմնական նպատակը TOON EXPO-ին',
       'What is the main purpose of your visit to TOON EXPO?',
       'Какова основная цель вашего визита на TOON EXPO?',
     ),
-    interestType: L(
-      'Ձեզ հետաքրքրում է',
-      'What are you interested in?',
-      'Что вас интересует?',
-    ),
+    interestType: L('Ձեզ հետաքրքրում է', 'What are you interested in?', 'Что вас интересует?'),
     abroadCountries: L(
       'Գույք արտերկրում — երկիր',
       'Property abroad — country',
       'Недвижимость за рубежом — страна',
     ),
-    abroadCountriesOther: L(
-      'Այլ (խնդրում ենք նշել)',
-      'Other (please specify)',
-      'Другое (укажите)',
-    ),
+    abroadCountriesOther: L('Այլ (խնդրում ենք նշել)', 'Other (please specify)', 'Другое (укажите)'),
     locationSeek: L(
       'Որտե՞ղ եք փնտրում անշարժ գույք',
       'Where are you looking for real estate?',
@@ -44,11 +32,7 @@ export const questionnaireI18n = {
       'Yerevan — district',
       'Ереван — административный район',
     ),
-    marzRegions: L(
-      'Մարզ',
-      'Region (marz)',
-      'Марз (область)',
-    ),
+    marzRegions: L('Մարզ', 'Region (marz)', 'Марз (область)'),
     areaSqm: L(
       'Քանի՞ քմ մակերեսով անշարժ գույք եք փնտրում',
       'What property size (sqm) are you looking for?',
@@ -167,11 +151,7 @@ export const questionnaireI18n = {
       ),
     },
     interestType: {
-      house_townhouse: L(
-        'Առանձնատուն / Թաունհաուս',
-        'House / townhouse',
-        'Частный дом / таунхаус',
-      ),
+      house_townhouse: L('Առանձնատուն / Թաունհաուս', 'House / townhouse', 'Частный дом / таунхаус'),
       apartment_new: L(
         'Բնակարան կառուցապատողից (նորակառույց)',
         'Apartment from a developer (new build)',
@@ -245,11 +225,7 @@ export const questionnaireI18n = {
       '500k-700k': L('500․000-700․000 դր', 'AMD 500,000–700,000', '500 000–700 000 драм'),
       '700k-1m': L('700․000-1․000․000 դր', 'AMD 700,000–1,000,000', '700 000–1 000 000 драм'),
       '1m_plus': L('1․000․000 դր +', 'AMD 1,000,000+', '1 000 000 драм+'),
-      paying_cash: L(
-        'Ձեռք եմ բերելու կանխիկ',
-        'I will pay in cash',
-        'Приобрету за наличные',
-      ),
+      paying_cash: L('Ձեռք եմ բերելու կանխիկ', 'I will pay in cash', 'Приобрету за наличные'),
     },
     decisionStage: {
       ready_1_month: L(
@@ -330,11 +306,7 @@ export const questionnaireI18n = {
       ),
     },
     investmentBudgetUsd: {
-      up_to_100k: L(
-        'Մինչև 100,000 ԱՄՆ դոլար',
-        'Up to USD 100,000',
-        'До 100 000 долларов США',
-      ),
+      up_to_100k: L('Մինչև 100,000 ԱՄՆ դոլար', 'Up to USD 100,000', 'До 100 000 долларов США'),
       '100k-250k': L(
         '100,000 – 250,000 ԱՄՆ դոլար',
         'USD 100,000–250,000',
@@ -345,11 +317,7 @@ export const questionnaireI18n = {
         'USD 250,000–500,000',
         '250 000–500 000 долларов США',
       ),
-      '500k_plus': L(
-        '500,000 ԱՄՆ դոլար +',
-        'USD 500,000+',
-        '500 000 долларов США+',
-      ),
+      '500k_plus': L('500,000 ԱՄՆ դոլար +', 'USD 500,000+', '500 000 долларов США+'),
     },
     priorInvestmentExperience: {
       yes_armenia: L('Այո, Հայաստանում', 'Yes, in Armenia', 'Да, в Армении'),
@@ -366,11 +334,7 @@ export const questionnaireI18n = {
       ),
     },
     marketInterest: {
-      new_apartments: L(
-        'Նորակառույց բնակարաններ',
-        'New-build apartments',
-        'Новостройки',
-      ),
+      new_apartments: L('Նորակառույց բնակարաններ', 'New-build apartments', 'Новостройки'),
       houses_townhouses: L(
         'Առանձնատներ և թաունհաուսներ',
         'Houses and townhouses',
@@ -386,16 +350,8 @@ export const questionnaireI18n = {
         'Foreign real estate',
         'Зарубежная недвижимость',
       ),
-      mortgage_programs: L(
-        'Հիփոթեքային ծրագրեր',
-        'Mortgage programs',
-        'Ипотечные программы',
-      ),
-      price_trends: L(
-        'Շուկայի գնային միտումներ',
-        'Market price trends',
-        'Ценовые тренды рынка',
-      ),
+      mortgage_programs: L('Հիփոթեքային ծրագրեր', 'Mortgage programs', 'Ипотечные программы'),
+      price_trends: L('Շուկայի գնային միտումներ', 'Market price trends', 'Ценовые тренды рынка'),
       developer_offers: L(
         'Կառուցապատողների առաջարկներ',
         'Developer offers',
@@ -455,9 +411,6 @@ export const questionnaireI18n = {
 /**
  * Resolve a localized questionnaire string for the given locale.
  */
-export function getQuestionnaireLabel(
-  localized: Localized,
-  locale: QuestionnaireLocale,
-): string {
+export function getQuestionnaireLabel(localized: Localized, locale: QuestionnaireLocale): string {
   return localized[locale];
 }

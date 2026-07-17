@@ -59,13 +59,23 @@ export function AdminRegistrationsPanel({
   initialView,
 }: AdminRegistrationsPanelProps) {
   const [view, setView] = useState<AdminRegistrationDetail | null>(initialView);
+  const [prevInitialView, setPrevInitialView] = useState(initialView);
   const closeHref = buildAdminHref({ q: query || undefined, page });
+
+  if (initialView !== prevInitialView) {
+    setPrevInitialView(initialView);
+    setView(initialView);
+  }
 
   const openRegistration = useCallback(
     (row: AdminRegistrationRow) => {
       const detail = toDetail(row, event);
       setView(detail);
-      window.history.pushState({ view: row.id }, '', buildAdminHref({ q: query || undefined, page, view: row.id }));
+      window.history.pushState(
+        { view: row.id },
+        '',
+        buildAdminHref({ q: query || undefined, page, view: row.id }),
+      );
     },
     [event, page, query],
   );
@@ -74,10 +84,6 @@ export function AdminRegistrationsPanel({
     setView(null);
     window.history.pushState({ view: null }, '', closeHref);
   }, [closeHref]);
-
-  useEffect(() => {
-    setView(initialView);
-  }, [initialView]);
 
   useEffect(() => {
     function onPopState(): void {

@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createRequestId,
-  getOrCreateRequestId,
-  requestIdHeaders,
-} from '@/lib/security/request-id';
+import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security/request-id';
 
 describe('request-id helpers', () => {
   it('creates opaque ids', () => {

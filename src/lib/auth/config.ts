@@ -20,9 +20,7 @@ export const authConfig = {
   useSecureCookies: isProduction,
   cookies: {
     sessionToken: {
-      name: isProduction
-        ? '__Secure-authjs.session-token'
-        : 'authjs.session-token',
+      name: isProduction ? '__Secure-authjs.session-token' : 'authjs.session-token',
       options: {
         httpOnly: true,
         sameSite: 'lax',

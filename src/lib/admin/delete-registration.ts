@@ -1,13 +1,14 @@
 import { getPrisma } from '@/lib/db';
 
 export type DeleteRegistrationResult =
-  | { ok: true }
-  | { ok: false; code: 'NOT_FOUND' | 'NO_ACTIVE_EVENT' };
+  { ok: true } | { ok: false; code: 'NOT_FOUND' | 'NO_ACTIVE_EVENT' };
 
 /**
  * Hard-delete one registration belonging to the active event.
  */
-export async function deleteRegistration(registrationId: string): Promise<DeleteRegistrationResult> {
+export async function deleteRegistration(
+  registrationId: string,
+): Promise<DeleteRegistrationResult> {
   const prisma = getPrisma();
 
   const event = await prisma.event.findFirst({

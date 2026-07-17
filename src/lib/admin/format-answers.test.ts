@@ -22,7 +22,11 @@ describe('formatRegistrationAnswersForDisplay', () => {
         { label: 'What are you interested in?', value: 'House / townhouse' },
         { label: 'Where are you looking for real estate?', value: 'Yerevan' },
         { label: 'Yerevan — district', value: 'Kentron, Arabkir' },
-        { label: 'Would you like to receive industry news, analysis, and special offers after the exhibition?', value: 'Yes' },
+        {
+          label:
+            'Would you like to receive industry news, analysis, and special offers after the exhibition?',
+          value: 'Yes',
+        },
       ]),
     );
   });

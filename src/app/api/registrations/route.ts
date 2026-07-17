@@ -125,13 +125,9 @@ function responseHeaders(requestId: string): Record<string, string> {
   };
 }
 
-function jsonError(
-  status: number,
-  code: string,
-  requestId: string,
-): NextResponse<ErrorBody> {
-  return NextResponse.json(
-    { ok: false, code, requestId } satisfies ErrorBody,
-    { status, headers: responseHeaders(requestId) },
-  );
+function jsonError(status: number, code: string, requestId: string): NextResponse<ErrorBody> {
+  return NextResponse.json({ ok: false, code, requestId } satisfies ErrorBody, {
+    status,
+    headers: responseHeaders(requestId),
+  });
 }

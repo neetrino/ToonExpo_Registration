@@ -7,7 +7,13 @@ const eslintConfig = [
   ...nextTypescript,
   prettier,
   {
-    ignores: ['.next/**', 'node_modules/**', 'coverage/**', 'playwright-report/**'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'coverage/**',
+      'playwright-report/**',
+      'src/generated/**',
+    ],
   },
 ];
 

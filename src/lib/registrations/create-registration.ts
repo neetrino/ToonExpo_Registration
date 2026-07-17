@@ -1,15 +1,11 @@
 import { getPrisma } from '@/lib/db/prisma';
 import { logger } from '@/lib/logger';
-import {
-  mapRegistrationError,
-  type RegistrationAppError,
-} from '@/lib/registrations/errors';
+import { mapRegistrationError, type RegistrationAppError } from '@/lib/registrations/errors';
 import { sendConfirmationEmail } from '@/lib/registrations/send-confirmation-email';
 import type { RegistrationBody } from '@/lib/validation';
 
 export type CreateRegistrationResult =
-  | { ok: true; registrationId: string }
-  | { ok: false; error: RegistrationAppError };
+  { ok: true; registrationId: string } | { ok: false; error: RegistrationAppError };
 
 /**
  * Create a registration for the active event, then attempt confirmation email outside the DB write.

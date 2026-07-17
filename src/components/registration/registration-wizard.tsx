@@ -17,10 +17,7 @@ import {
   InvestmentGoalStep,
   InvestmentTypeStep,
 } from './wizard/step-investment';
-import {
-  MarketResearchFocusStep,
-  MarketResearchWhereStep,
-} from './wizard/step-market-research';
+import { MarketResearchFocusStep, MarketResearchWhereStep } from './wizard/step-market-research';
 import {
   OwnResidenceBudgetStep,
   OwnResidenceInterestStep,
@@ -302,23 +299,20 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
             <OwnResidenceLocationStep {...stepProps} />
           ) : null}
           {safeStep === 'own-residence-size' ? <OwnResidenceSizeStep {...stepProps} /> : null}
-          {safeStep === 'own-residence-budget' ? (
-            <OwnResidenceBudgetStep {...stepProps} />
-          ) : null}
+          {safeStep === 'own-residence-budget' ? <OwnResidenceBudgetStep {...stepProps} /> : null}
           {safeStep === 'investment-type' ? <InvestmentTypeStep {...stepProps} /> : null}
           {safeStep === 'investment-goal' ? <InvestmentGoalStep {...stepProps} /> : null}
           {safeStep === 'investment-budget' ? <InvestmentBudgetStep {...stepProps} /> : null}
-          {safeStep === 'market-research-focus' ? (
-            <MarketResearchFocusStep {...stepProps} />
-          ) : null}
-          {safeStep === 'market-research-where' ? (
-            <MarketResearchWhereStep {...stepProps} />
-          ) : null}
+          {safeStep === 'market-research-focus' ? <MarketResearchFocusStep {...stepProps} /> : null}
+          {safeStep === 'market-research-where' ? <MarketResearchWhereStep {...stepProps} /> : null}
           {safeStep === 'finish' ? <FinishStep {...stepProps} /> : null}
         </div>
       </WizardStepPanel>
 
-      <div className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0" aria-hidden="true">
+      <div
+        className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0"
+        aria-hidden="true"
+      >
         <input
           id="companyUrl"
           name="companyUrl"
@@ -357,11 +351,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           disabled={isSubmitting || !stepIsValid}
           className="w-full sm:w-auto"
         >
-          {isLastStep
-            ? isSubmitting
-              ? tForm('submitting')
-              : tForm('submit')
-            : tWizard('next')}
+          {isLastStep ? (isSubmitting ? tForm('submitting') : tForm('submit')) : tWizard('next')}
         </Button>
       </div>
     </div>

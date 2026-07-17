@@ -46,9 +46,7 @@ function pushRow(rows: AnswerDisplayRow[], label: string, value: string | undefi
   rows.push({ label, value });
 }
 
-function formatLocationSeek(
-  locationSeek: Record<string, unknown>,
-): AnswerDisplayRow[] {
+function formatLocationSeek(locationSeek: Record<string, unknown>): AnswerDisplayRow[] {
   const rows: AnswerDisplayRow[] = [];
   const scope = locationSeek.scope;
 
@@ -59,9 +57,15 @@ function formatLocationSeek(
   pushRow(rows, questionLabel('locationSeek'), optionLabel('locationSeekScope', scope));
 
   if (scope === 'yerevan' && Array.isArray(locationSeek.districts)) {
-    const districts = locationSeek.districts.filter((item): item is string => typeof item === 'string');
+    const districts = locationSeek.districts.filter(
+      (item): item is string => typeof item === 'string',
+    );
     if (districts.length > 0) {
-      pushRow(rows, questionLabel('yerevanDistricts'), joinOptionLabels('yerevanDistrict', districts));
+      pushRow(
+        rows,
+        questionLabel('yerevanDistricts'),
+        joinOptionLabels('yerevanDistrict', districts),
+      );
     }
   }
 
@@ -124,7 +128,11 @@ function formatInvestmentAnswers(a: Record<string, unknown>, rows: AnswerDisplay
     pushRow(rows, questionLabel('investmentPropertyTypeOther'), a.investmentPropertyTypeOther);
   }
   if (typeof a.investmentMarket === 'string') {
-    pushRow(rows, questionLabel('investmentMarket'), optionLabel('investmentMarket', a.investmentMarket));
+    pushRow(
+      rows,
+      questionLabel('investmentMarket'),
+      optionLabel('investmentMarket', a.investmentMarket),
+    );
   }
   if (typeof a.investmentMarketOther === 'string') {
     pushRow(rows, questionLabel('investmentMarketOther'), a.investmentMarketOther);
@@ -159,20 +167,32 @@ function formatMarketResearchAnswers(a: Record<string, unknown>, rows: AnswerDis
   if (Array.isArray(a.marketInterests)) {
     const interests = a.marketInterests.filter((item): item is string => typeof item === 'string');
     if (interests.length > 0) {
-      pushRow(rows, questionLabel('marketInterests'), joinOptionLabels('marketInterest', interests));
+      pushRow(
+        rows,
+        questionLabel('marketInterests'),
+        joinOptionLabels('marketInterest', interests),
+      );
     }
   }
   if (typeof a.researchGoal === 'string') {
     pushRow(rows, questionLabel('researchGoal'), optionLabel('researchGoal', a.researchGoal));
   }
   if (typeof a.interestedWhere === 'string') {
-    pushRow(rows, questionLabel('interestedWhere'), optionLabel('interestedWhere', a.interestedWhere));
+    pushRow(
+      rows,
+      questionLabel('interestedWhere'),
+      optionLabel('interestedWhere', a.interestedWhere),
+    );
   }
   if (typeof a.interestedWhereOther === 'string') {
     pushRow(rows, questionLabel('interestedWhereOther'), a.interestedWhereOther);
   }
   if (typeof a.purchaseHorizon === 'string') {
-    pushRow(rows, questionLabel('purchaseHorizon'), optionLabel('purchaseHorizon', a.purchaseHorizon));
+    pushRow(
+      rows,
+      questionLabel('purchaseHorizon'),
+      optionLabel('purchaseHorizon', a.purchaseHorizon),
+    );
   }
 }
 

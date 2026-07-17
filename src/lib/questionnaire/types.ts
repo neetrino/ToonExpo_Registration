@@ -88,7 +88,4 @@ export type MarketResearchAnswers = {
   newsletter: boolean;
 };
 
-export type QuestionnaireAnswers =
-  | OwnResidenceAnswers
-  | InvestmentAnswers
-  | MarketResearchAnswers;
+export type QuestionnaireAnswers = OwnResidenceAnswers | InvestmentAnswers | MarketResearchAnswers;

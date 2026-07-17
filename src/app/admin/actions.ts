@@ -51,7 +51,9 @@ export type DeleteActionResult = { ok: true } | { ok: false; error: string };
  * Hard-delete one registration after server-side session check.
  * Protected by Next.js Server Action CSRF/origin checks and session RBAC.
  */
-export async function deleteRegistrationAction(registrationId: string): Promise<DeleteActionResult> {
+export async function deleteRegistrationAction(
+  registrationId: string,
+): Promise<DeleteActionResult> {
   const requestId = createRequestId();
   const session = await getAdminSession();
   if (!session) {

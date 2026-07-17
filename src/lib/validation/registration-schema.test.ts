@@ -99,7 +99,9 @@ describe('registrationBodySchema', () => {
   });
 
   it('rejects missing questionnaire answers', () => {
-    const { answers: _answers, ...withoutAnswers } = valid;
+    const withoutAnswers = Object.fromEntries(
+      Object.entries(valid).filter(([key]) => key !== 'answers'),
+    );
     const parsed = registrationBodySchema.safeParse(withoutAnswers);
     expect(parsed.success).toBe(false);
   });

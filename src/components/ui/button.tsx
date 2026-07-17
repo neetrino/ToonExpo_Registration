@@ -12,7 +12,8 @@ const buttonVariants = cva(
           'bg-primary text-primary-foreground hover:bg-secondary active:scale-[0.98] motion-reduce:active:scale-100',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-accent active:scale-[0.98] motion-reduce:active:scale-100',
-        outline: 'border border-input bg-background hover:bg-muted active:scale-[0.98] motion-reduce:active:scale-100',
+        outline:
+          'border border-input bg-background hover:bg-muted active:scale-[0.98] motion-reduce:active:scale-100',
         ghost: 'hover:bg-muted',
         destructive: 'bg-destructive text-primary-foreground hover:bg-destructive/90',
       },

@@ -19,7 +19,11 @@ export function AdminSearchForm({
 
   if (isToolbar) {
     return (
-      <form method="get" action="/admin" className={cn('flex w-full min-w-0 items-center gap-2', className)}>
+      <form
+        method="get"
+        action="/admin"
+        className={cn('flex w-full min-w-0 items-center gap-2', className)}
+      >
         <div className="relative min-w-0 flex-1">
           <Input
             id="admin-search"
@@ -50,7 +54,11 @@ export function AdminSearchForm({
   }
 
   return (
-    <form method="get" action="/admin" className={cn('flex w-full flex-col gap-3 sm:flex-row sm:items-end', className)}>
+    <form
+      method="get"
+      action="/admin"
+      className={cn('flex w-full flex-col gap-3 sm:flex-row sm:items-end', className)}
+    >
       <div className="min-w-0 flex-1 space-y-1.5">
         <label
           htmlFor="admin-search"

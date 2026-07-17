@@ -28,6 +28,6 @@ describe('formatCsvCell', () => {
 describe('buildCsv', () => {
   it('builds a formula-safe document with headers', () => {
     const csv = buildCsv(['name', 'note'], [{ name: 'Ann', note: '=1+1' }]);
-    expect(csv).toBe('name,note\r\nAnn,\'=1+1\r\n');
+    expect(csv).toBe("name,note\r\nAnn,'=1+1\r\n");
   });
 });

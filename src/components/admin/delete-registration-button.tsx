@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useTransition, type ReactElement } from 'react';
+import { useEffect, useState, useSyncExternalStore, useTransition, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { deleteRegistrationAction } from '@/app/admin/actions';
 import { Button } from '@/components/ui/button';
@@ -47,13 +47,13 @@ export function DeleteRegistrationButton({
 }: DeleteRegistrationButtonProps) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!confirmOpen) {
@@ -124,7 +124,13 @@ export function DeleteRegistrationButton({
                 undone.
               </p>
               <div className="mt-5 flex justify-end gap-2">
-                <Button type="button" variant="outline" size="sm" disabled={pending} onClick={onCancel}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={pending}
+                  onClick={onCancel}
+                >
                   Cancel
                 </Button>
                 <Button

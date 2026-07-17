@@ -99,7 +99,10 @@ export function InvestmentTypeStep({ state, errors, disabled, locale, onUpdate }
 export function InvestmentGoalStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
     <div className="space-y-8">
-      <QuestionField legend={getQuestionLabel('investmentGoal', locale)} error={errors.investmentGoal}>
+      <QuestionField
+        legend={getQuestionLabel('investmentGoal', locale)}
+        error={errors.investmentGoal}
+      >
         <OptionRadioGroup
           name="investmentGoal"
           value={state.investmentGoal}

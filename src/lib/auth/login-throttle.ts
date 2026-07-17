@@ -29,7 +29,9 @@ function getState(key: string): AttemptState {
 /**
  * Returns whether a login attempt may proceed for the given key (email or IP).
  */
-export function isLoginAllowed(key: string): { allowed: true } | { allowed: false; retryAfterMs: number } {
+export function isLoginAllowed(
+  key: string,
+): { allowed: true } | { allowed: false; retryAfterMs: number } {
   const state = getState(key);
   const now = Date.now();
 

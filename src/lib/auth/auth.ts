@@ -4,11 +4,7 @@ import { z } from 'zod';
 import { getPrisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { authConfig } from '@/lib/auth/config';
-import {
-  isLoginAllowed,
-  recordLoginFailure,
-  recordLoginSuccess,
-} from '@/lib/auth/login-throttle';
+import { isLoginAllowed, recordLoginFailure, recordLoginSuccess } from '@/lib/auth/login-throttle';
 import { verifyPassword } from '@/lib/auth/password';
 import '@/lib/auth/types';
 

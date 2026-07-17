@@ -35,7 +35,10 @@ function normalizeSearch(raw: string | undefined): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function buildSearchWhere(eventId: string, search: string | undefined): Prisma.RegistrationWhereInput {
+function buildSearchWhere(
+  eventId: string,
+  search: string | undefined,
+): Prisma.RegistrationWhereInput {
   if (!search) {
     return { eventId };
   }

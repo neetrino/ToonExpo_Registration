@@ -1,4 +1,7 @@
-export { createRegistration, type CreateRegistrationResult } from '@/lib/registrations/create-registration';
+export {
+  createRegistration,
+  type CreateRegistrationResult,
+} from '@/lib/registrations/create-registration';
 export {
   mapRegistrationError,
   type RegistrationAppError,

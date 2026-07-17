@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import {
-  MARKET_INTERESTS_MAX,
-  OTHER_TEXT_MAX_LENGTH,
-} from '@/lib/questionnaire/constants';
+import { MARKET_INTERESTS_MAX, OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,

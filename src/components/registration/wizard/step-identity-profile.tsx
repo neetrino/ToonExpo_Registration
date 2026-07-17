@@ -118,10 +118,7 @@ export function ProfileStep({
         />
       </QuestionField>
 
-      <QuestionField
-        legend={getQuestionLabel('visitPurpose', locale)}
-        error={errors.visitPurpose}
-      >
+      <QuestionField legend={getQuestionLabel('visitPurpose', locale)} error={errors.visitPurpose}>
         <OptionRadioGroup
           name="visitPurpose"
           value={state.visitPurpose}

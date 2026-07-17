@@ -1,32 +1,10 @@
-export const AGE_BANDS = [
-  '18-24',
-  '25-34',
-  '35-44',
-  '45-54',
-  '55-64',
-  '65_plus',
-] as const;
+export const AGE_BANDS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65_plus'] as const;
 
-export const VISIT_PURPOSES = [
-  'own_residence',
-  'investment',
-  'market_research',
-] as const;
+export const VISIT_PURPOSES = ['own_residence', 'investment', 'market_research'] as const;
 
-export const INTEREST_TYPES = [
-  'house_townhouse',
-  'apartment_new',
-  'abroad',
-] as const;
+export const INTEREST_TYPES = ['house_townhouse', 'apartment_new', 'abroad'] as const;
 
-export const ABROAD_COUNTRIES = [
-  'uae',
-  'russia',
-  'spain',
-  'cyprus',
-  'georgia',
-  'other',
-] as const;
+export const ABROAD_COUNTRIES = ['uae', 'russia', 'spain', 'cyprus', 'georgia', 'other'] as const;
 
 export const YEREVAN_DISTRICTS = [
   'kentron',
@@ -58,20 +36,9 @@ export const MARZ_REGIONS = [
 
 export const LOCATION_SEEK_SCOPES = ['yerevan', 'marz', 'abroad'] as const;
 
-export const AREA_SQM_BANDS = [
-  'up_to_50',
-  '50-70',
-  '70-90',
-  '90-120',
-  '120_plus',
-] as const;
+export const AREA_SQM_BANDS = ['up_to_50', '50-70', '70-90', '90-120', '120_plus'] as const;
 
-export const PURCHASE_METHODS = [
-  'cash',
-  'mortgage',
-  'installment',
-  'mixed',
-] as const;
+export const PURCHASE_METHODS = ['cash', 'mortgage', 'installment', 'mixed'] as const;
 
 export const MONTHLY_BUDGETS = [
   'up_to_300k',
@@ -157,16 +124,6 @@ export const RESEARCH_GOALS = [
   'browse_offers',
 ] as const;
 
-export const INTERESTED_WHERE_OPTIONS = [
-  'yerevan',
-  'regions',
-  'abroad',
-  'undecided',
-] as const;
+export const INTERESTED_WHERE_OPTIONS = ['yerevan', 'regions', 'abroad', 'undecided'] as const;
 
-export const PURCHASE_HORIZONS = [
-  'within_1_year',
-  '1-2_years',
-  '2-5_years',
-  'no_plans',
-] as const;
+export const PURCHASE_HORIZONS = ['within_1_year', '1-2_years', '2-5_years', 'no_plans'] as const;

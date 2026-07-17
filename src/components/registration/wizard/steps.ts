@@ -12,10 +12,7 @@ const INVESTMENT_STEPS: WizardStepId[] = [
   'investment-budget',
 ];
 
-const MARKET_RESEARCH_STEPS: WizardStepId[] = [
-  'market-research-focus',
-  'market-research-where',
-];
+const MARKET_RESEARCH_STEPS: WizardStepId[] = ['market-research-focus', 'market-research-where'];
 
 function needsOwnResidenceLocation(interestType: InterestType | ''): boolean {
   if (interestType !== 'house_townhouse' && interestType !== 'apartment_new') {
