@@ -17,9 +17,7 @@ describe('ARGON2_HASH_OPTIONS', () => {
 
 describe('DUMMY_PASSWORD_HASH', () => {
   it('is a valid argon2id hash using ARGON2_HASH_OPTIONS parameters', () => {
-    expect(DUMMY_PASSWORD_HASH).toMatch(
-      /^\$argon2id\$v=19\$m=19456,t=2,p=1\$/,
-    );
+    expect(DUMMY_PASSWORD_HASH).toMatch(/^\$argon2id\$v=19\$m=19456,t=2,p=1\$/);
   });
 
   it('never verifies successfully against any plaintext', async () => {

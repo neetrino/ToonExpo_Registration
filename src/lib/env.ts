@@ -12,13 +12,10 @@ const envSchema = z.object({
   RESEND_FROM_EMAIL: z
     .string()
     .min(1)
-    .refine(
-      (value) => plainEmailPattern.test(value) || namedEmailPattern.test(value),
-      {
-        message:
-          'RESEND_FROM_EMAIL must be a plain email (user@domain.com) or "Display Name <user@domain.com>"',
-      },
-    ),
+    .refine((value) => plainEmailPattern.test(value) || namedEmailPattern.test(value), {
+      message:
+        'RESEND_FROM_EMAIL must be a plain email (user@domain.com) or "Display Name <user@domain.com>"',
+    }),
 });
 
 export type Env = z.infer<typeof envSchema>;

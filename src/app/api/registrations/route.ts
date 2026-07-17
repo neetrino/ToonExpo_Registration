@@ -52,10 +52,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const contentLengthHeader = request.headers.get('content-length');
   if (contentLengthHeader !== null) {
     const contentLength = Number(contentLengthHeader);
-    if (
-      Number.isFinite(contentLength) &&
-      contentLength > REGISTRATION_MAX_BODY_BYTES
-    ) {
+    if (Number.isFinite(contentLength) && contentLength > REGISTRATION_MAX_BODY_BYTES) {
       return jsonError(400, 'VALIDATION_ERROR', requestId);
     }
   }
