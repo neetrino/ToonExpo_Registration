@@ -7,7 +7,11 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
  * Pragmatic CSP for Next.js App Router + Auth.js (server-side Resend only).
  * `unsafe-inline` is required for Next.js inline bootstrap scripts and CSS-in-JS /
  * Tailwind runtime style attributes. Revisit with nonces when hardening further.
+ * `unsafe-eval` is allowed only in development — React DevTools / RSC reconstruction
+ * need it; production never includes it.
  */
+const isDev = process.env.NODE_ENV === 'development';
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -17,9 +21,9 @@ const CONTENT_SECURITY_POLICY = [
   "img-src 'self' data: blob:",
   "font-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
   "connect-src 'self'",
-  'upgrade-insecure-requests',
+  ...(isDev ? [] : ['upgrade-insecure-requests']),
 ].join('; ');
 
 const SECURITY_HEADERS = [
