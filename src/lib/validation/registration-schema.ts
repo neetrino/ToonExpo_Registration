@@ -1,6 +1,8 @@
 import { z } from 'zod';
+import type { CountryCode } from 'libphonenumber-js';
 import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
 import {
+  DEFAULT_PHONE_COUNTRY,
   EMAIL_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
@@ -8,8 +10,19 @@ import {
 } from '@/lib/validation/constants';
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
+import { isPhoneCountry } from '@/lib/validation/phone-countries';
 
 const localeSchema = z.enum(['hy', 'en', 'ru']);
+
+const phoneCountrySchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .refine((value): value is CountryCode => isPhoneCountry(value), {
+    message: 'Invalid phone country',
+  })
+  .optional()
+  .default(DEFAULT_PHONE_COUNTRY);
 
 /**
  * Raw registration body schema (pre-normalization transforms applied via Zod).
@@ -27,6 +40,7 @@ export const registrationBodySchema = z
       .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
     email: z.string().transform(trimEmail).pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
     phone: z.string().min(1).max(64),
+    phoneCountry: phoneCountrySchema,
     locale: localeSchema,
     privacyConsent: z.literal(true),
     privacyPolicyVersion: z.literal(PRIVACY_POLICY_VERSION),
@@ -35,7 +49,7 @@ export const registrationBodySchema = z
     answers: questionnaireAnswersSchema,
   })
   .superRefine((data, ctx) => {
-    const phone = normalizePhone(data.phone);
+    const phone = normalizePhone(data.phone, data.phoneCountry);
     if (!phone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -45,7 +59,7 @@ export const registrationBodySchema = z
     }
   })
   .transform((data) => {
-    const phone = normalizePhone(data.phone);
+    const phone = normalizePhone(data.phone, data.phoneCountry);
     if (!phone) {
       throw new Error('Phone normalization failed after refine');
     }

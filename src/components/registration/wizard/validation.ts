@@ -25,6 +25,7 @@ import {
 import { MARKET_INTERESTS_MAX, OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { normalizePhone } from '@/lib/validation/phone';
+import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
 import type { WizardFieldErrors, WizardState, WizardStepId } from './types';
 
 type ErrorTranslator = {
@@ -42,9 +43,10 @@ const identityStepSchema = z
     lastName: z.string().trim().min(1).max(100),
     email: z.string().trim().email().max(254),
     phone: z.string().trim().min(1).max(64),
+    phoneCountry: z.string().min(2).max(2),
   })
   .superRefine((data, ctx) => {
-    if (!normalizePhone(data.phone)) {
+    if (!normalizePhone(data.phone, resolvePhoneCountry(data.phoneCountry))) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['phone'],
@@ -247,6 +249,7 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
         lastName: state.lastName,
         email: state.email,
         phone: state.phone,
+        phoneCountry: state.phoneCountry,
       };
     case 'profile':
       return {

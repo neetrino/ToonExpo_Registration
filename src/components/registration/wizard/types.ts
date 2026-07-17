@@ -1,3 +1,4 @@
+import type { CountryCode } from 'libphonenumber-js';
 import type {
   AbroadCountry,
   AgeBand,
@@ -21,6 +22,7 @@ import type {
   VisitPurpose,
   YerevanDistrict,
 } from '@/lib/questionnaire/types';
+import { DEFAULT_PHONE_COUNTRY } from '@/lib/validation/constants';
 
 export type WizardStepId =
   | 'identity'
@@ -41,6 +43,7 @@ export type WizardState = {
   lastName: string;
   email: string;
   phone: string;
+  phoneCountry: CountryCode;
   ageBand: AgeBand | '';
   visitPurpose: VisitPurpose | '';
   interestType: InterestType | '';
@@ -78,6 +81,7 @@ export const initialWizardState: WizardState = {
   lastName: '',
   email: '',
   phone: '',
+  phoneCountry: DEFAULT_PHONE_COUNTRY,
   ageBand: '',
   visitPurpose: '',
   interestType: '',
