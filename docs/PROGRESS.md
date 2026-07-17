@@ -11,7 +11,7 @@
 | Database and registration | Phase 2 core done | Prisma 7 + Neon; migrate applied on non-prod Neon; `POST /api/registrations` |
 | Landing and localization | Phase 3 UI done | Branded landing + form; final copy/assets still pending |
 | Email confirmation | Partial stub | Commit-first + Resend attempt; placeholder key → FAILED safely |
-| Admin dashboard | Not started | One administrator |
+| Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV; English UI pending owner language |
 | Verification/load testing | Not started | Preview environment only |
 | Production setup/release | Not started | Owner-operated; no deployment authorized yet |
 
@@ -37,8 +37,8 @@
 - [x] `POST /api/registrations` — active event server-side, unique→409, Cache-Control no-store
 - [x] Email: commit with `PENDING`, then `sendConfirmationEmail` → `SENT`/`FAILED` (registration kept)
 - [x] Migration applied to non-prod Neon (`20260717054700_init_mvp` via `pnpm db:migrate:deploy`)
-- [x] Seed active event `toon-expo-2026` (`pnpm db:seed`; admin still stubbed)
-- [ ] Real Resend templates / Auth.js (out of this core pass)
+- [x] Seed active event `toon-expo-2026` (`pnpm db:seed`)
+- [x] Admin seed from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (Argon2id; skips with warn if unset)
 
 ### Scripts
 
@@ -47,12 +47,34 @@
 | `pnpm prisma:generate` | Generate client to `src/generated/prisma` |
 | `pnpm db:migrate` | `prisma migrate dev` (local/non-prod) |
 | `pnpm db:migrate:deploy` | `prisma migrate deploy` (non-prod apply) |
-| `pnpm db:seed` | Seed active `toon-expo-2026` event (wired in `prisma.config.ts`) |
+| `pnpm db:seed` | Seed active event + optional local admin |
 
 ### Privacy policy version constant
 
 Clients must send `privacyPolicyVersion: "2026-07-16"` (single source: `src/lib/privacy.ts`).
 
+## Phase 5 — Admin panel (complete)
+
+- [x] Auth.js v5 credentials provider; Argon2id verify against `Admin` row
+- [x] Secure HTTP-only JWT session cookie; middleware protects `/admin/**` except login
+- [x] Login: generic errors, in-memory attempt throttle (5 failures → 60s lock; **single-instance only**)
+- [x] Dashboard: total count, search (name/email/phone), pagination (25, newest first), confirmed hard delete
+- [x] CSV export at `GET /api/admin/registrations/export` with formula neutralization
+- [x] `Cache-Control: private, no-store` on admin pages/export
+- [x] Admin UI language: **English for now** (owner language choice still pending)
+- [x] Unit tests: CSV neutralization, auth path guard, login throttle
+
+### Local admin sign-in
+
+1. Set `AUTH_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` (≥12 chars) in `.env` (see `.env.example`).
+2. Run `pnpm db:seed` to upsert the admin (and active event).
+3. Open `/admin/login` and sign in with those credentials.
+4. Use **Log out** on the dashboard to end the session.
+
+### Throttle limitation
+
+Login throttling is process-local memory. It resets on deploy/restart and does not sync across multiple Vercel instances. Prefer WAF/edge limits before production multi-instance traffic.
+
 ## Next authorized decision
 
-Continue Auth.js admin + Resend localized templates. Production migrate/deploy remains owner-only.
+Resend localized email templates and verification/load testing. Production migrate/deploy remains owner-only.

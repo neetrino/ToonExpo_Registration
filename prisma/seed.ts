@@ -1,29 +1,43 @@
 /**
  * Dev/demo seed for Toon Expo Registration MVP.
  *
- * Prerequisites (foundation agent):
- * - Install prisma, @prisma/client, @prisma/adapter-neon, dotenv, tsx, argon2
- * - Create root prisma.config.ts with DIRECT_URL
- * - Run `pnpm prisma generate` then `pnpm prisma db seed`
+ * Prerequisites:
+ * - DIRECT_URL or DATABASE_URL
+ * - For admin: ADMIN_EMAIL + ADMIN_PASSWORD (local only; never commit real secrets)
  *
- * Wire in package.json when available:
+ * Wire in package.json:
  *   "prisma": { "seed": "tsx prisma/seed.ts" }
- *
- * DO NOT commit real admin credentials or production password hashes.
  */
 
-import 'dotenv/config'
-import { PrismaNeon } from '@prisma/adapter-neon'
-import { PrismaClient } from '../src/generated/prisma'
+import 'dotenv/config';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import * as argon2 from 'argon2';
+import { PrismaClient } from '../src/generated/prisma';
 
-const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL
+const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error('Set DIRECT_URL (preferred) or DATABASE_URL before seeding')
+  throw new Error('Set DIRECT_URL (preferred) or DATABASE_URL before seeding');
 }
 
-const adapter = new PrismaNeon({ connectionString })
-const prisma = new PrismaClient({ adapter })
+const adapter = new PrismaNeon({ connectionString });
+const prisma = new PrismaClient({ adapter });
+
+function logInfo(message: string, fields?: Record<string, string | number | boolean>): void {
+  if (fields && Object.keys(fields).length > 0) {
+    process.stdout.write(`[info] ${message} ${JSON.stringify(fields)}\n`);
+  } else {
+    process.stdout.write(`[info] ${message}\n`);
+  }
+}
+
+function logWarn(message: string, fields?: Record<string, string | number | boolean>): void {
+  if (fields && Object.keys(fields).length > 0) {
+    process.stdout.write(`[warn] ${message} ${JSON.stringify(fields)}\n`);
+  } else {
+    process.stdout.write(`[warn] ${message}\n`);
+  }
+}
 
 async function seedEvent(): Promise<void> {
   await prisma.event.upsert({
@@ -39,45 +53,58 @@ async function seedEvent(): Promise<void> {
     update: {
       name: 'Toon Expo 2026',
     },
-  })
+  });
+  logInfo('Seeded active event', { slug: 'toon-expo-2026' });
 }
 
 /**
- * Admin seed is intentionally stubbed until argon2 is available in the app.
- *
- * TODO(foundation): after installing `argon2`, hash a local-only password and upsert:
- *
- *   const passwordHash = await argon2.hash(process.env.SEED_ADMIN_PASSWORD!, {
- *     type: argon2.argon2id,
- *   })
- *   await prisma.admin.upsert({
- *     where: { email: 'admin@example.com' },
- *     create: {
- *       email: 'admin@example.com',
- *       passwordHash,
- *       role: 'ADMIN',
- *       isActive: true,
- *     },
- *     update: {},
- *   })
- *
- * Never invent or commit a real password. Use env (e.g. SEED_ADMIN_PASSWORD)
- * only for local/dev seed; omit Admin seed in production pipelines.
+ * Upsert one local administrator from ADMIN_EMAIL + ADMIN_PASSWORD.
+ * Skips when either env var is missing (safe for CI / shared pipelines).
  */
-async function seedAdminPlaceholder(): Promise<void> {
-  // no-op — see TODO above
+async function seedAdmin(): Promise<void> {
+  const emailRaw = process.env.ADMIN_EMAIL?.trim();
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!emailRaw || !password) {
+    logWarn('Skipping admin seed: set ADMIN_EMAIL and ADMIN_PASSWORD for local admin creation');
+    return;
+  }
+
+  if (password.length < 12) {
+    throw new Error('ADMIN_PASSWORD must be at least 12 characters');
+  }
+
+  const email = emailRaw.toLowerCase();
+  const passwordHash = await argon2.hash(password, { type: argon2.argon2id });
+
+  await prisma.admin.upsert({
+    where: { email },
+    create: {
+      email,
+      passwordHash,
+      role: 'ADMIN',
+      isActive: true,
+    },
+    update: {
+      passwordHash,
+      role: 'ADMIN',
+      isActive: true,
+    },
+  });
+
+  logInfo('Seeded admin account', { email });
 }
 
 async function main(): Promise<void> {
-  await seedEvent()
-  await seedAdminPlaceholder()
+  await seedEvent();
+  await seedAdmin();
 }
 
 main()
   .catch((error: unknown) => {
-    console.error(error)
-    process.exitCode = 1
+    console.error(error);
+    process.exitCode = 1;
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
