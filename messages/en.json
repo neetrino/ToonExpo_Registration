@@ -1,0 +1,40 @@
+{
+  "common": {
+    "siteName": "Toon Expo",
+    "privacy": "Privacy"
+  },
+  "landing": {
+    "eyebrow": "[PLACEHOLDER] Event",
+    "title": "[PLACEHOLDER] Toon Expo registration",
+    "description": "[PLACEHOLDER] Register for Toon Expo. Event date and venue will be confirmed later.",
+    "eventDetailsTitle": "Event details",
+    "dateLabel": "Date",
+    "dateValue": "[PLACEHOLDER] TBD",
+    "venueLabel": "Venue",
+    "venueValue": "[PLACEHOLDER] TBD",
+    "registrationTitle": "Registration",
+    "registrationPlaceholder": "[PLACEHOLDER] The registration form will be available in a later phase.",
+    "registerCta": "[PLACEHOLDER] Register",
+    "privacyLink": "View privacy policy"
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "placeholder": "[PLACEHOLDER] Final legal text will be confirmed later."
+  },
+  "success": {
+    "title": "Registration received",
+    "description": "[PLACEHOLDER] A confirmation email will be sent in a later phase.",
+    "backToHome": "Back to home"
+  },
+  "admin": {
+    "loginTitle": "[PLACEHOLDER] Admin login",
+    "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
+  },
+  "form": {
+    "firstName": "[PLACEHOLDER] First name",
+    "lastName": "[PLACEHOLDER] Last name",
+    "email": "[PLACEHOLDER] Email",
+    "phone": "[PLACEHOLDER] Phone",
+    "consent": "[PLACEHOLDER] Consent"
+  }
+}

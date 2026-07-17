@@ -1,0 +1,40 @@
+{
+  "common": {
+    "siteName": "Toon Expo",
+    "privacy": "Գաղտնիություն"
+  },
+  "landing": {
+    "eyebrow": "[PLACEHOLDER] Միջոցառում",
+    "title": "[PLACEHOLDER] Toon Expo գրանցում",
+    "description": "[PLACEHOLDER] Գրանցվեք Toon Expo-ի համար։ Միջոցառման ամսաթիվը և վայրը կհաստատվեն ավելի ուշ։",
+    "eventDetailsTitle": "Միջոցառման մանրամասներ",
+    "dateLabel": "Ամսաթիվ",
+    "dateValue": "[PLACEHOLDER] TBD",
+    "venueLabel": "Վայր",
+    "venueValue": "[PLACEHOLDER] TBD",
+    "registrationTitle": "Գրանցում",
+    "registrationPlaceholder": "[PLACEHOLDER] Գրանցման ձևը կհասանելի լինի հաջորդ փուլում։",
+    "registerCta": "[PLACEHOLDER] Գրանցվել",
+    "privacyLink": "Դիտել գաղտնիության քաղաքականությունը"
+  },
+  "privacy": {
+    "title": "Գաղտնիության քաղաքականություն",
+    "placeholder": "[PLACEHOLDER] Վերջնական իրավական տեքստը կհաստատվի ավելի ուշ։"
+  },
+  "success": {
+    "title": "Գրանցումը ստացվել է",
+    "description": "[PLACEHOLDER] Հաստատման նամակը կուղարկվի հաջորդ փուլում։",
+    "backToHome": "Վերադառնալ գլխավոր էջ"
+  },
+  "admin": {
+    "loginTitle": "[PLACEHOLDER] Admin login",
+    "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
+  },
+  "form": {
+    "firstName": "[PLACEHOLDER] Անուն",
+    "lastName": "[PLACEHOLDER] Ազգանուն",
+    "email": "[PLACEHOLDER] Էլ. փոստ",
+    "phone": "[PLACEHOLDER] Հեռախոս",
+    "consent": "[PLACEHOLDER] Համաձայնություն"
+  }
+}

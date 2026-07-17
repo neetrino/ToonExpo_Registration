@@ -1,0 +1,24 @@
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import { Button } from '@/components/ui/button';
+
+type SuccessPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function SuccessPage({ params }: SuccessPageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const t = await getTranslations('success');
+
+  return (
+    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-12">
+      <h1 className="text-3xl font-bold text-primary">{t('title')}</h1>
+      <p className="text-muted-foreground">{t('description')}</p>
+      <Button asChild>
+        <Link href="/">{t('backToHome')}</Link>
+      </Button>
+    </section>
+  );
+}

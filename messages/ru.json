@@ -1,0 +1,40 @@
+{
+  "common": {
+    "siteName": "Toon Expo",
+    "privacy": "Конфиденциальность"
+  },
+  "landing": {
+    "eyebrow": "[PLACEHOLDER] Мероприятие",
+    "title": "[PLACEHOLDER] Регистрация на Toon Expo",
+    "description": "[PLACEHOLDER] Зарегистрируйтесь на Toon Expo. Дата и место проведения будут подтверждены позже.",
+    "eventDetailsTitle": "Детали мероприятия",
+    "dateLabel": "Дата",
+    "dateValue": "[PLACEHOLDER] TBD",
+    "venueLabel": "Место",
+    "venueValue": "[PLACEHOLDER] TBD",
+    "registrationTitle": "Регистрация",
+    "registrationPlaceholder": "[PLACEHOLDER] Форма регистрации будет доступна на следующем этапе.",
+    "registerCta": "[PLACEHOLDER] Зарегистрироваться",
+    "privacyLink": "Политика конфиденциальности"
+  },
+  "privacy": {
+    "title": "Политика конфиденциальности",
+    "placeholder": "[PLACEHOLDER] Финальный юридический текст будет подтверждён позже."
+  },
+  "success": {
+    "title": "Регистрация получена",
+    "description": "[PLACEHOLDER] Письмо с подтверждением будет отправлено на следующем этапе.",
+    "backToHome": "На главную"
+  },
+  "admin": {
+    "loginTitle": "[PLACEHOLDER] Admin login",
+    "dashboardTitle": "[PLACEHOLDER] Admin dashboard"
+  },
+  "form": {
+    "firstName": "[PLACEHOLDER] Имя",
+    "lastName": "[PLACEHOLDER] Фамилия",
+    "email": "[PLACEHOLDER] Email",
+    "phone": "[PLACEHOLDER] Телефон",
+    "consent": "[PLACEHOLDER] Согласие"
+  }
+}
