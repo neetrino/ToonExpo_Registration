@@ -66,7 +66,7 @@ Clients must send `privacyPolicyVersion: "2026-07-16"` (single source: `src/lib/
 - [x] Login: generic errors, in-memory attempt throttle (5 failures → 60s lock; **single-instance only**)
 - [x] Dashboard: total count, search (name/email/phone), pagination (25, newest first), confirmed hard delete
 - [x] Registration detail sheet (`/admin?view=<id>`) — identity, meta, questionnaire answers (English labels); delete only in sheet
-- [x] CSV export at `GET /api/admin/registrations/export` with formula neutralization
+- [x] CSV export at `GET /api/admin/registrations/export` — formula-safe, UTF-8 BOM, flattened English answer columns (no raw JSON blob)
 - [x] `Cache-Control: private, no-store` on admin pages/export
 - [x] Admin UI language: **English for now** (owner language choice still pending)
 - [x] Unit tests: CSV neutralization, auth path guard, login throttle

@@ -133,6 +133,7 @@ export type RegistrationSubmitPayload = {
   lastName: string;
   email: string;
   phone: string;
+  phoneCountry: WizardState['phoneCountry'];
   locale: Locale;
   privacyConsent: true;
   privacyPolicyVersion: string;
@@ -157,6 +158,7 @@ export function buildRegistrationPayload(
     lastName: state.lastName.trim(),
     email: state.email.trim(),
     phone: state.phone.trim(),
+    phoneCountry: state.phoneCountry,
     locale,
     privacyConsent: true,
     privacyPolicyVersion: PRIVACY_POLICY_VERSION,

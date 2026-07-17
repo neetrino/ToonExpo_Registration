@@ -52,6 +52,7 @@ export async function submitRegistration(
         lastName: values.lastName,
         email: values.email,
         phone: values.phone,
+        phoneCountry: values.phoneCountry,
         locale,
         privacyConsent: values.privacyConsent,
         privacyPolicyVersion: PRIVACY_POLICY_VERSION,

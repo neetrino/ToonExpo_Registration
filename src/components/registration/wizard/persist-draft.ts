@@ -1,3 +1,4 @@
+import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
 import type { WizardState, WizardStepId } from './types';
 import { initialWizardState } from './types';
 
@@ -69,8 +70,13 @@ export function loadWizardDraft(): PersistedWizard | null {
       return null;
     }
 
+    const mergedState = { ...initialWizardState, ...(draft.state as WizardState) };
+
     return {
-      state: { ...initialWizardState, ...(draft.state as WizardState) },
+      state: {
+        ...mergedState,
+        phoneCountry: resolvePhoneCountry(mergedState.phoneCountry),
+      },
       currentStep,
     };
   } catch {

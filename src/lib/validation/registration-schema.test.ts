@@ -41,6 +41,12 @@ describe('normalizePhone', () => {
     expect(result?.phoneNormalized).toBe('+37499123456');
   });
 
+  it('uses an explicit default country for local numbers', () => {
+    const result = normalizePhone('9123456789', 'RU');
+    expect(result).not.toBeNull();
+    expect(result?.phoneNormalized).toBe('+79123456789');
+  });
+
   it('accepts international numbers', () => {
     const result = normalizePhone('+12025550123');
     expect(result).not.toBeNull();
@@ -58,6 +64,7 @@ describe('registrationBodySchema', () => {
     lastName: 'Sargsyan',
     email: '  Anna@Example.com ',
     phone: '99123456',
+    phoneCountry: 'AM' as const,
     locale: 'hy' as const,
     privacyConsent: true as const,
     privacyPolicyVersion: PRIVACY_POLICY_VERSION,
@@ -78,6 +85,29 @@ describe('registrationBodySchema', () => {
     expect(parsed.data.phoneNormalized).toBe('+37499123456');
     expect(parsed.data.formVersion).toBe(FORM_VERSION);
     expect(parsed.data.answers.visitPurpose).toBe('own_residence');
+  });
+
+  it('normalizes local numbers with phoneCountry', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      phone: '9123456789',
+      phoneCountry: 'RU',
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.phoneNormalized).toBe('+79123456789');
+  });
+
+  it('defaults phoneCountry to Armenia when omitted', () => {
+    const { phoneCountry: _omitted, ...withoutCountry } = valid;
+    const parsed = registrationBodySchema.safeParse(withoutCountry);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.phoneNormalized).toBe('+37499123456');
   });
 
   it('rejects missing consent', () => {

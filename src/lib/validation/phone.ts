@@ -7,7 +7,8 @@ export type NormalizedPhone = {
 };
 
 /**
- * Parse a phone number to E.164. Defaults to Armenia (+374) when no country code is present.
+ * Parse a phone number to E.164.
+ * Uses `defaultCountry` when the input has no international prefix (e.g. local Armenian digits).
  */
 export function normalizePhone(
   value: string,

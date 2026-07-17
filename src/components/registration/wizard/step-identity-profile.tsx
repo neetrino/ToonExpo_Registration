@@ -5,6 +5,7 @@ import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { OptionRadioGroup } from './option-groups';
+import { PhoneCountryField } from './phone-country-field';
 import type { WizardFieldErrors, WizardState } from './types';
 
 type StepProps = {
@@ -79,17 +80,14 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: StepProps) {
         hint={tForm('phoneHint')}
         error={errors.phone}
         input={
-          <Input
+          <PhoneCountryField
             id="phone"
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            inputMode="tel"
-            placeholder={tForm('phonePlaceholder')}
-            value={state.phone}
+            phone={state.phone}
+            phoneCountry={state.phoneCountry}
             disabled={disabled}
-            aria-invalid={Boolean(errors.phone)}
-            onChange={(event) => onUpdate('phone', event.target.value)}
+            invalid={Boolean(errors.phone)}
+            onPhoneChange={(value) => onUpdate('phone', value)}
+            onCountryChange={(value) => onUpdate('phoneCountry', value)}
           />
         }
       />
