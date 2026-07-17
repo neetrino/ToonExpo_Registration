@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "postinstall": "prisma generate",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"messages/**/*.json\" \"e2e/**/*.ts\" \"*.{ts,js,mjs,cjs,json}\"",
@@ -25,6 +26,18 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "prisma",
+      "argon2",
+      "esbuild",
+      "sharp",
+      "@swc/core",
+      "@parcel/watcher",
+      "unrs-resolver"
+    ]
   },
   "dependencies": {
     "@prisma/adapter-neon": "^7.8.0",
