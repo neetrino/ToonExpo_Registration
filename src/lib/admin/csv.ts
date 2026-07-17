@@ -1,13 +1,18 @@
 /**
  * Neutralize spreadsheet formula injection for CSV cell values.
- * Prefixes values that start with `=`, `+`, `-`, `@`, tab, or CR.
+ * Prefixes values whose first non-leading-space character is `=`, `+`, `-`, `@`, tab, or CR.
  */
 export function neutralizeCsvValue(value: string): string {
   if (value.length === 0) {
     return value;
   }
 
-  const first = value.charAt(0);
+  const withoutLeadingSpaces = value.replace(/^ +/, '');
+  if (withoutLeadingSpaces.length === 0) {
+    return value;
+  }
+
+  const first = withoutLeadingSpaces.charAt(0);
   if (
     first === '=' ||
     first === '+' ||

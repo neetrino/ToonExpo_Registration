@@ -16,12 +16,20 @@ describe('neutralizeCsvValue', () => {
     expect(neutralizeCsvValue('user@example.com')).toBe('user@example.com');
     expect(neutralizeCsvValue('')).toBe('');
   });
+
+  it('prefixes formula-like values after leading whitespace', () => {
+    expect(neutralizeCsvValue(' =CMD()')).toBe("' =CMD()");
+  });
 });
 
 describe('formatCsvCell', () => {
   it('quotes fields that contain commas or quotes', () => {
     expect(formatCsvCell('a,b')).toBe('"a,b"');
     expect(formatCsvCell('say "hi"')).toBe('"say ""hi"""');
+  });
+
+  it('quotes fields that contain newlines', () => {
+    expect(formatCsvCell('line1\nline2')).toBe('"line1\nline2"');
   });
 });
 

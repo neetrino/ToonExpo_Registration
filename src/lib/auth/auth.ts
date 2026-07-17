@@ -3,9 +3,10 @@ import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { getPrisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
+import { getClientIp } from '@/lib/security';
 import { authConfig } from '@/lib/auth/config';
 import { isLoginAllowed, recordLoginFailure, recordLoginSuccess } from '@/lib/auth/login-throttle';
-import { verifyPassword } from '@/lib/auth/password';
+import { verifyDummyPassword, verifyPassword } from '@/lib/auth/password';
 import '@/lib/auth/types';
 
 const credentialsSchema = z.object({
@@ -22,18 +23,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const parsed = credentialsSchema.safeParse(credentials);
         if (!parsed.success) {
           return null;
         }
 
         const emailNormalized = parsed.data.email.toLowerCase();
-        const throttleKey = `email:${emailNormalized}`;
-        const throttle = isLoginAllowed(throttleKey);
+        const emailKey = `email:${emailNormalized}`;
+        // Best-effort, per-instance throttling (see login-throttle.ts). Keying on
+        // both email and IP catches credential-stuffing across many source IPs
+        // for one account and password-spraying from one IP across many accounts.
+        const clientIp = getClientIp(request);
+        const ipKey = clientIp !== 'unknown' ? `ip:${clientIp}` : null;
 
-        if (!throttle.allowed) {
-          logger.warn('Admin login throttled', { retryAfterMs: throttle.retryAfterMs });
+        const emailThrottle = isLoginAllowed(emailKey);
+        const ipThrottle = ipKey ? isLoginAllowed(ipKey) : ({ allowed: true } as const);
+
+        if (!emailThrottle.allowed || !ipThrottle.allowed) {
+          logger.warn('Admin login throttled', {
+            retryAfterMs: !emailThrottle.allowed
+              ? emailThrottle.retryAfterMs
+              : !ipThrottle.allowed
+                ? ipThrottle.retryAfterMs
+                : 0,
+          });
           return null;
         }
 
@@ -43,17 +57,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (!admin || !admin.isActive) {
-          recordLoginFailure(throttleKey);
+          // Run a real argon2 verify against a dummy hash so a nonexistent or
+          // deactivated account takes the same time as a wrong-password
+          // attempt on a real account (prevents email-enumeration via timing).
+          await verifyDummyPassword(parsed.data.password);
+          recordLoginFailure(emailKey);
+          if (ipKey) {
+            recordLoginFailure(ipKey);
+          }
           return null;
         }
 
         const valid = await verifyPassword(admin.passwordHash, parsed.data.password);
         if (!valid) {
-          recordLoginFailure(throttleKey);
+          recordLoginFailure(emailKey);
+          if (ipKey) {
+            recordLoginFailure(ipKey);
+          }
           return null;
         }
 
-        recordLoginSuccess(throttleKey);
+        recordLoginSuccess(emailKey);
+        if (ipKey) {
+          recordLoginSuccess(ipKey);
+        }
 
         return {
           id: admin.id,

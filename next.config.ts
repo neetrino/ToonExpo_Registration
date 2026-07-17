@@ -35,6 +35,14 @@ const SECURITY_HEADERS = [
     value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   },
   { key: 'Content-Security-Policy', value: CONTENT_SECURITY_POLICY },
+  ...(isDev
+    ? []
+    : [
+        {
+          key: 'Strict-Transport-Security',
+          value: 'max-age=63072000; includeSubDomains; preload',
+        },
+      ]),
 ] as const;
 
 const NO_STORE_HEADERS = [

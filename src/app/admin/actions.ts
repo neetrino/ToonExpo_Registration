@@ -3,7 +3,7 @@
 import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { deleteRegistration } from '@/lib/admin';
-import { getAdminSession, signIn, signOut } from '@/lib/auth';
+import { AdminSessionError, requireAdminSession, signIn, signOut } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { createRequestId } from '@/lib/security';
 
@@ -55,9 +55,14 @@ export async function deleteRegistrationAction(
   registrationId: string,
 ): Promise<DeleteActionResult> {
   const requestId = createRequestId();
-  const session = await getAdminSession();
-  if (!session) {
-    return { ok: false, error: 'Unauthorized.' };
+
+  try {
+    await requireAdminSession({ verifyActiveInDb: true });
+  } catch (error: unknown) {
+    if (error instanceof AdminSessionError) {
+      return { ok: false, error: 'Unauthorized.' };
+    }
+    throw error;
   }
 
   if (!registrationId || registrationId.length > 64) {

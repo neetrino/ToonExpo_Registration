@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import { createRegistration } from '@/lib/registrations';
 import { logger } from '@/lib/logger';
 import {
+  REGISTRATION_MAX_BODY_BYTES,
+  checkRegistrationRateLimit,
   createRequestId,
+  getClientIp,
   getOrCreateRequestId,
   isAllowedOrigin,
   isHoneypotFilled,
@@ -37,6 +40,24 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   if (!isAllowedOrigin(request)) {
     return jsonError(403, 'ORIGIN_REJECTED', requestId);
+  }
+
+  const rateLimit = checkRegistrationRateLimit(getClientIp(request));
+  if (!rateLimit.allowed) {
+    return jsonError(429, 'RATE_LIMITED', requestId, {
+      'Retry-After': String(rateLimit.retryAfterSeconds),
+    });
+  }
+
+  const contentLengthHeader = request.headers.get('content-length');
+  if (contentLengthHeader !== null) {
+    const contentLength = Number(contentLengthHeader);
+    if (
+      Number.isFinite(contentLength) &&
+      contentLength > REGISTRATION_MAX_BODY_BYTES
+    ) {
+      return jsonError(400, 'VALIDATION_ERROR', requestId);
+    }
   }
 
   let rawBody: unknown;
@@ -125,9 +146,17 @@ function responseHeaders(requestId: string): Record<string, string> {
   };
 }
 
-function jsonError(status: number, code: string, requestId: string): NextResponse<ErrorBody> {
+function jsonError(
+  status: number,
+  code: string,
+  requestId: string,
+  extraHeaders?: Record<string, string>,
+): NextResponse<ErrorBody> {
   return NextResponse.json({ ok: false, code, requestId } satisfies ErrorBody, {
     status,
-    headers: responseHeaders(requestId),
+    headers: {
+      ...responseHeaders(requestId),
+      ...extraHeaders,
+    },
   });
 }

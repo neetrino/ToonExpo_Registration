@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAdminSession } from '@/lib/auth';
+import { AdminSessionError, requireAdminSession } from '@/lib/auth';
 import { ADMIN_NO_STORE_HEADERS, buildRegistrationsCsv } from '@/lib/admin';
 import { logger } from '@/lib/logger';
 import { getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
@@ -16,12 +16,16 @@ export async function GET(request: Request): Promise<NextResponse> {
     ...requestIdHeaders(requestId),
   };
 
-  const session = await getAdminSession();
-  if (!session) {
-    return NextResponse.json(
-      { ok: false, code: 'UNAUTHORIZED', requestId },
-      { status: 401, headers },
-    );
+  try {
+    await requireAdminSession({ verifyActiveInDb: true });
+  } catch (error: unknown) {
+    if (error instanceof AdminSessionError) {
+      return NextResponse.json(
+        { ok: false, code: 'UNAUTHORIZED', requestId },
+        { status: 401, headers },
+      );
+    }
+    throw error;
   }
 
   const { searchParams } = new URL(request.url);

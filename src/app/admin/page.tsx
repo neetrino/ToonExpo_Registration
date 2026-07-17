@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { buildAdminHref } from '@/lib/admin/admin-url';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
+import { requireAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,10 @@ type AdminDashboardPageProps = {
 };
 
 export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
+  // Defense-in-depth: middleware already blocks unauthenticated /admin/*
+  // requests, but this page must not rely on that alone.
+  await requireAdminSession({ redirectOnFailure: true });
+
   const params = await searchParams;
   const query = params.q?.trim() ?? '';
   const page = Math.max(1, Number.parseInt(params.page ?? '1', 10) || 1);

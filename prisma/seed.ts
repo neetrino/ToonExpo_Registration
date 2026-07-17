@@ -11,7 +11,7 @@
 
 import 'dotenv/config';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import * as argon2 from 'argon2';
+import { hashPassword } from '@/lib/auth/password';
 import { PrismaClient } from '../src/generated/prisma';
 
 const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
@@ -75,7 +75,7 @@ async function seedAdmin(): Promise<void> {
   }
 
   const email = emailRaw.toLowerCase();
-  const passwordHash = await argon2.hash(password, { type: argon2.argon2id });
+  const passwordHash = await hashPassword(password);
 
   await prisma.admin.upsert({
     where: { email },

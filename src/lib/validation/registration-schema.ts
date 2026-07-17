@@ -30,7 +30,7 @@ export const registrationBodySchema = z
     locale: localeSchema,
     privacyConsent: z.literal(true),
     privacyPolicyVersion: z.literal(PRIVACY_POLICY_VERSION),
-    website: z.string().optional().default(''),
+    website: z.string().max(200).optional().default(''),
     formVersion: z.literal(FORM_VERSION),
     answers: questionnaireAnswersSchema,
   })

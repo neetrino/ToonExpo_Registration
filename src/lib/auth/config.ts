@@ -14,7 +14,12 @@ export const authConfig = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 60 * 60 * 8,
+    // 4h max session lifetime (was 8h): bounds how long a JWT for a
+    // deactivated admin stays valid before it must be re-issued. Mutating
+    // entry points additionally re-check `Admin.isActive` in the database
+    // (see requireAdminSession), so this is a defense-in-depth reduction,
+    // not the primary revocation mechanism.
+    maxAge: 60 * 60 * 4,
     updateAge: 60 * 60,
   },
   useSecureCookies: isProduction,

@@ -17,4 +17,16 @@ describe('buildConfirmationMessage', () => {
     expect(message.text).toContain(sampleInput.firstName);
     expect(message.text).toContain(sampleInput.siteUrl);
   });
+
+  it('escapes HTML and quote characters in firstName', () => {
+    const payload = `<script>alert(1)</script>"'`;
+    const message = buildConfirmationMessage('en', {
+      firstName: payload,
+      siteUrl: 'https://example.com',
+    });
+
+    expect(message.html).not.toContain('<script>');
+    expect(message.html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;&quot;&#39;');
+    expect(message.text).toContain(payload);
+  });
 });

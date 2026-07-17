@@ -29,11 +29,23 @@ const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 const locationSeekSchema = z.discriminatedUnion('scope', [
   z.object({
     scope: z.literal('yerevan'),
-    districts: z.array(z.enum(YEREVAN_DISTRICTS)).min(1),
+    districts: z
+      .array(z.enum(YEREVAN_DISTRICTS))
+      .min(1)
+      .max(YEREVAN_DISTRICTS.length)
+      .refine((values) => new Set(values).size === values.length, {
+        message: 'districts must be unique',
+      }),
   }),
   z.object({
     scope: z.literal('marz'),
-    regions: z.array(z.enum(MARZ_REGIONS)).min(1),
+    regions: z
+      .array(z.enum(MARZ_REGIONS))
+      .min(1)
+      .max(MARZ_REGIONS.length)
+      .refine((values) => new Set(values).size === values.length, {
+        message: 'regions must be unique',
+      }),
   }),
   z.object({
     scope: z.literal('abroad'),
@@ -60,7 +72,13 @@ const ownResidenceAbroadSchema = z
   .object({
     ...ownResidenceShared,
     interestType: z.literal('abroad'),
-    abroadCountries: z.array(z.enum(ABROAD_COUNTRIES)).min(1),
+    abroadCountries: z
+      .array(z.enum(ABROAD_COUNTRIES))
+      .min(1)
+      .max(ABROAD_COUNTRIES.length)
+      .refine((values) => new Set(values).size === values.length, {
+        message: 'abroadCountries must be unique',
+      }),
     abroadCountriesOther: otherTextSchema.optional(),
   })
   .superRefine((data, ctx) => {
