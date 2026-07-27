@@ -2,11 +2,13 @@ import Link from 'next/link';
 import { ToonExpoLogo } from '@/components/brand/toon-expo-logo';
 import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
 import { AdminRegistrationsPanel } from '@/components/admin/admin-registrations-panel';
+import { AdminSyncPanel } from '@/components/admin/admin-sync-panel';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
 import { Button } from '@/components/ui/button';
 import { buildAdminHref } from '@/lib/admin/admin-url';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
+import { listAdminSyncRuns } from '@/lib/admin/list-sync-runs';
 import { requireAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -25,9 +27,10 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   const page = Math.max(1, Number.parseInt(params.page ?? '1', 10) || 1);
   const viewId = params.view?.trim() || undefined;
 
-  const [data, viewRegistration] = await Promise.all([
+  const [data, viewRegistration, syncRuns] = await Promise.all([
     listAdminRegistrations({ page, search: query || undefined }),
     viewId ? getAdminRegistration(viewId) : Promise.resolve(null),
+    listAdminSyncRuns(20),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(data.filteredCount / data.pageSize));
@@ -108,6 +111,8 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </p>
           ) : null}
         </section>
+
+        <AdminSyncPanel runs={syncRuns} />
 
         <section className="overflow-hidden rounded-2xl border border-border/80 bg-background shadow-sm">
           {!data.event ? (

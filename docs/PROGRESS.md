@@ -17,6 +17,8 @@ Implemented:
 - schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
 - EMAIL `DeliveryJob` + Resend ticket email with inline QR/link + retry dispatcher;
 - Mootq inbound POST + Toon Expo-origin cursor feed (`/api/v1/integrations/mootq/registrations`);
+- Mootq full export API + admin sync history / import button (import waits for partner URL);
+- ticket backfill script (`pnpm tickets:backfill`);
 - email uniqueness removed (shared email/phone allowed);
 - process-local registration IP rate limit removed from public route;
 - one-admin list/search/detail/delete/export with source, ticket code, delivery status;
@@ -25,9 +27,9 @@ Implemented:
 Not implemented:
 
 - Peleka SMS (deferred);
-- Mootq full import/export + sync history UI;
-- attendance sync from Mootq full exchange;
-- backfill of legacy rows;
+- Live Mootq partner smoke tests (waiting on Mootq);
+- Mootq full-import credentials/URL from partner;
+- Final NOT NULL ticket constraints after backfill validation;
 - event-scale rehearsal.
 
 ## 2. Agreed scope
@@ -155,17 +157,17 @@ No production migration is authorized by this plan.
 
 ### Phase 5 — full reconciliation
 
-- [ ] Add admin action to import full Mootq data.
-- [ ] Expose authenticated paginated full export for Mootq.
-- [ ] Upsert by `ticketCode` with source-ID checks.
-- [ ] Require and verify `sourceSystem` on every full-sync record.
-- [ ] Import minimal attendance status.
-- [ ] Store one run history per import/export with counts and bounded errors.
-- [ ] Verify safe rerun after partial failure.
+- [x] Add admin action to import full Mootq data.
+- [x] Expose authenticated paginated full export for Mootq.
+- [x] Upsert by `ticketCode` with source-ID checks.
+- [x] Require and verify `sourceSystem` on every full-sync record.
+- [x] Import minimal attendance status.
+- [x] Store one run history per import/export with counts and bounded errors.
+- [ ] Verify safe rerun after partial failure (needs partner export endpoint).
 
 ### Phase 6 — backfill and rehearsal
 
-- [ ] Backfill existing registrations with `TOON_EXPO` source and 13-character codes/tokens.
+- [x] Backfill existing registrations with `TOON_EXPO` source and 13-character codes/tokens in bounded batches.
 - [ ] Validate uniqueness and add final ticket/source constraints.
 - [ ] Rehearse 1,000 registrations over ten minutes.
 - [ ] Test Resend throttling and backlog recovery.

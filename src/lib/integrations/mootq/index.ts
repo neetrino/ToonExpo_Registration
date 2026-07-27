@@ -14,3 +14,12 @@ export {
   mootqInboundBodySchema,
   type MootqInboundBody,
 } from '@/lib/integrations/mootq/inbound-schema';
+export {
+  createFullExportRun,
+  getFullExportPage,
+  type FullExportRecord,
+} from '@/lib/integrations/mootq/full-export';
+export {
+  startFullImportFromMootq,
+  type StartFullImportResult,
+} from '@/lib/integrations/mootq/full-import';
