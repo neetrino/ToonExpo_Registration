@@ -2,22 +2,27 @@ import { describe, expect, it } from 'vitest';
 import {
   TICKET_CODE_LENGTH,
   TICKET_CODE_PATTERN,
+  TOON_EXPO_TICKET_PREFIX,
   generateTicketCode,
   generateTicketViewToken,
   isValidTicketCode,
 } from '@/lib/tickets/codes';
 
 describe('ticket codes', () => {
-  it('generates a 13-character alphanumeric code', () => {
+  it('generates a TE-prefixed 13-character uppercase ticket code', () => {
     const code = generateTicketCode();
     expect(code).toHaveLength(TICKET_CODE_LENGTH);
+    expect(code.startsWith(TOON_EXPO_TICKET_PREFIX)).toBe(true);
     expect(TICKET_CODE_PATTERN.test(code)).toBe(true);
     expect(isValidTicketCode(code)).toBe(true);
   });
 
   it('rejects invalid ticket codes without normalizing', () => {
-    expect(isValidTicketCode('abcdefghijklm')).toBe(true);
-    expect(isValidTicketCode('ABCDEFGHIJKLM')).toBe(true);
+    expect(isValidTicketCode('TEABCDEFGHIJK')).toBe(true);
+    expect(isValidTicketCode('MQ8D6N4T7C2X9')).toBe(true);
+    expect(isValidTicketCode('abcdefghijklm')).toBe(false);
+    expect(isValidTicketCode('ABCDEFGHIJKLM')).toBe(false);
+    expect(isValidTicketCode('TEabcdefghijk')).toBe(false);
     expect(isValidTicketCode('short')).toBe(false);
     expect(isValidTicketCode('TE-ABCDEFGHIJK')).toBe(false);
     expect(isValidTicketCode('abcdefghijkl!')).toBe(false);

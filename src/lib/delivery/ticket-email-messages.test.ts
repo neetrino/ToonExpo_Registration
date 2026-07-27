@@ -5,7 +5,7 @@ import { locales } from '@/types/locale';
 
 const sampleInput = {
   firstName: 'Ani',
-  ticketCode: '7K4M2X9P3R8DQ',
+  ticketCode: 'TE7K4M2X9P3R8D',
   ticketUrl: 'https://example.com/ticket/token',
   siteUrl: 'https://example.com',
 };
@@ -26,7 +26,7 @@ describe('buildTicketEmailMessage', () => {
     const payload = `<script>alert(1)</script>"'`;
     const message = buildTicketEmailMessage('en', {
       firstName: payload,
-      ticketCode: '7K4M2X9P3R8DQ',
+      ticketCode: 'TE7K4M2X9P3R8D',
       ticketUrl: 'https://example.com/ticket/"onclick',
       siteUrl: 'https://example.com',
     });

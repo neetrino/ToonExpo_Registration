@@ -3,7 +3,7 @@ import { mootqInboundBodySchema } from '@/lib/integrations/mootq/inbound-schema'
 
 const validBody = {
   sourceRegistrationId: 'mq-98231',
-  ticketCode: '8D6N4T7C2X9PL',
+  ticketCode: 'MQ8D6N4T7C2X9',
   firstName: 'Example',
   lastName: 'Visitor',
   email: 'visitor@example.com',
@@ -17,13 +17,19 @@ describe('mootqInboundBodySchema', () => {
     const parsed = mootqInboundBodySchema.safeParse(validBody);
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data.ticketCode).toBe('8D6N4T7C2X9PL');
+      expect(parsed.data.ticketCode).toBe('MQ8D6N4T7C2X9');
       expect(parsed.data.phoneNormalized).toBe('+37499123456');
       expect(parsed.data.emailNormalized).toBe('visitor@example.com');
     }
   });
 
-  it('rejects prefixed or short ticket codes without normalizing', () => {
+  it('rejects TE-prefixed, prefixed-with-separator, or short ticket codes', () => {
+    expect(
+      mootqInboundBodySchema.safeParse({
+        ...validBody,
+        ticketCode: 'TE8D6N4T7C2X9',
+      }).success,
+    ).toBe(false);
     expect(
       mootqInboundBodySchema.safeParse({
         ...validBody,
