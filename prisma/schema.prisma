@@ -119,9 +119,10 @@ model Registration {
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
 
-  event             Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  deliveryJobs      DeliveryJob[]
-  partnerFeedEvents PartnerFeedEvent[]
+  event               Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  deliveryJobs        DeliveryJob[]
+  partnerFeedEvents   PartnerFeedEvent[]
+  partnerPushDelivery PartnerPushDelivery?
 
   /// Email is intentionally non-unique: multiple participants may share one email.
   /// Hard delete only — no deletedAt.
@@ -169,6 +170,24 @@ model PartnerFeedEvent {
 
   @@unique([sequence])
   @@index([createdAt])
+}
+
+/// Outbox for Toon Expo → Mootq fast push (1:1 with Registration). Separate from PartnerFeedEvent pull cursor.
+model PartnerPushDelivery {
+  id             String            @id @default(cuid())
+  registrationId String            @unique
+  status         DeliveryJobStatus @default(PENDING)
+  attemptCount   Int               @default(0)
+  nextAttemptAt  DateTime          @default(now())
+  lastErrorCode  String?
+  claimedAt      DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
 }
 
 model IntegrationSyncRun {
