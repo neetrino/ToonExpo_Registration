@@ -3,9 +3,7 @@ import { createRegistration } from '@/lib/registrations';
 import { logger } from '@/lib/logger';
 import {
   REGISTRATION_MAX_BODY_BYTES,
-  checkRegistrationRateLimit,
   createRequestId,
-  getClientIp,
   getOrCreateRequestId,
   isAllowedOrigin,
   isHoneypotFilled,
@@ -19,6 +17,8 @@ const NO_STORE_HEADERS = {
   'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
 } as const;
 
+const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9_-]{8,128}$/;
+
 type ErrorBody = {
   ok: false;
   code: string;
@@ -30,10 +30,13 @@ type SuccessBody = {
   ok: true;
   requestId: string;
   registrationId: string;
+  ticketCode: string;
+  ticketViewToken: string;
 };
 
 /**
  * Public registration mutation. Resolves the active event server-side.
+ * Assigns sourceSystem=TOON_EXPO and issues a ticket code.
  */
 export async function POST(request: Request): Promise<NextResponse> {
   const requestId = getOrCreateRequestId(request);
@@ -42,19 +45,17 @@ export async function POST(request: Request): Promise<NextResponse> {
     return jsonError(403, 'ORIGIN_REJECTED', requestId);
   }
 
-  const rateLimit = checkRegistrationRateLimit(getClientIp(request));
-  if (!rateLimit.allowed) {
-    return jsonError(429, 'RATE_LIMITED', requestId, {
-      'Retry-After': String(rateLimit.retryAfterSeconds),
-    });
-  }
-
   const contentLengthHeader = request.headers.get('content-length');
   if (contentLengthHeader !== null) {
     const contentLength = Number(contentLengthHeader);
     if (Number.isFinite(contentLength) && contentLength > REGISTRATION_MAX_BODY_BYTES) {
       return jsonError(400, 'VALIDATION_ERROR', requestId);
     }
+  }
+
+  const idempotencyKey = readIdempotencyKey(request);
+  if (!idempotencyKey) {
+    return jsonError(400, 'VALIDATION_ERROR', requestId);
   }
 
   let rawBody: unknown;
@@ -91,13 +92,14 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   if (isHoneypotFilled(parsed.data.website)) {
-    // Reject bots without revealing the honeypot rule.
     logger.info('Honeypot submission rejected', { requestId });
     return NextResponse.json(
       {
         ok: true,
         requestId,
         registrationId: createRequestId(),
+        ticketCode: 'invalid',
+        ticketViewToken: 'invalid',
       } satisfies SuccessBody,
       { status: 201, headers: responseHeaders(requestId) },
     );
@@ -114,6 +116,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     privacyPolicyVersion: parsed.data.privacyPolicyVersion,
     formVersion: parsed.data.formVersion,
     answers: parsed.data.answers,
+    idempotencyKey,
   };
 
   try {
@@ -127,6 +130,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         ok: true,
         requestId,
         registrationId: result.registrationId,
+        ticketCode: result.ticketCode,
+        ticketViewToken: result.ticketViewToken,
       } satisfies SuccessBody,
       { status: 201, headers: responseHeaders(requestId) },
     );
@@ -134,6 +139,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     logger.error('Unhandled registration route error', { requestId });
     return jsonError(500, 'INTERNAL_ERROR', requestId);
   }
+}
+
+function readIdempotencyKey(request: Request): string | null {
+  const header = request.headers.get('idempotency-key')?.trim();
+  if (!header || !IDEMPOTENCY_KEY_PATTERN.test(header)) {
+    return null;
+  }
+  return header;
 }
 
 function responseHeaders(requestId: string): Record<string, string> {

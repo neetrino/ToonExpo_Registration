@@ -1,6 +1,7 @@
 export {
   createRegistration,
   type CreateRegistrationResult,
+  type CreateRegistrationSuccess,
 } from '@/lib/registrations/create-registration';
 export {
   mapRegistrationError,

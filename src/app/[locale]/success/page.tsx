@@ -1,6 +1,6 @@
-import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
-import { Button } from '@/components/ui/button';
+import { Suspense } from 'react';
+import { setRequestLocale } from 'next-intl/server';
+import { SuccessTicketCard } from '@/components/registration/success-ticket-card';
 
 type SuccessPageProps = {
   params: Promise<{ locale: string }>;
@@ -9,8 +9,6 @@ type SuccessPageProps = {
 export default async function SuccessPage({ params }: SuccessPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-
-  const t = await getTranslations('success');
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:py-16">
@@ -38,16 +36,9 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
             </div>
           </div>
 
-          <h1 className="mt-6 font-display text-2xl font-extrabold text-primary md:text-3xl">
-            {t('title')}
-          </h1>
-          <p className="mt-3 max-w-sm text-base leading-relaxed text-muted-foreground">
-            {t('description')}
-          </p>
-
-          <Button asChild size="lg" className="mt-8 w-full sm:w-auto">
-            <Link href="/">{t('backToHome')}</Link>
-          </Button>
+          <Suspense fallback={null}>
+            <SuccessTicketCard locale={locale} />
+          </Suspense>
         </div>
       </div>
     </div>

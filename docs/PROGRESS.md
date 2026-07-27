@@ -2,7 +2,7 @@
 
 **Updated:** 2026-07-27
 
-**Status:** owner decisions recorded; Phase 0 partially closed; ready to start Phase 1 after confirmation; Peleka SMS deferred
+**Status:** Phase 1–2 in progress; owner decisions recorded; Peleka SMS deferred
 
 ## 1. Current baseline
 
@@ -12,23 +12,24 @@ Implemented:
 - server validation and normalized Neon/Prisma persistence;
 - questionnaire storage;
 - basic Resend email attempt and status;
-- localized success page without QR;
+- success page with QR + hosted ticket page (`/ticket/<token>`);
+- 13-character ticket codes, `sourceSystem=TOON_EXPO`, idempotency key;
+- schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
+- email uniqueness removed (shared email/phone allowed);
+- process-local registration IP rate limit removed from public route;
 - one-admin list/search/detail/delete/export;
 - security baseline and project checks.
 
 Not implemented:
 
-- source/ticket fields and QR rendering;
-- hosted ticket page and PNG download;
-- durable email delivery jobs (SMS deferred);
-- Peleka integration (deferred);
+- durable EMAIL delivery jobs dispatcher (sync Resend still used);
+- Peleka SMS (deferred);
 - Mootq minimal inbound API;
-- incremental Toon Expo-origin feed for Mootq;
-- manual full import/export and sync history;
-- attendance status;
-- event-scale rehearsal;
-- removal of process-local registration rate limit;
-- removal of unique `(eventId, emailNormalized)` after owner approval.
+- incremental Toon Expo-origin feed HTTP API (events are written);
+- manual full import/export UI;
+- attendance sync from Mootq;
+- backfill of legacy rows;
+- event-scale rehearsal.
 
 ## 2. Agreed scope
 
@@ -120,21 +121,21 @@ No production migration is authorized by this plan.
 
 ### Phase 1 — database expansion
 
-- [ ] Add nullable source/ticket/token/attendance fields.
-- [ ] Add `DeliveryJob`, `PartnerFeedEvent` and `IntegrationSyncRun`.
-- [ ] Drop unique `(eventId, emailNormalized)`; keep search indexes.
-- [ ] Generate and inspect the migration.
-- [ ] Test expand migration on representative non-production data.
+- [x] Add nullable source/ticket/token/attendance fields.
+- [x] Add `DeliveryJob`, `PartnerFeedEvent` and `IntegrationSyncRun`.
+- [x] Drop unique `(eventId, emailNormalized)`; keep search indexes.
+- [x] Generate and inspect the migration.
+- [x] Test expand migration on representative non-production data.
 
 ### Phase 2 — ticket experience
 
-- [ ] Generate unique 13-character ticket codes for Toon Expo registrations.
+- [x] Generate unique 13-character ticket codes for Toon Expo registrations.
 - [ ] Accept and validate immutable Mootq-generated ticket codes.
-- [ ] Assign origin only from the trusted public/partner server route.
-- [ ] Public create uses idempotency key for accidental retries.
-- [ ] Show QR and readable code on Toon Expo success.
-- [ ] Add private hosted-ticket page and PNG download on `reg.toonexpo.com`.
-- [ ] Remove process-local registration IP rate limit.
+- [x] Assign origin only from the trusted public/partner server route.
+- [x] Public create uses idempotency key for accidental retries.
+- [x] Show QR and readable code on Toon Expo success.
+- [x] Add private hosted-ticket page and PNG download on `reg.toonexpo.com`.
+- [x] Remove process-local registration IP rate limit.
 - [ ] Verify representative codes from both generators on actual Mootq scanners.
 
 ### Phase 3 — email (SMS later)

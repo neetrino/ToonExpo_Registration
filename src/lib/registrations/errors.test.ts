@@ -2,14 +2,26 @@ import { describe, expect, it } from 'vitest';
 import { mapRegistrationError } from '@/lib/registrations/errors';
 
 describe('mapRegistrationError', () => {
-  it('maps unique constraint races to 409 DUPLICATE_EMAIL', () => {
+  it('maps idempotency unique races to IDEMPOTENT_REPLAY', () => {
     const error = {
       code: 'P2002',
-      meta: { target: ['eventId', 'emailNormalized'] },
+      meta: { target: ['eventId', 'idempotencyKey'] },
     };
     expect(mapRegistrationError(error)).toEqual({
-      code: 'DUPLICATE_EMAIL',
+      code: 'IDEMPOTENT_REPLAY',
       httpStatus: 409,
+    });
+  });
+
+  it('maps ticket code collisions for retry', () => {
+    expect(
+      mapRegistrationError({
+        code: 'P2002',
+        meta: { target: ['ticketCode'] },
+      }),
+    ).toEqual({
+      code: 'TICKET_CODE_COLLISION',
+      httpStatus: 503,
     });
   });
 

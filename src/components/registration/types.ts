@@ -22,7 +22,7 @@ export type RegistrationApiErrorBody = {
 };
 
 export type SubmitRegistrationResult =
-  | { ok: true }
+  | { ok: true; ticketCode: string; ticketViewToken: string; registrationId: string }
   | {
       ok: false;
       status: number;

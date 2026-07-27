@@ -35,9 +35,17 @@ export default auth((request) => {
     return response;
   }
 
+  if (pathname.startsWith('/ticket')) {
+    const response = NextResponse.next();
+    response.headers.set('Cache-Control', ADMIN_NO_STORE);
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    response.headers.set('Referrer-Policy', 'no-referrer');
+    return response;
+  }
+
   return intlMiddleware(request);
 });
 
 export const config = {
-  matcher: ['/', '/(hy|en|ru)/:path*', '/admin/:path*'],
+  matcher: ['/', '/(hy|en|ru)/:path*', '/admin/:path*', '/ticket/:path*'],
 };
