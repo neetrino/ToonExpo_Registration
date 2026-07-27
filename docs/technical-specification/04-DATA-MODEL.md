@@ -1,82 +1,110 @@
 # Data model
 
-This document describes logical data. Exact Prisma types, index syntax and migration SQL are finalized during implementation using the safe database migration workflow.
+This document defines the smallest planned additions. It does not authorize a migration.
 
-## Event
+## Existing entities
 
-| Field | Purpose |
-|---|---|
-| `id` | Internal stable identifier |
-| `slug` | Stable public/internal event key, unique |
-| `name` | Event name |
-| `startsAt` | Confirmed start date/time, nullable until supplied in non-production |
-| `venueName` | Confirmed venue, nullable until supplied in non-production |
-| `venueAddress` | Confirmed address, nullable until supplied in non-production |
-| `isActive` | Selects the event accepting registrations |
-| `createdAt`, `updatedAt` | Audit timestamps |
+Keep existing `Event`, `Registration` and `Admin` entities and questionnaire JSON storage.
 
-MVP operates one active event. The database MUST prevent ambiguous active-event behavior through application validation and, where practical, a database constraint.
+## Registration additions
 
-## Registration
+| Field                  | Purpose                                                  |
+| ---------------------- | -------------------------------------------------------- |
+| `sourceSystem`         | Canonical origin: `TOON_EXPO` or `MOOTQ`                 |
+| `sourceRegistrationId` | Stable source-owned ID; required for Mootq               |
+| `ticketCode`           | Unique immutable 13-character alphanumeric scanner value |
+| `ticketViewToken`      | Long private hosted-ticket credential                    |
+| `attendanceStatus`     | `NOT_VISITED` or `VISITED`                               |
 
-| Field | Purpose |
-|---|---|
-| `id` | Non-sequential public-safe identifier, preferably UUID/CUID |
-| `eventId` | Owning event |
-| `firstName` | Trimmed participant first name |
-| `lastName` | Trimmed participant surname |
-| `email` | Original/trimmed email for communication |
-| `emailNormalized` | Lowercased normalized email used for uniqueness/search |
-| `phone` | Display form of normalized phone |
-| `phoneNormalized` | International normalized form used for search |
-| `locale` | `hy`, `en` or `ru` |
-| `consentAcceptedAt` | Server-recorded consent time |
-| `privacyPolicyVersion` | Version accepted by participant |
-| `formVersion` | Active questionnaire definition id (nullable for pre-questionnaire rows) |
-| `answers` | Structured questionnaire JSON (nullable for pre-questionnaire rows) |
-| `emailDeliveryStatus` | Technical state: `PENDING`, `SENT` or `FAILED` |
-| `emailLastAttemptAt` | Last Resend attempt timestamp |
-| `emailProviderMessageId` | Provider ID when available; not exposed publicly |
-| `createdAt`, `updatedAt` | Audit timestamps |
+Constraints after backfill:
 
-### Constraints and indexes
+- unique `ticketCode`;
+- unique `(sourceSystem, sourceRegistrationId)` when source ID is present;
+- index `(eventId, sourceSystem)` for admin filtering and source counts;
+- exact alphanumeric length validated in application and reviewed DB checks where practical;
+- unique `(eventId, emailNormalized)` is removed: same email and phone MAY register multiple participants;
+- keep non-unique indexes useful for admin email/phone search;
+- accidental public retries use an application idempotency key, not contact uniqueness.
 
-- Unique: `(eventId, emailNormalized)`.
-- Index: `(eventId, createdAt, id)` for stable list ordering.
-- Index/search support for `emailNormalized` and `phoneNormalized` scoped by event.
-- Name search strategy must be tested with Armenian, Latin and Cyrillic input before choosing additional indexes.
-- Phone is intentionally not unique.
+`sourceSystem` is independent of `ticketCode`. Public Toon Expo registration assigns `TOON_EXPO` server-side; the authenticated Mootq route assigns `MOOTQ` server-side. Public and partner request bodies cannot select or override the source. Existing rows are Toon Expo-origin unless migration validation proves otherwise. After backfill the field is required and has no permanent database default, so every write path must assign it explicitly.
 
-## Admin
+For Toon Expo-origin rows, the existing `Registration.id` is the source-owned identifier and is exposed as `sourceRegistrationId` in partner payloads; no duplicate column value is required. For Mootq-origin rows, the separate `sourceRegistrationId` stores Mootq's stable ID and provides transport idempotency.
 
-| Field | Purpose |
-|---|---|
-| `id` | Administrator identifier |
-| `email` | Unique normalized login identity |
-| `passwordHash` | Argon2id hash |
-| `role` | Fixed `ADMIN` |
-| `isActive` | Emergency access disable switch |
-| `createdAt`, `updatedAt` | Audit timestamps |
+## DeliveryJob
 
-Only one active administrator is supported by product scope. The seed/activation flow must not commit a real password or hash tied to production credentials.
+One small table for EMAIL/SMS reliability:
 
-## Relationship overview
+| Field               | Purpose                                   |
+| ------------------- | ----------------------------------------- |
+| `id`                | Internal job ID                           |
+| `registrationId`    | Ticket recipient                          |
+| `channel`           | `EMAIL` or `SMS`                          |
+| `templateVersion`   | Logical-send version                      |
+| `status`            | `PENDING`, `PROCESSING`, `SENT`, `FAILED` |
+| `attemptCount`      | Retry count                               |
+| `nextAttemptAt`     | Due time                                  |
+| `providerMessageId` | Optional provider reference               |
+| `lastErrorCode`     | Safe non-PII category                     |
+| timestamps          | Creation/claim/send/update                |
+
+Unique `(registrationId, channel, templateVersion)` prevents duplicate logical sends.
+
+## PartnerFeedEvent
+
+A purpose-specific table for ordered Toon Expo-origin fast exchange:
+
+| Field            | Purpose                                                       |
+| ---------------- | ------------------------------------------------------------- |
+| `sequence`       | Monotonic cursor                                              |
+| `registrationId` | Toon Expo registration                                        |
+| `type`           | Initially `UPSERT`; `REVOKE` only if cancellation is approved |
+| `createdAt`      | Feed ordering/operations                                      |
+
+The API joins only the minimum approved identity/contact fields. A general event bus is not introduced.
+
+## IntegrationSyncRun
+
+| Field          | Purpose                                       |
+| -------------- | --------------------------------------------- |
+| `id`           | Run/session ID                                |
+| `direction`    | `IMPORT_FROM_MQ` or `EXPORT_TO_MQ`            |
+| `status`       | `RUNNING`, `SUCCEEDED`, `PARTIAL`, `FAILED`   |
+| `initiatedBy`  | Admin or partner credential identity          |
+| `lastCursor`   | Resume/progress                               |
+| result counts  | read/created/updated/skipped/conflicts/errors |
+| `errorSummary` | Bounded safe JSON summary                     |
+| timestamps     | started/finished/updated                      |
+
+Detailed per-item issue storage is deferred unless integration testing proves it necessary.
+
+## Relationships
 
 ```text
-Event 1 ─────── * Registration
-
-Admin           (independent authentication principal)
+Event 1 ─── * Registration
+Registration 1 ─── * DeliveryJob
+Registration 1 ─── 0..* PartnerFeedEvent
+IntegrationSyncRun (independent operational history)
 ```
 
-## Deletion policy decision
+## Data ownership
 
-Before migration approval, the owner must choose one of these policies:
+- Toon Expo owns registration/questionnaire data for `sourceSystem=TOON_EXPO` and delivery state for both origins.
+- Mootq owns registration input for `sourceSystem=MOOTQ` and attendance for both origins.
+- Immutable IDs are never silently overwritten.
+- Full sync does not import provider secrets or internal job fields.
 
-1. Hard delete: remove an erroneous registration immediately.
-2. Soft delete: retain a minimal audit marker with `deletedAt`, exclude it from normal counts/exports, and purge it according to retention policy.
+## Migration risk
 
-No hidden retention of full participant data is permitted without an approved purpose and disclosed policy.
+**LOW:** add nullable columns and independent tables.
 
-## Questionnaire (implemented without CMS tables)
+**MEDIUM–HIGH:** backfill ticket codes/tokens and add unique/non-null constraints.
 
-Answers are validated in application code (`src/lib/questionnaire`) and persisted on `Registration.answers` with `Registration.formVersion`. Changing question meaning requires a new `formVersion` string; historical rows keep their original version and JSON shape.
+Sequence:
+
+1. Expand with nullable fields/tables.
+2. Deploy compatible reads/writes.
+3. Backfill existing rows in bounded batches with `sourceSystem=TOON_EXPO`, 13-character codes and tokens.
+4. Validate nulls, format, uniqueness and relations.
+5. Add constraints later.
+
+The repeated-email decision is closed: drop the email uniqueness constraint during expansion and keep search indexes. Accidental retries use an idempotency key.

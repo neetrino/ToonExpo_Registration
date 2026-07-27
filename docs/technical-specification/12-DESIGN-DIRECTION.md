@@ -78,6 +78,17 @@ The landing page should feel like a contemporary event identity: confident, edit
 - The main submit button has strong solid-color contrast and one clear hierarchy.
 - Avoid glassmorphism, gradient borders, decorative input animations and excessive card nesting.
 
+## Success and hosted ticket
+
+- Success page makes the QR the primary result after the confirmation heading.
+- QR uses a plain high-contrast light background, sufficient quiet zone and no decorative overlay that can reduce scan reliability.
+- The exact 13-character code is displayed below the QR in a readable monospaced treatment.
+- Download/save action is prominent and clearly labelled; screenshot guidance is concise.
+- Email/SMS hosted-ticket page uses the same visual hierarchy and QR, without unrelated navigation, tracking or external promotional assets.
+- Unavailable ticket state is explicit but does not disclose participant data.
+- Long bearer token is never rendered as visible copy.
+- Ticket content remains usable at mobile widths, high zoom and outdoors/high-brightness conditions.
+
 ## Administrator panel
 
 ### Desired impression
@@ -86,9 +97,13 @@ The admin panel must be clean, calm and efficient, but not look like a default s
 
 ### Dashboard
 
-- Clear page title, event context and total registration metric.
+- Clear page title, event context, total/source metrics and compact delivery health.
 - Search, export and table actions arranged by operational priority.
 - Participant table optimized for scanning with deliberate column widths, alignment and typography.
+- Source, attendance, email and SMS states use accessible text plus restrained status treatment.
+- Delivery failures/retry actions are clear without exposing provider payloads or ticket-view tokens.
+- Manual full-import action and sync-run history show clear running, partial, success and failure states.
+- The admin has no control for Mootq polling frequency.
 - Use solid surfaces, subtle borders and restrained accent color for selected/interactive states.
 - Empty, loading, no-results and failure states are designed components, not raw text.
 - Destructive actions use a clear warning color and confirmation dialog without dominating normal usage.
@@ -134,3 +149,6 @@ The implementation should interpolate naturally between checkpoints rather than 
 - [ ] Mobile and desktop compositions both feel intentional.
 - [ ] Contrast, keyboard focus and reduced-motion behavior are verified.
 - [ ] Decorative elements do not reduce performance, accessibility or clarity.
+- [ ] Success, hosted ticket and downloaded PNG encode the exact same scanner value.
+- [ ] QR scans on the partner's real device from representative phone screens and email attachments.
+- [ ] Ticket routes contain no unrelated third-party tracking or external assets that can leak bearer URLs.

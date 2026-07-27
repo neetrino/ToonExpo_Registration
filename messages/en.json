@@ -61,6 +61,12 @@
   "success": {
     "title": "Registration received",
     "description": "Thank you for registering for Toon Expo. We have saved your details successfully.",
+    "ticketTitle": "You're registered",
+    "ticketDescription": "Show this QR code at the entrance. You can also open or download your ticket anytime.",
+    "qrAlt": "Your Toon Expo ticket QR code",
+    "codeHint": "Readable ticket code",
+    "openTicket": "Open ticket page",
+    "downloadQr": "Download QR PNG",
     "backToHome": "Back to home"
   },
   "admin": {

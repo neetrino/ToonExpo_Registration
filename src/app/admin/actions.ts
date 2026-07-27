@@ -4,6 +4,7 @@ import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { deleteRegistration } from '@/lib/admin';
 import { AdminSessionError, requireAdminSession, signIn, signOut } from '@/lib/auth';
+import { startFullImportFromMootq } from '@/lib/integrations/mootq/full-import';
 import { logger } from '@/lib/logger';
 import { createRequestId } from '@/lib/security';
 
@@ -76,4 +77,38 @@ export async function deleteRegistrationAction(
 
   logger.info('Admin deleted registration', { requestId, registrationId });
   return { ok: true };
+}
+
+export type ImportMootqActionResult =
+  { ok: true; runId: string; status: string } | { ok: false; error: string };
+
+/**
+ * Start a manual full import from Mootq when partner export credentials are configured.
+ */
+export async function importFullDataFromMootqAction(): Promise<ImportMootqActionResult> {
+  const requestId = createRequestId();
+
+  let adminEmail = 'admin';
+  try {
+    const session = await requireAdminSession({ verifyActiveInDb: true });
+    adminEmail = session.email;
+  } catch (error: unknown) {
+    if (error instanceof AdminSessionError) {
+      return { ok: false, error: 'Unauthorized.' };
+    }
+    throw error;
+  }
+
+  const result = await startFullImportFromMootq(adminEmail);
+  if (!result.ok) {
+    logger.info('Admin full import blocked or unavailable', { requestId });
+    return { ok: false, error: result.error };
+  }
+
+  logger.info('Admin full import finished', {
+    requestId,
+    runId: result.runId,
+    status: result.status,
+  });
+  return { ok: true, runId: result.runId, status: result.status };
 }

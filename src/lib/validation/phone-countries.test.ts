@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  filterPhoneCountries,
-  listPhoneCountries,
-} from '@/lib/validation/phone-countries';
+import { filterPhoneCountries, listPhoneCountries } from '@/lib/validation/phone-countries';
 
 describe('filterPhoneCountries', () => {
   const countries = listPhoneCountries('en');
@@ -30,9 +27,9 @@ describe('filterPhoneCountries', () => {
     expect(filterPhoneCountries(countries, 'Россия').some((option) => option.code === 'RU')).toBe(
       true,
     );
-    expect(
-      filterPhoneCountries(countries, 'Հայաստան').some((option) => option.code === 'AM'),
-    ).toBe(true);
+    expect(filterPhoneCountries(countries, 'Հայաստան').some((option) => option.code === 'AM')).toBe(
+      true,
+    );
   });
 
   it('returns all countries for an empty query', () => {

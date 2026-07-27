@@ -101,7 +101,9 @@ describe('registrationBodySchema', () => {
   });
 
   it('defaults phoneCountry to Armenia when omitted', () => {
-    const { phoneCountry: _omitted, ...withoutCountry } = valid;
+    // Omit phoneCountry to assert schema default.
+    const { phoneCountry: _phoneCountry, ...withoutCountry } = valid;
+    void _phoneCountry;
     const parsed = registrationBodySchema.safeParse(withoutCountry);
     expect(parsed.success).toBe(true);
     if (!parsed.success) {

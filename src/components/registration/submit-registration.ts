@@ -1,5 +1,6 @@
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 import type { Locale } from '@/types/locale';
+import { getOrCreateRegistrationIdempotencyKey } from './idempotency';
 import type { RegistrationSubmitPayload } from './wizard/build-payload';
 import type {
   RegistrationApiErrorBody,
@@ -42,11 +43,15 @@ export async function submitRegistration(
   honeypot: string,
 ): Promise<SubmitRegistrationResult> {
   let response: Response;
+  const idempotencyKey = getOrCreateRegistrationIdempotencyKey();
 
   try {
     response = await fetch('/api/registrations', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Idempotency-Key': idempotencyKey,
+      },
       body: JSON.stringify({
         firstName: values.firstName,
         lastName: values.lastName,
@@ -66,7 +71,26 @@ export async function submitRegistration(
   }
 
   if (response.status === 201) {
-    return { ok: true };
+    try {
+      const body = (await response.json()) as {
+        registrationId?: string;
+        ticketCode?: string;
+        ticketViewToken?: string;
+      };
+
+      if (body.registrationId && body.ticketCode && body.ticketViewToken) {
+        return {
+          ok: true,
+          registrationId: body.registrationId,
+          ticketCode: body.ticketCode,
+          ticketViewToken: body.ticketViewToken,
+        };
+      }
+    } catch {
+      return { ok: false, status: 500, code: 'INTERNAL_ERROR' };
+    }
+
+    return { ok: false, status: 500, code: 'INTERNAL_ERROR' };
   }
 
   let body: RegistrationApiErrorBody | undefined;

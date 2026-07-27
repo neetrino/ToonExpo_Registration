@@ -5,12 +5,19 @@ import { ADMIN_PAGE_SIZE, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants'
 export type AdminRegistrationRow = {
   id: string;
   createdAt: Date;
+  updatedAt: Date;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   locale: string;
   emailDeliveryStatus: string;
+  emailLastAttemptAt: Date | null;
+  sourceSystem: string | null;
+  sourceRegistrationId: string | null;
+  ticketCode: string | null;
+  ticketViewToken: string | null;
+  attendanceStatus: string | null;
   formVersion: string | null;
   answers: unknown;
   consentAcceptedAt: Date;
@@ -54,6 +61,8 @@ function buildSearchWhere(
       { emailNormalized: { contains: lowered } },
       { phone: { contains: search } },
       { phoneNormalized: { contains: search } },
+      { ticketCode: { contains: search } },
+      { sourceRegistrationId: { contains: search } },
     ],
   };
 }
@@ -106,6 +115,13 @@ export async function listAdminRegistrations(options: {
         phone: true,
         locale: true,
         emailDeliveryStatus: true,
+        sourceSystem: true,
+        sourceRegistrationId: true,
+        ticketCode: true,
+        ticketViewToken: true,
+        attendanceStatus: true,
+        emailLastAttemptAt: true,
+        updatedAt: true,
         formVersion: true,
         answers: true,
         consentAcceptedAt: true,
@@ -155,6 +171,13 @@ export async function listRegistrationsForExport(search?: string): Promise<{
       phone: true,
       locale: true,
       emailDeliveryStatus: true,
+      sourceSystem: true,
+      sourceRegistrationId: true,
+      ticketCode: true,
+      ticketViewToken: true,
+      attendanceStatus: true,
+      emailLastAttemptAt: true,
+      updatedAt: true,
       formVersion: true,
       answers: true,
       consentAcceptedAt: true,

@@ -2,149 +2,203 @@
 
 **Project size:** A
 
-**Architecture:** Small full-stack modular monolith
+**Architecture:** Small Next.js modular monolith with Neon PostgreSQL
 
-**Updated:** 2026-07-17
+**Updated:** 2026-07-27
 
 ## Purpose
 
-The system publishes a multilingual Toon Expo landing page, accepts attendee registrations, sends a confirmation email and gives one administrator a protected view of registration data.
+The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends matching tickets through Resend and Peleka, exposes a small fast feed to Mootq, and supports rare manual full reconciliation.
 
 ## System context
 
 ```text
-Visitor browser
+Toon Expo visitor
     │
-    ├── GET /{locale} ──> Vercel CDN ──> statically rendered Next.js page
-    │
-    └── POST registration ──> Vercel WAF ──> Next.js Route Handler
-                                                │
-                                                ├──> Neon PostgreSQL
-                                                └──> Resend
+    └── Toon Expo form
+            │
+            └── create ticket code ──┬── show QR
+                                     ├── queue email/SMS
+                                     └── expose in fast feed ──> Mootq scanner DB
 
-Administrator browser
-    └── /admin ──> Auth.js session ──> Next.js server layer ──> Neon PostgreSQL
+Mootq visitor
+    │
+    └── Mootq form
+            │
+            ├── Mootq creates ticket code and shows QR
+            └── POST code + recipient data ──> Toon Expo
+                                                   │
+                                                   ├── store exact code
+                                                   └── queue matching email/SMS
+
+Manual full reconciliation
+    ├── Toon Expo admin pulls full Mootq data
+    └── Mootq independently pulls full Toon Expo data
 ```
 
-## Architectural decisions
+All Toon Expo pages, APIs, admin functions and delivery processing remain in one Next.js deployment. Neon PostgreSQL is the durable application store. Mootq owns scanning/check-in and the polling schedule.
 
-- One Next.js deployment contains public pages, admin pages, route handlers and server-only services.
-- Public locale pages are static and CDN-cacheable.
-- Registration and administrator routes are dynamic and must not be publicly cached.
-- PostgreSQL is the source of truth for events, registrations, administrator credentials and email-delivery state.
-- Redis is not used. Vercel WAF provides edge rate limiting; database constraints provide durable duplicate protection.
-- A registration is committed before email delivery is attempted. An email-provider failure must not remove or roll back a valid registration.
-- The application is designed for short bursts significantly above the expected 100 registrations per day.
+## Core decisions
 
-## Proposed repository layout
+- Keep the existing Next.js/Vercel/Neon stack and folder layout.
+- Do not introduce NestJS, Redis, NATS or another broker.
+- Each system generates codes only for registrations created on its own form.
+- Every code is a random 13-character alphanumeric value with no prefix.
+- Mootq-generated codes are stored by Toon Expo unchanged.
+- Both QR images encode the exact stored `ticketCode`.
+- Registration origin is stored in `sourceSystem`, never encoded in or inferred from the code.
+- The same stored code is used for browser display, email QR, SMS ticket page and scanner exchange.
+- Email/SMS delivery is asynchronous but persisted durably in PostgreSQL.
+- Fast exchange and full reconciliation are separate contracts.
+- Toon Expo does not control how often Mootq polls the fast feed.
 
-```text
-src/
-├── app/
-│   ├── [locale]/
-│   │   ├── page.tsx
-│   │   ├── privacy/page.tsx
-│   │   └── success/page.tsx
-│   ├── admin/
-│   │   ├── login/page.tsx
-│   │   └── page.tsx
-│   ├── api/
-│   │   ├── registrations/route.ts
-│   │   └── admin/registrations/export/route.ts
-│   ├── layout.tsx
-│   └── globals.css
-├── components/
-│   ├── landing/
-│   ├── registration/
-│   ├── admin/
-│   └── ui/
-├── lib/
-│   ├── auth/
-│   ├── db/
-│   ├── email/
-│   ├── i18n/
-│   ├── questionnaire/
-│   ├── registrations/
-│   ├── security/
-│   └── validation/
-└── types/
+## Identifiers
 
-messages/
-├── hy.json
-├── en.json
-└── ru.json
+### `ticketCode`
 
-prisma/
-├── schema.prisma
-├── migrations/
-└── seed.ts
-```
+- Exactly 13 ASCII alphanumeric characters (`A-Z`, `a-z`, `0-9`).
+- No prefix, separator or embedded source information.
+- Generated with cryptographically secure randomness by the owning source.
+- Globally unique and immutable in Toon Expo PostgreSQL.
+- Raw QR payload and cross-system reconciliation key.
+- Protected by a unique database constraint; Toon Expo retries generation on the unlikely collision.
 
-The exact route grouping may be refined during implementation without changing the boundaries above.
+### `ticketViewToken`
 
-## Request flows
+- Long random bearer value generated by Toon Expo for both sources.
+- Used only in email/SMS hosted-ticket links.
+- Never placed in the scanner QR or partner fast feed.
 
-### Public page
+### Source ID
 
-1. The visitor requests a locale URL.
-2. Vercel CDN serves cached HTML and static assets.
-3. No database request is performed merely to display the form.
+- `sourceSystem`: `TOON_EXPO` or `MOOTQ`; this is the canonical origin field.
+- `sourceRegistrationId`: stable source-owned registration identifier.
+- Required for Mootq transport idempotency and useful for diagnostics.
+- `ticketCode` remains the primary reconciliation identifier.
+- Public registration assigns `TOON_EXPO` server-side.
+- The authenticated Mootq inbound route assigns `MOOTQ` server-side.
+- Request bodies cannot select or override `sourceSystem`.
 
-### Registration
+## Registration and delivery transactions
 
-1. Vercel WAF evaluates the registration endpoint limit.
-2. The server validates origin, honeypot, payload shape, consent, `formVersion`, and questionnaire `answers`.
-3. Values are trimmed and normalized; email is lowercased and phone is normalized. Answers are validated against the typed branch definition for the active form version.
-4. PostgreSQL creates the registration under the per-event email uniqueness constraint, storing identity columns plus `formVersion` and structured `answers` JSON.
-5. Duplicate constraint errors return the same safe user-facing outcome regardless of concurrent requests.
-6. After commit, the system attempts to send a localized confirmation email through Resend.
-7. Delivery state is persisted without logging the full email address or phone number.
-8. The client receives a localized success or safe error response with a request identifier.
+### Toon Expo registration
 
-### Administrator
+One short database transaction:
 
-1. The administrator signs in through Auth.js.
-2. Server-side authorization protects every admin page and export endpoint.
-3. The dashboard queries aggregate count and a paginated registration list.
-4. Search uses indexed/normalized fields and bounded input.
-5. Delete requires confirmation and records the deletion time or performs the approved deletion policy defined during implementation.
+1. Validate and normalize the form.
+2. Assign `sourceSystem=TOON_EXPO` and create a unique 13-character ticket code.
+3. Generate the hosted-ticket token.
+4. Create EMAIL and SMS delivery jobs.
+5. Append one minimal fast-feed item for Mootq.
+6. Commit and return the ticket to the browser.
 
-## Data boundaries
+Provider calls happen after commit.
 
-- Client components never import Prisma, secrets, Auth.js server configuration or Resend clients.
-- All mutations are validated again on the server even when client validation succeeds.
-- Public translations and event presentation content may be bundled at build time.
-- Participant data is never placed in a shared cache or static payload.
+### Mootq registration
+
+Mootq creates and displays its code before or while sending the registration to Toon Expo.
+
+One Toon Expo transaction:
+
+1. Authenticate Mootq and validate the bounded payload.
+2. Assign `sourceSystem=MOOTQ` from the authenticated route.
+3. Validate the exact 13-character alphanumeric format and uniqueness.
+4. Apply transport idempotency by `sourceRegistrationId`.
+5. Store the supplied ticket code unchanged.
+6. Generate a Toon Expo hosted-ticket token.
+7. Create EMAIL and SMS delivery jobs.
+8. Commit and return only an HTTP acknowledgement.
+
+The API never replaces or returns a different ticket code. Identical retries are safe. A reused external ID with different content or reused code for a different registration is a conflict.
+
+## Ticket delivery
+
+- Generate the QR image in memory from `ticketCode`.
+- Email through Resend includes inline QR, readable code and hosted-ticket link.
+- SMS through Peleka includes the hosted-ticket link.
+- The hosted page shows the same QR and provides PNG download.
+- Registration/import success does not wait for provider delivery.
+- A `DeliveryJob` record tracks pending, processing, sent and failed work.
+- A small dispatcher processes due jobs with bounded concurrency and retry.
+- No general-purpose queue platform is introduced.
+
+## Fast operational exchange
+
+### Mootq to Toon Expo
+
+Mootq posts one minimal record after each Mootq registration. The payload contains:
+
+- stable Mootq registration ID;
+- exact Mootq-generated ticket code;
+- name;
+- email;
+- phone;
+- optional locale and agreed legal metadata.
+
+These fields are sufficient for storage and ticket delivery.
+
+### Toon Expo to Mootq
+
+Mootq polls an authenticated cursor endpoint for new Toon Expo-origin registrations. Each item explicitly contains `sourceSystem=TOON_EXPO`; the feed is:
+
+- incremental;
+- ordered;
+- bounded;
+- replay-safe;
+- no-store;
+- limited to contract-approved operational fields.
+
+Mootq may poll rarely before the event and approximately every three seconds during it. There is no Toon Expo mode switch. When `hasMore=true`, Mootq fetches the next page immediately.
+
+## Manual full reconciliation
+
+Fast exchange does not carry the complete questionnaire or analytics dataset.
+
+### Import from Mootq
+
+- A Toon Expo administrator manually starts an import.
+- Toon Expo pulls bounded pages from the Mootq full-export API.
+- Full pages may contain both origins, so every record carries its stored `sourceSystem`.
+- Records are matched by `ticketCode` and checked against immutable source/source IDs.
+- Mootq-owned full data and `NOT_VISITED`/`VISITED` status are applied idempotently.
+
+### Export to Mootq
+
+- Mootq starts the operation independently on its side.
+- Mootq requests a full export run from Toon Expo and downloads bounded pages.
+- Toon Expo exports the stored `sourceSystem` for every record.
+- Toon Expo does not schedule or push this operation.
+
+Each import/export creates one `IntegrationSyncRun` with direction, timestamps, status, counts, cursor and bounded error summary. Rerunning a completed or partial synchronization is safe.
+
+## Data ownership
+
+- Toon Expo owns registration/questionnaire data for `sourceSystem=TOON_EXPO` and email/SMS delivery state for both origins.
+- Mootq owns registration input for `sourceSystem=MOOTQ` and scanning/attendance status for both origins.
+- Each system owns its internal IDs.
+- Ticket code, source and source registration ID are immutable integration identifiers.
+- Full synchronization must not overwrite Toon Expo provider state or secrets.
+- The duplicate-email business rule is closed: same email and phone MAY register multiple participants; accidental retries use an idempotency key.
 
 ## Reliability and scale
 
-- Use Neon pooled connection string for Vercel runtime traffic.
-- Initialize database and external-service clients lazily and reuse them within warm functions.
-- Keep the registration transaction short; do not call Resend inside the database transaction.
-- Use a unique database constraint rather than a check-then-insert race.
-- Paginate admin results and select only required columns.
-- Apply timeouts to Resend and database operations where supported.
-- Run a non-production burst test before release and observe errors, latency and database connections.
+- Expected peak is about 1.7 registrations/second averaged over ten minutes.
+- The fast feed at one poll every three seconds is about 0.33 requests/second.
+- Use the Neon pooled connection and colocate the Vercel function region.
+- Keep transactions short and indexes aligned with ticket/source IDs, delivery jobs and cursors.
+- Validate provider quotas and load with 1,000 registrations over ten minutes.
+- Monitor delivery backlog, Mootq import failures, fast-feed cursor requests and full-sync run results.
 
 ## Security
 
-- HTTPS, HSTS and baseline security headers.
-- WAF rate limiting on registration and conservative login throttling.
-- Secure session cookies and server-side authorization.
-- Argon2id password hash for the administrator.
-- Separate runtime and migration database roles.
-- Secrets stored only in Vercel environment variables.
-- Logs contain request IDs and safe operational fields, not raw PII.
-
-## Questionnaire storage
-
-Visitor questionnaire answers are stored on `Registration` as:
-
-- `formVersion` — string constant for the active definition (e.g. `2026-vis-reg-v1`)
-- `answers` — structured JSON validated server-side against `src/lib/questionnaire`
-
-There is no CMS-style `FormVersion` / `Question` / `RegistrationAnswer` table set. Branching follows `answers.visitPurpose` (`own_residence` | `investment` | `market_research`). Labels for `hy` / `en` / `ru` live in `src/lib/questionnaire/i18n.ts`.
+- Separate scoped bearer credentials for Mootq write and read/export access.
+- Strict server-side validation and bounded bodies.
+- Unique database constraints for `ticketCode` and Mootq source ID.
+- No full PII, ticket code, hosted-ticket token, authorization or provider payload in logs.
+- Ticket pages are private/no-store/noindex and use restrictive referrer behavior.
+- Public registration uses shared-NAT-safe WAF controls; the process-local IP limit is removed.
+- Same email/phone may create multiple registrations; public create is protected by an idempotency key.
 
 ## Deployment boundary
 
-The repository may contain deployment configuration and documentation, but production deployment, DNS changes, production secrets, WAF publication and production migrations are performed manually by the owner according to the production checklist.
+Production deployment, production migrations, provider account configuration, domain/DNS changes, partner credentials and production WAF publication remain manual owner/operator actions.

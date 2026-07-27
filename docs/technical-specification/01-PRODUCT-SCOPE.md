@@ -2,76 +2,99 @@
 
 ## Goal
 
-Create a polished Toon Expo landing page that makes event registration fast and trustworthy, stores each valid registration reliably, sends a localized confirmation email and gives one administrator an accurate operational view of participants.
+Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, deliver the same ticket through email/SMS, and exchange the required data with Mootq without adding unnecessary infrastructure.
 
-## Users
+## Actors
 
-### Visitor
+### Toon Expo visitor
 
-A visitor discovers event information, chooses one of three languages and registers using a mobile or desktop browser. No account is created.
+- Completes the multilingual Toon Expo form.
+- Receives an immediate QR for the Toon Expo-origin registration.
+- May reopen the same ticket from email or SMS.
 
-### Administrator
+### Mootq visitor
 
-One authorized operator signs in to review the total and detailed registration list, search participants, delete an erroneous entry and export the current dataset.
+- Completes the Mootq form.
+- Receives an immediate QR from Mootq.
+- Receives the matching email/SMS from Toon Expo after the record arrives.
 
-## MVP
+### Toon Expo administrator
 
-### Public landing
+- Uses the existing protected registration dashboard.
+- Sees source, ticket and delivery status.
+- Starts a manual full import from Mootq.
+- Reviews full-sync history.
 
-- Toon Expo branded hero section.
-- Event summary, date, venue and relevant supporting sections once content is supplied.
-- Prominent registration call to action.
-- Armenian, English and Russian routes and content.
-- Registration form embedded on or linked from the landing page.
-- Privacy-policy link and required consent.
-- Localized success, validation, duplicate and temporary-failure states.
-- Responsive design, SEO metadata and social sharing metadata.
+### External systems
 
-### Registration service
+- Mootq registration backend creates and sends Mootq-origin records.
+- Mootq scanner system pulls new Toon Expo-origin records and owns attendance.
+- Resend sends ticket email.
+- Peleka sends ticket-link SMS.
+- Neon stores application data.
+- Vercel runs the application and WAF.
 
-- Validate and normalize all fields on the server.
-- Persist one registration per normalized email per event.
-- Remain correct during concurrent duplicate submissions.
-- Attempt a localized confirmation email after persistence.
-- Track email delivery outcome independently of registration validity.
-- Protect the mutation endpoint from abuse.
+## Included capabilities
+
+### Public registration and ticket
+
+- Existing Toon Expo questionnaire and validation.
+- Prefixless 13-character code creation and immediate QR display.
+- Readable code and PNG download.
+- Private hosted-ticket page.
+
+### Mootq registration intake
+
+- Authenticated minimal POST.
+- Exact Mootq-generated code stored unchanged.
+- Trusted server-side `MOOTQ` source assignment.
+- Source-ID idempotency and conflict handling.
+- Email/SMS jobs after successful persistence.
+
+### Delivery
+
+- Inline QR email through Resend.
+- Hosted-ticket link through email and Peleka SMS.
+- Small PostgreSQL retry mechanism.
+- Basic pending/sent/failed visibility.
+
+### Fast exchange
+
+- Minimal ordered Toon Expo-origin cursor feed.
+- Mootq-controlled polling frequency.
+- Replay/catch-up behavior.
+
+### Full reconciliation
+
+- Manual Toon Expo import from Mootq.
+- On-demand paginated Toon Expo export for Mootq.
+- Match/upsert by `ticketCode`.
+- Questionnaire/full approved fields.
+- `NOT_VISITED`/`VISITED`.
+- Stored run history.
 
 ### Administration
 
-- Protected login for one administrator.
-- Total registration count.
-- Paginated participant list.
-- Search by name, email or phone.
-- Stable ordering by registration date.
-- Participant detail view if the table does not display every required field.
-- Confirmed deletion.
-- CSV export.
-- Logout.
+- Existing auth, list, search, detail and CSV export.
+- Source/ticket/delivery columns.
+- Manual full import action and run results.
 
 ## Out of scope
 
-- Participant accounts or sign-in.
-- Participant data editing by the administrator.
-- Capacity limits, waiting lists, approval or registration status workflows.
-- Payments, tickets, QR codes, badges and on-site check-in.
-- SMS or messaging integrations.
-- Questionnaire fields in the first release.
-- Multiple administrator roles.
-- Content management system.
-- Redis or application queues.
-- Production deployment performed automatically by the agent.
-
-## Future-compatible decisions
-
-- Registrations belong to an `Event`, even though the MVP operates one active event.
-- Locale is stored with each registration for email and later communications.
-- Questionnaire tables can be added later without modifying core identity fields.
-- Infrastructure remains a single application until product complexity, not traffic alone, justifies separation.
+- Toon Expo scanners or admission UI.
+- Detailed scan history.
+- Automatic polling-mode switches.
+- Automatic bilateral full-sync scheduling.
+- NestJS, Redis, NATS, Kafka, RabbitMQ or BullMQ.
+- Payments, attendee accounts, editing, capacity or waitlists.
+- Marketing email/SMS.
 
 ## Success measures
 
-- A normal visitor can complete registration without assistance on a current mobile device.
-- A valid registration is never lost because email delivery fails.
-- Concurrent attempts cannot create duplicate registrations for the same event/email.
-- The administrator can obtain an accurate CSV without direct database access.
-- The application remains healthy during the agreed burst test.
+- Stored, displayed, emailed, linked and scanned code values match.
+- Mootq-supplied codes are never silently changed.
+- Source counts use `sourceSystem`, never code parsing.
+- Provider failures do not lose a ticket.
+- Fast exchange catches up after temporary outages.
+- Full synchronization can be rerun and has auditable results.
+- Peak load passes without blocking shared venue traffic.

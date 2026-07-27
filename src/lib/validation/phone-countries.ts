@@ -1,8 +1,4 @@
-import {
-  getCountries,
-  getCountryCallingCode,
-  type CountryCode,
-} from 'libphonenumber-js';
+import { getCountries, getCountryCallingCode, type CountryCode } from 'libphonenumber-js';
 import { DEFAULT_PHONE_COUNTRY } from '@/lib/validation/constants';
 
 /** Expo-relevant markets first; remaining countries follow alphabetically by display name. */

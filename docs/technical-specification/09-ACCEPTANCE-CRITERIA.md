@@ -1,68 +1,66 @@
-# MVP acceptance criteria
+# Release acceptance criteria
 
-## Content readiness
+## Contracts
 
-- [ ] Exact event date, venue and address are approved in all three languages.
-- [ ] Approved logo, artwork and legal/privacy content are supplied.
-- [ ] No development placeholder remains in production-facing content.
+- [ ] Repeated-email rule is approved and reflected consistently.
+- [ ] Mootq minimal inbound, fast feed and full-sync fixtures are approved.
+- [ ] Prefixless 13-character alphanumeric codes from both generators scan on real devices.
+- [ ] Peleka and Resend production contracts/settings are confirmed.
 
-## Public site
+## Toon Expo ticket
 
-- [ ] Armenian, English and Russian routes render and switch correctly.
-- [ ] Landing design is responsive and consistent with approved Toon Expo branding.
-- [ ] Form and primary call to action are obvious on mobile and desktop.
-- [ ] Metadata, canonical/alternate URLs, sitemap, robots and social preview are correct.
-- [ ] Admin pages are not indexable.
+- [ ] Accepted Toon Expo registration creates one stored 13-character code and `sourceSystem=TOON_EXPO`.
+- [ ] Success QR, readable text, email and hosted page use the same code.
+- [ ] PNG download works.
+- [ ] Success does not wait for provider delivery.
 
-## Registration
+## Mootq ticket
 
-- [ ] A valid submission creates exactly one registration linked to the active event.
-- [ ] Required fields, invalid email/phone and missing consent are rejected client- and server-side.
-- [ ] Armenian, Latin and Cyrillic names are accepted within safe bounds.
-- [ ] Repeated click and concurrent duplicate tests create no duplicate rows.
-- [ ] Duplicate email for the same event produces a safe localized outcome.
-- [ ] Same phone may appear on multiple valid registrations.
-- [ ] Honeypot submissions are rejected.
-- [ ] A Resend failure does not remove the registration and is operationally visible.
-- [ ] Registration responses are not publicly cached.
+- [ ] Mootq-provided 13-character code is stored unchanged with `sourceSystem=MOOTQ`.
+- [ ] Toon Expo does not return/replace the partner code.
+- [ ] Email/hosted page/SMS link use the supplied code.
+- [ ] Identical retries create no second transport record or logical send.
+- [ ] Conflicting source ID/code returns a safe conflict.
 
-## Admin
+## Delivery
 
-- [ ] Anonymous access to dashboard, mutations and CSV is denied.
-- [ ] The single administrator can sign in and out.
-- [ ] Total count matches active registrations in the database.
-- [ ] Pagination, search and stable newest-first ordering work.
-- [ ] Delete requires confirmation and follows the approved deletion policy.
-- [ ] Participant editing is absent.
-- [ ] CSV contains the approved records/columns and is formula-safe.
-- [ ] Admin responses containing PII are private/no-store.
+- [ ] EMAIL/SMS jobs persist with the registration/import transaction.
+- [ ] Resend inline QR and link render in representative clients.
+- [ ] Peleka link opens the correct ticket.
+- [ ] Retryable failures recover; terminal failures are visible.
+- [ ] Provider throttling does not block registration.
 
-## Security and privacy
+## Fast exchange
 
-- [ ] Password is Argon2id-hashed and no production credential is committed.
-- [ ] Cookies and authorization are configured securely in production.
-- [ ] WAF rate limit is published and verified on the registration endpoint.
-- [ ] Security headers and HTTPS are verified.
-- [ ] Runtime database role has least privilege and TLS connection.
-- [ ] Logs contain no full email, phone, tokens, cookies, secrets or raw form bodies.
-- [ ] Privacy-policy version and consent time are stored.
-- [ ] Retention/deletion policy and controller contact are published.
+- [ ] Feed returns ordered bounded Toon Expo-origin pages with explicit source.
+- [ ] Cursor replay/catch-up loses no accepted item.
+- [ ] Only approved minimum fields are exposed.
+- [ ] Mootq controls polling frequency; Toon Expo has no mode switch.
 
-## Performance and reliability
+## Full reconciliation
 
-- [ ] Public page is served through Vercel CDN without a database read.
-- [ ] Neon pooled connection is used in runtime.
-- [ ] Preview burst test completes without duplicate rows, connection exhaustion or unacceptable error rate.
-- [ ] Vercel, Neon and Resend operational views are checked.
-- [ ] Rollback procedure is understood before production migration/deploy.
+- [ ] Admin can import full Mootq data.
+- [ ] Mootq can independently page through Toon Expo full export.
+- [ ] Upsert by `ticketCode` preserves immutable IDs and field ownership.
+- [ ] Full pages preserve and validate `sourceSystem` for records from both origins.
+- [ ] A code/source mismatch is reported and never silently reclassified.
+- [ ] `NOT_VISITED`/`VISITED` imports correctly.
+- [ ] Run history records progress/counts/result.
+- [ ] Partial failure can be safely rerun.
 
-## Engineering quality
+## Security and admin
 
-- [ ] Formatting passes.
-- [ ] ESLint passes with no ignored new errors.
-- [ ] Type checking passes.
-- [ ] Unit/integration tests pass.
-- [ ] Critical Playwright flows pass.
-- [ ] Production build passes.
-- [ ] `.env.example` documents every required variable without real secrets.
-- [ ] Manual production checklist is completed by the owner.
+- [ ] Public shared-IP load is not blocked by the old in-memory limiter.
+- [ ] Partner write/read credentials are scoped and redacted.
+- [ ] Ticket routes are private/no-store/noindex.
+- [ ] Logs/exports contain no prohibited secrets or tokens.
+- [ ] Existing admin features remain functional.
+- [ ] Admin source filters/counts use `sourceSystem`, not code parsing.
+
+## Engineering/operations
+
+- [ ] Format, lint, typecheck, tests and production build pass.
+- [ ] 1,000 registrations/ten-minute rehearsal passes.
+- [ ] Neon pooling/backups and provider quotas are verified.
+- [ ] One Toon Expo-origin and one Mootq-origin production smoke flow pass.
+- [ ] Post-event full synchronization runbook exists.

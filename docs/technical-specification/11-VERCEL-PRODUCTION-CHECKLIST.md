@@ -1,114 +1,88 @@
 # Manual production checklist
 
-This file contains only actions that an owner/operator must perform in external dashboards or during the controlled production release. Application code does not complete these steps automatically.
+Owner/operator actions only. Documentation or implementation work does not authorize production deployment or migration.
 
-## Before connecting Vercel
+## Decisions and contracts
 
-- [ ] Confirm the production domain.
-- [ ] Confirm event date, venue/address and event time zone.
-- [ ] Confirm privacy policy, controller contact and retention/deletion policy.
-- [ ] Create the Neon production project/branch in a region close to the selected Vercel function region.
-- [ ] Create separate Neon migration and least-privilege runtime roles.
-- [ ] Create the Neon project with PostgreSQL 18.
-- [ ] Copy the pooled TLS runtime URL for `DATABASE_URL`; keep the direct/migration URL separate.
-- [ ] Enable/confirm Neon backups or PITR for the selected plan and test restore to a non-production branch.
-- [ ] Verify the sending domain in Resend and configure required DNS records (SPF/DKIM and any provider-required records).
+- [ ] Repeated-email rule approved.
+- [ ] Prefixless 13-character alphanumeric format and scanner test approved.
+- [ ] Mootq minimal inbound/fast/full schemas and credentials approved.
+- [ ] Fast-feed name/email/phone purpose and retention approved.
+- [ ] Peleka API, sender, throughput and errors approved.
+- [ ] Resend Pro/pay-as-you-go/sender domain confirmed.
+- [ ] Data sharing, retention and deletion approved.
 
-## Vercel project settings
+## Vercel and Neon
 
-1. Import the Git repository into Vercel.
-2. Confirm framework preset **Next.js**, package manager **pnpm**, and the production branch.
-3. Select a function region close to the Neon database and primary audience; do not separate app and database regions without a measured reason.
-4. Protect Preview deployments from unintended public access when the plan/settings allow it.
-5. Do not enable automatic production migrations from an unreviewed build command.
+- [ ] Vercel Pro production project configured.
+- [ ] Node.js 24 and supported patched Next.js/React versions.
+- [ ] Function and Neon regions colocated.
+- [ ] Paid Neon plan, pooled runtime URL and direct migration URL.
+- [ ] Backup/PITR and restore test completed.
+- [ ] Database/runtime roles follow least privilege.
 
-## Production environment variables
+## Secrets
 
-In **Project → Settings → Environment Variables**, add production values only to the Production scope:
+- [ ] Production admin/Auth secret.
+- [ ] Resend API key/from address.
+- [ ] Peleka credentials/configuration.
+- [ ] Separate Mootq write and read/export credentials.
+- [ ] Preview credentials/resources separate from Production.
+- [ ] No secret uses a `NEXT_PUBLIC_` variable.
 
-- [ ] `DATABASE_URL` — Neon pooled TLS runtime URL.
-- [ ] `AUTH_SECRET` — a new high-entropy production secret.
-- [ ] `SITE_URL` — final HTTPS origin.
-- [ ] `RESEND_API_KEY` — production Resend key with minimum required access.
-- [ ] `RESEND_FROM_EMAIL` — verified Toon Expo sender address.
-- [ ] Any additional variable present in the implemented `.env.example`.
+## Database release
 
-Then:
+- [ ] Expand migration tested from the current schema.
+- [ ] Existing row count/sample backed up.
+- [ ] Backfill tested in bounded batches.
+- [ ] Ticket/source uniqueness validated.
+- [ ] Required constraints applied only after validation.
+- [ ] Email constraint matches the approved business rule.
+- [ ] Forward-fix/rollback procedure documented.
 
-- [ ] Use separate non-production values for Preview.
-- [ ] Keep `DIRECT_URL` only in the controlled migration environment; do not add it to Vercel runtime variables.
-- [ ] Confirm no variable containing a secret begins with `NEXT_PUBLIC_`.
-- [ ] Redeploy after environment changes.
-- [ ] Never keep the initial administrator plaintext password as a long-lived Vercel variable.
+## WAF and API
 
-## Administrator activation
+- [ ] Process-local registration limiter removed.
+- [ ] Public WAF ceiling tested in Log mode with shared-IP load.
+- [ ] Mootq inbound/feed safety ceilings exceed legitimate traffic.
+- [ ] Ticket/full-sync endpoints are no-store and authenticated as applicable.
+- [ ] Partner negative-auth, replay and oversized-body tests pass.
 
-- [ ] Generate a strong unique password through an approved secure process.
-- [ ] Run the controlled administrator seed/rotation command using the documented migration/operator path.
-- [ ] Deliver the password to the administrator through a secure channel.
-- [ ] Confirm only one administrator is active.
-- [ ] Sign in, sign out and confirm an old/invalid session cannot access `/admin` or CSV export.
+## Resend and Peleka
 
-## Vercel WAF rate limit
+- [ ] Resend SPF/DKIM/DMARC verified.
+- [ ] Pay-as-you-go status checked in the active account.
+- [ ] Quota/rate alerts configured.
+- [ ] Representative email clients show QR/link/code.
+- [ ] Peleka test SMS opens the correct ticket.
+- [ ] Provider timeout/429/permanent-error paths tested.
+- [ ] Delivery backlog/retry visibility works.
 
-In **Project → Firewall → Configure → New Rule**:
+## Mootq rehearsal
 
-1. Name the rule `registration-rate-limit`.
-2. Match the exact registration route, expected to be `/api/registrations`.
-3. If the dashboard supports method matching for the selected plan, also require `POST`.
-4. Start in **Log** mode during an authorized Preview/load test or a short monitored production window.
-5. Review legitimate and automated traffic in Firewall observations.
-6. Initial enforcement baseline: fixed window, **20 requests per 60 seconds per IP**, response/action **429 Rate Limit**.
-7. Publish the rule.
-8. Test that normal registration works and an intentional controlled excess receives `429` without creating registrations.
-9. Record any threshold change and its evidence. Increase the threshold for shared-network false positives; reduce it only when legitimate users remain safe.
+- [ ] Toon Expo-origin code reaches Mootq fast feed with explicit source and scans.
+- [ ] Mootq-origin code reaches Toon Expo unchanged with `sourceSystem=MOOTQ` and sends.
+- [ ] Identical Mootq retry is safe.
+- [ ] Feed catches up from an old cursor.
+- [ ] Mootq controls polling cadence without Toon Expo configuration.
+- [ ] Full import from Mootq succeeds and reruns safely.
+- [ ] Mootq independently completes a Toon Expo full export.
+- [ ] Attendance status imports correctly.
 
-Do not use Vercel Runtime Cache as the security counter and do not add Redis for this baseline.
+## Load and observability
 
-## Domain and transport
+- [ ] Rehearse 1,000 registrations/ten minutes with mixed sources.
+- [ ] Monitor Vercel errors/latency/invocations.
+- [ ] Monitor Neon connections/CPU/query latency.
+- [ ] Monitor delivery backlog/provider errors/quota.
+- [ ] Monitor Mootq inbound conflicts and sync-run results.
+- [ ] Incident contacts/runbook agreed.
 
-- [ ] Add the custom domain in **Project → Settings → Domains**.
-- [ ] Configure DNS exactly as Vercel specifies.
-- [ ] Choose and verify the canonical `www`/apex redirect.
-- [ ] Confirm HTTPS certificate is active before publishing links.
-- [ ] Verify HTTP redirects to HTTPS.
-- [ ] Verify HSTS and application security headers after deployment.
-- [ ] Confirm Auth.js and canonical/alternate URLs use the final HTTPS domain.
+## Release and event
 
-## Production database release
-
-- [ ] Review the exact migration and backup/restore readiness.
-- [ ] Apply the migration using the migration role, not the runtime role.
-- [ ] Confirm the runtime role can perform required CRUD but cannot drop/alter schema.
-- [ ] Seed/activate the event with confirmed production content.
-- [ ] Confirm the database enforces one normalized email per event.
-
-## Monitoring and alerts
-
-In Vercel/Neon/Resend dashboards:
-
-- [ ] Enable alerts available on the selected plan for function 5xx/error spikes and abnormal latency.
-- [ ] Watch WAF matches/rate-limited traffic after campaign launch.
-- [ ] Watch Neon connections, query failures and storage/backups.
-- [ ] Watch Resend bounces/failures and verify confirmation delivery to test addresses.
-- [ ] Confirm application logs redact participant PII and secrets.
-- [ ] Set platform spend/usage notifications where available.
-
-## Final smoke test
-
-- [ ] Open Armenian, English and Russian production URLs.
-- [ ] Submit one unique test registration in each locale.
-- [ ] Confirm each appears once in admin and receives the correct localized email.
-- [ ] Test duplicate email behavior.
-- [ ] Test admin pagination/search, deletion policy and CSV safety.
-- [ ] Confirm no database request is made solely to render the public form.
-- [ ] Confirm admin and API responses containing participant data are not publicly cached.
-- [ ] Remove approved test records according to the deletion policy.
-- [ ] Record the last known-good Vercel deployment for rollback.
-
-## After launch
-
-- [ ] Monitor closely during the first campaign/registration peak.
-- [ ] If failures rise, stop promotional traffic if possible, inspect Vercel/Neon/Resend, and rollback application deployment when appropriate.
-- [ ] Never roll back a production database blindly; use the reviewed migration recovery plan.
-- [ ] Rotate any secret immediately if exposure is suspected.
+- [ ] Production migrations applied manually.
+- [ ] One Toon Expo-origin and one Mootq-origin end-to-end smoke test.
+- [ ] WAF Enforce only after evidence shows no false positives.
+- [ ] Monitor launch and event peaks.
+- [ ] Preserve manual resend/import recovery paths.
+- [ ] Run and record the required post-event full synchronization.

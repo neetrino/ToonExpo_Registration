@@ -2,91 +2,68 @@
 
 ## Purpose
 
-Give one trusted operator an accurate, low-complexity view of Toon Expo registrations without direct database access.
+Extend the existing single-admin interface only where operations require it. Do not turn it into a general integration platform.
 
-## Routes
+## Existing capabilities retained
 
-- `/admin/login` — administrator login.
-- `/admin` — registration dashboard.
+- Auth.js login/logout.
+- Registration count, list, search and details.
+- CSV export with formula-injection protection.
+- Existing deletion action, subject to the ticket lifecycle review below.
 
-Public locale prefixes are not required for the admin area. The administrator interface may use one operational language selected during implementation; public content remains trilingual.
+## Registration list/detail additions
 
-## Login
+Show:
 
-- Email and password fields.
-- Generic invalid-credentials response.
-- Submit pending state.
-- Conservative application-level throttling independent of public registration WAF rule.
-- Secure Auth.js session cookie.
-- Authenticated visits to `/admin/login` redirect to the dashboard.
-- Unauthenticated visits to protected routes redirect to login without leaking data.
+- source `TOON_EXPO`/`MOOTQ`;
+- ticket code in a copy-safe/read-only form;
+- email delivery status;
+- SMS delivery status;
+- attendance `NOT_VISITED`/`VISITED`;
+- source registration ID for diagnostics;
+- created/updated time.
 
-## Dashboard layout
+Never display the hosted-ticket token, partner credentials, provider keys or raw provider responses.
 
-### Summary
+Source filters, counts and exports use the stored `sourceSystem`. The admin never infers origin from `ticketCode`.
 
-- Active event name.
-- Total active registrations.
-- Timestamp/time zone context for displayed dates.
+## Delivery operations
 
-No charts are required for MVP; a clear total and operational table are sufficient.
+Show:
 
-### Filters
+- pending/processing/failed counts by channel;
+- oldest pending job age;
+- safe last error category;
+- last attempt time.
 
-- Search input for name, email or phone.
-- Clear-search action.
-- Search is debounced or explicitly submitted to prevent a query per keystroke.
-- Query length is bounded.
+Allow a bounded manual resend only after implementation defines how intentional resend changes the logical-send version. Do not provide unrestricted bulk resend.
 
-### Registration table
+## Full synchronization
 
-Columns:
+Add:
 
-- registration time;
-- first and last name;
-- email;
-- phone;
-- locale;
-- email-delivery status;
-- actions.
+- button `Import full data from Mootq`;
+- confirmation before starting;
+- running/progress state;
+- result counts;
+- history of import/export runs;
+- safe bounded error summary.
 
-Behavior:
+There is no pre-event/live polling switch. Mootq owns its polling schedule.
 
-- newest first;
-- stable server-side pagination;
-- sensible page size, initially 25 or 50;
-- responsive small-screen representation;
-- loading, empty, no-results and error states;
-- no public/shared caching.
+## Ticket actions
 
-## Deletion
+- Regenerate QR image from immutable `ticketCode`.
+- Download QR PNG.
+- Open the hosted-ticket page through a controlled admin action.
+- Do not offer code regeneration after issue.
 
-- One destructive action per row/detail view.
-- Confirmation dialog includes enough information to identify the record.
-- Confirm button is visually and semantically destructive.
-- Mutation is authorized and validated on the server.
-- Successful deletion updates count and current page.
-- Failure preserves the existing row and shows a safe recoverable error.
-- Bulk deletion is excluded.
+## Deletion/lifecycle
 
-The final hard-delete/soft-delete policy must match [`04-DATA-MODEL.md`](./04-DATA-MODEL.md) and the approved privacy policy.
+Product scope is registration and ticket delivery only. Visitor block/ban, ticket revoke/cancellation and soft-delete workflows are out of scope.
+
+The existing admin hard-delete remains an operator tool for obvious junk rows. There is no partner revoke feed and no requirement to invent a cancellation product. If a synchronized Toon Expo-origin row is deleted, operators should understand Mootq may still hold the ticket until a later full reconciliation discussion — this is an ops warning, not a new feature.
 
 ## CSV export
 
-- Export is generated on the server after session validation.
-- File name includes event slug and export date.
-- Columns are allowlisted and human-readable (English headers).
-- Questionnaire `answers` JSON is flattened into one column per question with localized option labels; unused branch fields stay empty.
-- UTF-8 with BOM so Excel opens non-ASCII names correctly.
-- Formula-injection protection is mandatory.
-- The endpoint must not include administrator credentials, internal delivery IDs or security metadata.
-- Export of the expected dataset should stream or use bounded memory if dataset size later grows materially.
-
-## Explicit exclusions
-
-- Editing participant data.
-- Multiple users/roles and permission management.
-- Registration status changes.
-- Manual participant creation.
-- Bulk email from the dashboard.
-- Dashboard content management.
+Exports may include approved registration/questionnaire/source/ticket/attendance fields. Exclude ticket-view tokens, provider secrets, auth fields, delivery locks and raw sync errors.

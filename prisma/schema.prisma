@@ -1,4 +1,4 @@
-// Toon Expo Registration — MVP data model (Prisma 7 + PostgreSQL / Neon)
+// Toon Expo Registration — data model (Prisma 7 + PostgreSQL / Neon)
 //
 // Connection URLs (Prisma 7):
 // - Runtime (pooled): DATABASE_URL — used by @prisma/adapter-neon in app code
@@ -28,6 +28,44 @@ enum EmailDeliveryStatus {
 
 enum AdminRole {
   ADMIN
+}
+
+enum SourceSystem {
+  TOON_EXPO
+  MOOTQ
+}
+
+enum AttendanceStatus {
+  NOT_VISITED
+  VISITED
+}
+
+enum DeliveryChannel {
+  EMAIL
+  SMS
+}
+
+enum DeliveryJobStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
+enum PartnerFeedEventType {
+  UPSERT
+}
+
+enum IntegrationSyncDirection {
+  IMPORT_FROM_MQ
+  EXPORT_TO_MQ
+}
+
+enum IntegrationSyncStatus {
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
 }
 
 model Event {
@@ -67,18 +105,90 @@ model Registration {
   emailDeliveryStatus    EmailDeliveryStatus @default(PENDING)
   emailLastAttemptAt     DateTime?
   emailProviderMessageId String?
+  /// Canonical registration origin. Nullable until backfill; required on all new writes.
+  sourceSystem           SourceSystem?
+  /// Stable source-owned ID. Required for MOOTQ; for TOON_EXPO the row id is used in feeds.
+  sourceRegistrationId   String?
+  /// Immutable 13-character alphanumeric scanner code. Nullable until backfill.
+  ticketCode             String?
+  /// Long private bearer for hosted ticket links. Nullable until backfill.
+  ticketViewToken        String?
+  attendanceStatus       AttendanceStatus?
+  /// Client idempotency key for public accidental double-submit. Null for partner imports.
+  idempotencyKey         String?
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
 
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event             Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  deliveryJobs      DeliveryJob[]
+  partnerFeedEvents PartnerFeedEvent[]
 
-  /// Unique email per event (normalized). Also supports event-scoped email search.
+  /// Email is intentionally non-unique: multiple participants may share one email.
   /// Hard delete only — no deletedAt.
-  @@unique([eventId, emailNormalized])
+  @@index([eventId, emailNormalized])
   /// Stable admin list ordering / cursor pagination.
   @@index([eventId, createdAt, id])
   /// Search: phoneNormalized scoped by event (phone is intentionally not unique).
   @@index([eventId, phoneNormalized])
+  @@index([eventId, sourceSystem])
+  @@unique([ticketCode])
+  @@unique([ticketViewToken])
+  @@unique([eventId, idempotencyKey])
+  @@unique([sourceSystem, sourceRegistrationId])
+}
+
+model DeliveryJob {
+  id                String            @id @default(cuid())
+  registrationId    String
+  channel           DeliveryChannel
+  templateVersion   String
+  status            DeliveryJobStatus @default(PENDING)
+  attemptCount      Int               @default(0)
+  nextAttemptAt     DateTime          @default(now())
+  providerMessageId String?
+  lastErrorCode     String?
+  claimedAt         DateTime?
+  sentAt            DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@unique([registrationId, channel, templateVersion])
+  @@index([status, nextAttemptAt])
+}
+
+model PartnerFeedEvent {
+  id             String               @id @default(cuid())
+  sequence       BigInt               @default(autoincrement())
+  registrationId String
+  type           PartnerFeedEventType @default(UPSERT)
+  createdAt      DateTime             @default(now())
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@unique([sequence])
+  @@index([createdAt])
+}
+
+model IntegrationSyncRun {
+  id            String                   @id @default(cuid())
+  direction     IntegrationSyncDirection
+  status        IntegrationSyncStatus    @default(RUNNING)
+  initiatedBy   String
+  lastCursor    String?
+  readCount     Int                      @default(0)
+  createdCount  Int                      @default(0)
+  updatedCount  Int                      @default(0)
+  skippedCount  Int                      @default(0)
+  conflictCount Int                      @default(0)
+  errorCount    Int                      @default(0)
+  errorSummary  Json?
+  startedAt     DateTime                 @default(now())
+  finishedAt    DateTime?
+  updatedAt     DateTime                 @updatedAt
+
+  @@index([direction, startedAt])
 }
 
 model Admin {

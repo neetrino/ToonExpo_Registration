@@ -27,6 +27,10 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
     email: row.email,
     phone: row.phone,
     locale: row.locale,
+    sourceSystem: row.sourceSystem ?? '',
+    sourceRegistrationId: row.sourceRegistrationId ?? '',
+    ticketCode: row.ticketCode ?? '',
+    attendanceStatus: row.attendanceStatus ?? '',
     emailDeliveryStatus: row.emailDeliveryStatus,
     formVersion: row.formVersion ?? '',
     ...flattenRegistrationAnswersForExport(row.answers),
@@ -44,6 +48,7 @@ export { getAdminRegistration } from '@/lib/admin/get-registration';
 export { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers';
 export { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
 export { deleteRegistration } from '@/lib/admin/delete-registration';
+export { listAdminSyncRuns } from '@/lib/admin/list-sync-runs';
 export {
   ADMIN_PAGE_SIZE,
   ADMIN_SEARCH_MAX_LENGTH,

@@ -116,6 +116,66 @@ export function RegistrationDetailCard({
         </header>
 
         <section className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Ticket</h2>
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+            <DetailField
+              label="Source"
+              value={
+                registration.sourceSystem === 'TOON_EXPO'
+                  ? 'Toon Expo'
+                  : registration.sourceSystem === 'MOOTQ'
+                    ? 'Mootq'
+                    : '—'
+              }
+            />
+            <DetailField
+              label="Ticket code"
+              value={
+                registration.ticketCode ? (
+                  <span className="font-mono text-sm tracking-wide">{registration.ticketCode}</span>
+                ) : (
+                  '—'
+                )
+              }
+            />
+            <DetailField
+              label="Attendance"
+              value={registration.attendanceStatus?.replaceAll('_', ' ') ?? '—'}
+            />
+            <DetailField
+              label="Source registration ID"
+              value={
+                <span className="break-all font-mono text-xs">
+                  {registration.sourceRegistrationId ??
+                    (registration.sourceSystem === 'TOON_EXPO' ? registration.id : '—')}
+                </span>
+              }
+            />
+            {registration.ticketViewToken && registration.ticketCode ? (
+              <div className="sm:col-span-2 flex flex-wrap gap-2">
+                <Button asChild size="sm" variant="outline">
+                  <a
+                    href={`/ticket/${encodeURIComponent(registration.ticketViewToken)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open ticket page
+                  </a>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <a
+                    href={`/ticket/${encodeURIComponent(registration.ticketViewToken)}/qr.png`}
+                    download={`toon-expo-ticket-${registration.ticketCode}.png`}
+                  >
+                    Download QR PNG
+                  </a>
+                </Button>
+              </div>
+            ) : null}
+          </dl>
+        </section>
+
+        <section className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Contact</h2>
           <dl className="mt-4 grid gap-4 sm:grid-cols-2">
             <DetailField
@@ -161,11 +221,49 @@ export function RegistrationDetailCard({
               }
             />
             <DetailField
+              label="Email last attempt"
+              value={
+                registration.emailLastAttemptAt
+                  ? formatAdminDateTime(registration.emailLastAttemptAt)
+                  : '—'
+              }
+            />
+            <DetailField
               label="Consent accepted"
               value={formatAdminDateTime(registration.consentAcceptedAt)}
             />
             <DetailField label="Privacy policy" value={registration.privacyPolicyVersion} />
+            <DetailField label="Updated" value={formatAdminDateTime(registration.updatedAt)} />
           </dl>
+        </section>
+
+        <section className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Delivery jobs
+          </h2>
+          {registration.deliveryJobs.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">No delivery jobs recorded.</p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {registration.deliveryJobs.map((job) => (
+                <li
+                  key={`${job.channel}-${job.status}-${job.updatedAt.toString()}`}
+                  className="rounded-xl border border-border px-4 py-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-foreground">
+                      {job.channel} · {job.status}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Attempts: {job.attemptCount}</p>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {job.lastErrorCode ? `Error: ${job.lastErrorCode}` : 'No error category'}
+                    {job.sentAt ? ` · Sent ${formatAdminDateTime(job.sentAt)}` : ''}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="px-4 py-5 sm:px-6 sm:py-6">

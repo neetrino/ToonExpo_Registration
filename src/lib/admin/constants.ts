@@ -22,6 +22,10 @@ export const CSV_IDENTITY_COLUMNS = [
   { key: 'email', header: 'Email' },
   { key: 'phone', header: 'Phone' },
   { key: 'locale', header: 'Locale' },
+  { key: 'sourceSystem', header: 'Source' },
+  { key: 'sourceRegistrationId', header: 'Source registration ID' },
+  { key: 'ticketCode', header: 'Ticket code' },
+  { key: 'attendanceStatus', header: 'Attendance' },
   { key: 'emailDeliveryStatus', header: 'Email delivery' },
   { key: 'formVersion', header: 'Form version' },
 ] as const satisfies readonly CsvColumnDef[];

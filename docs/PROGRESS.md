@@ -1,103 +1,199 @@
-# Toon Expo Registration — progress
+# Toon Expo Registration — progress and implementation plan
 
-**Updated:** 2026-07-17
+**Updated:** 2026-07-27
 
-| Phase | Status | Notes |
-|---|---|---|
-| Product intake and scope | Complete | Core MVP, size A, languages and stack approved |
-| Technical specification | Complete | See `docs/technical-specification/` |
-| Final event content/assets | Pending | Date, venue, final translations, legal text and source assets required |
-| Application foundation | Complete (Phase 1) | Next.js scaffold, locale routes, tokens, i18n, env schema, CI baseline |
-| Database and registration | Phase 2 + questionnaire | Prisma fields + typed answers API; wizard UI pending |
-| Landing and localization | Phase 3 UI done | Branded landing + form; questionnaire wizard UI pending |
-| Email confirmation | Phase 4 done | Localized hy/en/ru text+HTML via Resend fetch; commit-first; placeholder key → FAILED safely |
-| Admin dashboard | Phase 5 done | Auth.js credentials, list/search/delete/CSV + registration detail card; English UI |
-| Security hardening (mid-dev) | Done (code 🤖) | Headers, origin tighten, request-id, audit CI gate; see `docs/SECURITY_CHECKLIST_STATUS.md` |
-| Verification/load testing | Not started | Preview environment only |
-| Production setup/release | Not started | Owner-operated; no deployment authorized yet |
+**Status:** Phase 1–2 in progress; owner decisions recorded; Peleka SMS deferred
 
-## Phase 1 — Application foundation (complete)
+## 1. Current baseline
 
-- [x] `package.json`, TypeScript strict, Next.js 16 App Router, Tailwind CSS 4
-- [x] Public locale routes: landing, privacy, success (`hy` default, `en`, `ru`)
-- [x] Admin route stubs: `/admin/login`, `/admin`
-- [x] Toon Expo design tokens in `globals.css`
-- [x] Minimal shadcn/ui primitives: button, input, label
-- [x] next-intl wiring and placeholder message catalogs
-- [x] Zod env validation (`src/lib/env.ts`)
-- [x] Quality scripts: format, lint, typecheck, test, build
-- [x] GitHub Actions CI baseline
+Implemented:
 
-## Phase 2 — Database and registration (core)
+- multilingual public landing and registration wizard;
+- server validation and normalized Neon/Prisma persistence;
+- questionnaire storage;
+- basic Resend email attempt and status;
+- success page with QR + hosted ticket page (`/ticket/<token>`);
+- 13-character ticket codes, `sourceSystem=TOON_EXPO`, idempotency key;
+- schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
+- EMAIL `DeliveryJob` + Resend ticket email with inline QR/link + retry dispatcher;
+- Mootq inbound POST + Toon Expo-origin cursor feed (`/api/v1/integrations/mootq/registrations`);
+- Mootq full export API + admin sync history / import button (import waits for partner URL);
+- ticket backfill script (`pnpm tickets:backfill`);
+- email uniqueness removed (shared email/phone allowed);
+- process-local registration IP rate limit removed from public route;
+- one-admin list/search/detail/delete/export with source, ticket code, delivery status;
+- security baseline and project checks.
 
-- [x] Prisma 7 packages: `prisma`, `@prisma/client`, `@prisma/adapter-neon`, `dotenv`, `tsx`, `argon2`, `libphonenumber-js`
-- [x] Root `prisma.config.ts` with `DIRECT_URL` for CLI/migrations
-- [x] Lazy Prisma singleton (`src/lib/db`) using pooled `DATABASE_URL`
-- [x] Validation/normalization (`src/lib/validation`) + unit tests
-- [x] Origin/honeypot helpers (`src/lib/security`)
-- [x] `POST /api/registrations` — active event server-side, unique→409, Cache-Control no-store
-- [x] Email: commit with `PENDING`, then `sendConfirmationEmail` → `SENT`/`FAILED` (registration kept)
-- [x] Migration applied to non-prod Neon (`20260717054700_init_mvp`, `20260717062000_registration_questionnaire`)
-- [x] Seed active event `toon-expo-2026` (`pnpm db:seed`)
-- [x] Admin seed from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (Argon2id; skips with warn if unset)
-- [x] Questionnaire data model: `Registration.formVersion` + `answers` Json (nullable for legacy rows)
-- [x] Typed definition + Zod branch validation (`src/lib/questionnaire`, form version `2026-vis-reg-v1`)
-- [x] Registration API accepts/persists `formVersion` + `answers`; hy/en/ru labels in questionnaire i18n
-- [x] Admin list/CSV select includes `formVersion` and `answers`
-- [ ] Multi-step questionnaire wizard UI (separate delivery)
+Not implemented:
 
-### Scripts
+- Peleka SMS (deferred);
+- Live Mootq partner smoke tests (waiting on Mootq);
+- Mootq full-import credentials/URL from partner;
+- Final NOT NULL ticket constraints after backfill validation;
+- event-scale rehearsal.
 
-| Script | Purpose |
-|---|---|
-| `pnpm prisma:generate` | Generate client to `src/generated/prisma` |
-| `pnpm db:migrate` | `prisma migrate dev` (local/non-prod) |
-| `pnpm db:migrate:deploy` | `prisma migrate deploy` (non-prod apply) |
-| `pnpm db:seed` | Seed active event + optional local admin |
+## 2. Agreed scope
 
-### Privacy policy version constant
+- Keep project size A and the current Next.js/Vercel/Neon architecture.
+- Each system generates a random 13-character alphanumeric code for registrations created on its own form.
+- Codes have no prefix and carry no source meaning.
+- Mootq confirmed the format: random 13 characters.
+- Toon Expo stores Mootq's exact supplied code unchanged.
+- `sourceSystem=TOON_EXPO|MOOTQ` is the only canonical registration-origin marker and is assigned by trusted server routes.
+- Toon Expo never replaces or returns a partner ticket code; it only acknowledges storage.
+- Toon Expo sends matching email for both sources; SMS via Peleka is deferred.
+- Mootq independently controls fast-feed polling frequency.
+- Fast exchange carries minimum operational fields.
+- Full exchange is manual, paginated and independently initiated by each company.
+- Full records carry immutable `sourceSystem` because a full dataset may contain both origins.
+- Attendance is initially only `NOT_VISITED` or `VISITED`.
+- PostgreSQL delivery jobs provide retry; no external queue or Redis is added.
+- Same email and same phone may register multiple participants; protect accidental retries with an idempotency key.
+- No visitor block/ban/revoke/soft-delete product workflow; focus is registration and ticket delivery.
+- Hosted tickets: `reg.toonexpo.com`. Resend sender: `hi@mail.toonexpo.com` (`mail.toonexpo.com` verified).
 
-Clients must send `privacyPolicyVersion: "2026-07-16"` (single source: `src/lib/privacy.ts`).
+## 3. Owner decisions (2026-07-27)
 
-## Phase 5 — Admin panel (complete)
+| Topic                         | Decision                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| Repeated email                | Allowed — multiple participants may share one email                      |
+| Repeated phone                | Allowed — multiple participants may share one phone                      |
+| Accidental double-submit      | Idempotency key (not email/phone uniqueness)                             |
+| Email uniqueness constraint   | Remove `(eventId, emailNormalized)` unique in schema expansion           |
+| Mootq fast exchange           | Start from draft contract; agree one document with Mootq                 |
+| Mootq full sync               | Start from same draft; agree with Mootq                                  |
+| Scanner format                | Confirmed by Mootq: random 13 characters                                 |
+| Peleka SMS                    | Deferred                                                                 |
+| Resend                        | Pro + pay-as-you-go; sender `hi@mail.toonexpo.com`; domain verified      |
+| App registration rate limit   | Remove process-local limiter; rely on WAF / existing guards              |
+| Email/SMS copy                | Interim designed email OK; SMS short when enabled                        |
+| Hosted ticket domain          | `reg.toonexpo.com`                                                       |
+| Block/ban/delete product      | Out of scope — registration and delivery only                            |
 
-- [x] Auth.js v5 credentials provider; Argon2id verify against `Admin` row
-- [x] Secure HTTP-only JWT session cookie; middleware protects `/admin/**` except login
-- [x] Login: generic errors, in-memory attempt throttle (5 failures → 60s lock; **single-instance only**)
-- [x] Dashboard: total count, search (name/email/phone), pagination (25, newest first), confirmed hard delete
-- [x] Registration detail sheet (`/admin?view=<id>`) — identity, meta, questionnaire answers (English labels); delete only in sheet
-- [x] CSV export at `GET /api/admin/registrations/export` — formula-safe, UTF-8 BOM, flattened English answer columns (no raw JSON blob)
-- [x] `Cache-Control: private, no-store` on admin pages/export
-- [x] Admin UI language: **English for now** (owner language choice still pending)
-- [x] Unit tests: CSV neutralization, auth path guard, login throttle
+## 4. Minimal data additions
 
-### Local admin sign-in
+Planned registration fields:
 
-1. Set `AUTH_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` (≥12 chars) in `.env` (see `.env.example`).
-2. Run `pnpm db:seed` to upsert the admin (and active event).
-3. Open `/admin/login` and sign in with those credentials.
-4. Use **Log out** on the dashboard to end the session.
+- `sourceSystem`;
+- `sourceRegistrationId` where applicable;
+- `ticketCode`;
+- `ticketViewToken`;
+- `attendanceStatus`;
+- public idempotency key storage as needed for retry-safe create.
 
-### Throttle limitation
+Planned small supporting tables:
 
-Login throttling is process-local memory. It resets on deploy/restart and does not sync across multiple Vercel instances. Prefer WAF/edge limits before production multi-instance traffic.
+- `DeliveryJob` for EMAIL (and later SMS) retry;
+- `PartnerFeedEvent` for ordered Toon Expo-origin fast-feed items;
+- `IntegrationSyncRun` for manual full import/export history.
 
-## Phase 4 — Email confirmation (done)
+No generic event bus, workflow engine, blocklist or detailed check-in table is planned.
 
-- [x] Localized confirmation messages (`src/lib/email/confirmation-messages.ts`) for `hy`, `en`, `ru`
-- [x] Plain text + simple HTML multipart via existing Resend fetch sender
-- [x] Event date/venue use explicit TBA wording (no invented venue)
-- [x] Commit-first delivery; placeholder Resend key skips send safely
-- [x] Redacted logging preserved; unit tests for all locales
+## 5. Safe migration plan
 
-## Mid-dev security hardening (code 🤖)
+**Framework:** Prisma 7 / PostgreSQL on Neon
 
-- [x] Security headers + pragmatic CSP in `next.config.ts` (`docs/SECURITY_CHECKLIST_STATUS.md`)
-- [x] Production Origin/Referer required for registration; Cache-Control no-store on API/admin
-- [x] Request-id on registration, admin export, and admin mutating action logs
-- [x] Informational `pnpm audit --prod` CI step (`continue-on-error`)
-- [x] Auth.js secure cookie options + session `updateAge`; CSRF paths verified (Server Actions + Auth.js)
+**Risk:** MEDIUM–HIGH because existing registrations require code/token backfill and unique constraints. New independent tables and nullable fields are LOW risk. Removing the email unique constraint is an approved behavior change and must be explicit in migration notes.
 
-## Next authorized decision
+1. Add nullable fields and independent supporting tables.
+2. Deploy code that understands legacy and new rows.
+3. Assign `sourceSystem=TOON_EXPO` and generate 13-character codes/ticket tokens for existing rows in bounded batches.
+4. Validate exact format, uniqueness and foreign keys.
+5. Add unique/required constraints for ticket/source fields in a later migration.
+6. Drop unique `(eventId, emailNormalized)` as part of the approved expand path (keep non-unique indexes useful for search).
 
-Verification/load testing and production Resend domain setup. Production migrate/deploy remains owner-only. Owner security actions listed in `docs/SECURITY_CHECKLIST_STATUS.md`.
+No production migration is authorized by this plan.
+
+## 6. Delivery phases
+
+### Phase 0 — contracts
+
+- [x] Owner: repeated email and phone allowed; remove email uniqueness.
+- [x] Owner: start Mootq fast/full from draft; single partner contract document.
+- [x] Mootq confirmed prefixless random 13-character format.
+- [x] Resend Pro / pay-as-you-go / sender domain confirmed.
+- [x] Hosted ticket domain chosen: `reg.toonexpo.com`.
+- [x] Peleka SMS deferred.
+- [x] No block/ban/revoke product scope.
+- [ ] Assemble and send [`14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) for Mootq sign-off.
+- [ ] Confirm DNS for `reg.toonexpo.com` at release time.
+- [ ] Unblock Peleka when SMS is needed.
+- [ ] Replace interim email copy with final marketing text when available.
+
+### Phase 1 — database expansion
+
+- [x] Add nullable source/ticket/token/attendance fields.
+- [x] Add `DeliveryJob`, `PartnerFeedEvent` and `IntegrationSyncRun`.
+- [x] Drop unique `(eventId, emailNormalized)`; keep search indexes.
+- [x] Generate and inspect the migration.
+- [x] Test expand migration on representative non-production data.
+
+### Phase 2 — ticket experience
+
+- [x] Generate unique 13-character ticket codes for Toon Expo registrations.
+- [ ] Accept and validate immutable Mootq-generated ticket codes.
+- [x] Assign origin only from the trusted public/partner server route.
+- [x] Public create uses idempotency key for accidental retries.
+- [x] Show QR and readable code on Toon Expo success.
+- [x] Add private hosted-ticket page and PNG download on `reg.toonexpo.com`.
+- [x] Remove process-local registration IP rate limit.
+- [ ] Verify representative codes from both generators on actual Mootq scanners.
+
+### Phase 3 — email (SMS later)
+
+- [x] Replace synchronous email with persisted EMAIL delivery jobs.
+- [x] Render inline QR, readable code and ticket link in localized email.
+- [x] Add bounded retry, provider idempotency and admin-visible failures.
+- [x] Defer Peleka SMS adapter until contract is ready.
+
+### Phase 4 — fast exchange
+
+- [x] Implement authenticated idempotent Mootq inbound registration POST.
+- [x] Return only appropriate HTTP acknowledgement/errors.
+- [x] Implement authenticated incremental Toon Expo-origin cursor feed.
+- [ ] Test replay, pagination, catch-up and temporary outage behavior.
+- [x] Do not add a polling-frequency switch.
+- [ ] Adjust field names after Mootq contract sign-off if needed.
+
+### Phase 5 — full reconciliation
+
+- [x] Add admin action to import full Mootq data.
+- [x] Expose authenticated paginated full export for Mootq.
+- [x] Upsert by `ticketCode` with source-ID checks.
+- [x] Require and verify `sourceSystem` on every full-sync record.
+- [x] Import minimal attendance status.
+- [x] Store one run history per import/export with counts and bounded errors.
+- [ ] Verify safe rerun after partial failure (needs partner export endpoint).
+
+### Phase 6 — backfill and rehearsal
+
+- [x] Backfill existing registrations with `TOON_EXPO` source and 13-character codes/tokens in bounded batches.
+- [ ] Validate uniqueness and add final ticket/source constraints.
+- [ ] Rehearse 1,000 registrations over ten minutes.
+- [ ] Test Resend throttling and backlog recovery.
+- [ ] Test Mootq fast-feed polling every three seconds.
+- [ ] Run full reconciliation and compare counts.
+
+### Phase 7 — owner-controlled release
+
+- [ ] Complete production checklist.
+- [ ] Configure Vercel Pro, paid Neon, Resend; Peleka when unblocked.
+- [ ] Exchange scoped Mootq credentials.
+- [ ] Apply production migrations manually.
+- [ ] Run one Toon Expo-origin and one Mootq-origin end-to-end smoke test.
+- [ ] Monitor delivery and integration throughout the event.
+- [ ] Run required post-event full synchronization.
+
+## 7. Acceptance summary
+
+- A Toon Expo registration shows and sends the same stored 13-character code.
+- A Mootq registration stores and sends the exact supplied 13-character code.
+- Admin and synchronization distinguish sources by `sourceSystem`, never by parsing the code.
+- Provider failures do not lose a registration or ticket.
+- Mootq retries do not create duplicate transport records or repeated logical sends.
+- Public accidental retries are idempotent without blocking intentional shared email/phone.
+- The Toon Expo-origin fast feed is incremental, replayable and controlled by Mootq polling.
+- Full import/export is manual, paginated, rerunnable and recorded in history.
+- Shared venue traffic is not blocked by the process-local IP limit.
+- No unnecessary backend, broker or cache infrastructure is added.
+- SMS may ship after Peleka without changing ticket codes or fast-exchange identity.

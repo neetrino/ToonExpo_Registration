@@ -1,97 +1,83 @@
-# Настройка Vercel WAF (ручная инструкция)
+# Настройка Vercel WAF
 
-Короткий чеклист для владельца проекта. Код приложения менять не нужно.
+Ручная инструкция владельцу проекта. Все правила сначала проверяются в **Log** mode.
 
-## Зачем
+## Принцип
 
-В приложении есть **in-memory** лимитеры (best-effort, **per-instance**):
+WAF — аварийный предохранитель, а не обычный лимит посетителей. На площадке много устройств могут использовать один публичный IP. Ожидаемый тестовый пик — 1 000 регистраций за 10 минут.
 
-- **Регистрация** — `POST /api/registrations` (`src/lib/security/registration-rate-limit.ts`)
-- **Admin login** — credentials через Auth.js (`src/lib/auth/login-throttle.ts`)
+Процесс-локальный лимит `5 / 10 минут / IP` должен быть удалён. Redis для rate limit не добавляется.
 
-На Vercel несколько инстансов не делят память; после деплоя/рестарта счётчики сбрасываются. **Durable** защита от злоупотреблений — **Vercel WAF / Firewall** на уровне edge.
+## Публичная регистрация
 
----
+| Поле               | Значение                               |
+| ------------------ | -------------------------------------- |
+| Имя                | `registration-emergency-ceiling`       |
+| Match              | `POST /api/registrations`              |
+| Режим              | `Log`, затем `Enforce` после репетиции |
+| Начальная гипотеза | `5,000 requests / 10 minutes / IP`     |
+| Action             | `429`                                  |
 
-## Куда идти
+Это не окончательная цифра. Подтвердить нагрузочным тестом:
 
-1. [Vercel Dashboard](https://vercel.com) → ваш **Project**
-2. Раздел **Firewall** (в некоторых планах/UI: **Security** → **Firewall** → **Configure**)
-3. **New Rule** / **Add Rule**
+- [ ] 1 000 регистраций/10 минут с одного source IP проходят.
+- [ ] Validation/retry traffic учтён.
+- [ ] Явный бесконечный flood получает `429`.
+- [ ] False positives отслеживаются.
 
-> Если пункты меню отличаются — ищите **Firewall**, **WAF** или **Rate Limiting** в настройках проекта.
+## Mootq minimal inbound
 
----
+| Поле            | Значение                                                      |
+| --------------- | ------------------------------------------------------------- |
+| Имя             | `mootq-inbound-safety-ceiling`                                |
+| Match           | согласованный `POST /api/v1/integrations/mootq/registrations` |
+| Основная защита | scoped write credential + validation + idempotency            |
+| WAF             | высокий malfunction ceiling, Log → Enforce                    |
 
-## Правило 1 — регистрация
+Порог должен быть намного выше ожидаемого потока и retry burst. Это защита от ошибочного цикла/утечки ключа, а не бизнес-ограничение.
 
-| Поле | Значение |
-|------|----------|
-| **Имя** | `registration-rate-limit` |
-| **Match** | Path: `/api/registrations` |
-| **Method** | `POST` (если план/дашборд позволяет фильтр по методу) |
-| **Режим** | Сначала **Log**, после проверки — **Enforce** |
-| **Лимит** | **20 запросов / 60 секунд / IP** (fixed window) |
-| **Action** | **429** Rate Limit |
+## Mootq fast/full reads
 
-### Чеклист
+| Поле            | Значение                                         |
+| --------------- | ------------------------------------------------ |
+| Имя             | `mootq-read-safety-ceiling`                      |
+| Match           | согласованные fast/full GET/POST routes          |
+| Основная защита | scoped read/export credential + bounded pages    |
+| WAF             | выше live polling и немедленных catch-up страниц |
 
-- [ ] Создать правило в режиме **Log**
-- [ ] Отправить одну нормальную регистрацию — **200**, запись в БД есть
-- [ ] Контролируемо превысить порог с одного IP — **429**, **новых записей в БД нет**
-- [ ] Переключить в **Enforce** и опубликовать
-- [ ] Зафиксировать дату публикации и порог
+Live polling раз в три секунды — примерно 20 запросов в минуту, но порог нельзя ставить ровно 20: reconnect/catch-up создают легитимные пики. Toon Expo не контролирует частоту через admin/env.
 
----
+## Admin login
 
-## Правило 2 — admin login (рекомендуется)
+| Поле               | Значение                                 |
+| ------------------ | ---------------------------------------- |
+| Имя                | `admin-login-rate-limit`                 |
+| Match              | фактический Auth.js Credentials callback |
+| Начальная гипотеза | `15 requests / 60 seconds / IP`          |
+| Режим              | Log → Enforce                            |
 
-Логин идёт через Server Action (`loginAdminAction` → `signIn('credentials')`). Auth.js v5 обрабатывается маршрутом `src/app/api/auth/[...nextauth]/route.ts`.
+Сначала подтвердить реальный путь в Firewall Observations.
 
-**Основной endpoint credentials:** `POST /api/auth/callback/credentials`
+## Дополнительные правила
 
-Дополнительно (консервативно): любые `POST` под префиксом `/api/auth/` и форма на `/admin/login`.
+- Ticket page/PNG используют длинные bearer URL; лимит должен быть мягким.
+- Full-sync страницы ограничиваются authentication и максимальным `limit`.
+- Стабильные Mootq egress IP можно allowlist как дополнительную защиту.
+- Provider callbacks, если добавлены, проверяются подписью/replay, а не только IP.
 
-| Поле | Значение |
-|------|----------|
-| **Имя** | `admin-login-rate-limit` |
-| **Match (предпочтительно)** | `POST` + path `/api/auth/callback/credentials` |
-| **Match (запасной)** | `POST` + path starts with `/api/auth/` **или** path `/admin/login` |
-| **Режим** | Сначала **Log**, потом **Enforce** |
-| **Лимит** | **10–20 запросов / 60 секунд / IP** (начните с 15) |
-| **Action** | **429** |
+## Чего не делать
 
-### Чеклист
-
-- [ ] Создать правило в **Log**
-- [ ] Успешный вход в `/admin/login` — **не блокируется**
-- [ ] Серия неверных паролей — throttle в приложении + при избытке WAF отдаёт **429**
-- [ ] В DevTools → Network при логине виден `POST` на `/api/auth/callback/credentials` (или родственный `/api/auth/*`) — matcher покрывает этот путь
-- [ ] Переключить в **Enforce**
-
-> Один легитимный логин = 1–2 запроса к `/api/auth/*`. Порог 10–20/мин с запасом покрывает повторные попытки и CSRF-обмен; при false positive — поднять порог (см. ниже).
-
----
-
-## Чего НЕ делать
-
-- [ ] **Не отключать** WAF «на время теста» без согласованного окна и мониторинга
-- [ ] **Не полагаться** на Vercel Runtime Cache как счётчик безопасности
-- [ ] **Не добавлять Redis** для MVP — WAF достаточен для durable rate limit
-- [ ] **Не снижать** порог регистрации ниже 20/60s без доказательств злоупотребления
-
----
+- Не возвращать in-memory лимит 5/10m.
+- Не добавлять polling-mode switch.
+- Не использовать cache как security counter.
+- Не ставить partner threshold равным ожидаемой частоте.
+- Не логировать authorization, ticket code/token, PII или provider payload.
 
 ## После публикации
 
-- [ ] Открыть **Firewall → Observations** (или аналог) и смотреть срабатывания первые дни кампании
-- [ ] При **false positives** (офис, школа, мобильный оператор с shared NAT):
-  - поднять порог (например 20 → 30 для регистрации)
-  - записать причину и новое значение в ops-заметки
-- [ ] При реальной атаке — не отключать WAF; при необходимости временно ужесточить matcher, не трогая прод-код
+- Смотреть Firewall Observations на репетиции и мероприятии.
+- При false positive уточнять matcher/threshold.
+- При атаке ограничивать конкретный источник/route.
+- Фиксировать каждое изменение правила, причину и ответственного.
 
----
-
-## Связанные документы
-
-Полный чеклист продакшена: [`docs/technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md`](../technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md) (раздел «Vercel WAF rate limit»).
+Связанный checklist: [`../technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md`](../technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md).
