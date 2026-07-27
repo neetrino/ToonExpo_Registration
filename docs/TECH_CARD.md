@@ -6,7 +6,7 @@
 
 **Date:** 2026-07-27
 
-**Status:** working plan approved; duplicate-email rule and external contracts pending
+**Status:** owner decisions recorded 2026-07-27; Mootq contract draft in review; Peleka SMS deferred
 
 ## 1. Foundation
 
@@ -39,10 +39,10 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | -------------------- | ------------------------------------------------------------ | ---------------------------- |
 | Server API           | Next.js Route Handlers and server-only modules               | Approved                     |
 | Public API           | Existing `POST /api/registrations`                           | Existing; extension required |
-| Mootq inbound        | Authenticated idempotent POST carrying Mootq's existing code | Contract pending             |
-| Toon Expo fast feed  | Authenticated incremental feed for Toon Expo registrations   | Contract pending             |
-| Full import          | Manual Toon Expo admin action that pulls Mootq pages         | Contract pending             |
-| Full export          | Authenticated paginated export requested by Mootq            | Contract pending             |
+| Mootq inbound        | Authenticated idempotent POST carrying Mootq's existing code | Draft contract; implement & agree with Mootq |
+| Toon Expo fast feed  | Authenticated incremental feed for Toon Expo registrations   | Draft contract; implement & agree with Mootq |
+| Full import          | Manual Toon Expo admin action that pulls Mootq pages         | Draft contract; implement & agree with Mootq |
+| Full export          | Authenticated paginated export requested by Mootq            | Draft contract; implement & agree with Mootq |
 | Delivery retry       | PostgreSQL `DeliveryJob` records and a small dispatcher      | Approved                     |
 | External broker      | None                                                         | Approved                     |
 | Partner polling mode | Controlled by Mootq; no Toon Expo switch                     | Approved                     |
@@ -64,14 +64,17 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Fast feed           | Small ordered records for Toon Expo-origin registrations  | Approved      |
 | Full-sync history   | One run record per manual import/export                   | Approved      |
 | Attendance          | `NOT_VISITED` or `VISITED` initially                      | Approved      |
-| Duplicate email     | Do not change current behavior until owner answer         | Open/blocking |
+| Duplicate email     | Same email MAY register multiple participants             | Approved      |
+| Duplicate phone     | Same phone MAY register multiple participants             | Approved      |
+| Public retry guard  | Idempotency key (not email/phone uniqueness)              | Approved      |
 
 ## 5. Delivery providers
 
 | Service    | Purpose                                          | Status                         |
 | ---------- | ------------------------------------------------ | ------------------------------ |
-| Resend Pro | Ticket email for both sources; 50,000/month plan | Approved/account setup pending |
-| Peleka     | Ticket-link SMS for both sources                 | Approved/API contract pending  |
+| Resend Pro | Ticket email; pay-as-you-go in Pro; sender `hi@mail.toonexpo.com` | Approved; domain `mail.toonexpo.com` verified |
+| Peleka     | Ticket-link SMS for both sources                                   | Deferred (API later)                          |
+| Ticket host | Hosted ticket pages on `reg.toonexpo.com`                         | Approved (DNS confirm at release)             |
 
 Email displays the QR inline and includes readable code plus hosted-ticket link. SMS sends the hosted-ticket link. Delivery provider calls occur after the registration/import transaction and are retried from PostgreSQL records.
 
@@ -119,7 +122,7 @@ Planned schema work uses expand-and-contract:
 4. Validate format and uniqueness.
 5. Add required/unique constraints only after validation.
 
-The current unique event/email constraint must not be removed or treated as final until the owner answers whether repeated intentional registrations with one email are allowed.
+Owner decision (2026-07-27): repeated intentional registrations with the same email and/or phone are allowed. The unique `(eventId, emailNormalized)` constraint MUST be removed in the schema expansion path. Accidental double-submit protection MUST use an idempotency key, not email or phone uniqueness.
 
 ## 10. Explicit exclusions
 
@@ -137,3 +140,4 @@ The current unique event/email constraint must not be removed or treated as fina
 - [`PROGRESS.md`](./PROGRESS.md)
 - [`technical-specification/00-INDEX.md`](./technical-specification/00-INDEX.md)
 - [`technical-specification/13-TICKETING-AND-INTEGRATIONS.md`](./technical-specification/13-TICKETING-AND-INTEGRATIONS.md)
+- [`technical-specification/14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md)

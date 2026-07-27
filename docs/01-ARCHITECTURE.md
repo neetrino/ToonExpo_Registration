@@ -178,7 +178,7 @@ Each import/export creates one `IntegrationSyncRun` with direction, timestamps, 
 - Each system owns its internal IDs.
 - Ticket code, source and source registration ID are immutable integration identifiers.
 - Full synchronization must not overwrite Toon Expo provider state or secrets.
-- The duplicate-email business rule remains open and must not be inferred from integration data.
+- The duplicate-email business rule is closed: same email and phone MAY register multiple participants; accidental retries use an idempotency key.
 
 ## Reliability and scale
 
@@ -197,6 +197,7 @@ Each import/export creates one `IntegrationSyncRun` with direction, timestamps, 
 - No full PII, ticket code, hosted-ticket token, authorization or provider payload in logs.
 - Ticket pages are private/no-store/noindex and use restrictive referrer behavior.
 - Public registration uses shared-NAT-safe WAF controls; the process-local IP limit is removed.
+- Same email/phone may create multiple registrations; public create is protected by an idempotency key.
 
 ## Deployment boundary
 

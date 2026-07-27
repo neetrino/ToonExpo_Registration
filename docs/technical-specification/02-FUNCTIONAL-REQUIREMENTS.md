@@ -10,6 +10,8 @@
 | PUB-04 | Success MUST show the stored QR and readable code immediately.                       |
 | PUB-05 | Success MUST NOT wait for Resend or Peleka.                                          |
 | PUB-06 | The current `5 / 10 minutes / IP` process-local limiter MUST be removed.             |
+| PUB-07 | The same email and phone MAY create multiple intentional registrations.              |
+| PUB-08 | Accidental double-submit MUST be protected by an idempotency key, not email/phone uniqueness. |
 
 ## Mootq registration intake
 
@@ -41,13 +43,14 @@
 
 | ID     | Requirement                                                          |
 | ------ | -------------------------------------------------------------------- |
-| DEL-01 | Registration/import and EMAIL/SMS jobs MUST be committed atomically. |
+| DEL-01 | Registration/import and EMAIL jobs MUST be committed atomically.     |
 | DEL-02 | Email MUST contain inline QR, readable code and hosted-ticket link.  |
-| DEL-03 | SMS MUST contain the hosted-ticket link.                             |
+| DEL-03 | SMS MUST contain the hosted-ticket link when Peleka is enabled.      |
 | DEL-04 | Both channels MUST use the stored code for the registration.         |
 | DEL-05 | Provider failures MUST NOT roll back the registration.               |
 | DEL-06 | Logical sends MUST be idempotent and retries bounded.                |
 | DEL-07 | Admin/operations MUST see pending and terminal failures.             |
+| DEL-08 | Peleka SMS is deferred; first delivery slice is EMAIL-only.          |
 
 ## Fast exchange
 
@@ -87,6 +90,6 @@
 | ADM-05 | No polling-frequency control MUST be added.                      |
 | ADM-06 | Source filters/counts MUST use `sourceSystem`, not code parsing. |
 
-## Open duplicate rule
+## Duplicate contact rule
 
-No requirement may assume that email is permanently unique or repeatable until the owner confirms the business rule. The current database constraint stays in place until then.
+Same email and same phone MAY register multiple participants. The unique `(eventId, emailNormalized)` constraint MUST be removed. Accidental public retries MUST use an idempotency key. Mootq transport idempotency remains `sourceRegistrationId`. No automatic cross-source merge by email or phone.

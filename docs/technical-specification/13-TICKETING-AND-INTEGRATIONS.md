@@ -1,6 +1,15 @@
 # Ticketing, delivery and Mootq integration
 
-**Status:** working contract; exact external fields/URLs pending
+**Status:** working contract draft for Mootq sign-off; Peleka SMS deferred
+
+## Owner notes (2026-07-27)
+
+- Same email/phone may register multiple participants.
+- Scanner format confirmed by Mootq: random 13 characters.
+- Implement fast + full from this family of docs; single partner-facing draft is `14-MOOTQ-PARTNER-CONTRACT.md`.
+- SMS via Peleka is deferred; EMAIL delivery ships first.
+- Hosted ticket domain: `reg.toonexpo.com`. Resend from `hi@mail.toonexpo.com`.
+- No block/ban/revoke product features.
 
 ## 1. Ticket ownership and registration source
 
@@ -102,7 +111,7 @@ Responses:
 - `409` when the same source ID has conflicting content or the code belongs to another record;
 - `500`/`503` for a temporary server dependency failure.
 
-The open repeated-email decision may change registration uniqueness, but it does not change source-ID transport idempotency.
+The open repeated-email decision is closed: shared email/phone are allowed. Transport idempotency remains `sourceRegistrationId` and is independent of contact fields.
 
 ## 5. Fast Toon Expo-origin feed
 
@@ -156,11 +165,11 @@ Resend email contains:
 
 The current Resend Pro plan provides 50,000 monthly emails. Production readiness requires verified sender-domain authentication, confirmation of pay-as-you-go status and monitoring of quota/rate responses.
 
-## 7. Peleka SMS
+## 7. Peleka SMS (deferred)
 
-SMS contains a short localized message and the absolute hosted-ticket link.
+SMS will contain a short localized message and the absolute hosted-ticket link.
 
-The integration must define:
+Peleka integration is deferred. When unblocked, define:
 
 - API authentication;
 - supported phone normalization;
@@ -170,7 +179,7 @@ The integration must define:
 - throughput and Unicode segment behavior;
 - delivery receipt handling if used.
 
-Peleka provider calls are processed from the same small PostgreSQL delivery-job mechanism as email.
+Peleka provider calls will use the same PostgreSQL `DeliveryJob` mechanism as email.
 
 ## 8. Delivery jobs
 
@@ -248,9 +257,9 @@ Mootq owns this value. Detailed per-day/per-scan history is excluded. A future `
 
 ## 12. Pending contract items
 
-1. Final Mootq request URLs, credentials and JSON field names.
-2. Scanner fixture for the prefixless 13-character alphanumeric format.
-3. Mootq full-export pagination and update timestamps.
-4. Whether repeated intentional registrations with one email are allowed.
-5. Peleka API details.
-6. Full-sync retention and data-sharing rules.
+1. Mootq sign-off on [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md) (field names, URLs, auth).
+2. Peleka API details when SMS is unblocked.
+3. Final marketing email copy (interim designed template acceptable).
+4. DNS confirmation for `reg.toonexpo.com`.
+
+Closed: repeated email/phone allowed; scanner format confirmed as random 13 characters; Resend sender/domain confirmed; no block/ban/revoke product scope.

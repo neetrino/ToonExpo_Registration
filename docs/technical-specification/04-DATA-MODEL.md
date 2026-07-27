@@ -22,7 +22,9 @@ Constraints after backfill:
 - unique `(sourceSystem, sourceRegistrationId)` when source ID is present;
 - index `(eventId, sourceSystem)` for admin filtering and source counts;
 - exact alphanumeric length validated in application and reviewed DB checks where practical;
-- current unique `(eventId, emailNormalized)` remains unchanged until the business decision.
+- unique `(eventId, emailNormalized)` is removed: same email and phone MAY register multiple participants;
+- keep non-unique indexes useful for admin email/phone search;
+- accidental public retries use an application idempotency key, not contact uniqueness.
 
 `sourceSystem` is independent of `ticketCode`. Public Toon Expo registration assigns `TOON_EXPO` server-side; the authenticated Mootq route assigns `MOOTQ` server-side. Public and partner request bodies cannot select or override the source. Existing rows are Toon Expo-origin unless migration validation proves otherwise. After backfill the field is required and has no permanent database default, so every write path must assign it explicitly.
 
@@ -105,4 +107,4 @@ Sequence:
 4. Validate nulls, format, uniqueness and relations.
 5. Add constraints later.
 
-The repeated-email decision is a separate behavior/schema decision and blocks any email-constraint change.
+The repeated-email decision is closed: drop the email uniqueness constraint during expansion and keep search indexes. Accidental retries use an idempotency key.

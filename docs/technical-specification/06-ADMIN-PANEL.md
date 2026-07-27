@@ -58,15 +58,11 @@ There is no pre-event/live polling switch. Mootq owns its polling schedule.
 - Open the hosted-ticket page through a controlled admin action.
 - Do not offer code regeneration after issue.
 
-## Deletion/lifecycle review
+## Deletion/lifecycle
 
-The existing hard-delete behavior must be reviewed before ticket launch:
+Product scope is registration and ticket delivery only. Visitor block/ban, ticket revoke/cancellation and soft-delete workflows are out of scope.
 
-- silently deleting a synchronized Toon Expo-origin ticket may leave it valid in Mootq;
-- if cancellation/revocation is required, define it as an explicit later requirement and feed event;
-- until then, admin must receive a clear warning for synchronized records.
-
-This specification does not invent a cancellation workflow that the owner has not requested.
+The existing admin hard-delete remains an operator tool for obvious junk rows. There is no partner revoke feed and no requirement to invent a cancellation product. If a synchronized Toon Expo-origin row is deleted, operators should understand Mootq may still hold the ticket until a later full reconciliation discussion — this is an ops warning, not a new feature.
 
 ## CSV export
 

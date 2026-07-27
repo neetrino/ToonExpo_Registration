@@ -9,7 +9,9 @@ POST /api/registrations
 Content-Type: application/json
 ```
 
-Keep existing origin, honeypot, body-size, Zod, questionnaire and normalization checks.
+Keep existing origin, honeypot, body-size, Zod, questionnaire and normalization checks. Remove the process-local IP rate limit.
+
+Require a client idempotency key (header or body field) so accidental double-submit does not create a second registration. Intentional shared email/phone MUST succeed as separate registrations when keys differ.
 
 Successful response adds the Toon Expo ticket result needed by the browser:
 
@@ -103,6 +105,8 @@ Started from an authenticated admin action. The Toon Expo worker consumes Mootq'
 
 ## Ticket routes
 
+Hosted on `reg.toonexpo.com` (planned production host):
+
 ```text
 GET /ticket/<ticketViewToken>
 GET /ticket/<ticketViewToken>/qr.png
@@ -120,7 +124,7 @@ Internal/cron-triggered processing requires server-only authorization. It claims
 - `204` — Mootq record accepted or identical replay.
 - `400` — validation.
 - `401/403` — authentication/authorization.
-- `409` — immutable source/code conflict or current duplicate policy.
+- `409` — immutable source/code conflict.
 - `413` — oversized body where used.
 - `429` — WAF/safety ceiling.
 - `500/503` — temporary dependency failure.

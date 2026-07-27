@@ -1,10 +1,10 @@
 # Toon Expo Registration — technical specification
 
-**Version:** 2.2
+**Version:** 2.3
 
 **Date:** 2026-07-27
 
-**Status:** working scope agreed; duplicate-email rule and exact external contracts pending
+**Status:** owner decisions recorded; Mootq partner contract draft ready for sign-off; Peleka SMS deferred
 
 ## Document map
 
@@ -23,6 +23,7 @@
 | [`11-VERCEL-PRODUCTION-CHECKLIST.md`](./11-VERCEL-PRODUCTION-CHECKLIST.md) | Owner-operated production checklist                |
 | [`12-DESIGN-DIRECTION.md`](./12-DESIGN-DIRECTION.md)                       | Public, ticket and admin visual direction          |
 | [`13-TICKETING-AND-INTEGRATIONS.md`](./13-TICKETING-AND-INTEGRATIONS.md)   | Detailed QR, delivery, fast exchange and full sync |
+| [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md)           | Single draft contract for Mootq sign-off           |
 
 ## Confirmed decisions
 
@@ -38,19 +39,35 @@
 - Full exchange is manual, paginated and independently initiated by each company.
 - Initial attendance is only `NOT_VISITED` or `VISITED`.
 - PostgreSQL delivery jobs provide retry; no Redis, NATS or external broker is added.
+- Same email and same phone MAY register multiple participants; accidental retries use an idempotency key.
+- Hosted tickets use `reg.toonexpo.com`; Resend sender is `hi@mail.toonexpo.com`.
+- Peleka SMS is deferred; email ships first.
+- No visitor block/ban/revoke product workflow.
 
-## Open decisions
+## Closed owner decisions (2026-07-27)
 
-| Decision/input                                    | Impact                                                                |
-| ------------------------------------------------- | --------------------------------------------------------------------- |
-| Repeated intentional registrations with one email | Database constraint, public retry semantics and cross-source handling |
-| Mootq fast/full API field names and URLs          | Final integration code and fixtures                                   |
-| Prefixless 13-character scanner sample            | Final scanner fixture                                                 |
-| Peleka API contract                               | SMS adapter and retry categories                                      |
-| Resend pay-as-you-go/domain setup                 | Production email readiness                                            |
-| Data sharing, retention and deletion              | Privacy and admin behavior                                            |
+| Decision/input                                    | Resolution                                                                 |
+| ------------------------------------------------- | -------------------------------------------------------------------------- |
+| Repeated intentional registrations with one email | Allowed; also same phone allowed                                           |
+| Email uniqueness DB constraint                    | Remove `(eventId, emailNormalized)` unique                                 |
+| Accidental double-submit                          | Idempotency key                                                            |
+| Mootq fast/full API                               | Implement from draft [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md); agree with Mootq |
+| Prefixless 13-character scanner format            | Confirmed by Mootq: random 13 characters                                   |
+| Peleka API contract                               | Deferred                                                                   |
+| Resend pay-as-you-go/domain                       | Pro includes pay-as-you-go; `mail.toonexpo.com` verified; from `hi@mail.toonexpo.com` |
+| Email/SMS copy and ticket domain                  | Interim designed email OK; SMS short later; domain `reg.toonexpo.com`      |
+| Block/ban/deletion product features               | Out of scope — registration and ticket delivery only                       |
 
-Pending decisions must stay marked as pending; implementation must not guess them.
+## Remaining inputs
+
+| Input                                             | Impact                                      |
+| ------------------------------------------------- | ------------------------------------------- |
+| Mootq sign-off on partner contract draft          | Final field names/URLs if they differ       |
+| Peleka API when SMS is unblocked                  | SMS adapter                                 |
+| Final marketing email copy                        | Replace interim template                    |
+| DNS for `reg.toonexpo.com` at release             | Hosted ticket production URL                |
+
+Pending partner field renames must not invent product behavior; adjust only transport naming after sign-off.
 
 ## Requirement language
 
