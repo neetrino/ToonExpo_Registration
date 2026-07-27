@@ -23,3 +23,16 @@ export {
   startFullImportFromMootq,
   type StartFullImportResult,
 } from '@/lib/integrations/mootq/full-import';
+export {
+  processDuePartnerPushes,
+  type ProcessPartnerPushResult,
+} from '@/lib/integrations/mootq/process-partner-pushes';
+export {
+  buildMootqPushPayload,
+  type MootqPushPayload,
+} from '@/lib/integrations/mootq/push-payload';
+export {
+  pushRegistrationToMootq,
+  type MootqPushClientInput,
+  type MootqPushClientResult,
+} from '@/lib/integrations/mootq/push-client';
