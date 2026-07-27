@@ -4,139 +4,136 @@
 
 **Size:** A
 
-**Date:** 2026-07-16
+**Date:** 2026-07-27
 
-**Status:** approved for implementation planning
+**Status:** working plan approved; duplicate-email rule and external contracts pending
 
 ## 1. Foundation
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Architecture | Small full-stack Next.js modular monolith | Approved |
-| Layout | `src/app`, `src/components`, `src/lib`, `src/types` | Approved |
-| Package manager | pnpm | Approved |
-| Runtime | Node.js 24.x LTS | Approved |
-| Language | TypeScript 5.9, strict mode | Approved |
-| Git workflow | Feature branches, Conventional Commits | Approved |
+| Parameter       | Decision                                                     | Status   |
+| --------------- | ------------------------------------------------------------ | -------- |
+| Architecture    | Small full-stack Next.js modular monolith                    | Approved |
+| Layout          | Existing `src/app`, `src/components`, `src/lib`, `src/types` | Approved |
+| Package manager | pnpm                                                         | Approved |
+| Runtime         | Node.js 24.x LTS                                             | Approved |
+| Language        | TypeScript 5.9, strict mode                                  | Approved |
 
-## 2. Frontend
+The additional ticket and integration features do not justify a size-B reorganization or separate backend. The existing layout remains appropriate for one product, one database, two registration sources and one partner.
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Framework | Next.js 16 App Router, React 19 | Approved |
-| Styling | Tailwind CSS 4 | Approved |
-| Components | shadcn/ui primitives plus custom Toon Expo theme | Approved |
-| Forms | React Hook Form and Zod | Approved |
-| Data fetching | Server Components by default | Approved |
-| Localization | `next-intl`; `hy`, `en`, `ru`; path-based locale | Approved |
-| SEO | Metadata API, sitemap, robots, Open Graph | Approved |
-| Theme | Brand theme only; no dark-mode switch | Approved |
-| Motion | Restrained CSS transitions; no required animation library | Approved |
-| PWA | Not required | Not applicable |
+## 2. Application
 
-## 3. Backend
+| Parameter           | Decision                                                             | Status                  |
+| ------------------- | -------------------------------------------------------------------- | ----------------------- |
+| Framework           | Next.js 16 App Router, React 19                                      | Approved                |
+| Hosting             | Vercel Pro                                                           | Required for production |
+| Styling             | Tailwind CSS 4 and existing components                               | Approved                |
+| Localization        | `next-intl`; `hy`, `en`, `ru`                                        | Approved                |
+| Public registration | Existing wizard and Zod validation                                   | Approved                |
+| Success page        | Immediate QR, readable code and PNG download                         | Required                |
+| Hosted ticket       | Private bearer-link page used by email/SMS                           | Required                |
+| Admin               | Existing single-admin application plus delivery/full-sync visibility | Approved                |
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Backend | Next.js Route Handlers and server-only services | Approved |
-| API style | Internal REST endpoints | Approved |
-| Validation | Shared Zod schemas plus database constraints | Approved |
-| Rate limiting | Vercel WAF on registration endpoint | Approved |
-| API documentation | Technical specification; no Swagger | Approved |
-| File uploads | Not required | Not applicable |
-| Redis/cache service | Not used in MVP | Not applicable |
+## 3. Server and integration
+
+| Parameter            | Decision                                                     | Status                       |
+| -------------------- | ------------------------------------------------------------ | ---------------------------- |
+| Server API           | Next.js Route Handlers and server-only modules               | Approved                     |
+| Public API           | Existing `POST /api/registrations`                           | Existing; extension required |
+| Mootq inbound        | Authenticated idempotent POST carrying Mootq's existing code | Contract pending             |
+| Toon Expo fast feed  | Authenticated incremental feed for Toon Expo registrations   | Contract pending             |
+| Full import          | Manual Toon Expo admin action that pulls Mootq pages         | Contract pending             |
+| Full export          | Authenticated paginated export requested by Mootq            | Contract pending             |
+| Delivery retry       | PostgreSQL `DeliveryJob` records and a small dispatcher      | Approved                     |
+| External broker      | None                                                         | Approved                     |
+| Partner polling mode | Controlled by Mootq; no Toon Expo switch                     | Approved                     |
 
 ## 4. Data
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Database | PostgreSQL 18 on Neon | Approved |
-| ORM | Prisma 7 | Approved |
-| Connection mode | Neon pooled TLS connection for application runtime | Approved |
-| Core entities | Event, Registration, Admin | Approved |
-| Duplicate rule | Unique normalized email per event | Approved |
-| Pagination | Server-side cursor or stable offset pagination | Approved |
-| Application DB role | Least-privilege runtime role separate from migration role | Approved |
-| Backups | Neon automated backup/PITR according to selected plan | Required before production |
+| Parameter           | Decision                                                  | Status        |
+| ------------------- | --------------------------------------------------------- | ------------- |
+| Database            | PostgreSQL on Neon                                        | Approved      |
+| ORM                 | Prisma 7                                                  | Approved      |
+| Runtime connection  | Neon pooled TLS connection                                | Approved      |
+| Ticket source       | Separate enum: `TOON_EXPO`, `MOOTQ`                       | Approved      |
+| Source assignment   | Trusted server route; never accepted from a public client | Approved      |
+| Code format         | 13 ASCII alphanumeric characters with no prefix           | Approved      |
+| Toon Expo code      | Generated with cryptographically secure randomness        | Approved      |
+| Mootq code          | Generated by Mootq and stored unchanged                   | Approved      |
+| Hosted-ticket token | Separate long random bearer value                         | Approved      |
+| QR binary           | Generated from `ticketCode`; not stored                   | Approved      |
+| Fast feed           | Small ordered records for Toon Expo-origin registrations  | Approved      |
+| Full-sync history   | One run record per manual import/export                   | Approved      |
+| Attendance          | `NOT_VISITED` or `VISITED` initially                      | Approved      |
+| Duplicate email     | Do not change current behavior until owner answer         | Open/blocking |
 
-Adaptive database timeouts and connection limits must be selected during implementation from the actual Neon plan and validated under load; they must not be guessed in documentation.
+## 5. Delivery providers
 
-## 5. Authentication
+| Service    | Purpose                                          | Status                         |
+| ---------- | ------------------------------------------------ | ------------------------------ |
+| Resend Pro | Ticket email for both sources; 50,000/month plan | Approved/account setup pending |
+| Peleka     | Ticket-link SMS for both sources                 | Approved/API contract pending  |
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Solution | Auth.js | Approved |
-| Provider | Credentials for one seeded administrator | Approved |
-| Password storage | Argon2id hash; never plaintext | Approved |
-| Sessions | Secure, HTTP-only, SameSite cookies | Approved |
-| Roles | One `ADMIN` role | Approved |
-| Password reset | Not exposed in MVP; controlled manual rotation | Approved |
+Email displays the QR inline and includes readable code plus hosted-ticket link. SMS sends the hosted-ticket link. Delivery provider calls occur after the registration/import transaction and are retried from PostgreSQL records.
 
-## 6. External services
+## 6. Authentication and security
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Email | Resend | Approved |
-| Payments | Not required | Not applicable |
-| Analytics | Vercel Web Analytics only if approved before release | Optional |
-| Error monitoring | Vercel logs/alerts baseline; Sentry may be added later | Approved |
-| Storage | Local public assets or approved remote brand assets; no new object store required | Approved |
+| Area                    | Decision                                                                 |
+| ----------------------- | ------------------------------------------------------------------------ |
+| Admin                   | Existing Auth.js Credentials flow                                        |
+| Public abuse protection | Honeypot, origin/body validation and shared-NAT-safe Vercel WAF ceiling  |
+| Partner write access    | Long scoped bearer credential for Mootq inbound registration             |
+| Partner read access     | Separate long scoped bearer credential for fast/full exports             |
+| Ticket access           | Long unguessable bearer token, separate from `ticketCode`                |
+| Logs                    | No full PII, QR values, ticket links, authorization or provider payloads |
 
-## 7. Hosting and operations
+Redis is not introduced for rate limiting. The current process-local `5 / 10 minutes / IP` registration limit must be removed because it is inconsistent across serverless instances and unsafe for shared venue NAT.
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Application hosting | Vercel | Approved |
-| Environments | Local, Preview, Production | Approved |
-| CI | GitHub Actions | Approved |
-| Domain | Custom production domain, pending value | Pending input |
-| WAF | Rate-limit only the registration mutation route | Required before production |
-| CDN | Vercel CDN for static public pages and assets | Approved |
-| Logs | Structured and redacted; no full PII | Approved |
-| Deployment | Production deployment remains a manual owner action | Approved |
+## 7. Reliability and scale
 
-## 8. Testing and quality
+- Target 30,000 registrations over three days.
+- Rehearse 1,000 registrations in ten minutes plus short bursts.
+- Keep database transactions short and use the Neon pooled URL.
+- Save registration/ticket and delivery jobs atomically.
+- Fast feed is incremental and paginated; Mootq controls polling frequency.
+- Full synchronization is manual, paginated, idempotent and resumable.
+- Monitor registration errors, delivery backlog, partner import failures and full-sync results.
 
-| Parameter | Decision | Status |
-|---|---|---|
-| Unit/integration | Vitest | Approved |
-| Component tests | React Testing Library for form behavior where valuable | Approved |
-| E2E | Playwright for registration, duplicate handling and admin access | Approved |
-| Load test | Registration endpoint burst test in a non-production environment | Required |
-| Quality gates | Format, lint, typecheck, tests, build | Required |
+## 8. Testing
 
-## 9. Security baseline
+- Unit tests for the prefixless 13-character format, trusted source assignment and idempotent Mootq retries.
+- Integration tests for atomic ticket/delivery persistence.
+- Scanner fixture tests with codes generated by each source.
+- Email rendering and Peleka sandbox/API tests.
+- Fast-feed cursor catch-up tests.
+- Full import/export rerun and partial-failure tests.
+- Load test at the agreed peak.
+- Format, lint, typecheck, tests and production build before release.
 
-- Server-side input validation and normalization.
-- Parameterized ORM queries.
-- Database unique constraint for duplicate prevention.
-- CSRF-safe mutation flow and strict origin checks where applicable.
-- Secure administrator cookies, login throttling and generic auth errors.
-- Vercel WAF rate limiting for public registration.
-- Honeypot field for low-cost bot filtering.
-- Security headers and HTTPS.
-- Secrets only in environment variables.
-- No secrets, passwords, tokens or complete participant data in logs.
-- CSV export protected against spreadsheet-formula injection.
-- Data deletion requires an explicit confirmation step.
+## 9. Migration boundary
+
+Planned schema work uses expand-and-contract:
+
+1. Add nullable source/ticket/token/attendance fields and independent delivery/sync tables.
+2. Deploy compatible code.
+3. Backfill existing registrations with `sourceSystem=TOON_EXPO`, 13-character codes and ticket tokens in bounded batches.
+4. Validate format and uniqueness.
+5. Add required/unique constraints only after validation.
+
+The current unique event/email constraint must not be removed or treated as final until the owner answers whether repeated intentional registrations with one email are allowed.
 
 ## 10. Explicit exclusions
 
-- NestJS, Docker, Kubernetes, Redis and queues.
-- Attendee login or attendee profile.
-- Payments, tickets, QR codes and check-in.
-- Capacity limits, waiting lists and registration statuses.
-- Participant editing.
-- Survey/questionnaire UI in MVP.
-- Production deployment or production migration as part of documentation work.
+- NestJS migration.
+- Redis, NATS, Kafka, RabbitMQ, BullMQ or Vercel Queues.
+- Dedicated always-on worker infrastructure.
+- Automatic bilateral full-sync orchestration.
+- Detailed check-in event history in the first release.
+- Production deployment or production migration by the agent.
 
 ## 11. Related documents
 
 - [`BRIEF.md`](./BRIEF.md)
 - [`01-ARCHITECTURE.md`](./01-ARCHITECTURE.md)
+- [`PROGRESS.md`](./PROGRESS.md)
 - [`technical-specification/00-INDEX.md`](./technical-specification/00-INDEX.md)
-- [`technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md`](./technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md)
-
-## 12. Approval record
-
-The product owner approved project size A, the proposed full-stack Next.js stack, three public languages, email confirmation, the one-admin model, no capacity limit/status workflow, no Redis in MVP, and creation of this documentation set in the conversation preceding this document.
+- [`technical-specification/13-TICKETING-AND-INTEGRATIONS.md`](./technical-specification/13-TICKETING-AND-INTEGRATIONS.md)

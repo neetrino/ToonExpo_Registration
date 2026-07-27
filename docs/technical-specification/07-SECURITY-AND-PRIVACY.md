@@ -2,96 +2,84 @@
 
 ## Threat focus
 
-The highest-risk surfaces are the public registration mutation, administrator login/session, CSV export, personal-data storage and production secrets.
+- automated public submissions;
+- shared venue NAT false positives;
+- partner credential misuse/replay;
+- guessed or leaked ticket links;
+- duplicate delivery;
+- PII leakage through logs/exports/full sync;
+- unsafe admin deletion of synchronized tickets.
 
-## Public form controls
+## Public registration
 
-- Vercel WAF rate limit on the exact registration endpoint.
-- Hidden honeypot and server-side timing/shape checks where justified.
-- Strict body-size and field-length limits.
-- Zod validation and normalization on the server.
-- Database uniqueness constraint for concurrent duplicates.
-- Same-origin/CSRF-safe mutation design.
-- Generic error responses without database/provider details.
-- Optional BotID/CAPTCHA only after monitoring demonstrates bot abuse not handled by baseline controls.
+- Preserve server-side schema validation, body bounds, origin check and honeypot.
+- Remove the process-local `5 / 10 minutes / IP` limiter.
+- Use a high shared-NAT-safe Vercel WAF emergency ceiling, first in Log mode.
+- Do not treat frontend steps/checklists as bot protection.
 
-## Administrator controls
+## Mootq APIs
 
-- One seeded administrator with unique normalized email.
-- Argon2id password hashing with implementation-time parameters appropriate to the runtime.
-- Strong unique password delivered through a secure channel, never chat, source control or a committed file.
-- Secure, HTTP-only, SameSite session cookie; `Secure` in production.
-- Bounded session lifetime and logout invalidation.
-- Server-side authorization on every page, action and export endpoint.
-- Login throttling and generic failures.
-- Manual password rotation runbook.
-- MFA is recommended as a post-MVP hardening item or by changing to an allowlisted OAuth provider if approved.
+- TLS only.
+- Separate long bearer credentials for write and read/export scopes.
+- Store secrets only in server environment configuration.
+- Validate every body/page/item with bounded schemas.
+- Use source ID and code uniqueness for idempotent retries.
+- Apply a generous malfunction ceiling, not a normal business throttle.
+- Rotate credentials with a documented overlap procedure.
 
-## Data minimization
+## Ticket security
 
-Store only:
+- QR contains only the prefixless 13-character alphanumeric code and no PII.
+- Hosted page uses a separate high-entropy token.
+- Ticket/PNG responses are private/no-store/noindex.
+- Use a restrictive referrer policy and keep ticket routes out of analytics.
+- Do not log codes, tokens or full URLs.
+- Screenshots can be forwarded; admission/duplicate-scan enforcement belongs to Mootq.
 
-- name and surname;
-- email and phone;
-- selected locale;
-- event relationship;
-- consent evidence;
-- technical email-delivery metadata;
-- creation/update timestamps.
+## Email/SMS
 
-Do not store full IP addresses, user-agent history, marketing profiles or questionnaire answers without an approved purpose and updated privacy notice.
+- Use a unique logical-send business key.
+- Provider calls have timeouts and bounded retries.
+- Never include secrets in message content.
+- Verify provider callbacks if callback-based delivery receipts are implemented.
+- Treat callback delivery as at-least-once and idempotent.
 
-## Privacy requirements
+## Full synchronization
 
-- The form must link to the published privacy policy before consent.
-- Consent cannot be pre-checked.
-- Store policy version and server timestamp.
-- Define data controller/contact, purpose, retention duration and deletion request process before production.
-- Do not use registration email for marketing unless separate legally valid consent is introduced.
-- Determine hard versus soft deletion and retention before the first production migration.
-- Production exports are personal data and must be stored/shared securely outside the application.
+- Export only contract-approved fields.
+- Exclude password/auth/session, provider, job-lock and secret data.
+- Record who initiated each run.
+- Bound pages and error summaries.
+- Validate field ownership before update.
+- Keep attendance ownership with Mootq.
+- Define retention for run metadata and imported PII before production.
 
-## Secrets
+## Administrator
 
-- `.env*` values are ignored except `.env.example`.
-- Vercel environment variables are separated for Preview and Production.
-- Neon, Resend and Auth secrets are never exposed with `NEXT_PUBLIC_` prefixes.
-- Preview must not use the production database or production Resend sender unless explicitly approved.
-- Rotate a secret immediately if it appears in logs, Git history or a public client bundle.
+- Preserve server-side authorization on every page/action/API.
+- Secure HTTP-only SameSite cookies.
+- Generic login errors and conservative login throttle.
+- Explicit confirmation for import and destructive actions.
 
-## Headers and transport
+## Logging
 
-- HTTPS only in production.
-- HSTS after the production domain is confirmed and HTTPS is verified.
-- `X-Content-Type-Options: nosniff`.
-- Frame protection through CSP `frame-ancestors` and/or `X-Frame-Options`.
-- A scoped Content Security Policy compatible with required Vercel/Resend-independent frontend assets.
-- Restrictive `Referrer-Policy` and `Permissions-Policy`.
-- No permissive wildcard CORS for authenticated or registration endpoints.
+Allowed:
 
-## Logs and observability
+- request ID;
+- route/source;
+- safe internal registration/job/run ID;
+- status/count/duration;
+- cursor count and lag;
+- provider name/channel and safe error category.
 
-Allowed operational fields include request ID, route, status, duration, event ID and redacted/hash identifiers when necessary. Logs must not contain:
+Forbidden:
 
-- full email or phone;
-- passwords or password hashes;
-- authorization headers;
-- cookies/session tokens;
-- database connection strings;
-- Resend API keys;
-- raw form bodies or CSV content.
+- full email/phone/name;
+- ticket code or hosted-token URL;
+- partner/provider authorization;
+- raw inbound/full-sync/provider payload;
+- password/session material.
 
-## CSV security
+## Data decision still open
 
-- Require an active administrator session at generation time.
-- Use private/no-store responses.
-- Prevent spreadsheet-formula injection.
-- Do not create permanent public export URLs.
-- Log export occurrence without logging exported records.
-
-## Dependency and release security
-
-- Lock dependencies and use frozen installs in CI.
-- Enable dependency alerts/updates.
-- Block release on known critical vulnerabilities unless an explicit documented exception exists.
-- Run migrations with a separate privileged role; runtime credentials must not have schema-drop permissions.
+The repeated-email rule affects data minimization and deduplication. Until confirmed, do not add new cross-system identity matching based on email or phone.

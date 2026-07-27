@@ -1,79 +1,92 @@
 # Functional requirements
 
-## Public experience
+## Public Toon Expo registration
 
-| ID | Requirement |
-|---|---|
-| PUB-01 | The system MUST expose Armenian, English and Russian public routes. |
-| PUB-02 | Armenian MUST be the default public locale unless the owner approves another default before implementation. |
-| PUB-03 | A locale switch MUST preserve the equivalent page/section when possible. |
-| PUB-04 | The landing page MUST render event name, date, venue and approved descriptive content. |
-| PUB-05 | The primary call to action MUST bring the visitor to the registration form. |
-| PUB-06 | The registration form MUST work at supported mobile, tablet and desktop widths. |
-| PUB-07 | The site MUST expose a localized privacy page or approved external privacy-policy URL. |
-| PUB-08 | The page MUST provide localized metadata, canonical URLs and Open Graph data. |
+| ID     | Requirement                                                                          |
+| ------ | ------------------------------------------------------------------------------------ |
+| PUB-01 | The existing localized form MUST continue to validate on client and server.          |
+| PUB-02 | An accepted Toon Expo registration MUST assign `sourceSystem=TOON_EXPO` server-side. |
+| PUB-03 | It MUST receive one unique prefixless 13-character alphanumeric code.                |
+| PUB-04 | Success MUST show the stored QR and readable code immediately.                       |
+| PUB-05 | Success MUST NOT wait for Resend or Peleka.                                          |
+| PUB-06 | The current `5 / 10 minutes / IP` process-local limiter MUST be removed.             |
 
-## Registration form
+## Mootq registration intake
 
-| ID | Requirement |
-|---|---|
-| REG-01 | The form MUST collect first name, last name, email, phone and privacy consent. |
-| REG-02 | Every field MUST have an accessible label; placeholder text MUST NOT be the only label. |
-| REG-03 | Client validation SHOULD provide immediate localized feedback. |
-| REG-04 | Server validation MUST be authoritative. |
-| REG-05 | The submit button MUST show a pending state and prevent accidental repeated clicks. |
-| REG-06 | A hidden honeypot field MUST reject obvious automated submissions without revealing the rule. |
-| REG-07 | A successful registration MUST display a localized confirmation state. |
-| REG-08 | A duplicate email for the active event MUST NOT create a second row. |
-| REG-09 | Duplicate handling MUST be safe under simultaneous requests. |
-| REG-10 | The same phone number MAY be used by different registrations. |
-| REG-11 | The registration MUST store the locale used at submission. |
-| REG-12 | The system MUST record the privacy-policy version and consent time. |
-| REG-13 | Validation and temporary service errors MUST preserve non-sensitive form input where safe. |
+| ID    | Requirement                                                                         |
+| ----- | ----------------------------------------------------------------------------------- |
+| MQ-01 | The endpoint MUST require scoped server-to-server authentication.                   |
+| MQ-02 | It MUST accept the exact Mootq source ID, code and agreed recipient fields.         |
+| MQ-03 | It MUST validate the prefixless 13-character alphanumeric format.                   |
+| MQ-04 | It MUST assign `sourceSystem=MOOTQ` from the authenticated route, not request data. |
+| MQ-05 | It MUST persist the supplied code unchanged.                                        |
+| MQ-06 | Identical source-ID retries MUST be safe.                                           |
+| MQ-07 | Conflicting source-ID/code reuse MUST return a conflict.                            |
+| MQ-08 | Success MUST use an HTTP acknowledgement and MUST NOT issue a replacement code.     |
 
-## Confirmation email
+## Ticket and QR
 
-| ID | Requirement |
-|---|---|
-| MAIL-01 | After a registration is committed, the system MUST attempt to send a confirmation email through Resend. |
-| MAIL-02 | Email content MUST use the registration locale. |
-| MAIL-03 | Email-provider failure MUST NOT roll back or delete the registration. |
-| MAIL-04 | The system MUST store email delivery state and last attempt time. |
-| MAIL-05 | Email content MUST include only approved event details and an organizer contact or support route. |
-| MAIL-06 | The system MUST use a verified production sender domain before launch. |
+| ID     | Requirement                                                                       |
+| ------ | --------------------------------------------------------------------------------- |
+| TKT-01 | `ticketCode` MUST be globally unique and immutable in Toon Expo.                  |
+| TKT-02 | It MUST be 13 ASCII alphanumeric characters with no prefix or source information. |
+| TKT-03 | QR payload MUST be exactly `ticketCode`.                                          |
+| TKT-04 | QR MUST contain no PII, URL or JWT.                                               |
+| TKT-05 | Hosted-ticket URLs MUST use a separate long private token.                        |
+| TKT-06 | QR images MUST be generated on demand, not stored as DB blobs.                    |
+| TKT-07 | Representative codes from both generators MUST scan on Mootq's real device.       |
+| TKT-08 | Registration source MUST NOT be inferred from `ticketCode`.                       |
 
-## Administrator authentication
+## Email and SMS
 
-| ID | Requirement |
-|---|---|
-| AUTH-01 | Anonymous users MUST NOT access administrator pages, data endpoints or exports. |
-| AUTH-02 | The system MUST support exactly one active administrator in MVP. |
-| AUTH-03 | Invalid login attempts MUST return a generic error. |
-| AUTH-04 | Administrator passwords MUST be stored only as Argon2id hashes. |
-| AUTH-05 | A successful login MUST create a secure server-validated session. |
-| AUTH-06 | Logout MUST invalidate the active session. |
+| ID     | Requirement                                                          |
+| ------ | -------------------------------------------------------------------- |
+| DEL-01 | Registration/import and EMAIL/SMS jobs MUST be committed atomically. |
+| DEL-02 | Email MUST contain inline QR, readable code and hosted-ticket link.  |
+| DEL-03 | SMS MUST contain the hosted-ticket link.                             |
+| DEL-04 | Both channels MUST use the stored code for the registration.         |
+| DEL-05 | Provider failures MUST NOT roll back the registration.               |
+| DEL-06 | Logical sends MUST be idempotent and retries bounded.                |
+| DEL-07 | Admin/operations MUST see pending and terminal failures.             |
 
-## Admin dashboard
+## Fast exchange
 
-| ID | Requirement |
-|---|---|
-| ADM-01 | The dashboard MUST display the total number of registrations for the selected/active event. |
-| ADM-02 | The dashboard MUST display registrations using server-side pagination. |
-| ADM-03 | The list MUST show name, email, phone, locale and registration time. |
-| ADM-04 | Search MUST match bounded queries against name, email and normalized phone. |
-| ADM-05 | Default ordering MUST be newest registration first with a stable tie-breaker. |
-| ADM-06 | The administrator MUST be able to delete one registration after explicit confirmation. |
-| ADM-07 | Participant editing MUST NOT be available in MVP. |
-| ADM-08 | CSV export MUST reflect the active event and approved filters. |
-| ADM-09 | CSV output MUST neutralize cells that could be interpreted as spreadsheet formulas. |
-| ADM-10 | Empty, loading and failure states MUST be explicit. |
+| ID      | Requirement                                                                    |
+| ------- | ------------------------------------------------------------------------------ |
+| FAST-01 | The outbound fast feed MUST contain only Toon Expo-origin operational records. |
+| FAST-02 | It MUST be ordered, cursor-based, bounded and replay-safe.                     |
+| FAST-03 | It MUST expose only contract-approved minimum fields.                          |
+| FAST-04 | Mootq MUST control polling frequency.                                          |
+| FAST-05 | Toon Expo MUST NOT implement a pre-event/live polling switch.                  |
+| FAST-06 | `hasMore=true` MUST support immediate catch-up pages.                          |
+| FAST-07 | Every outbound item MUST explicitly carry `sourceSystem=TOON_EXPO`.            |
 
-## Operational behavior
+## Full reconciliation
 
-| ID | Requirement |
-|---|---|
-| OPS-01 | Public static page requests MUST NOT query PostgreSQL merely to render the registration form. |
-| OPS-02 | Registration POST responses MUST NOT be publicly cached. |
-| OPS-03 | Administrator pages and responses containing participant data MUST use private/no-store behavior. |
-| OPS-04 | Each server request SHOULD have a correlation/request ID in logs. |
-| OPS-05 | Production logs MUST NOT contain full participant email, phone, auth tokens or password data. |
+| ID      | Requirement                                                                |
+| ------- | -------------------------------------------------------------------------- |
+| FULL-01 | Toon Expo admin MUST be able to start a full import from Mootq.            |
+| FULL-02 | Mootq MUST be able to request a paginated Toon Expo full export.           |
+| FULL-03 | Each direction MUST run independently.                                     |
+| FULL-04 | Records MUST match primarily by `ticketCode` and verify source/source IDs. |
+| FULL-05 | Rerunning a full sync MUST be idempotent.                                  |
+| FULL-06 | A run MUST store direction, status, timestamps, cursor and result counts.  |
+| FULL-07 | Attendance MUST initially support `NOT_VISITED` and `VISITED`.             |
+| FULL-08 | A post-event full synchronization MUST be operationally required.          |
+| FULL-09 | Every full-sync record MUST carry its stored `sourceSystem`.               |
+| FULL-10 | Existing code/source mismatches MUST be conflicts, never reclassification. |
+
+## Administrator
+
+| ID     | Requirement                                                      |
+| ------ | ---------------------------------------------------------------- |
+| ADM-01 | Existing authentication and authorization MUST remain.           |
+| ADM-02 | List/detail MUST show source, ticket and delivery states.        |
+| ADM-03 | Admin MUST show full-sync history and last result.               |
+| ADM-04 | Admin MUST NOT show ticket-view tokens or secrets.               |
+| ADM-05 | No polling-frequency control MUST be added.                      |
+| ADM-06 | Source filters/counts MUST use `sourceSystem`, not code parsing. |
+
+## Open duplicate rule
+
+No requirement may assume that email is permanently unique or repeatable until the owner confirms the business rule. The current database constraint stays in place until then.
