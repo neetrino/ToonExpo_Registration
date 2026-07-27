@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 /** Scanner-friendly defaults; tune after hardware fixture tests. */
 export const TICKET_QR_WIDTH = 320;
 export const TICKET_QR_MARGIN = 2;
-export const TICKET_QR_ERROR_CORRECTION: 'M' = 'M';
+export const TICKET_QR_ERROR_CORRECTION = 'M' as const;
 
 /**
  * Render a PNG buffer whose QR payload is exactly the stored ticket code.

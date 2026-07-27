@@ -43,7 +43,9 @@ type Counters = {
  * Admin-triggered full import from Mootq.
  * Requires MOOTQ_FULL_EXPORT_BASE_URL + MOOTQ_FULL_EXPORT_KEY. Without them returns NOT_CONFIGURED.
  */
-export async function startFullImportFromMootq(initiatedBy: string): Promise<StartFullImportResult> {
+export async function startFullImportFromMootq(
+  initiatedBy: string,
+): Promise<StartFullImportResult> {
   const baseUrl = process.env.MOOTQ_FULL_EXPORT_BASE_URL?.trim();
   const exportKey = process.env.MOOTQ_FULL_EXPORT_KEY?.trim();
 
@@ -115,15 +117,15 @@ export async function startFullImportFromMootq(initiatedBy: string): Promise<Sta
       });
     }
 
-    const status =
-      counters.conflict > 0 || counters.error > 0
-        ? 'PARTIAL'
-        : ('SUCCEEDED' as const);
+    const status = counters.conflict > 0 || counters.error > 0 ? 'PARTIAL' : ('SUCCEEDED' as const);
     await finishRun(run.id, status, counters, after, errorSummary);
     return { ok: true, runId: run.id, status };
   } catch (error: unknown) {
     logger.error('Full import failed', { code: mapRegistrationError(error).code, runId: run.id });
-    await finishRun(run.id, 'FAILED', counters, null, [...errorSummary, { code: 'INTERNAL_ERROR' }]);
+    await finishRun(run.id, 'FAILED', counters, null, [
+      ...errorSummary,
+      { code: 'INTERNAL_ERROR' },
+    ]);
     return { ok: true, runId: run.id, status: 'FAILED' };
   }
 }

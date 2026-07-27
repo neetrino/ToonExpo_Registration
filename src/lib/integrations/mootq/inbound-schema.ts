@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
-import {
-  EMAIL_MAX_LENGTH,
-  NAME_MAX_LENGTH,
-  NAME_MIN_LENGTH,
-} from '@/lib/validation/constants';
+import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from '@/lib/validation/constants';
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
 import { MOOTQ_SOURCE_REGISTRATION_ID_MAX } from '@/lib/integrations/mootq/constants';

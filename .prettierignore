@@ -6,3 +6,4 @@ coverage
 pnpm-lock.yaml
 prisma/migrations
 .git
+next-env.d.ts

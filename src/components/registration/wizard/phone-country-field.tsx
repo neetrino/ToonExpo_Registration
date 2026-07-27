@@ -55,9 +55,7 @@ export function PhoneCountryField({
   const selectedCountry = resolvePhoneCountry(phoneCountry);
   const selectedCallingCode = getCountryCallingCode(selectedCountry);
   const selectedFlag = countryFlagEmoji(selectedCountry);
-  const filtered = open
-    ? filterPhoneCountries(listPhoneCountries(locale), query)
-    : [];
+  const filtered = open ? filterPhoneCountries(listPhoneCountries(locale), query) : [];
 
   useEffect(() => {
     if (!open) {

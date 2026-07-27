@@ -39,7 +39,9 @@ export function AdminSyncPanel({ runs }: AdminSyncPanelProps) {
         setMessage(result.error);
         return;
       }
-      setMessage(`Import finished: ${result.status} (run ${result.runId}). Refresh to see history.`);
+      setMessage(
+        `Import finished: ${result.status} (run ${result.runId}). Refresh to see history.`,
+      );
     });
   }
 
@@ -52,8 +54,8 @@ export function AdminSyncPanel({ runs }: AdminSyncPanelProps) {
           </p>
           <h2 className="mt-1 font-display text-xl font-bold text-primary">Mootq reconciliation</h2>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            Manual import pulls partner pages when configured. Export is started by Mootq against our
-            API.
+            Manual import pulls partner pages when configured. Export is started by Mootq against
+            our API.
           </p>
         </div>
         <Button type="button" onClick={onImport} disabled={isPending} className="shrink-0">

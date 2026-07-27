@@ -8,7 +8,10 @@ type TicketPageViewProps = {
   locale: string;
 };
 
-const COPY: Record<string, { title: string; subtitle: string; codeLabel: string; download: string }> = {
+const COPY: Record<
+  string,
+  { title: string; subtitle: string; codeLabel: string; download: string }
+> = {
   hy: {
     title: 'Ձեր տոմսը',
     subtitle: 'Պահեք այս QR կոդը միջոցառման մուտքի համար։',
@@ -55,13 +58,7 @@ export function TicketPageView({
 
       <div className="mt-8 rounded-2xl bg-white p-5 shadow-[0_8px_32px_rgba(0,48,61,0.12)]">
         {/* eslint-disable-next-line @next/next/no-img-element -- dynamic ticket QR PNG */}
-        <img
-          src={qrSrc}
-          alt="Ticket QR"
-          width={280}
-          height={280}
-          className="size-[280px]"
-        />
+        <img src={qrSrc} alt="Ticket QR" width={280} height={280} className="size-[280px]" />
       </div>
 
       <p className="mt-6 text-sm uppercase tracking-wide text-[#00303d]/70">{copy.codeLabel}</p>

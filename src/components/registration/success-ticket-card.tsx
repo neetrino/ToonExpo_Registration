@@ -21,6 +21,8 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // sessionStorage is client-only; read after mount to avoid SSR mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate one-shot ticket handoff
     setHandoff(takeTicketHandoff());
     setReady(true);
   }, []);
@@ -64,13 +66,7 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
 
       <div className="mt-8 rounded-xl bg-white p-4 shadow-sm">
         {/* eslint-disable-next-line @next/next/no-img-element -- dynamic ticket QR PNG */}
-        <img
-          src={qrSrc}
-          alt={t('qrAlt')}
-          width={240}
-          height={240}
-          className="mx-auto size-60"
-        />
+        <img src={qrSrc} alt={t('qrAlt')} width={240} height={240} className="mx-auto size-60" />
       </div>
 
       <p className="mt-4 font-mono text-lg font-semibold tracking-wider text-primary">

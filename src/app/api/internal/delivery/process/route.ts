@@ -7,12 +7,21 @@ import { secureSecretEqual } from '@/lib/security/secure-compare';
 export const dynamic = 'force-dynamic';
 
 /**
- * Internal delivery dispatcher endpoint for cron / ops retries.
- * Requires Authorization: Bearer <DELIVERY_CRON_SECRET> when configured.
+ * Internal delivery dispatcher for Vercel Cron / ops retries.
+ * Requires Authorization: Bearer <CRON_SECRET>.
+ * Vercel Cron invokes GET and injects Bearer from env `CRON_SECRET`.
  */
+export async function GET(request: Request): Promise<NextResponse> {
+  return processDelivery(request);
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
+  return processDelivery(request);
+}
+
+async function processDelivery(request: Request): Promise<NextResponse> {
   const requestId = getOrCreateRequestId(request) || createRequestId();
-  const configuredSecret = process.env.DELIVERY_CRON_SECRET?.trim();
+  const configuredSecret = process.env.CRON_SECRET?.trim();
 
   if (!configuredSecret || configuredSecret.length < 32) {
     return NextResponse.json(

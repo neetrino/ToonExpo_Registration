@@ -19,7 +19,8 @@ export type CreateRegistrationSuccess = {
   ticketViewToken: string;
 };
 
-export type CreateRegistrationResult = CreateRegistrationSuccess | { ok: false; error: RegistrationAppError };
+export type CreateRegistrationResult =
+  CreateRegistrationSuccess | { ok: false; error: RegistrationAppError };
 
 /**
  * Create a Toon Expo-origin registration with ticket code and hosted-ticket token.

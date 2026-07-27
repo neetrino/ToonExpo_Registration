@@ -62,10 +62,7 @@ export async function processDueDeliveryJobs(options?: {
   return result;
 }
 
-async function processClaimedEmailJob(
-  jobId: string,
-  result: ProcessDeliveryResult,
-): Promise<void> {
+async function processClaimedEmailJob(jobId: string, result: ProcessDeliveryResult): Promise<void> {
   const prisma = getPrisma();
 
   const job = await prisma.deliveryJob.findUnique({

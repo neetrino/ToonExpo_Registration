@@ -29,7 +29,9 @@ function joinOptionLabels<G extends keyof typeof questionnaireI18n.options>(
 }
 
 function emptyAnswerColumns(): FlattenedAnswerColumns {
-  return Object.fromEntries(CSV_ANSWER_COLUMNS.map((column) => [column.key, ''])) as FlattenedAnswerColumns;
+  return Object.fromEntries(
+    CSV_ANSWER_COLUMNS.map((column) => [column.key, '']),
+  ) as FlattenedAnswerColumns;
 }
 
 function setColumn(

@@ -80,8 +80,7 @@ export async function deleteRegistrationAction(
 }
 
 export type ImportMootqActionResult =
-  | { ok: true; runId: string; status: string }
-  | { ok: false; error: string };
+  { ok: true; runId: string; status: string } | { ok: false; error: string };
 
 /**
  * Start a manual full import from Mootq when partner export credentials are configured.

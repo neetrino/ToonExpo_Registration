@@ -1,8 +1,5 @@
 import { getPrisma } from '@/lib/db/prisma';
-import {
-  MOOTQ_FEED_DEFAULT_LIMIT,
-  MOOTQ_FEED_MAX_LIMIT,
-} from '@/lib/integrations/mootq/constants';
+import { MOOTQ_FEED_DEFAULT_LIMIT, MOOTQ_FEED_MAX_LIMIT } from '@/lib/integrations/mootq/constants';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError } from '@/lib/registrations/errors';
 
@@ -26,7 +23,11 @@ export type MootqFeedPage = {
 
 export type GetMootqFeedResult =
   | { ok: true; page: MootqFeedPage }
-  | { ok: false; code: 'VALIDATION_ERROR' | 'INTERNAL_ERROR' | 'SERVICE_UNAVAILABLE'; status: 400 | 500 | 503 };
+  | {
+      ok: false;
+      code: 'VALIDATION_ERROR' | 'INTERNAL_ERROR' | 'SERVICE_UNAVAILABLE';
+      status: 400 | 500 | 503;
+    };
 
 /**
  * Incremental Toon Expo-origin feed for Mootq polling.
@@ -101,7 +102,11 @@ export async function getMootqToonExpoFeed(params: {
       ok: true,
       page: {
         items,
-        nextCursor: last ? last.sequence : params.after && params.after !== '' ? params.after : null,
+        nextCursor: last
+          ? last.sequence
+          : params.after && params.after !== ''
+            ? params.after
+            : null,
         hasMore,
       },
     };

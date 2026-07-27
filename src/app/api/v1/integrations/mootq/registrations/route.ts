@@ -5,11 +5,7 @@ import { getMootqToonExpoFeed } from '@/lib/integrations/mootq/feed';
 import { importMootqRegistration } from '@/lib/integrations/mootq/import-registration';
 import { mootqInboundBodySchema } from '@/lib/integrations/mootq/inbound-schema';
 import { logger } from '@/lib/logger';
-import {
-  createRequestId,
-  getOrCreateRequestId,
-  requestIdHeaders,
-} from '@/lib/security';
+import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 

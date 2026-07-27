@@ -9,7 +9,11 @@ import { generateTicketViewToken } from '@/lib/tickets/codes';
 
 export type ImportMootqRegistrationResult =
   | { ok: true; kind: 'created' | 'replay' }
-  | { ok: false; code: 'NO_ACTIVE_EVENT' | 'CONFLICT' | 'INTERNAL_ERROR' | 'SERVICE_UNAVAILABLE'; status: 409 | 500 | 503 };
+  | {
+      ok: false;
+      code: 'NO_ACTIVE_EVENT' | 'CONFLICT' | 'INTERNAL_ERROR' | 'SERVICE_UNAVAILABLE';
+      status: 409 | 500 | 503;
+    };
 
 /**
  * Persist a Mootq-origin registration with the exact supplied ticket code.
