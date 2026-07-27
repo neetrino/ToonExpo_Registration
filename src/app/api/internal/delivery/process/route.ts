@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { processDueDeliveryJobs } from '@/lib/delivery';
 import { logger } from '@/lib/logger';
 import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
+import { secureSecretEqual } from '@/lib/security/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,15 +14,23 @@ export async function POST(request: Request): Promise<NextResponse> {
   const requestId = getOrCreateRequestId(request) || createRequestId();
   const configuredSecret = process.env.DELIVERY_CRON_SECRET?.trim();
 
-  if (!configuredSecret) {
+  if (!configuredSecret || configuredSecret.length < 32) {
     return NextResponse.json(
       { ok: false, code: 'NOT_CONFIGURED', requestId },
       { status: 503, headers: requestIdHeaders(requestId) },
     );
   }
 
-  const auth = request.headers.get('authorization');
-  if (auth !== `Bearer ${configuredSecret}`) {
+  const header = request.headers.get('authorization');
+  if (!header?.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { ok: false, code: 'UNAUTHORIZED', requestId },
+      { status: 401, headers: requestIdHeaders(requestId) },
+    );
+  }
+
+  const presented = header.slice('Bearer '.length).trim();
+  if (!presented || !secureSecretEqual(presented, configuredSecret)) {
     return NextResponse.json(
       { ok: false, code: 'UNAUTHORIZED', requestId },
       { status: 401, headers: requestIdHeaders(requestId) },

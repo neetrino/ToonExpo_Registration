@@ -1,26 +1,40 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
+import { takeTicketHandoff, type TicketHandoff } from '@/components/registration/ticket-handoff';
 
 type SuccessTicketCardProps = {
   locale: string;
 };
 
 /**
- * Client ticket preview on the success page. Uses query params from registration redirect.
+ * Client ticket preview on the success page.
+ * Reads a one-shot sessionStorage handoff so tokens never appear in the URL.
  */
 export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
   const t = useTranslations('success');
-  const searchParams = useSearchParams();
-  const ticketCode = searchParams.get('code') ?? '';
-  const ticketViewToken = searchParams.get('t') ?? '';
-  const hasTicket = isValidTicketCode(ticketCode) && ticketViewToken.length >= 20;
+  const [handoff, setHandoff] = useState<TicketHandoff | null>(null);
+  const [ready, setReady] = useState(false);
 
-  if (!hasTicket) {
+  useEffect(() => {
+    setHandoff(takeTicketHandoff());
+    setReady(true);
+  }, []);
+
+  if (!ready) {
+    return null;
+  }
+
+  const hasTicket =
+    handoff !== null &&
+    isValidTicketCode(handoff.ticketCode) &&
+    handoff.ticketViewToken.length >= 20;
+
+  if (!hasTicket || !handoff) {
     return (
       <>
         <h1 className="mt-6 font-display text-2xl font-extrabold text-primary md:text-3xl">
@@ -36,8 +50,8 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
     );
   }
 
-  const qrSrc = `/ticket/${encodeURIComponent(ticketViewToken)}/qr.png`;
-  const ticketHref = `/ticket/${encodeURIComponent(ticketViewToken)}`;
+  const qrSrc = `/ticket/${encodeURIComponent(handoff.ticketViewToken)}/qr.png`;
+  const ticketHref = `/ticket/${encodeURIComponent(handoff.ticketViewToken)}`;
 
   return (
     <>
@@ -59,7 +73,9 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
         />
       </div>
 
-      <p className="mt-4 font-mono text-lg font-semibold tracking-wider text-primary">{ticketCode}</p>
+      <p className="mt-4 font-mono text-lg font-semibold tracking-wider text-primary">
+        {handoff.ticketCode}
+      </p>
       <p className="mt-1 text-sm text-muted-foreground">{t('codeHint')}</p>
 
       <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
@@ -69,7 +85,7 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
           </a>
         </Button>
         <Button asChild size="lg" variant="outline">
-          <a href={qrSrc} download={`toon-expo-ticket-${ticketCode}.png`}>
+          <a href={qrSrc} download={`toon-expo-ticket-${handoff.ticketCode}.png`}>
             {t('downloadQr')}
           </a>
         </Button>

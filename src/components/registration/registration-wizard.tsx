@@ -10,6 +10,7 @@ import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
 import { clearRegistrationIdempotencyKey } from './idempotency';
+import { storeTicketHandoff } from './ticket-handoff';
 import { getWizardSteps } from './wizard/steps';
 import { FinishStep } from './wizard/step-finish';
 import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
@@ -224,11 +225,11 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     if (result.ok) {
       clearWizardDraft();
       clearRegistrationIdempotencyKey();
-      const params = new URLSearchParams({
-        code: result.ticketCode,
-        t: result.ticketViewToken,
+      storeTicketHandoff({
+        ticketCode: result.ticketCode,
+        ticketViewToken: result.ticketViewToken,
       });
-      router.push(`/success?${params.toString()}`);
+      router.push('/success');
       return;
     }
 

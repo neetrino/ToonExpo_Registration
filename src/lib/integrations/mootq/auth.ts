@@ -1,4 +1,4 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { secureSecretEqual } from '@/lib/security/secure-compare';
 
 export type MootqAuthScope = 'write' | 'read';
 
@@ -29,15 +29,9 @@ export function authenticateMootqRequest(
   }
 
   const presented = header.slice('Bearer '.length).trim();
-  if (!presented || !secureStringEqual(presented, configured)) {
+  if (!presented || !secureSecretEqual(presented, configured)) {
     return { ok: false, status: 401, code: 'UNAUTHORIZED' };
   }
 
   return { ok: true };
-}
-
-function secureStringEqual(left: string, right: string): boolean {
-  const leftDigest = createHash('sha256').update(left).digest();
-  const rightDigest = createHash('sha256').update(right).digest();
-  return timingSafeEqual(leftDigest, rightDigest);
 }

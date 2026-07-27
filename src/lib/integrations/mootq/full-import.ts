@@ -73,7 +73,7 @@ export async function startFullImportFromMootq(initiatedBy: string): Promise<Sta
     conflict: 0,
     error: 0,
   };
-  const errorSummary: Array<{ code: string; ticketCode?: string }> = [];
+  const errorSummary: Array<{ code: string }> = [];
 
   try {
     let after: string | null = null;
@@ -95,9 +95,6 @@ export async function startFullImportFromMootq(initiatedBy: string): Promise<Sta
         if (outcome === 'conflict' || outcome === 'error') {
           errorSummary.push({
             code: outcome,
-            ticketCode: typeof raw === 'object' && raw && 'ticketCode' in raw
-              ? String((raw as { ticketCode?: string }).ticketCode ?? '')
-              : undefined,
           });
         }
       }
@@ -297,7 +294,7 @@ async function finishRun(
   status: 'SUCCEEDED' | 'PARTIAL' | 'FAILED',
   counters: Counters,
   lastCursor: string | null,
-  errorSummary: Array<{ code: string; ticketCode?: string }>,
+  errorSummary: Array<{ code: string }>,
 ): Promise<void> {
   const prisma = getPrisma();
   await prisma.integrationSyncRun.update({
