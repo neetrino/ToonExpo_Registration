@@ -5,7 +5,7 @@ Owner/operator actions only. Documentation or implementation work does not autho
 ## Decisions and contracts
 
 - [ ] Repeated-email rule approved.
-- [ ] Prefixless 13-character alphanumeric format and scanner test approved.
+- [ ] `TE`/`MQ` prefixed format (`^(TE|MQ)[A-Z0-9]{11}$`) and scanner test approved.
 - [ ] Mootq minimal inbound/fast/full schemas and credentials approved.
 - [ ] Fast-feed name/email/phone purpose and retention approved.
 - [ ] Peleka API, sender, throughput and errors approved.

@@ -38,7 +38,7 @@ Validate:
 
 - bounded request size;
 - exact source ID format/length;
-- `ticketCode` is exactly 13 ASCII alphanumeric characters and contains no prefix;
+- `ticketCode` matches `^(TE|MQ)[A-Z0-9]{11}$` (Mootq supplies `MQ…` codes);
 - name bounds;
 - normalized email/phone;
 - locale if supplied;

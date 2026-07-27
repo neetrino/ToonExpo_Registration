@@ -39,7 +39,7 @@ Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, d
 ### Public registration and ticket
 
 - Existing Toon Expo questionnaire and validation.
-- Prefixless 13-character code creation and immediate QR display.
+- `TE…` ticket code creation and immediate QR display (`^(TE|MQ)[A-Z0-9]{11}$`).
 - Readable code and PNG download.
 - Private hosted-ticket page.
 

@@ -12,7 +12,7 @@ Keep existing `Event`, `Registration` and `Admin` entities and questionnaire JSO
 | ---------------------- | -------------------------------------------------------- |
 | `sourceSystem`         | Canonical origin: `TOON_EXPO` or `MOOTQ`                 |
 | `sourceRegistrationId` | Stable source-owned ID; required for Mootq               |
-| `ticketCode`           | Unique immutable 13-character alphanumeric scanner value |
+| `ticketCode`           | Unique immutable scanner value: `TE` or `MQ` + 11 uppercase alphanumeric (`^(TE\|MQ)[A-Z0-9]{11}$`) |
 | `ticketViewToken`      | Long private hosted-ticket credential                    |
 | `attendanceStatus`     | `NOT_VISITED` or `VISITED`                               |
 
@@ -103,7 +103,7 @@ Sequence:
 
 1. Expand with nullable fields/tables.
 2. Deploy compatible reads/writes.
-3. Backfill existing rows in bounded batches with `sourceSystem=TOON_EXPO`, 13-character codes and tokens.
+3. Backfill existing rows in bounded batches with `sourceSystem=TOON_EXPO`, `TE…` ticket codes and tokens.
 4. Validate nulls, format, uniqueness and relations.
 5. Add constraints later.
 

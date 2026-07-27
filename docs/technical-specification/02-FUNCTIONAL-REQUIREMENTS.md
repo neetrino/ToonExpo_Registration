@@ -6,7 +6,7 @@
 | ------ | ------------------------------------------------------------------------------------ |
 | PUB-01 | The existing localized form MUST continue to validate on client and server.          |
 | PUB-02 | An accepted Toon Expo registration MUST assign `sourceSystem=TOON_EXPO` server-side. |
-| PUB-03 | It MUST receive one unique prefixless 13-character alphanumeric code.                |
+| PUB-03 | It MUST receive one unique `TE…` ticket code matching `^(TE\|MQ)[A-Z0-9]{11}$`.     |
 | PUB-04 | Success MUST show the stored QR and readable code immediately.                       |
 | PUB-05 | Success MUST NOT wait for Resend or Peleka.                                          |
 | PUB-06 | The current `5 / 10 minutes / IP` process-local limiter MUST be removed.             |
@@ -19,7 +19,7 @@
 | ----- | ----------------------------------------------------------------------------------- |
 | MQ-01 | The endpoint MUST require scoped server-to-server authentication.                   |
 | MQ-02 | It MUST accept the exact Mootq source ID, code and agreed recipient fields.         |
-| MQ-03 | It MUST validate the prefixless 13-character alphanumeric format.                   |
+| MQ-03 | It MUST validate the `^(TE\|MQ)[A-Z0-9]{11}$` format (Mootq supplies `MQ…` codes).   |
 | MQ-04 | It MUST assign `sourceSystem=MOOTQ` from the authenticated route, not request data. |
 | MQ-05 | It MUST persist the supplied code unchanged.                                        |
 | MQ-06 | Identical source-ID retries MUST be safe.                                           |
@@ -31,7 +31,7 @@
 | ID     | Requirement                                                                       |
 | ------ | --------------------------------------------------------------------------------- |
 | TKT-01 | `ticketCode` MUST be globally unique and immutable in Toon Expo.                  |
-| TKT-02 | It MUST be 13 ASCII alphanumeric characters with no prefix or source information. |
+| TKT-02 | It MUST be exactly 13 ASCII characters: `TE` or `MQ` plus 11 uppercase alphanumeric body (`^(TE\|MQ)[A-Z0-9]{11}$`). |
 | TKT-03 | QR payload MUST be exactly `ticketCode`.                                          |
 | TKT-04 | QR MUST contain no PII, URL or JWT.                                               |
 | TKT-05 | Hosted-ticket URLs MUST use a separate long private token.                        |

@@ -29,7 +29,7 @@
 
 - Keep project size A and the existing Next.js/Vercel/Neon stack.
 - Each system generates codes for registrations created on its own form.
-- Every code is exactly 13 ASCII alphanumeric characters with no prefix or embedded source meaning.
+- Every code is exactly 13 ASCII characters: `TE` or `MQ` prefix plus 11 uppercase alphanumeric body (`^(TE|MQ)[A-Z0-9]{11}$`).
 - Toon Expo stores a Mootq-supplied code unchanged and does not return a replacement.
 - Registration origin is the separate trusted `sourceSystem = TOON_EXPO | MOOTQ` field.
 - Toon Expo delivers the stored code through Resend email and Peleka SMS for both sources.
@@ -52,7 +52,7 @@
 | Email uniqueness DB constraint                    | Remove `(eventId, emailNormalized)` unique                                 |
 | Accidental double-submit                          | Idempotency key                                                            |
 | Mootq fast/full API                               | Implement from draft [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md); agree with Mootq |
-| Prefixless 13-character scanner format            | Confirmed by Mootq: random 13 characters                                   |
+| `TE`/`MQ` prefixed scanner format (`^(TE\|MQ)[A-Z0-9]{11}$`) | Confirmed by Mootq with Toon Expo                                     |
 | Peleka API contract                               | Deferred                                                                   |
 | Resend pay-as-you-go/domain                       | Pro includes pay-as-you-go; `mail.toonexpo.com` verified; from `hi@mail.toonexpo.com` |
 | Email/SMS copy and ticket domain                  | Interim designed email OK; SMS short later; domain `reg.toonexpo.com`      |

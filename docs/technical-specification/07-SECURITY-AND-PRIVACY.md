@@ -29,7 +29,7 @@
 
 ## Ticket security
 
-- QR contains only the prefixless 13-character alphanumeric code and no PII.
+- QR contains only the 13-character ticket code (`^(TE|MQ)[A-Z0-9]{11}$`) and no PII.
 - Hosted page uses a separate high-entropy token.
 - Ticket/PNG responses are private/no-store/noindex.
 - Use a restrictive referrer policy and keep ticket routes out of analytics.
