@@ -15,6 +15,7 @@ Implemented:
 - success page with QR + hosted ticket page (`/ticket/<token>`);
 - 13-character ticket codes, `sourceSystem=TOON_EXPO`, idempotency key;
 - schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
+- EMAIL `DeliveryJob` + Resend ticket email with inline QR/link + retry dispatcher;
 - email uniqueness removed (shared email/phone allowed);
 - process-local registration IP rate limit removed from public route;
 - one-admin list/search/detail/delete/export;
@@ -22,7 +23,6 @@ Implemented:
 
 Not implemented:
 
-- durable EMAIL delivery jobs dispatcher (sync Resend still used);
 - Peleka SMS (deferred);
 - Mootq minimal inbound API;
 - incremental Toon Expo-origin feed HTTP API (events are written);
@@ -140,10 +140,10 @@ No production migration is authorized by this plan.
 
 ### Phase 3 — email (SMS later)
 
-- [ ] Replace synchronous email with persisted EMAIL delivery jobs.
-- [ ] Render inline QR, readable code and ticket link in localized email.
-- [ ] Add bounded retry, provider idempotency and admin-visible failures.
-- [ ] Defer Peleka SMS adapter until contract is ready.
+- [x] Replace synchronous email with persisted EMAIL delivery jobs.
+- [x] Render inline QR, readable code and ticket link in localized email.
+- [x] Add bounded retry, provider idempotency and admin-visible failures.
+- [x] Defer Peleka SMS adapter until contract is ready.
 
 ### Phase 4 — fast exchange
 

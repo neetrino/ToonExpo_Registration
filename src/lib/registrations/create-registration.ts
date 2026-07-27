@@ -1,7 +1,8 @@
 import { getPrisma } from '@/lib/db/prisma';
+import { TICKET_EMAIL_TEMPLATE_VERSION } from '@/lib/delivery/constants';
+import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError, type RegistrationAppError } from '@/lib/registrations/errors';
-import { sendConfirmationEmail } from '@/lib/registrations/send-confirmation-email';
 import { generateTicketCode, generateTicketViewToken } from '@/lib/tickets/codes';
 import type { RegistrationBody } from '@/lib/validation';
 
@@ -56,12 +57,14 @@ export async function createRegistration(
     return created;
   }
 
-  await deliverConfirmationEmail({
-    registrationId: created.registrationId,
-    email: input.email,
-    firstName: input.firstName,
-    locale: input.locale,
-  });
+  try {
+    await processDueDeliveryJobs({ registrationId: created.registrationId, limit: 2 });
+  } catch (error: unknown) {
+    logger.error('Delivery processing after registration failed', {
+      registrationId: created.registrationId,
+      code: mapRegistrationError(error).code,
+    });
+  }
 
   return created;
 }
@@ -139,6 +142,16 @@ async function createWithTicketRetry(
           },
         });
 
+        await tx.deliveryJob.create({
+          data: {
+            registrationId: registration.id,
+            channel: 'EMAIL',
+            templateVersion: TICKET_EMAIL_TEMPLATE_VERSION,
+            status: 'PENDING',
+            nextAttemptAt: new Date(),
+          },
+        });
+
         return registration;
       });
 
@@ -175,42 +188,4 @@ async function createWithTicketRetry(
   }
 
   return { ok: false, error: { code: 'TICKET_CODE_COLLISION', httpStatus: 503 } };
-}
-
-async function deliverConfirmationEmail(params: {
-  registrationId: string;
-  email: string;
-  firstName: string;
-  locale: CreateRegistrationInput['locale'];
-}): Promise<void> {
-  const prisma = getPrisma();
-  const result = await sendConfirmationEmail(params);
-  const attemptedAt = new Date();
-
-  try {
-    if (result.ok) {
-      await prisma.registration.update({
-        where: { id: params.registrationId },
-        data: {
-          emailDeliveryStatus: 'SENT',
-          emailLastAttemptAt: attemptedAt,
-          emailProviderMessageId: result.messageId ?? null,
-        },
-      });
-      return;
-    }
-
-    await prisma.registration.update({
-      where: { id: params.registrationId },
-      data: {
-        emailDeliveryStatus: 'FAILED',
-        emailLastAttemptAt: attemptedAt,
-      },
-    });
-  } catch (error: unknown) {
-    logger.error('Failed to update email delivery status', {
-      registrationId: params.registrationId,
-      code: mapRegistrationError(error).code,
-    });
-  }
 }
