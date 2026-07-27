@@ -23,7 +23,7 @@ describe('mootqInboundBodySchema', () => {
     }
   });
 
-  it('rejects TE-prefixed, prefixed-with-separator, or short ticket codes', () => {
+  it('rejects non-MQ, separator, or short ticket codes', () => {
     expect(
       mootqInboundBodySchema.safeParse({
         ...validBody,

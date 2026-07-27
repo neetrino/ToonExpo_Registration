@@ -20,6 +20,6 @@ Updated: 2026-07-27
 
 ## Реализация (после/параллельно контракту)
 
-[ ] Сменить генерацию/валидацию ticket code на `TE`/`MQ` + `A-Z0-9`
-[ ] Outbox + `after()` push client + minute cron retry
+[x] Сменить генерацию/валидацию ticket code на `TE`/`MQ` + `A-Z0-9`
+[x] Outbox + `after()` push client + minute cron retry
 [x] Обновить `14-MOOTQ-PARTNER-CONTRACT.md` / ticketing docs

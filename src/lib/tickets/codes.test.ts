@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { generateTicketCode, generateTicketViewToken } from '@/lib/tickets/codes';
 import {
   TICKET_CODE_LENGTH,
   TICKET_CODE_PATTERN,
   TOON_EXPO_TICKET_PREFIX,
-  generateTicketCode,
-  generateTicketViewToken,
   isValidTicketCode,
-} from '@/lib/tickets/codes';
+} from '@/lib/tickets/ticket-code-format';
 
 describe('ticket codes', () => {
   it('generates a TE-prefixed 13-character uppercase ticket code', () => {

@@ -5,7 +5,8 @@ import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { MOOTQ_PRIVACY_POLICY_VERSION } from '@/lib/integrations/mootq/constants';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError } from '@/lib/registrations/errors';
-import { generateTicketViewToken, isValidTicketCode } from '@/lib/tickets/codes';
+import { generateTicketViewToken } from '@/lib/tickets/codes';
+import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
 

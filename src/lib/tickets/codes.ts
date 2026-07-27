@@ -5,22 +5,12 @@ import {
   TOON_EXPO_TICKET_PREFIX,
 } from '@/lib/tickets/ticket-code-format';
 
-export {
-  TICKET_CODE_ALPHABET,
-  TICKET_CODE_BODY_LENGTH,
-  TICKET_CODE_LENGTH,
-  TICKET_CODE_PATTERN,
-  MOOTQ_TICKET_PREFIX,
-  TOON_EXPO_TICKET_PREFIX,
-  isValidTicketCode,
-} from '@/lib/tickets/ticket-code-format';
-
 /** Hosted-ticket bearer token length in bytes before base64url encoding. */
 export const TICKET_VIEW_TOKEN_BYTES = 32;
 
 /**
  * Generate a cryptographically secure Toon Expo ticket code: `TE` + 11 uppercase alphanumerics.
- * Does not use Math.random. Server-only.
+ * Uses `crypto.randomInt`; server-only.
  */
 export function generateTicketCode(): string {
   let body = '';
