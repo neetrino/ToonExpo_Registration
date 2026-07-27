@@ -20,7 +20,7 @@ export function mapRegistrationError(error: unknown): RegistrationAppError {
     if (error.code === 'P2002') {
       const target = normalizeTarget(error.meta?.target);
 
-      if (target.includes('idempotencyKey')) {
+      if (target.includes('idempotencyKey') || target.includes('sourceRegistrationId')) {
         return { code: 'IDEMPOTENT_REPLAY', httpStatus: 409 };
       }
 

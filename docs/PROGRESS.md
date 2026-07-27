@@ -16,6 +16,7 @@ Implemented:
 - 13-character ticket codes, `sourceSystem=TOON_EXPO`, idempotency key;
 - schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
 - EMAIL `DeliveryJob` + Resend ticket email with inline QR/link + retry dispatcher;
+- Mootq inbound POST + Toon Expo-origin cursor feed (`/api/v1/integrations/mootq/registrations`);
 - email uniqueness removed (shared email/phone allowed);
 - process-local registration IP rate limit removed from public route;
 - one-admin list/search/detail/delete/export;
@@ -24,10 +25,8 @@ Implemented:
 Not implemented:
 
 - Peleka SMS (deferred);
-- Mootq minimal inbound API;
-- incremental Toon Expo-origin feed HTTP API (events are written);
-- manual full import/export UI;
-- attendance sync from Mootq;
+- Mootq full import/export + sync history UI;
+- attendance sync from Mootq full exchange;
 - backfill of legacy rows;
 - event-scale rehearsal.
 
@@ -147,11 +146,11 @@ No production migration is authorized by this plan.
 
 ### Phase 4 — fast exchange
 
-- [ ] Implement authenticated idempotent Mootq inbound registration POST.
-- [ ] Return only appropriate HTTP acknowledgement/errors.
-- [ ] Implement authenticated incremental Toon Expo-origin cursor feed.
+- [x] Implement authenticated idempotent Mootq inbound registration POST.
+- [x] Return only appropriate HTTP acknowledgement/errors.
+- [x] Implement authenticated incremental Toon Expo-origin cursor feed.
 - [ ] Test replay, pagination, catch-up and temporary outage behavior.
-- [ ] Do not add a polling-frequency switch.
+- [x] Do not add a polling-frequency switch.
 - [ ] Adjust field names after Mootq contract sign-off if needed.
 
 ### Phase 5 — full reconciliation

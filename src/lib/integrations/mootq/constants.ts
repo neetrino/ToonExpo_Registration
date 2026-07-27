@@ -1,0 +1,5 @@
+export const MOOTQ_MAX_BODY_BYTES = 32 * 1024;
+export const MOOTQ_FEED_DEFAULT_LIMIT = 100;
+export const MOOTQ_FEED_MAX_LIMIT = 500;
+export const MOOTQ_SOURCE_REGISTRATION_ID_MAX = 128;
+export const MOOTQ_PRIVACY_POLICY_VERSION = 'mootq-partner-v1';
