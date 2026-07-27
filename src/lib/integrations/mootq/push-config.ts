@@ -1,6 +1,5 @@
 export type MootqPushConfig =
-  | { ok: true; url: string; key: string }
-  | { ok: false; code: 'NOT_CONFIGURED' };
+  { ok: true; url: string; key: string } | { ok: false; code: 'NOT_CONFIGURED' };
 
 /**
  * Read optional Mootq fast-push credentials at call time.

@@ -1,4 +1,7 @@
-import { MOOTQ_PUSH_BACKOFF_SECONDS, MOOTQ_PUSH_MAX_ATTEMPTS } from '@/lib/integrations/mootq/push-constants';
+import {
+  MOOTQ_PUSH_BACKOFF_SECONDS,
+  MOOTQ_PUSH_MAX_ATTEMPTS,
+} from '@/lib/integrations/mootq/push-constants';
 
 export type MootqPushHttpOutcome = 'success' | 'retryable' | 'permanent';
 
@@ -20,8 +23,7 @@ export function classifyMootqPushHttpStatus(status: number): MootqPushHttpOutcom
 }
 
 export type PartnerPushRetryDecision =
-  | { action: 'retry'; delaySeconds: number }
-  | { action: 'fail' };
+  { action: 'retry'; delaySeconds: number } | { action: 'fail' };
 
 /**
  * Decide whether a failed attempt should be retried (PENDING + backoff) or FAILED.

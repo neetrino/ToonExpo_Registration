@@ -1,4 +1,7 @@
-import { buildMootqPushPayload, type MootqPushPayload } from '@/lib/integrations/mootq/push-payload';
+import {
+  buildMootqPushPayload,
+  type MootqPushPayload,
+} from '@/lib/integrations/mootq/push-payload';
 import {
   classifyMootqPushHttpStatus,
   partnerPushErrorCodeForHttpStatus,
@@ -8,8 +11,7 @@ import { MOOTQ_PUSH_TIMEOUT_MS } from '@/lib/integrations/mootq/push-constants';
 import { logger } from '@/lib/logger';
 
 export type MootqPushClientResult =
-  | { ok: true }
-  | { ok: false; reason: string; retryable: boolean };
+  { ok: true } | { ok: false; reason: string; retryable: boolean };
 
 export type MootqPushClientInput = {
   registrationId: string;
