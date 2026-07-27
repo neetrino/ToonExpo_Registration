@@ -8,7 +8,7 @@
 
 Toon Expo Registration is the main registration and ticket-delivery application for Toon Expo. It accepts registrations on the Toon Expo form, creates a QR ticket, shows it immediately, and sends the same ticket through email (SMS later via Peleka).
 
-Mootq operates a second registration form for roughly 10% of attendees and owns the scanning/check-in system. Mootq creates its own ticket codes in the shared 13-character format and shows them on its frontend. Toon Expo receives those registrations, stores the supplied code unchanged, and sends the matching QR through email (and later SMS).
+Mootq operates a second registration form for roughly 10% of attendees and owns the scanning/check-in system. Mootq creates its own `MQ…` ticket codes in the shared prefixed format and shows them on its frontend. Toon Expo receives those registrations, stores the supplied code unchanged, and sends the matching QR through email (and later SMS).
 
 ## Responsibility boundary
 
@@ -23,7 +23,8 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 | Ticket email                          | Owns for both sources                    | Supplies recipient data           |
 | Ticket SMS                            | Deferred (Peleka); planned for both      | Supplies recipient data           |
 | Scanner/check-in                      | No                                       | Owns                              |
-| Fast Toon Expo registration feed      | Exposes                                  | Polls                             |
+| Fast Toon Expo registration push      | Pushes after each registration           | Receives at `MOOTQ_PUSH_URL`      |
+| Fast Toon Expo registration feed      | Exposes backup cursor feed               | Polls when needed                 |
 | Full reconciliation data              | Exposes and imports independently        | Exposes and imports independently |
 
 ## Confirmed operating model
@@ -33,14 +34,14 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 - Approximately 90% of registrations originate on Toon Expo and 10% on Mootq.
 - The stack remains Next.js on Vercel with Neon PostgreSQL.
 - No NestJS migration, Redis, NATS, Kafka, RabbitMQ or dedicated worker service is required for this scope.
-- A ticket code is exactly 13 ASCII alphanumeric characters (`A-Z`, `a-z`, `0-9`).
-- The code has no prefix and contains no registration-source information.
-- Mootq confirmed the shared format: random 13 characters.
+- A ticket code is exactly 13 ASCII characters: `TE` (Toon Expo) or `MQ` (Mootq) plus 11 uppercase alphanumeric body characters (`A-Z0-9`).
+- Format regex: `^(TE|MQ)[A-Z0-9]{11}$`; case-sensitive exact match (uppercase).
+- Toon Expo generates only `TE…` codes; Mootq generates only `MQ…` codes.
 - Each source generates codes for its own registrations with cryptographically secure randomness.
 - The raw QR payload is exactly `ticketCode`.
 - `ticketCode` is globally unique and immutable in the Toon Expo database.
 - A unique database constraint and bounded retry protect Toon Expo generation from collisions.
-- Registration origin is stored separately as `sourceSystem = TOON_EXPO | MOOTQ`; it is never inferred from the code.
+- Registration origin is stored separately as `sourceSystem = TOON_EXPO | MOOTQ`; it is never inferred from the prefix alone.
 - QR PNG/SVG output is generated from the code and is not stored as a database blob.
 - A separate long private token protects the hosted ticket link used by email and SMS.
 - The same email and the same phone MAY be used for multiple intentional registrations (multiple participants / tickets). Accidental double-submit protection MUST use an idempotency key, not email or phone uniqueness.
@@ -51,14 +52,15 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 ### Toon Expo source
 
 1. Toon Expo validates and saves the registration.
-2. Toon Expo generates and stores a unique 13-character ticket code and assigns `sourceSystem=TOON_EXPO`.
+2. Toon Expo generates and stores a unique `TE…` ticket code and assigns `sourceSystem=TOON_EXPO`.
 3. The success page shows the QR immediately.
 4. Email delivery jobs are saved (SMS jobs when Peleka is enabled).
-5. Mootq later pulls the minimal Toon Expo-origin registration through the fast cursor feed.
+5. Toon Expo pushes the registration to Mootq after the HTTP response (primary fast path).
+6. The same registration is also available through the backup cursor feed if push failed or was missed.
 
 ### Mootq source
 
-1. Mootq validates its form, generates a 13-character ticket code and shows its QR.
+1. Mootq validates its form, generates an `MQ…` ticket code and shows its QR.
 2. Mootq sends the exact code plus the minimum recipient data to Toon Expo.
 3. The authenticated Mootq endpoint assigns `sourceSystem=MOOTQ` and stores the supplied code unchanged.
 4. Toon Expo creates email delivery jobs for the same code (SMS when Peleka is enabled).
@@ -81,10 +83,11 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 ### Fast operational exchange
 
 - Mootq posts each Mootq-origin registration to Toon Expo after its own registration succeeds.
-- Mootq polls Toon Expo's incremental Toon Expo-origin feed at a frequency controlled entirely by Mootq.
-- Expected polling may be rare before the event and approximately every three seconds during the event.
-- Toon Expo has no environment variable or admin switch for the partner's polling frequency.
-- Fast payloads contain only stable IDs, ticket code, first/last name, email and phone.
+- Toon Expo pushes each Toon Expo-origin registration to Mootq after the visitor HTTP response (primary). Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
+- Push payload (proposed by Toon Expo): `sourceRegistrationId`, `ticketCode`, `sourceSystem`, `createdAt`; header `Idempotency-Key: <sourceRegistrationId>`. No email/phone; name only if Mootq requests it later.
+- Mootq MAY poll Toon Expo's incremental backup feed when push missed or failed. Polling frequency is controlled entirely by Mootq.
+- Toon Expo has no environment variable or admin switch for partner polling or event-day mode.
+- Inbound fast payloads still contain stable IDs, ticket code, first/last name, email and phone.
 - Implementation starts from the draft contract in [`technical-specification/14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md); field names/URLs are finalized with Mootq from that single document.
 
 ### Full reconciliation
@@ -114,7 +117,8 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 
 ## Remaining inputs
 
-1. Mootq sign-off on the single partner contract draft (fast + full field names, URLs, auth).
+1. Mootq sign-off on the single partner contract draft (push endpoint, fast + full field names, URLs, auth).
+2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
 2. Peleka API contract when SMS is unblocked.
 3. Final marketing email/SMS copy (interim designed email template is acceptable to ship).
 4. Confirm production DNS for `reg.toonexpo.com` points at the app for hosted tickets.
