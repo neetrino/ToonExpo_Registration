@@ -5,12 +5,13 @@ Updated: 2026-07-27
 ## Наша сторона (сделать нам)
 
 [ ] В Vercel Production выставить `SITE_URL=https://reg.toonexpo.com` (уже привязан к проекту)
-[ ] В Vercel Production/Preview добавить те же секреты, что в локальном `.env`: `AUTH_SECRET`, `DATABASE_URL`, `DIRECT_URL` (только migrate, не в runtime если разделяете роли), `RESEND_*`, `ADMIN_*` только для seed, `DELIVERY_CRON_SECRET`, `MOOTQ_WRITE_KEY`, `MOOTQ_READ_KEY`
+[ ] В Vercel Production/Preview добавить те же секреты, что в локальном `.env`: `AUTH_SECRET`, `DATABASE_URL`, `DIRECT_URL` (только migrate, не в runtime если разделяете роли), `RESEND_*`, `DELIVERY_CRON_SECRET`, `MOOTQ_WRITE_KEY`, `MOOTQ_READ_KEY` (ADMIN_* только для локального seed)
+[ ] После смены env на Vercel — Redeploy Production
 [ ] Проверить, что `RESEND_FROM_EMAIL=hi@mail.toonexpo.com` и домен `mail.toonexpo.com` verified в Resend
-[ ] Настроить Vercel WAF на `POST /api/registrations` (сначала Log, потом Enforce) по `docs/ops/VERCEL-WAF-SETUP.md`
+[x] Настроить Vercel WAF Rate Limit на `POST /api/registrations` (5000 / 600s / IP → 429)
 [ ] Добавить WAF malfunction ceiling на Mootq POST/GET (высокий порог)
 [ ] Настроить Vercel Cron на `POST /api/internal/delivery/process` с Bearer `DELIVERY_CRON_SECRET` (раз в 1–5 мин)
-[ ] Прогнать ручной smoke: одна регистрация Toon Expo → success QR → email → `/ticket/...`
+[ ] Прогнать ручной smoke на prod: одна регистрация Toon Expo → success QR → email → `/ticket/...`
 [ ] Проверить Neon: paid plan / backup / PITR по возможности
 [ ] Разделить Neon runtime vs migration роли (least privilege), если ещё owner
 [ ] После стабилизации backfill — миграция: `sourceSystem`/`ticketCode`/`ticketViewToken` сделать NOT NULL + финальные constraints
