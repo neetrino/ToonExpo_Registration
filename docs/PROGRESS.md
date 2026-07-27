@@ -19,7 +19,7 @@ Implemented:
 - Mootq inbound POST + Toon Expo-origin cursor feed (`/api/v1/integrations/mootq/registrations`);
 - email uniqueness removed (shared email/phone allowed);
 - process-local registration IP rate limit removed from public route;
-- one-admin list/search/detail/delete/export;
+- one-admin list/search/detail/delete/export with source, ticket code, delivery status;
 - security baseline and project checks.
 
 Not implemented:

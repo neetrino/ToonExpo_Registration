@@ -37,6 +37,16 @@ function emailStatusClass(status: string): string {
   }
 }
 
+function sourceLabel(sourceSystem: string | null): string {
+  if (sourceSystem === 'TOON_EXPO') {
+    return 'Toon Expo';
+  }
+  if (sourceSystem === 'MOOTQ') {
+    return 'Mootq';
+  }
+  return '—';
+}
+
 function EmailStatusBadge({ status }: { status: string }) {
   return (
     <span
@@ -46,6 +56,14 @@ function EmailStatusBadge({ status }: { status: string }) {
       )}
     >
       {status}
+    </span>
+  );
+}
+
+function SourceBadge({ sourceSystem }: { sourceSystem: string | null }) {
+  return (
+    <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground">
+      {sourceLabel(sourceSystem)}
     </span>
   );
 }
@@ -87,13 +105,16 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 Name
               </th>
               <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Source
+              </th>
+              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Ticket
+              </th>
+              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Email
               </th>
               <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Phone
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Locale
               </th>
               <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Email status
@@ -131,9 +152,14 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                     </span>
                   </div>
                 </td>
+                <td className="px-5 py-4">
+                  <SourceBadge sourceSystem={row.sourceSystem} />
+                </td>
+                <td className="px-5 py-4 font-mono text-xs tracking-wide text-foreground">
+                  {row.ticketCode ?? '—'}
+                </td>
                 <td className="px-5 py-4 text-foreground">{row.email}</td>
                 <td className="px-5 py-4 text-foreground">{row.phone}</td>
-                <td className="px-5 py-4 uppercase text-muted-foreground">{row.locale}</td>
                 <td className="px-5 py-4">
                   <EmailStatusBadge status={row.emailDeliveryStatus} />
                 </td>
@@ -169,11 +195,15 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 </span>
                 <EmailStatusBadge status={row.emailDeliveryStatus} />
               </span>
+              <span className="mt-1 flex flex-wrap items-center gap-2">
+                <SourceBadge sourceSystem={row.sourceSystem} />
+                <span className="font-mono text-xs tracking-wide text-muted-foreground">
+                  {row.ticketCode ?? 'No ticket'}
+                </span>
+              </span>
               <span className="mt-1 block truncate text-sm text-muted-foreground">{row.email}</span>
               <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                 <span>{row.phone}</span>
-                <span aria-hidden="true">·</span>
-                <span className="uppercase">{row.locale}</span>
                 <span aria-hidden="true">·</span>
                 <span>{formatRegisteredAtShort(row.createdAt)}</span>
               </span>

@@ -124,7 +124,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               </p>
               <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
                 {query
-                  ? 'Try a different name, email, or phone number.'
+                  ? 'Try a different name, email, phone, or ticket code.'
                   : 'New registrations will show up here as visitors complete the form.'}
               </p>
               {query ? (
