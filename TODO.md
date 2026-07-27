@@ -11,9 +11,10 @@ Updated: 2026-07-27
 
 ## С Mootq
 
-[ ] Отдать обновлённый контракт (префиксы + наш push payload) + `WRITE`/`READ` ключи
-[ ] Получить от них принимающий endpoint + Bearer secret для fast push
-[ ] Совместный smoke: inbound POST, наш push, feed GET, full export
+[x] Подготовить handoff-пакет: [`14-MOOTQ-PARTNER-CONTRACT.md`](docs/technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) + [`15-MOOTQ-HANDOFF.md`](docs/technical-specification/15-MOOTQ-HANDOFF.md)
+[ ] Отправить handoff Mootq + выдать `MOOTQ_WRITE_KEY` / `MOOTQ_READ_KEY`
+[ ] Получить от них `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY`
+[ ] Совместный smoke: inbound POST, наш push, feed GET, full export (см. handoff § smoke test)
 [ ] Получить `MOOTQ_FULL_EXPORT_BASE_URL` + `MOOTQ_FULL_EXPORT_KEY`
 [ ] Проверить на их сканере коды `TE…` / `MQ…` (uppercase)
 

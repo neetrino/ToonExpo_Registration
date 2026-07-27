@@ -1,12 +1,21 @@
-# Mootq partner contract (draft for sign-off)
+# Mootq partner contract
 
-**Status:** draft — implement from this document; adjust field names/URLs only after Mootq sign-off
+**Status:** locked for partner handoff — transport names may change at sign-off; semantics below are normative
 
 **Date:** 2026-07-27
 
 **Audience:** Toon Expo + Mootq engineering
 
-This is the single partner-facing contract for fast exchange and full reconciliation. Behavior below is normative for Toon Expo. Exact path/field renames may change during review without changing semantics.
+**Handoff one-pager:** [`15-MOOTQ-HANDOFF.md`](./15-MOOTQ-HANDOFF.md)
+
+This is the single partner-facing contract for bidirectional fast exchange and rare full reconciliation. Two primary directions:
+
+| Direction | Who calls | Purpose |
+| --------- | --------- | ------- |
+| **A. Mootq → Toon Expo** | Mootq | Deliver each Mootq-origin registration after QR is shown |
+| **B. Toon Expo → Mootq** | Toon Expo | Push each Toon Expo-origin registration after visitor response |
+
+Sections 3–5 cover backup feed and manual full sync only.
 
 ---
 
@@ -31,17 +40,30 @@ Toon Expo and Mootq confirmed the prefixed format: `TE` or `MQ` plus 11 random u
 
 ---
 
-## 1. Fast exchange — Mootq → Toon Expo (inbound)
+## 1. Fast exchange — Mootq → Toon Expo (inbound, direction A)
 
-After Mootq creates a registration and shows its QR, Mootq posts the minimum delivery record.
+After Mootq creates a registration and shows its QR, Mootq posts the minimum delivery record to Toon Expo.
 
 ```http
-POST /api/v1/integrations/mootq/registrations
-Authorization: Bearer <mootq-write-key>
+POST https://reg.toonexpo.com/api/v1/integrations/mootq/registrations
+Authorization: Bearer <MOOTQ_WRITE_KEY>
 Content-Type: application/json
 ```
 
-### Request body (draft fields)
+Toon Expo issues `MOOTQ_WRITE_KEY` (write scope). A separate `MOOTQ_READ_KEY` is used only for the backup feed and full export (§3–4).
+
+### Idempotency
+
+| Key | Rule |
+| --- | ---- |
+| `sourceRegistrationId` | Transport idempotency key for Mootq-origin rows |
+| Identical replay | Same `sourceRegistrationId` and identical payload → `204` (no duplicate row) |
+| Conflict | Same `sourceRegistrationId` with different payload → `409` |
+| Code collision | `ticketCode` already stored on another registration → `409` |
+
+Mootq SHOULD retry `500` / `503` with exponential backoff. Do not retry `400` / `401` / `409`.
+
+### Request body
 
 ```json
 {
@@ -71,35 +93,43 @@ Content-Type: application/json
 
 ### Responses
 
-| Status | Meaning |
-| ------ | ------- |
-| `204` | New or identical replay persisted |
-| `400` | Invalid fields/code |
-| `401` / `403` | Auth failure |
-| `409` | Same `sourceRegistrationId` with conflicting content, or `ticketCode` already belongs to another registration |
-| `500` / `503` | Temporary server/dependency failure — retry later |
+| Status | Meaning | Mootq action |
+| ------ | ------- | ------------ |
+| `204` | New registration persisted, or identical replay | Stop; success |
+| `400` | Invalid JSON, fields, or `ticketCode` format | Fix payload; do not retry unchanged |
+| `401` | Missing or invalid `Authorization: Bearer` | Fix credentials |
+| `409` | Same `sourceRegistrationId` with conflicting content, or `ticketCode` already belongs to another registration | Resolve conflict; do not retry unchanged |
+| `500` / `503` | Temporary server or dependency failure | Retry with backoff |
 
-Success returns no ticket business payload. Toon Expo creates EMAIL delivery for the stored code (SMS later).
+Error body shape:
+
+```json
+{ "ok": false, "code": "VALIDATION_ERROR", "requestId": "..." }
+```
+
+Success (`204`) returns no response body and no replacement ticket code. Toon Expo stores the supplied `MQ…` code unchanged and queues EMAIL delivery (SMS later).
 
 ---
 
-## 2. Fast exchange — Toon Expo → Mootq (outbound push, primary)
+## 2. Fast exchange — Toon Expo → Mootq (outbound push, direction B)
 
-Toon Expo pushes each new Toon Expo-origin registration to Mootq individually as soon as the visitor HTTP response completes. This is the primary fast path.
+Toon Expo pushes each new Toon Expo-origin registration to Mootq individually as soon as the visitor HTTP response completes. **Mootq MUST implement a receiving HTTPS API** for this path. Push is the primary fast path; the cursor feed (§3) is backup only.
 
-Mootq MUST provide:
+### What Mootq must provide
 
-- `MOOTQ_PUSH_URL` — HTTPS endpoint that accepts one registration per request
-- `MOOTQ_PUSH_KEY` — bearer secret for Toon Expo to authenticate outbound pushes
+| Item | Env on Toon Expo | Requirement |
+| ---- | ---------------- | ----------- |
+| Push endpoint URL | `MOOTQ_PUSH_URL` | HTTPS; one registration per `POST`; example shape: `https://<mootq-host>/api/.../registrations` |
+| Push bearer secret | `MOOTQ_PUSH_KEY` | Min 32 characters; Toon Expo sends `Authorization: Bearer <MOOTQ_PUSH_KEY>` |
 
-Toon Expo implementation:
+### Toon Expo send behavior
 
 1. Persist the registration and append one outbox row in the same PostgreSQL transaction.
 2. Return the ticket to the browser.
 3. After the HTTP response (`after()`), send one push per outbox row.
-4. A minute cron retries any outbox rows that failed or were not yet sent (safety net only).
+4. A minute cron retries outbox rows that failed or were not yet sent (safety net only).
 
-There is no event-day mode switch on either side.
+There is no event-day mode switch on either side. Toon Expo may retry the same push after `429`, `5xx`, or request timeout.
 
 ```http
 POST <MOOTQ_PUSH_URL>
@@ -108,7 +138,7 @@ Idempotency-Key: <sourceRegistrationId>
 Content-Type: application/json
 ```
 
-### Request body (Toon Expo proposes)
+### Request body (locked minimum)
 
 ```json
 {
@@ -129,22 +159,32 @@ Content-Type: application/json
 
 This push payload intentionally excludes email, phone and name. Name fields may be added later only if Mootq requests them for scanner display.
 
-### Expected Mootq behavior
+### Required Mootq endpoint behavior
 
-| Rule | Behavior |
-| ---- | -------- |
-| Idempotency | Same `Idempotency-Key` / `sourceRegistrationId` MUST be safe to replay |
-| Scope | Accept only Toon Expo-origin registrations on this endpoint |
-| Auth | Reject missing or invalid bearer token |
-| Response | Return `2xx` when persisted; `4xx` for permanent rejection; `5xx` for retryable failure |
+Mootq's receiving API MUST meet all of the following:
 
-Exact HTTP status codes and error body shape are finalized at sign-off.
+| Requirement | Normative behavior |
+| ----------- | ------------------ |
+| Throughput | Accept at least **10–20 requests per second** sustained during registration peaks |
+| Scope | Accept Toon Expo-origin registrations only on this endpoint (`sourceSystem: TOON_EXPO`, `ticketCode` matching `^TE[A-Z0-9]{11}$`) |
+| Auth | Reject missing or invalid bearer with **`401`** |
+| Idempotency | Treat **`Idempotency-Key`** header and body **`sourceRegistrationId`** as the same idempotency key; replays MUST NOT create duplicate check-in records |
+| Success | Return **`200`**, **`201`**, or **`204`** when the registration is persisted (empty body acceptable) |
+| Ticket conflict | Return **`409`** when `ticketCode` is already bound to a different registration |
+| Retryable failure | Return **`429`** or **`5xx`**, or allow client timeout, when Toon Expo should retry with backoff |
+| Permanent rejection | Return **`400`** or other **`4xx`** (except `409`) when retry will not help |
+
+Toon Expo treats any `2xx` as successful delivery and stops retrying that outbox row. Error response JSON shape is Mootq-defined; include a stable machine-readable `code` if possible.
+
+Shared ticket format for both directions: `^(TE|MQ)[A-Z0-9]{11}$` (case-sensitive uppercase).
 
 ---
 
 ## 3. Fast exchange — Toon Expo → Mootq (cursor feed, backup)
 
-Mootq MAY poll for Toon Expo-origin registrations that were missed by push. Polling frequency is controlled only by Mootq. Toon Expo has no mode switch.
+**Role:** backup catch-up only — not the primary path.
+
+Mootq MAY poll for Toon Expo-origin registrations that were missed by push (§2). Polling frequency is controlled only by Mootq. Toon Expo has no mode switch.
 
 ```http
 GET /api/v1/integrations/mootq/registrations?after=<cursor>&limit=500
@@ -187,9 +227,11 @@ For Toon Expo-origin rows, `sourceRegistrationId` is Toon Expo's registration id
 
 ---
 
-## 4. Full reconciliation — export from Toon Expo
+## 4. Full reconciliation — export from Toon Expo (rare / manual)
 
-Mootq starts this independently whenever needed (including after the event). Full sync is manual on both sides; it is not triggered by fast push or the cursor feed.
+**Role:** rare manual reconciliation — not triggered by push or feed.
+
+Mootq starts this independently whenever needed (including after the event). Full sync is manual on both sides.
 
 ```http
 POST /api/v1/integrations/mootq/full-sync-runs
@@ -261,21 +303,23 @@ Mootq owns attendance. No detailed per-scan history in this contract.
 
 ## 8. Sign-off checklist for Mootq
 
-- [ ] Confirm inbound POST path and JSON field names
-- [ ] Confirm write bearer auth mechanism
-- [ ] Provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY` for outbound push
-- [ ] Confirm push accepts proposed minimal body and `Idempotency-Key` header
-- [ ] Confirm fast-feed path, cursor param names, `limit` max (backup)
-- [ ] Confirm read bearer auth mechanism
-- [ ] Confirm full-export run + page endpoints (or equivalent)
+- [ ] Confirm inbound POST path and JSON field names (direction A)
+- [ ] Receive `MOOTQ_WRITE_KEY` and `MOOTQ_READ_KEY` from Toon Expo
+- [ ] Provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY` (direction B receiving API)
+- [ ] Implement push endpoint: idempotency, `2xx` / `409` / retryable `429`/`5xx`, 10–20 req/s
+- [ ] Confirm push accepts locked minimal body and `Idempotency-Key` header
+- [ ] Confirm backup feed path, cursor param names, `limit` max (§3)
+- [ ] Confirm full-export run + page endpoints (or equivalent) for rare sync (§4–5)
 - [ ] Provide Mootq full-export URL/auth/pagination for Toon Expo import
 - [ ] Confirm sample `TE…` and `MQ…` codes scan on production Mootq hardware
+- [ ] Complete joint smoke test per [`15-MOOTQ-HANDOFF.md`](./15-MOOTQ-HANDOFF.md)
 - [ ] Exchange non-production credentials for rehearsal
 
 ---
 
-## Related internal docs
+## Related docs
 
+- [`15-MOOTQ-HANDOFF.md`](./15-MOOTQ-HANDOFF.md) — email-ready one-pager for Mootq
 - [`13-TICKETING-AND-INTEGRATIONS.md`](./13-TICKETING-AND-INTEGRATIONS.md)
 - [`05-API-AND-VALIDATION.md`](./05-API-AND-VALIDATION.md)
 - [`04-DATA-MODEL.md`](./04-DATA-MODEL.md)
