@@ -2,11 +2,6 @@
 
 Updated: 2026-07-27
 
-## Сейчас (мы)
-
-
-[ ] Smoke на `reg.toonexpo.com`: регистрация → QR → email → `/ticket/...`
-
 ## С Mootq
 
 [ ] Отдать контракт `docs/technical-specification/14-MOOTQ-PARTNER-CONTRACT.md` + `WRITE`/`READ` ключи
