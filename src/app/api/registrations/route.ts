@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
+import { processDuePartnerPushes } from '@/lib/integrations/mootq/process-partner-pushes';
 import { createRegistration } from '@/lib/registrations';
 import { logger } from '@/lib/logger';
 import {
@@ -124,6 +125,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!result.ok) {
       return jsonError(result.error.httpStatus, result.error.code, requestId);
     }
+
+    const registrationId = result.registrationId;
+    after(async () => {
+      try {
+        await processDuePartnerPushes({ registrationId, limit: 1 });
+      } catch {
+        logger.error('Mootq push after registration failed', { registrationId, requestId });
+      }
+    });
 
     return NextResponse.json(
       {

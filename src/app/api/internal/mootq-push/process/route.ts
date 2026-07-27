@@ -1,0 +1,62 @@
+import { NextResponse } from 'next/server';
+import { processDuePartnerPushes } from '@/lib/integrations/mootq/process-partner-pushes';
+import { logger } from '@/lib/logger';
+import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
+import { secureSecretEqual } from '@/lib/security/secure-compare';
+
+export const dynamic = 'force-dynamic';
+
+/**
+ * Internal Mootq fast-push outbox dispatcher for Vercel Cron / ops retries.
+ * Requires Authorization: Bearer <CRON_SECRET>.
+ * Vercel Cron invokes GET and injects Bearer from env `CRON_SECRET`.
+ */
+export async function GET(request: Request): Promise<NextResponse> {
+  return processMootqPush(request);
+}
+
+export async function POST(request: Request): Promise<NextResponse> {
+  return processMootqPush(request);
+}
+
+async function processMootqPush(request: Request): Promise<NextResponse> {
+  const requestId = getOrCreateRequestId(request) || createRequestId();
+  const configuredSecret = process.env.CRON_SECRET?.trim();
+
+  if (!configuredSecret || configuredSecret.length < 32) {
+    return NextResponse.json(
+      { ok: false, code: 'NOT_CONFIGURED', requestId },
+      { status: 503, headers: requestIdHeaders(requestId) },
+    );
+  }
+
+  const header = request.headers.get('authorization');
+  if (!header?.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { ok: false, code: 'UNAUTHORIZED', requestId },
+      { status: 401, headers: requestIdHeaders(requestId) },
+    );
+  }
+
+  const presented = header.slice('Bearer '.length).trim();
+  if (!presented || !secureSecretEqual(presented, configuredSecret)) {
+    return NextResponse.json(
+      { ok: false, code: 'UNAUTHORIZED', requestId },
+      { status: 401, headers: requestIdHeaders(requestId) },
+    );
+  }
+
+  try {
+    const result = await processDuePartnerPushes({ limit: 25 });
+    return NextResponse.json(
+      { ok: true, requestId, ...result },
+      { status: 200, headers: requestIdHeaders(requestId) },
+    );
+  } catch {
+    logger.error('Mootq push cron processing failed', { requestId });
+    return NextResponse.json(
+      { ok: false, code: 'INTERNAL_ERROR', requestId },
+      { status: 500, headers: requestIdHeaders(requestId) },
+    );
+  }
+}

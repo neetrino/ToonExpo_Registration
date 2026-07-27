@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
+import { MOOTQ_TICKET_PREFIX, isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from '@/lib/validation/constants';
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
@@ -19,9 +19,11 @@ export const mootqInboundBodySchema = z
       .min(1)
       .max(MOOTQ_SOURCE_REGISTRATION_ID_MAX)
       .regex(/^[\w.:-]+$/, 'Invalid sourceRegistrationId'),
-    ticketCode: z.string().refine((value) => isValidTicketCode(value), {
-      message: 'Invalid ticketCode',
-    }),
+    ticketCode: z
+      .string()
+      .refine((value) => isValidTicketCode(value) && value.startsWith(MOOTQ_TICKET_PREFIX), {
+        message: 'Invalid ticketCode',
+      }),
     firstName: z
       .string()
       .transform(normalizeName)

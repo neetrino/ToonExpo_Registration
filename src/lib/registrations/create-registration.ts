@@ -153,6 +153,14 @@ async function createWithTicketRetry(
           },
         });
 
+        await tx.partnerPushDelivery.create({
+          data: {
+            registrationId: registration.id,
+            status: 'PENDING',
+            nextAttemptAt: new Date(),
+          },
+        });
+
         return registration;
       });
 

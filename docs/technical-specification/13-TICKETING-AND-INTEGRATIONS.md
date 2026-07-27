@@ -5,8 +5,9 @@
 ## Owner notes (2026-07-27)
 
 - Same email/phone may register multiple participants.
-- Scanner format confirmed by Mootq: random 13 characters.
+- Scanner format confirmed: `TE` or `MQ` prefix plus 11 uppercase alphanumeric characters (`^(TE|MQ)[A-Z0-9]{11}$`).
 - Implement fast + full from this family of docs; single partner-facing draft is `14-MOOTQ-PARTNER-CONTRACT.md`.
+- Fast Toon Expo → Mootq: outbound push is primary; cursor GET feed is backup.
 - SMS via Peleka is deferred; EMAIL delivery ships first.
 - Hosted ticket domain: `reg.toonexpo.com`. Resend from `hi@mail.toonexpo.com`.
 - No block/ban/revoke product features.
@@ -18,11 +19,11 @@
 | Toon Expo         | Toon Expo   | `TOON_EXPO`           | Generate, store, display and deliver  |
 | Mootq             | Mootq       | `MOOTQ`               | Validate, store unchanged and deliver |
 
-All codes are exactly 13 ASCII alphanumeric characters matching `^[A-Za-z0-9]{13}$`. They have no prefix, separator or embedded registration-source meaning and are case-sensitive. Each issuer uses cryptographically secure randomness for registrations created on its own form.
+All codes are exactly 13 ASCII characters: a 2-letter prefix (`TE` for Toon Expo, `MQ` for Mootq) plus 11 uppercase alphanumeric body characters matching `^(TE|MQ)[A-Z0-9]{11}$`. They are case-sensitive and compared exactly as issued. The prefix identifies the issuing system visually but is not a substitute for `sourceSystem`; origin is always stored and synchronized as the separate `sourceSystem` field.
 
-Codes are compared and transported exactly as issued. Toon Expo does not trim, uppercase, lowercase or otherwise normalize a valid partner code.
+Each issuer uses cryptographically secure randomness for registrations created on its own form. Toon Expo generates only `TE…` codes. Mootq generates only `MQ…` codes.
 
-The Toon Expo generator samples uniformly from `0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz` with Node.js cryptographic randomness such as `crypto.randomInt`; it never uses `Math.random`. Mootq may implement its generator independently but must produce the same external format.
+The Toon Expo generator samples uniformly from `0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ` with Node.js cryptographic randomness such as `crypto.randomInt`; it never uses `Math.random`. Mootq may implement its generator independently but must produce the same external format.
 
 `ticketCode` is:
 
@@ -37,7 +38,7 @@ The Toon Expo generator samples uniformly from `0123456789ABCDEFGHIJKLMNOPQRSTUV
 - public Toon Expo registration assigns `TOON_EXPO` server-side;
 - the authenticated Mootq inbound endpoint assigns `MOOTQ` server-side;
 - neither public nor partner request bodies may select or override it;
-- admin metrics, filtering and synchronization use this field, never code parsing.
+- admin metrics, filtering and synchronization use this field, never code parsing alone.
 
 Toon Expo generation is protected by a unique database constraint and bounded regeneration after an insert collision. A supplied Mootq code that already belongs to another registration returns `409`; Toon Expo does not invent a replacement.
 
@@ -60,12 +61,15 @@ In one short PostgreSQL transaction:
 
 1. create the validated registration;
 2. assign `sourceSystem=TOON_EXPO`;
-3. generate/store a unique 13-character code;
+3. generate/store a unique `TE…` ticket code;
 4. generate/store the hosted-ticket token;
 5. create EMAIL and SMS delivery jobs;
-6. create one minimal Toon Expo-origin fast-feed event.
+6. append one outbox row for Mootq push;
+7. create one minimal Toon Expo-origin fast-feed event (backup cursor feed).
 
-Commit before provider calls. Return the stored code to the Toon Expo browser for immediate display.
+Commit before provider calls and before outbound push. Return the stored code to the Toon Expo browser for immediate display.
+
+After the HTTP response, Toon Expo sends one push per outbox row to Mootq. A minute cron retries unsent or failed outbox rows.
 
 ## 4. Mootq registration import
 
@@ -80,7 +84,7 @@ Content-Type: application/json
 ```json
 {
   "sourceRegistrationId": "mq-98231",
-  "ticketCode": "8D6N4T7C2X9PL",
+  "ticketCode": "MQ8D6N4T7C2X9",
   "firstName": "Example",
   "lastName": "Visitor",
   "email": "visitor@example.com",
@@ -96,7 +100,7 @@ Required behavior:
 - validate body size and exact schema;
 - assign `sourceSystem=MOOTQ` from the authenticated route;
 - reject any body field that attempts to choose the source;
-- require the exact prefixless 13-character alphanumeric format;
+- require the exact `^MQ[A-Z0-9]{11}$` format;
 - make `sourceRegistrationId` idempotent;
 - store the supplied code unchanged;
 - generate only the Toon Expo hosted-ticket token;
@@ -113,9 +117,35 @@ Responses:
 
 The open repeated-email decision is closed: shared email/phone are allowed. Transport idempotency remains `sourceRegistrationId` and is independent of contact fields.
 
-## 5. Fast Toon Expo-origin feed
+## 5. Fast Toon Expo-origin push (primary)
 
-Mootq pulls minimal Toon Expo-origin records:
+Toon Expo pushes each new Toon Expo-origin registration individually to Mootq after the visitor response completes.
+
+Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`. Toon Expo stores pending pushes in a PostgreSQL outbox table, sends one registration per HTTP request, and uses a minute cron only as a retry safety net.
+
+```http
+POST <MOOTQ_PUSH_URL>
+Authorization: Bearer <MOOTQ_PUSH_KEY>
+Idempotency-Key: <sourceRegistrationId>
+Content-Type: application/json
+```
+
+```json
+{
+  "sourceRegistrationId": "te-registration-id",
+  "ticketCode": "TE7K4M2X9P3R8",
+  "sourceSystem": "TOON_EXPO",
+  "createdAt": "2026-07-27T10:15:30.000Z"
+}
+```
+
+The push body excludes email, phone and name unless Mootq later requests name fields. Optional `eventId` is included only if documented as supported by Mootq.
+
+There is no event-day mode switch. Push is the primary fast path.
+
+## 6. Fast Toon Expo-origin feed (backup)
+
+Mootq MAY poll minimal Toon Expo-origin records when push missed or failed:
 
 ```http
 GET /api/v1/integrations/mootq/registrations?after=<cursor>&limit=500
@@ -130,7 +160,7 @@ Cache-Control: no-store
       "sequence": "12451",
       "sourceRegistrationId": "te-registration-id",
       "sourceSystem": "TOON_EXPO",
-      "ticketCode": "7K4M2X9P3R8DQ",
+      "ticketCode": "TE7K4M2X9P3R8",
       "firstName": "Example",
       "lastName": "Visitor",
       "email": "visitor@example.com",
@@ -153,7 +183,7 @@ The feed contains only Toon Expo-origin rows and repeats the explicit source on 
 
 Toon Expo does not expose or store a pre-event/live polling mode.
 
-## 6. Ticket email
+## 7. Ticket email
 
 Resend email contains:
 
@@ -165,7 +195,7 @@ Resend email contains:
 
 The current Resend Pro plan provides 50,000 monthly emails. Production readiness requires verified sender-domain authentication, confirmation of pay-as-you-go status and monitoring of quota/rate responses.
 
-## 7. Peleka SMS (deferred)
+## 8. Peleka SMS (deferred)
 
 SMS will contain a short localized message and the absolute hosted-ticket link.
 
@@ -181,7 +211,7 @@ Peleka integration is deferred. When unblocked, define:
 
 Peleka provider calls will use the same PostgreSQL `DeliveryJob` mechanism as email.
 
-## 8. Delivery jobs
+## 9. Delivery jobs
 
 `DeliveryJob` is not a general event bus. It exists only to avoid losing or synchronously blocking ticket messages.
 
@@ -197,9 +227,9 @@ Minimum fields:
 
 Unique `(registrationId, channel, templateVersion)` prevents duplicate logical sends. Workers use bounded batches, timeouts, provider rate limits and capped retry.
 
-## 9. Full reconciliation
+## 10. Full reconciliation
 
-Full exchange is independent in each direction.
+Full exchange is independent in each direction and remains manual. It is not triggered by fast push or the cursor feed.
 
 ### Toon Expo imports Mootq
 
@@ -237,7 +267,7 @@ Minimum history:
 
 Full synchronization is idempotent and safe to rerun. It is expected only a small number of times and is required after the event.
 
-## 10. Attendance
+## 11. Attendance
 
 The initial shared attendance field is:
 
@@ -247,7 +277,7 @@ NOT_VISITED | VISITED
 
 Mootq owns this value. Detailed per-day/per-scan history is excluded. A future `CheckInEvent` table may be added without changing the initial fast exchange.
 
-## 11. Field ownership
+## 12. Field ownership
 
 - Toon Expo owns registration/questionnaire data for `sourceSystem=TOON_EXPO` and delivery state for both origins.
 - Mootq owns registration input for `sourceSystem=MOOTQ` and scanning/attendance status for both origins.
@@ -255,11 +285,12 @@ Mootq owns this value. Detailed per-day/per-scan history is excluded. A future `
 - Full synchronization does not overwrite provider secrets, job locks or internal authentication fields.
 - Conflicting immutable IDs are reported, not silently replaced.
 
-## 12. Pending contract items
+## 13. Pending contract items
 
-1. Mootq sign-off on [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md) (field names, URLs, auth).
-2. Peleka API details when SMS is unblocked.
-3. Final marketing email copy (interim designed template acceptable).
-4. DNS confirmation for `reg.toonexpo.com`.
+1. Mootq sign-off on [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md) (field names, URLs, auth, push endpoint).
+2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
+3. Peleka API details when SMS is unblocked.
+4. Final marketing email copy (interim designed template acceptable).
+5. DNS confirmation for `reg.toonexpo.com`.
 
-Closed: repeated email/phone allowed; scanner format confirmed as random 13 characters; Resend sender/domain confirmed; no block/ban/revoke product scope.
+Closed: repeated email/phone allowed; scanner format confirmed as `TE`/`MQ` + 11 uppercase alphanumeric; Resend sender/domain confirmed; no block/ban/revoke product scope; outbound push is primary fast path with GET feed as backup.

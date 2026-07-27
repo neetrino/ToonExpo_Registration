@@ -13,7 +13,7 @@ Implemented:
 - questionnaire storage;
 - basic Resend email attempt and status;
 - success page with QR + hosted ticket page (`/ticket/<token>`);
-- 13-character ticket codes, `sourceSystem=TOON_EXPO`, idempotency key;
+- `TE…` ticket codes (`^(TE|MQ)[A-Z0-9]{11}$`), `sourceSystem=TOON_EXPO`, idempotency key;
 - schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
 - EMAIL `DeliveryJob` + Resend ticket email with inline QR/link + retry dispatcher;
 - Mootq inbound POST + Toon Expo-origin cursor feed (`/api/v1/integrations/mootq/registrations`);
@@ -35,9 +35,9 @@ Not implemented:
 ## 2. Agreed scope
 
 - Keep project size A and the current Next.js/Vercel/Neon architecture.
-- Each system generates a random 13-character alphanumeric code for registrations created on its own form.
-- Codes have no prefix and carry no source meaning.
-- Mootq confirmed the format: random 13 characters.
+- Each system generates ticket codes for registrations created on its own form: `TE…` for Toon Expo, `MQ…` for Mootq.
+- Format: exactly 13 ASCII characters — `TE` or `MQ` prefix plus 11 uppercase alphanumeric body (`^(TE|MQ)[A-Z0-9]{11}$`).
+- Mootq confirmed the prefixed format with Toon Expo.
 - Toon Expo stores Mootq's exact supplied code unchanged.
 - `sourceSystem=TOON_EXPO|MOOTQ` is the only canonical registration-origin marker and is assigned by trusted server routes.
 - Toon Expo never replaces or returns a partner ticket code; it only acknowledges storage.
@@ -62,7 +62,7 @@ Not implemented:
 | Email uniqueness constraint   | Remove `(eventId, emailNormalized)` unique in schema expansion           |
 | Mootq fast exchange           | Start from draft contract; agree one document with Mootq                 |
 | Mootq full sync               | Start from same draft; agree with Mootq                                  |
-| Scanner format                | Confirmed by Mootq: random 13 characters                                 |
+| Scanner format                | Confirmed by Mootq: `^(TE\|MQ)[A-Z0-9]{11}$` (`TE…` / `MQ…`)           |
 | Peleka SMS                    | Deferred                                                                 |
 | Resend                        | Pro + pay-as-you-go; sender `hi@mail.toonexpo.com`; domain verified      |
 | App registration rate limit   | Remove process-local limiter; rely on WAF / existing guards              |
@@ -97,7 +97,7 @@ No generic event bus, workflow engine, blocklist or detailed check-in table is p
 
 1. Add nullable fields and independent supporting tables.
 2. Deploy code that understands legacy and new rows.
-3. Assign `sourceSystem=TOON_EXPO` and generate 13-character codes/ticket tokens for existing rows in bounded batches.
+3. Assign `sourceSystem=TOON_EXPO` and generate `TE…` ticket codes/tokens for existing rows in bounded batches.
 4. Validate exact format, uniqueness and foreign keys.
 5. Add unique/required constraints for ticket/source fields in a later migration.
 6. Drop unique `(eventId, emailNormalized)` as part of the approved expand path (keep non-unique indexes useful for search).
@@ -110,7 +110,7 @@ No production migration is authorized by this plan.
 
 - [x] Owner: repeated email and phone allowed; remove email uniqueness.
 - [x] Owner: start Mootq fast/full from draft; single partner contract document.
-- [x] Mootq confirmed prefixless random 13-character format.
+- [x] Mootq confirmed `TE`/`MQ` prefixed format (`^(TE|MQ)[A-Z0-9]{11}$`).
 - [x] Resend Pro / pay-as-you-go / sender domain confirmed.
 - [x] Hosted ticket domain chosen: `reg.toonexpo.com`.
 - [x] Peleka SMS deferred.
@@ -130,7 +130,7 @@ No production migration is authorized by this plan.
 
 ### Phase 2 — ticket experience
 
-- [x] Generate unique 13-character ticket codes for Toon Expo registrations.
+- [x] Generate unique `TE…` ticket codes for Toon Expo registrations.
 - [ ] Accept and validate immutable Mootq-generated ticket codes.
 - [x] Assign origin only from the trusted public/partner server route.
 - [x] Public create uses idempotency key for accidental retries.
@@ -167,7 +167,7 @@ No production migration is authorized by this plan.
 
 ### Phase 6 — backfill and rehearsal
 
-- [x] Backfill existing registrations with `TOON_EXPO` source and 13-character codes/tokens in bounded batches.
+- [x] Backfill existing registrations with `TOON_EXPO` source and `TE…` codes/tokens in bounded batches.
 - [ ] Validate uniqueness and add final ticket/source constraints.
 - [ ] Rehearse 1,000 registrations over ten minutes.
 - [ ] Test Resend throttling and backlog recovery.
@@ -186,8 +186,8 @@ No production migration is authorized by this plan.
 
 ## 7. Acceptance summary
 
-- A Toon Expo registration shows and sends the same stored 13-character code.
-- A Mootq registration stores and sends the exact supplied 13-character code.
+- A Toon Expo registration shows and sends the same stored `TE…` ticket code.
+- A Mootq registration stores and sends the exact supplied `MQ…` ticket code.
 - Admin and synchronization distinguish sources by `sourceSystem`, never by parsing the code.
 - Provider failures do not lose a registration or ticket.
 - Mootq retries do not create duplicate transport records or repeated logical sends.

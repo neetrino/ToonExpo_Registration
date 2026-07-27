@@ -4,7 +4,7 @@
 
 1. Visitor completes the existing localized form.
 2. Server validates and normalizes the payload.
-3. A database transaction assigns `sourceSystem=TOON_EXPO` and stores the registration, 13-character code, ticket token, two delivery jobs and one fast-feed event.
+3. A database transaction assigns `sourceSystem=TOON_EXPO` and stores the registration, `TE…` ticket code (`^(TE|MQ)[A-Z0-9]{11}$`), ticket token, two delivery jobs and one fast-feed event.
 4. Browser receives the code and opens the success/ticket state.
 5. QR and readable code appear immediately.
 6. Delivery processing sends email and SMS asynchronously.
@@ -13,7 +13,7 @@
 ## Mootq visitor
 
 1. Visitor completes the Mootq form.
-2. Mootq creates a prefixless 13-character code and shows its QR.
+2. Mootq creates an `MQ…` ticket code (`^(TE|MQ)[A-Z0-9]{11}$`) and shows its QR.
 3. Mootq backend posts the same code plus minimum recipient data to Toon Expo.
 4. Toon Expo authenticates the partner route, assigns `sourceSystem=MOOTQ`, validates and stores the code unchanged.
 5. Toon Expo stores EMAIL/SMS jobs and responds with `204`.

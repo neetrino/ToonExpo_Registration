@@ -8,7 +8,7 @@
 
 ## Purpose
 
-The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends matching tickets through Resend and Peleka, exposes a small fast feed to Mootq, and supports rare manual full reconciliation.
+The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends matching tickets through Resend and Peleka, pushes new Toon Expo registrations to Mootq, exposes a backup fast feed, and supports rare manual full reconciliation.
 
 ## System context
 
@@ -17,15 +17,16 @@ Toon Expo visitor
     │
     └── Toon Expo form
             │
-            └── create ticket code ──┬── show QR
-                                     ├── queue email/SMS
-                                     └── expose in fast feed ──> Mootq scanner DB
+            └── create TE ticket code ──┬── show QR
+                                        ├── queue email/SMS
+                                        ├── outbox push (primary) ──> Mootq scanner DB
+                                        └── expose in fast feed (backup) ──> Mootq
 
 Mootq visitor
     │
     └── Mootq form
             │
-            ├── Mootq creates ticket code and shows QR
+            ├── Mootq creates MQ ticket code and shows QR
             └── POST code + recipient data ──> Toon Expo
                                                    │
                                                    ├── store exact code
@@ -36,28 +37,29 @@ Manual full reconciliation
     └── Mootq independently pulls full Toon Expo data
 ```
 
-All Toon Expo pages, APIs, admin functions and delivery processing remain in one Next.js deployment. Neon PostgreSQL is the durable application store. Mootq owns scanning/check-in and the polling schedule.
+All Toon Expo pages, APIs, admin functions and delivery processing remain in one Next.js deployment. Neon PostgreSQL is the durable application store. Mootq owns scanning/check-in. Toon Expo pushes each new registration to Mootq after the HTTP response; Mootq may also poll the backup feed.
 
 ## Core decisions
 
 - Keep the existing Next.js/Vercel/Neon stack and folder layout.
 - Do not introduce NestJS, Redis, NATS or another broker.
 - Each system generates codes only for registrations created on its own form.
-- Every code is a random 13-character alphanumeric value with no prefix.
-- Mootq-generated codes are stored by Toon Expo unchanged.
+- Every code is `TE` or `MQ` plus 11 uppercase alphanumeric characters (`^(TE|MQ)[A-Z0-9]{11}$`).
+- Mootq-generated `MQ…` codes are stored by Toon Expo unchanged.
 - Both QR images encode the exact stored `ticketCode`.
-- Registration origin is stored in `sourceSystem`, never encoded in or inferred from the code.
+- Registration origin is stored in `sourceSystem`, never inferred from the prefix alone.
 - The same stored code is used for browser display, email QR, SMS ticket page and scanner exchange.
 - Email/SMS delivery is asynchronous but persisted durably in PostgreSQL.
 - Fast exchange and full reconciliation are separate contracts.
-- Toon Expo does not control how often Mootq polls the fast feed.
+- Fast push to Mootq is primary; the cursor feed is backup catch-up.
+- Toon Expo does not control how often Mootq polls the backup feed.
 
 ## Identifiers
 
 ### `ticketCode`
 
-- Exactly 13 ASCII alphanumeric characters (`A-Z`, `a-z`, `0-9`).
-- No prefix, separator or embedded source information.
+- Exactly 13 ASCII characters: prefix `TE` (Toon Expo) or `MQ` (Mootq) plus 11 uppercase alphanumeric body characters.
+- Format regex: `^(TE|MQ)[A-Z0-9]{11}$`; case-sensitive exact match (uppercase).
 - Generated with cryptographically secure randomness by the owning source.
 - Globally unique and immutable in Toon Expo PostgreSQL.
 - Raw QR payload and cross-system reconciliation key.
@@ -86,13 +88,13 @@ All Toon Expo pages, APIs, admin functions and delivery processing remain in one
 One short database transaction:
 
 1. Validate and normalize the form.
-2. Assign `sourceSystem=TOON_EXPO` and create a unique 13-character ticket code.
+2. Assign `sourceSystem=TOON_EXPO` and create a unique `TE…` ticket code.
 3. Generate the hosted-ticket token.
 4. Create EMAIL and SMS delivery jobs.
-5. Append one minimal fast-feed item for Mootq.
+5. Append one outbox row for Mootq push and one minimal fast-feed item (backup).
 6. Commit and return the ticket to the browser.
 
-Provider calls happen after commit.
+Provider calls and outbound push happen after commit. Push uses `after()`; a minute cron retries failed outbox rows.
 
 ### Mootq registration
 
@@ -102,7 +104,7 @@ One Toon Expo transaction:
 
 1. Authenticate Mootq and validate the bounded payload.
 2. Assign `sourceSystem=MOOTQ` from the authenticated route.
-3. Validate the exact 13-character alphanumeric format and uniqueness.
+3. Validate the exact `^MQ[A-Z0-9]{11}$` format and uniqueness.
 4. Apply transport idempotency by `sourceRegistrationId`.
 5. Store the supplied ticket code unchanged.
 6. Generate a Toon Expo hosted-ticket token.
@@ -139,7 +141,11 @@ These fields are sufficient for storage and ticket delivery.
 
 ### Toon Expo to Mootq
 
-Mootq polls an authenticated cursor endpoint for new Toon Expo-origin registrations. Each item explicitly contains `sourceSystem=TOON_EXPO`; the feed is:
+Toon Expo pushes each new Toon Expo-origin registration to Mootq individually after the visitor HTTP response. Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`. The minimal push body contains `sourceRegistrationId`, `ticketCode`, `sourceSystem`, and `createdAt`; the `Idempotency-Key` header equals `sourceRegistrationId`. Email, phone and name are excluded unless Mootq later requests name fields.
+
+A PostgreSQL outbox persists pending pushes; a minute cron retries failures. There is no event-day mode switch.
+
+Mootq MAY also poll an authenticated cursor endpoint as backup when push missed or failed. Each feed item explicitly contains `sourceSystem=TOON_EXPO`; the feed is:
 
 - incremental;
 - ordered;
@@ -148,7 +154,7 @@ Mootq polls an authenticated cursor endpoint for new Toon Expo-origin registrati
 - no-store;
 - limited to contract-approved operational fields.
 
-Mootq may poll rarely before the event and approximately every three seconds during it. There is no Toon Expo mode switch. When `hasMore=true`, Mootq fetches the next page immediately.
+When `hasMore=true`, Mootq fetches the next page immediately.
 
 ## Manual full reconciliation
 
@@ -183,7 +189,8 @@ Each import/export creates one `IntegrationSyncRun` with direction, timestamps, 
 ## Reliability and scale
 
 - Expected peak is about 1.7 registrations/second averaged over ten minutes.
-- The fast feed at one poll every three seconds is about 0.33 requests/second.
+- Outbound push sends one registration per outbox row after each response; minute cron retries failures.
+- Backup fast feed polling frequency is controlled by Mootq.
 - Use the Neon pooled connection and colocate the Vercel function region.
 - Keep transactions short and indexes aligned with ticket/source IDs, delivery jobs and cursors.
 - Validate provider quotas and load with 1,000 registrations over ten minutes.
@@ -191,7 +198,7 @@ Each import/export creates one `IntegrationSyncRun` with direction, timestamps, 
 
 ## Security
 
-- Separate scoped bearer credentials for Mootq write and read/export access.
+- Separate scoped bearer credentials for Mootq write, read/export and outbound push receive.
 - Strict server-side validation and bounded bodies.
 - Unique database constraints for `ticketCode` and Mootq source ID.
 - No full PII, ticket code, hosted-ticket token, authorization or provider payload in logs.

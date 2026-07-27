@@ -4,19 +4,19 @@
 
 - [ ] Repeated-email rule is approved and reflected consistently.
 - [ ] Mootq minimal inbound, fast feed and full-sync fixtures are approved.
-- [ ] Prefixless 13-character alphanumeric codes from both generators scan on real devices.
+- [ ] `TE…` and `MQ…` ticket codes (`^(TE|MQ)[A-Z0-9]{11}$`) from both generators scan on real devices.
 - [ ] Peleka and Resend production contracts/settings are confirmed.
 
 ## Toon Expo ticket
 
-- [ ] Accepted Toon Expo registration creates one stored 13-character code and `sourceSystem=TOON_EXPO`.
+- [ ] Accepted Toon Expo registration creates one stored `TE…` ticket code and `sourceSystem=TOON_EXPO`.
 - [ ] Success QR, readable text, email and hosted page use the same code.
 - [ ] PNG download works.
 - [ ] Success does not wait for provider delivery.
 
 ## Mootq ticket
 
-- [ ] Mootq-provided 13-character code is stored unchanged with `sourceSystem=MOOTQ`.
+- [ ] Mootq-provided `MQ…` ticket code is stored unchanged with `sourceSystem=MOOTQ`.
 - [ ] Toon Expo does not return/replace the partner code.
 - [ ] Email/hosted page/SMS link use the supplied code.
 - [ ] Identical retries create no second transport record or logical send.

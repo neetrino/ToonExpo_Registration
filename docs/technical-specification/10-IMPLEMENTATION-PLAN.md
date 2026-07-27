@@ -6,7 +6,7 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 
 1. ~~Confirm repeated-email behavior.~~ Allowed for email and phone; remove uniqueness constraint; use idempotency key.
 2. Draft Mootq fast/full contract in one document and send for sign-off (`14-MOOTQ-PARTNER-CONTRACT.md`).
-3. ~~Confirm prefixless 13-character format.~~ Confirmed by Mootq: random 13 characters.
+3. ~~Confirm `TE`/`MQ` prefixed format.~~ Confirmed by Mootq: `^(TE|MQ)[A-Z0-9]{11}$`.
 4. Peleka API details — deferred; SMS not in first slice.
 5. ~~Confirm Resend Pro/pay-as-you-go/domain.~~ `hi@mail.toonexpo.com` / `mail.toonexpo.com` verified.
 6. Hosted ticket domain: `reg.toonexpo.com` (confirm DNS at release).
@@ -22,7 +22,7 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 
 ## Phase 2 — ticket foundation
 
-1. Implement a cryptographically secure 13-character alphanumeric generator and uniqueness retry.
+1. Implement a cryptographically secure `TE…` ticket code generator (`TE` + 11 uppercase alphanumeric) and uniqueness retry.
 2. Assign `TOON_EXPO`/`MOOTQ` only from trusted server routes.
 3. Implement strict validation and unchanged storage for Mootq codes.
 4. Implement hosted-ticket token.
@@ -60,7 +60,7 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 
 ## Phase 6 — backfill/constraints
 
-1. Backfill existing records with `sourceSystem=TOON_EXPO`, 13-character codes and tokens in bounded batches.
+1. Backfill existing records with `sourceSystem=TOON_EXPO`, `TE…` ticket codes and tokens in bounded batches.
 2. Validate nulls/format/uniqueness for ticket/source fields.
 3. Add reviewed unique/required constraints for ticket/source fields.
 4. Email uniqueness already removed per owner decision.

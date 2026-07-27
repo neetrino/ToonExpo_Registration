@@ -82,7 +82,7 @@ The landing page should feel like a contemporary event identity: confident, edit
 
 - Success page makes the QR the primary result after the confirmation heading.
 - QR uses a plain high-contrast light background, sufficient quiet zone and no decorative overlay that can reduce scan reliability.
-- The exact 13-character code is displayed below the QR in a readable monospaced treatment.
+- The exact ticket code (`TE…` or `MQ…`, 13 characters total) is displayed below the QR in a readable monospaced treatment.
 - Download/save action is prominent and clearly labelled; screenshot guidance is concise.
 - Email/SMS hosted-ticket page uses the same visual hierarchy and QR, without unrelated navigation, tracking or external promotional assets.
 - Unavailable ticket state is explicit but does not disclose participant data.

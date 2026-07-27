@@ -3,6 +3,10 @@
     {
       "path": "/api/internal/delivery/process",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/internal/mootq-push/process",
+      "schedule": "* * * * *"
     }
   ]
 }
