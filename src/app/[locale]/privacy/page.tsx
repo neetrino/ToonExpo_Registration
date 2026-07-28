@@ -10,6 +10,8 @@ type PrivacyPageProps = {
 type PrivacySection = {
   title: string;
   body: string;
+  items?: string[];
+  closing?: string;
 };
 
 export default async function PrivacyPage({ params }: PrivacyPageProps) {
@@ -55,12 +57,22 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
           </header>
 
           <div className="mt-6 space-y-6 text-base leading-relaxed text-muted-foreground">
-            <p>{t('intro')}</p>
+            <p className="whitespace-pre-line">{t('intro')}</p>
 
             {sections.map((section) => (
               <section key={section.title} className="space-y-2">
                 <h2 className="font-display text-lg font-bold text-foreground">{section.title}</h2>
-                <p>{section.body}</p>
+                <p className="whitespace-pre-line">{section.body}</p>
+                {section.items && section.items.length > 0 ? (
+                  <ul className="list-disc space-y-1 pl-5">
+                    {section.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                {section.closing ? (
+                  <p className="whitespace-pre-line">{section.closing}</p>
+                ) : null}
               </section>
             ))}
           </div>

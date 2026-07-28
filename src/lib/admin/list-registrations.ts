@@ -1,6 +1,7 @@
 import type { Prisma } from '@/generated/prisma';
 import { getPrisma } from '@/lib/db';
 import { ADMIN_PAGE_SIZE, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
+import type { Locale } from '@/types/locale';
 
 export type AdminRegistrationRow = {
   id: string;
@@ -10,7 +11,7 @@ export type AdminRegistrationRow = {
   lastName: string;
   email: string;
   phone: string;
-  locale: string;
+  locale: Locale;
   emailDeliveryStatus: string;
   emailLastAttemptAt: Date | null;
   sourceSystem: string | null;

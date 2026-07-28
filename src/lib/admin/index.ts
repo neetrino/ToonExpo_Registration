@@ -5,7 +5,8 @@ import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
 
 /**
  * Build a formula-safe, human-readable CSV for the active event (optional search filter).
- * Questionnaire answers are flattened into separate English-labeled columns.
+ * Questionnaire answer values are localized to each registration's locale;
+ * column headers stay English for operator consistency.
  */
 export async function buildRegistrationsCsv(search?: string): Promise<{
   filename: string;
@@ -33,7 +34,7 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
     attendanceStatus: row.attendanceStatus ?? '',
     emailDeliveryStatus: row.emailDeliveryStatus,
     formVersion: row.formVersion ?? '',
-    ...flattenRegistrationAnswersForExport(row.answers),
+    ...flattenRegistrationAnswersForExport(row.answers, row.locale),
   }));
 
   return {
