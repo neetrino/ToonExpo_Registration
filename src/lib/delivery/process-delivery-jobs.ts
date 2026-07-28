@@ -143,14 +143,10 @@ async function processClaimedEmailJob(jobId: string, result: ProcessDeliveryResu
     return;
   }
 
-  await markJobFailed(
-    jobId,
-    sendResult.reason,
-    sendResult.retryable,
-    job.attemptCount,
-    result,
-    { registrationId: registration.id, channel: 'EMAIL' },
-  );
+  await markJobFailed(jobId, sendResult.reason, sendResult.retryable, job.attemptCount, result, {
+    registrationId: registration.id,
+    channel: 'EMAIL',
+  });
 }
 
 async function processClaimedSmsJob(jobId: string, result: ProcessDeliveryResult): Promise<void> {
@@ -214,14 +210,10 @@ async function processClaimedSmsJob(jobId: string, result: ProcessDeliveryResult
     return;
   }
 
-  await markJobFailed(
-    jobId,
-    sendResult.reason,
-    sendResult.retryable,
-    job.attemptCount,
-    result,
-    { registrationId: registration.id, channel: 'SMS' },
-  );
+  await markJobFailed(jobId, sendResult.reason, sendResult.retryable, job.attemptCount, result, {
+    registrationId: registration.id,
+    channel: 'SMS',
+  });
 }
 
 async function markJobFailed(
