@@ -50,6 +50,7 @@ export type WizardState = {
   abroadCountries: AbroadCountry[];
   abroadCountriesOther: string;
   locationSeekScope: LocationSeekScope | '';
+  locationSeekOther: string;
   yerevanDistricts: YerevanDistrict[];
   marzRegions: MarzRegion[];
   areaSqm: AreaSqmBand | '';
@@ -88,6 +89,7 @@ export const initialWizardState: WizardState = {
   abroadCountries: [],
   abroadCountriesOther: '',
   locationSeekScope: '',
+  locationSeekOther: '',
   yerevanDistricts: [],
   marzRegions: [],
   areaSqm: '',

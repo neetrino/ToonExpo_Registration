@@ -144,6 +144,29 @@ describe('questionnaireAnswersSchema', () => {
     });
     expect(parsed.success).toBe(false);
   });
+
+  it('accepts locationSeek abroad with country text', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...sharedOwnResidence,
+      interestType: 'apartment_new',
+      locationSeek: {
+        scope: 'abroad',
+        other: 'Portugal',
+      },
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('rejects locationSeek abroad without country text', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...sharedOwnResidence,
+      interestType: 'apartment_new',
+      locationSeek: {
+        scope: 'abroad',
+      },
+    });
+    expect(parsed.success).toBe(false);
+  });
 });
 
 describe('FORM_VERSION', () => {

@@ -31,6 +31,27 @@ describe('formatRegistrationAnswersForDisplay', () => {
     );
   });
 
+  it('formats locationSeek abroad with country text', () => {
+    const result = formatRegistrationAnswersForDisplay({
+      ageBand: '25-34',
+      visitPurpose: 'own_residence',
+      interestType: 'apartment_new',
+      locationSeek: { scope: 'abroad', other: 'Portugal' },
+      areaSqm: '70-90',
+      purchaseMethod: 'mortgage',
+      monthlyBudget: '500k-700k',
+      decisionStage: 'choosing_3_months',
+      newsletter: false,
+    });
+
+    expect(result.rows).toEqual(
+      expect.arrayContaining([
+        { label: 'Where are you looking for real estate?', value: 'Abroad' },
+        { label: 'Please specify the country', value: 'Portugal' },
+      ]),
+    );
+  });
+
   it('returns empty rows for missing answers', () => {
     expect(formatRegistrationAnswersForDisplay(null)).toEqual({
       visitPurposeLabel: null,

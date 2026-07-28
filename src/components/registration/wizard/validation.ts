@@ -92,6 +92,7 @@ const ownResidenceInterestSchema = z
 const ownResidenceLocationSchema = z
   .object({
     locationSeekScope: z.enum(LOCATION_SEEK_SCOPES).or(z.literal('')),
+    locationSeekOther: z.string(),
     yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
     marzRegions: z.array(z.enum(MARZ_REGIONS)),
   })
@@ -115,6 +116,17 @@ const ownResidenceLocationSchema = z
 
     if (data.locationSeekScope === 'marz' && data.marzRegions.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['marzRegions'], message: 'required' });
+    }
+
+    if (data.locationSeekScope === 'abroad') {
+      const other = otherTextSchema.safeParse(data.locationSeekOther);
+      if (!other.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['locationSeekOther'],
+          message: 'required',
+        });
+      }
     }
   });
 
@@ -265,6 +277,7 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
     case 'own-residence-location':
       return {
         locationSeekScope: state.locationSeekScope,
+        locationSeekOther: state.locationSeekOther,
         yerevanDistricts: state.yerevanDistricts,
         marzRegions: state.marzRegions,
       };

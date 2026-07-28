@@ -14,7 +14,7 @@ function buildLocationSeek(state: WizardState): LocationSeek {
     return { scope: 'marz', regions: state.marzRegions };
   }
 
-  return { scope: 'abroad' };
+  return { scope: 'abroad', other: state.locationSeekOther.trim() };
 }
 
 /** Builds questionnaire answers from wizard state. Returns null when incomplete. */
