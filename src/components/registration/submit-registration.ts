@@ -1,4 +1,5 @@
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
+import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import type { Locale } from '@/types/locale';
 import { getOrCreateRegistrationIdempotencyKey } from './idempotency';
 import type { RegistrationSubmitPayload } from './wizard/build-payload';
@@ -78,7 +79,13 @@ export async function submitRegistration(
         ticketViewToken?: string;
       };
 
-      if (body.registrationId && body.ticketCode && body.ticketViewToken) {
+      if (
+        body.registrationId &&
+        body.ticketCode &&
+        body.ticketViewToken &&
+        isValidTicketCode(body.ticketCode) &&
+        body.ticketViewToken.length >= 20
+      ) {
         return {
           ok: true,
           registrationId: body.registrationId,
@@ -86,6 +93,9 @@ export async function submitRegistration(
           ticketViewToken: body.ticketViewToken,
         };
       }
+
+      // Honeypot / poisoned responses return 201 with placeholder tickets — treat as failure.
+      return { ok: false, status: 500, code: 'INTERNAL_ERROR' };
     } catch {
       return { ok: false, status: 500, code: 'INTERNAL_ERROR' };
     }

@@ -52,6 +52,7 @@ async function seedEvent(): Promise<void> {
     },
     update: {
       name: 'Toon Expo 2026',
+      isActive: true,
     },
   });
   logInfo('Seeded active event', { slug: 'toon-expo-2026' });
