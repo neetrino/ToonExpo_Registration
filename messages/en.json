@@ -19,41 +19,62 @@
     "privacyLink": "Privacy policy"
   },
   "privacy": {
-    "title": "Privacy policy",
+    "title": "Personal data privacy policy",
     "status": "Version {version}",
-    "intro": "This policy explains how the Toon Expo organizer processes personal data collected through the registration form.",
+    "intro": "This policy describes how TOON EXPO collects, uses, and stores users’ personal data through our website and application.\n\nThis policy details the collection, use, protection, and transfer of personal data related to your participation in TOON EXPO. By participating in TOON EXPO and providing the relevant confirmation in the electronic and/or paper form presented to you, you consent to the collection, processing, and transfer of your personal data (to persons designated by you) as set out in this Policy, and you agree to their protection in accordance with applicable data protection legislation.",
     "sections": [
       {
-        "title": "Who processes the data",
-        "body": "The data controller is the Toon Expo event organizer. For requests and to exercise your rights, contact the organizer using the address shown in the registration confirmation email."
+        "title": "1. Data we collect",
+        "body": "Within the scope of this Policy, the User’s personal information includes:\n\n1.1 Personal information that the User provides about themselves when completing and submitting application forms, subscribing to updates, or using the Services.\n\n1.2 Data automatically transmitted to the Website’s services during use via software installed on the User’s device (IP address, cookie files, browser data, date and time of access).\n\n1.3 This Privacy Policy applies only to the toonexpo.com Website. The Website does not control and is not responsible for third-party websites that the User may visit through links available on the Website.\n\nDuring your registration and participation in TOON EXPO, we collect and process the following categories of personal data.",
+        "items": [
+          "Basic information (required for registration): first name, last name, email address, phone number, date of birth.",
+          "Additional contact details: country, city.",
+          "Professional information: company / organization, position / role, industry / sector, and similar.",
+          "Technical data: IP addresses, device data, browser type, and usage patterns automatically collected when you use our website.",
+          "Feedback data: information voluntarily provided through inquiries and feedback forms.",
+          "App usage data: when using the official TOON EXPO mobile application, we may collect data about your interaction with the app (features used, session duration, preferences, accessible content). This may also include technical data (for example, advertising identifiers and error logs)."
+        ]
       },
       {
-        "title": "What we collect",
-        "body": "First name, last name, email, phone number, selected language, registration questionnaire answers, privacy-consent evidence and policy version, and technical email-delivery status. If you opt in to newsletters, we also store that consent."
+        "title": "2. Purpose of data collection and related actions",
+        "body": "The personal data we collect is processed for the following purposes.\n\n2.1 Event management: enabling your registration, coordinating logistics, providing updates and messages, and addressing security matters.\n\n2.2 Optimizing event engagement: tracking participation and interactions to improve the TOON EXPO experience.\n\n2.3 Analytics: creating anonymous statistics for internal analysis to improve future events.\n\n2.4 Application features and personalization: providing, personalizing, and improving TOON EXPO mobile application features (personalized schedules, networking tools, and similar)."
       },
       {
-        "title": "Why we process data",
-        "body": "We process data to register you for the event, confirm registration, send organizational messages, and manage event statistics. Marketing emails are sent only with separate consent."
+        "title": "3. Legal bases for processing",
+        "body": "We process your personal data on the following legal bases.\n\n3.1 Legitimate interests: ensuring uninterrupted TOON EXPO operations and improving the participant experience.\n\n3.2 Compliance with legal obligations: we may process data to meet legislative or regulatory requirements, including under the RA Law “On Protection of Personal Data”."
       },
       {
-        "title": "Legal basis",
-        "body": "Processing is based on your voluntary consent, given before registration by accepting this privacy policy."
+        "title": "4. Data retention",
+        "body": "We retain your personal data only for as long as necessary to achieve the purposes stated in this policy. Data that is no longer needed is securely deleted or anonymized."
       },
       {
-        "title": "Retention",
-        "body": "Data is kept for a reasonable organizational period after the event ends, or until a valid deletion request, unless a longer retention is required by law."
+        "title": "5. Transfer of personal data",
+        "body": "5.1 Service providers. We engage trusted third parties (IT services, payment processing, marketing services) that are obliged to maintain data confidentiality.\n\n5.2 Legal compliance. Data may be provided to law-enforcement or regulatory authorities in cases established by law.\n\n5.3 Business transfer. In the event of a merger or sale, data may be transferred to the new organization."
       },
       {
-        "title": "Who we share data with",
-        "body": "Data is available only to the authorized administrator and to technical providers needed to run the site, database, and email delivery. We do not sell personal data."
+        "title": "6. Your rights",
+        "body": "You have the following rights.",
+        "items": [
+          "Right of access to data",
+          "Right to rectification",
+          "Right to erasure (destruction)",
+          "Right to restriction of processing",
+          "Right to withdraw consent",
+          "Or the right to take another action related to processing"
+        ],
+        "closing": "To exercise these rights, please contact us using the contact details listed on the website or write to us at info@bigprojects.am. If a deletion (destruction) or withdrawal request is submitted, your data will be deleted within 3 (three) business days after receipt of the request without any consequences."
       },
       {
-        "title": "Your rights",
-        "body": "You may request access to your data, correction of errors, or deletion by contacting the organizer. You may also withdraw consent for future processing to the extent permitted by law."
+        "title": "7. Changes to the policy",
+        "body": "We reserve the right to change this policy at any time. You will be notified of material changes through the website."
       },
       {
-        "title": "Updates",
-        "body": "This policy may be updated. The version you accepted at registration is stored with your record."
+        "title": "8. Use of cookie files",
+        "body": "We use cookies to improve website performance, analyze usage trends, and personalize advertising."
+      },
+      {
+        "title": "11. Contact",
+        "body": "If you have questions about this Privacy Policy, you may contact:\n\n“Big Projects” LLC\nAddress: Yerevan, Sarmeni 2/1\nEmail: info@bigprojects.am\nPhone: (+374) 44 533521"
       }
     ],
     "backToHome": "Back to home"
