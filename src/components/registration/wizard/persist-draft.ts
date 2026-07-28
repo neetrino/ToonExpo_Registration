@@ -75,6 +75,8 @@ export function loadWizardDraft(): PersistedWizard | null {
     return {
       state: {
         ...mergedState,
+        // Never restore honeypot — autofill must not poison drafts across retries.
+        website: '',
         phoneCountry: resolvePhoneCountry(mergedState.phoneCountry),
       },
       currentStep,
@@ -90,7 +92,10 @@ export function saveWizardDraft(state: WizardState, currentStep: WizardStepId): 
   }
 
   try {
-    const payload: PersistedWizard = { state, currentStep };
+    const payload: PersistedWizard = {
+      state: { ...state, website: '' },
+      currentStep,
+    };
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // Ignore quota / private mode failures.

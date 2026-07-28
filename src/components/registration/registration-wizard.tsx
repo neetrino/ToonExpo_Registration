@@ -320,12 +320,22 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
         className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0"
         aria-hidden="true"
       >
+        {/*
+          Honeypot: avoid URL/company-like names (password managers autofill those).
+          Bots that fill every text field still trip the server-side check.
+        */}
         <input
-          id="companyUrl"
-          name="companyUrl"
+          id="hp_leave_blank"
+          name="hp_leave_blank"
           type="text"
           tabIndex={-1}
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          data-1p-ignore="true"
+          data-lpignore="true"
+          data-form-type="other"
           value={state.website}
           onChange={(event) => updateField('website', event.target.value)}
         />
