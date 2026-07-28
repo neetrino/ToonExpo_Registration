@@ -4,8 +4,10 @@ import {
   DELIVERY_CLAIM_BATCH_SIZE,
   DELIVERY_MAX_ATTEMPTS,
   TICKET_EMAIL_TEMPLATE_VERSION,
+  TICKET_SMS_TEMPLATE_VERSION,
 } from '@/lib/delivery/constants';
 import { sendTicketEmail } from '@/lib/delivery/send-ticket-email';
+import { sendTicketSms } from '@/lib/delivery/send-ticket-sms';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError } from '@/lib/registrations/errors';
 
@@ -17,7 +19,7 @@ export type ProcessDeliveryResult = {
 };
 
 /**
- * Process due EMAIL delivery jobs, optionally limited to one registration.
+ * Process due EMAIL and SMS delivery jobs, optionally limited to one registration.
  */
 export async function processDueDeliveryJobs(options?: {
   registrationId?: string;
@@ -31,12 +33,12 @@ export async function processDueDeliveryJobs(options?: {
     where: {
       status: 'PENDING',
       nextAttemptAt: { lte: now },
-      channel: 'EMAIL',
+      channel: { in: ['EMAIL', 'SMS'] },
       ...(options?.registrationId ? { registrationId: options.registrationId } : {}),
     },
     orderBy: { nextAttemptAt: 'asc' },
     take: limit,
-    select: { id: true },
+    select: { id: true, channel: true },
   });
 
   const result: ProcessDeliveryResult = { claimed: 0, sent: 0, failed: 0, retried: 0 };
@@ -56,7 +58,11 @@ export async function processDueDeliveryJobs(options?: {
     }
 
     result.claimed += 1;
-    await processClaimedEmailJob(candidate.id, result);
+    if (candidate.channel === 'EMAIL') {
+      await processClaimedEmailJob(candidate.id, result);
+    } else {
+      await processClaimedSmsJob(candidate.id, result);
+    }
   }
 
   return result;
@@ -130,7 +136,7 @@ async function processClaimedEmailJob(jobId: string, result: ProcessDeliveryResu
       ]);
       result.sent += 1;
     } catch (error: unknown) {
-      logger.error('Failed to persist SENT delivery state', {
+      logger.error('Failed to persist SENT email delivery state', {
         code: mapRegistrationError(error).code,
       });
     }
@@ -143,7 +149,78 @@ async function processClaimedEmailJob(jobId: string, result: ProcessDeliveryResu
     sendResult.retryable,
     job.attemptCount,
     result,
-    registration.id,
+    { registrationId: registration.id, channel: 'EMAIL' },
+  );
+}
+
+async function processClaimedSmsJob(jobId: string, result: ProcessDeliveryResult): Promise<void> {
+  const prisma = getPrisma();
+
+  const job = await prisma.deliveryJob.findUnique({
+    where: { id: jobId },
+    select: {
+      id: true,
+      registrationId: true,
+      attemptCount: true,
+      templateVersion: true,
+      registration: {
+        select: {
+          id: true,
+          phoneNormalized: true,
+          locale: true,
+          ticketViewToken: true,
+        },
+      },
+    },
+  });
+
+  if (!job || job.templateVersion !== TICKET_SMS_TEMPLATE_VERSION) {
+    await markJobFailed(jobId, 'unsupported_template', false, job?.attemptCount ?? 1, result);
+    return;
+  }
+
+  const registration = job.registration;
+  if (!registration.ticketViewToken) {
+    await markJobFailed(jobId, 'missing_ticket', false, job.attemptCount, result);
+    return;
+  }
+
+  const sendResult = await sendTicketSms({
+    registrationId: registration.id,
+    phoneNormalized: registration.phoneNormalized,
+    locale: registration.locale,
+    ticketViewToken: registration.ticketViewToken,
+  });
+
+  const attemptedAt = new Date();
+
+  if (sendResult.ok) {
+    try {
+      await prisma.deliveryJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'SENT',
+          providerMessageId: sendResult.messageId ?? null,
+          lastErrorCode: null,
+          sentAt: attemptedAt,
+        },
+      });
+      result.sent += 1;
+    } catch (error: unknown) {
+      logger.error('Failed to persist SENT SMS delivery state', {
+        code: mapRegistrationError(error).code,
+      });
+    }
+    return;
+  }
+
+  await markJobFailed(
+    jobId,
+    sendResult.reason,
+    sendResult.retryable,
+    job.attemptCount,
+    result,
+    { registrationId: registration.id, channel: 'SMS' },
   );
 }
 
@@ -153,7 +230,7 @@ async function markJobFailed(
   retryable: boolean,
   attemptCount: number,
   result: ProcessDeliveryResult,
-  registrationId?: string,
+  mirror?: { registrationId: string; channel: 'EMAIL' | 'SMS' },
 ): Promise<void> {
   const prisma = getPrisma();
   const attemptedAt = new Date();
@@ -172,9 +249,9 @@ async function markJobFailed(
           claimedAt: null,
         },
       });
-      if (registrationId) {
+      if (mirror?.channel === 'EMAIL') {
         await prisma.registration.update({
-          where: { id: registrationId },
+          where: { id: mirror.registrationId },
           data: {
             emailDeliveryStatus: 'PENDING',
             emailLastAttemptAt: attemptedAt,
@@ -193,9 +270,9 @@ async function markJobFailed(
         claimedAt: null,
       },
     });
-    if (registrationId) {
+    if (mirror?.channel === 'EMAIL') {
       await prisma.registration.update({
-        where: { id: registrationId },
+        where: { id: mirror.registrationId },
         data: {
           emailDeliveryStatus: 'FAILED',
           emailLastAttemptAt: attemptedAt,

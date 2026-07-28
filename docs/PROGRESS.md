@@ -1,8 +1,8 @@
 # Toon Expo Registration — progress and implementation plan
 
-**Updated:** 2026-07-27
+**Updated:** 2026-07-28
 
-**Status:** Phase 1–2 in progress; owner decisions recorded; Peleka SMS deferred
+**Status:** Phase 1–2 in progress; Dexatel SMS approved and integrated
 
 ## 1. Current baseline
 
@@ -16,6 +16,7 @@ Implemented:
 - `TE…` ticket codes (`^(TE|MQ)[A-Z0-9]{11}$`), `sourceSystem=TOON_EXPO`, idempotency key;
 - schema expand: ticket/source fields, `DeliveryJob`, `PartnerFeedEvent`, `IntegrationSyncRun`;
 - EMAIL `DeliveryJob` + Resend ticket email with inline QR/link + retry dispatcher;
+- SMS `DeliveryJob` + Dexatel ticket-link SMS when `DEXATEL_*` env is set;
 - Mootq inbound POST + Toon Expo-origin cursor feed (`/api/v1/integrations/mootq/registrations`);
 - Mootq full export API + admin sync history / import button (import waits for partner URL);
 - ticket backfill script (`pnpm tickets:backfill`);
@@ -26,7 +27,7 @@ Implemented:
 
 Not implemented:
 
-- Peleka SMS (deferred);
+- Dexatel SMS live tests on production domain/DNS;
 - Live Mootq partner smoke tests (waiting on Mootq);
 - Mootq full-import credentials/URL from partner;
 - Final NOT NULL ticket constraints after backfill validation;
@@ -41,7 +42,7 @@ Not implemented:
 - Toon Expo stores Mootq's exact supplied code unchanged.
 - `sourceSystem=TOON_EXPO|MOOTQ` is the only canonical registration-origin marker and is assigned by trusted server routes.
 - Toon Expo never replaces or returns a partner ticket code; it only acknowledges storage.
-- Toon Expo sends matching email for both sources; SMS via Peleka is deferred.
+- Toon Expo sends matching email and Dexatel SMS for both sources.
 - Mootq independently controls fast-feed polling frequency.
 - Fast exchange carries minimum operational fields.
 - Full exchange is manual, paginated and independently initiated by each company.
@@ -63,7 +64,7 @@ Not implemented:
 | Mootq fast exchange           | Start from draft contract; agree one document with Mootq                 |
 | Mootq full sync               | Start from same draft; agree with Mootq                                  |
 | Scanner format                | Confirmed by Mootq: `^(TE\|MQ)[A-Z0-9]{11}$` (`TE…` / `MQ…`)           |
-| Peleka SMS                    | Deferred                                                                 |
+| Dexatel SMS                   | Approved; existing Toon Expo account (`TOONEXPO` sender)                 |
 | Resend                        | Pro + pay-as-you-go; sender `hi@mail.toonexpo.com`; domain verified      |
 | App registration rate limit   | Remove process-local limiter; rely on WAF / existing guards              |
 | Email/SMS copy                | Interim designed email OK; SMS short when enabled                        |
@@ -83,7 +84,7 @@ Planned registration fields:
 
 Planned small supporting tables:
 
-- `DeliveryJob` for EMAIL (and later SMS) retry;
+- `DeliveryJob` for EMAIL and SMS retry;
 - `PartnerFeedEvent` for ordered Toon Expo-origin fast-feed items;
 - `IntegrationSyncRun` for manual full import/export history.
 
@@ -113,12 +114,11 @@ No production migration is authorized by this plan.
 - [x] Mootq confirmed `TE`/`MQ` prefixed format (`^(TE|MQ)[A-Z0-9]{11}$`).
 - [x] Resend Pro / pay-as-you-go / sender domain confirmed.
 - [x] Hosted ticket domain chosen: `reg.toonexpo.com`.
-- [x] Peleka SMS deferred.
+- [x] Dexatel SMS chosen (replaces deferred Peleka plan).
 - [x] No block/ban/revoke product scope.
 - [ ] Assemble and send [`14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) for Mootq sign-off.
 - [ ] Confirm DNS for `reg.toonexpo.com` at release time.
-- [ ] Unblock Peleka when SMS is needed.
-- [ ] Replace interim email copy with final marketing text when available.
+- [ ] Replace interim email/SMS copy with final marketing text when available.
 
 ### Phase 1 — database expansion
 
@@ -139,12 +139,12 @@ No production migration is authorized by this plan.
 - [x] Remove process-local registration IP rate limit.
 - [ ] Verify representative codes from both generators on actual Mootq scanners.
 
-### Phase 3 — email (SMS later)
+### Phase 3 — email and SMS
 
 - [x] Replace synchronous email with persisted EMAIL delivery jobs.
 - [x] Render inline QR, readable code and ticket link in localized email.
 - [x] Add bounded retry, provider idempotency and admin-visible failures.
-- [x] Defer Peleka SMS adapter until contract is ready.
+- [x] Dexatel SMS adapter (`DeliveryJob` channel SMS + ticket-link copy).
 
 ### Phase 4 — fast exchange
 
@@ -177,7 +177,7 @@ No production migration is authorized by this plan.
 ### Phase 7 — owner-controlled release
 
 - [ ] Complete production checklist.
-- [ ] Configure Vercel Pro, paid Neon, Resend; Peleka when unblocked.
+- [ ] Configure Vercel Pro, paid Neon, Resend, Dexatel env on Vercel.
 - [ ] Exchange scoped Mootq credentials.
 - [ ] Apply production migrations manually.
 - [ ] Run one Toon Expo-origin and one Mootq-origin end-to-end smoke test.
@@ -196,4 +196,4 @@ No production migration is authorized by this plan.
 - Full import/export is manual, paginated, rerunnable and recorded in history.
 - Shared venue traffic is not blocked by the process-local IP limit.
 - No unnecessary backend, broker or cache infrastructure is added.
-- SMS may ship after Peleka without changing ticket codes or fast-exchange identity.
+- SMS via Dexatel uses the same ticket codes and hosted-ticket tokens as email.
