@@ -107,7 +107,7 @@ Error body shape:
 { "ok": false, "code": "VALIDATION_ERROR", "requestId": "..." }
 ```
 
-Success (`204`) returns no response body and no replacement ticket code. Toon Expo stores the supplied `MQ…` code unchanged and queues EMAIL delivery (SMS later).
+Success (`204`) returns no response body and no replacement ticket code. Toon Expo stores the supplied `MQ…` code unchanged and queues EMAIL and SMS delivery.
 
 ---
 
@@ -297,7 +297,7 @@ Mootq owns attendance. No detailed per-scan history in this contract.
 - Event-day mode switch
 - Ticket revoke/block/ban feeds
 - Automatic bilateral full-sync scheduling
-- SMS provider details
+- SMS provider details (Toon Expo owns Dexatel; not a Mootq contract item)
 
 ---
 

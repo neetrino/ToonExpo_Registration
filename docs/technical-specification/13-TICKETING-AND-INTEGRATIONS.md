@@ -1,14 +1,14 @@
 # Ticketing, delivery and Mootq integration
 
-**Status:** working contract draft for Mootq sign-off; Peleka SMS deferred
+**Status:** working contract draft for Mootq sign-off; Dexatel SMS approved
 
-## Owner notes (2026-07-27)
+## Owner notes (2026-07-28)
 
 - Same email/phone may register multiple participants.
 - Scanner format confirmed: `TE` or `MQ` prefix plus 11 uppercase alphanumeric characters (`^(TE|MQ)[A-Z0-9]{11}$`).
 - Implement fast + full from this family of docs; single partner-facing draft is `14-MOOTQ-PARTNER-CONTRACT.md`.
 - Fast Toon Expo → Mootq: outbound push is primary; cursor GET feed is backup.
-- SMS via Peleka is deferred; EMAIL delivery ships first.
+- SMS via Dexatel is approved (`TOONEXPO` sender; API verified 2026-07-28).
 - Hosted ticket domain: `reg.toonexpo.com`. Resend from `hi@mail.toonexpo.com`.
 - No block/ban/revoke product features.
 
@@ -195,21 +195,19 @@ Resend email contains:
 
 The current Resend Pro plan provides 50,000 monthly emails. Production readiness requires verified sender-domain authentication, confirmation of pay-as-you-go status and monitoring of quota/rate responses.
 
-## 8. Peleka SMS (deferred)
+## 8. Dexatel SMS
 
-SMS will contain a short localized message and the absolute hosted-ticket link.
+SMS contains a short localized message and the absolute hosted-ticket link.
 
-Peleka integration is deferred. When unblocked, define:
+Dexatel integration uses the existing Toon Expo account and alphanumeric sender `TOONEXPO`:
 
-- API authentication;
-- supported phone normalization;
-- request idempotency;
-- accepted/failed response semantics;
-- retryable vs permanent errors;
-- throughput and Unicode segment behavior;
-- delivery receipt handling if used.
+- API authentication via `X-Dexatel-Key` (`DEXATEL_API_KEY`);
+- phone numbers as digits with country code (from E.164 `phoneNormalized`);
+- `POST /v1/messages` channel `SMS`, `from=TOONEXPO`;
+- retryable vs permanent errors from HTTP status (429/5xx vs 4xx);
+- provider message ID stored on `DeliveryJob` when available.
 
-Peleka provider calls will use the same PostgreSQL `DeliveryJob` mechanism as email.
+Dexatel provider calls use the same PostgreSQL `DeliveryJob` mechanism as email.
 
 ## 9. Delivery jobs
 
@@ -289,8 +287,7 @@ Mootq owns this value. Detailed per-day/per-scan history is excluded. A future `
 
 1. Mootq sign-off on [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md) (field names, URLs, auth, push endpoint).
 2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
-3. Peleka API details when SMS is unblocked.
-4. Final marketing email copy (interim designed template acceptable).
-5. DNS confirmation for `reg.toonexpo.com`.
+3. Final marketing email/SMS copy (interim designed template acceptable).
+4. DNS confirmation for `reg.toonexpo.com`.
 
-Closed: repeated email/phone allowed; scanner format confirmed as `TE`/`MQ` + 11 uppercase alphanumeric; Resend sender/domain confirmed; no block/ban/revoke product scope; outbound push is primary fast path with GET feed as backup.
+Closed: repeated email/phone allowed; scanner format confirmed as `TE`/`MQ` + 11 uppercase alphanumeric; Resend sender/domain confirmed; Dexatel SMS approved; no block/ban/revoke product scope; outbound push is primary fast path with GET feed as backup.

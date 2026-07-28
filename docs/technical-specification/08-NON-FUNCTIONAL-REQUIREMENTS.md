@@ -15,7 +15,7 @@
 - QR generation/display must not wait for email/SMS.
 - Fast feed should normally answer an empty/small page within 500 ms.
 - Full sync uses bounded pages, default 500 and contract-tested maximum.
-- Provider dispatch must respect Resend/Peleka limits without blocking registration.
+- Provider dispatch must respect Resend/Dexatel limits without blocking registration.
 
 These are initial service targets, not unsupported provider guarantees.
 
@@ -39,7 +39,7 @@ These are initial service targets, not unsupported provider guarantees.
 ## Provider readiness
 
 - Resend plan/quota/rate and sender authentication confirmed.
-- Peleka authentication, throughput and failure behavior confirmed.
+- Dexatel authentication, throughput and failure behavior confirmed.
 - Maintain operational headroom for retries/resends.
 
 ## Load/failure rehearsal

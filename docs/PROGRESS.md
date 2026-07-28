@@ -114,7 +114,7 @@ No production migration is authorized by this plan.
 - [x] Mootq confirmed `TE`/`MQ` prefixed format (`^(TE|MQ)[A-Z0-9]{11}$`).
 - [x] Resend Pro / pay-as-you-go / sender domain confirmed.
 - [x] Hosted ticket domain chosen: `reg.toonexpo.com`.
-- [x] Dexatel SMS chosen (replaces deferred Peleka plan).
+- [x] Dexatel SMS chosen and integrated.
 - [x] No block/ban/revoke product scope.
 - [ ] Assemble and send [`14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) for Mootq sign-off.
 - [ ] Confirm DNS for `reg.toonexpo.com` at release time.

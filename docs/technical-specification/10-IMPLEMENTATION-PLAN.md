@@ -7,7 +7,7 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 1. ~~Confirm repeated-email behavior.~~ Allowed for email and phone; remove uniqueness constraint; use idempotency key.
 2. Draft Mootq fast/full contract in one document and send for sign-off (`14-MOOTQ-PARTNER-CONTRACT.md`).
 3. ~~Confirm `TE`/`MQ` prefixed format.~~ Confirmed by Mootq: `^(TE|MQ)[A-Z0-9]{11}$`.
-4. Peleka API details — deferred; SMS not in first slice.
+4. ~~Dexatel SMS API.~~ Approved; existing Toon Expo account (`TOONEXPO` sender).
 5. ~~Confirm Resend Pro/pay-as-you-go/domain.~~ `hi@mail.toonexpo.com` / `mail.toonexpo.com` verified.
 6. Hosted ticket domain: `reg.toonexpo.com` (confirm DNS at release).
 7. No block/ban/revoke product scope.
@@ -32,13 +32,13 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 8. Remove process-local registration IP rate limit.
 9. Scan samples from both generators on Mootq hardware.
 
-## Phase 3 — durable email delivery
+## Phase 3 — durable email and SMS delivery
 
 1. Create EMAIL jobs in the registration/import transaction.
 2. Add bounded PostgreSQL dispatcher.
 3. Implement Resend inline QR/link (interim designed copy OK).
 4. Add retry/idempotency and basic admin status.
-5. Defer Peleka SMS until unblocked.
+5. Implement Dexatel SMS ticket-link adapter (`DeliveryJob` channel SMS).
 
 ## Phase 4 — fast exchange
 
@@ -72,6 +72,6 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 3. Verify Resend quotas and throttling.
 4. Rehearse fast and full exchange with Mootq.
 5. Complete the production checklist.
-6. Enable Peleka SMS in a later slice when the contract arrives.
+6. Confirm Dexatel SMS production env and sender.
 
 Production deploy/migration remains owner-operated.
