@@ -76,6 +76,10 @@ function formatLocationSeek(locationSeek: Record<string, unknown>): AnswerDispla
     }
   }
 
+  if (scope === 'abroad' && typeof locationSeek.other === 'string' && locationSeek.other) {
+    pushRow(rows, questionLabel('locationSeekOther'), locationSeek.other);
+  }
+
   return rows;
 }
 

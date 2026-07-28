@@ -129,6 +129,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           abroadCountries: [],
           abroadCountriesOther: '',
           locationSeekScope: '',
+          locationSeekOther: '',
           yerevanDistricts: [],
           marzRegions: [],
           areaSqm: '',

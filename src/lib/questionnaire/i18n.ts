@@ -27,6 +27,11 @@ export const questionnaireI18n = {
       'Where are you looking for real estate?',
       'Где вы ищете недвижимость?',
     ),
+    locationSeekOther: L(
+      'Խնդրում ենք նշել երկիրը',
+      'Please specify the country',
+      'Пожалуйста, укажите страну',
+    ),
     yerevanDistricts: L(
       'Երևան — վարչական շրջան',
       'Yerevan — district',

@@ -41,6 +41,7 @@ export const CSV_ANSWER_COLUMNS = [
   { key: 'abroadCountries', header: 'Property abroad — country' },
   { key: 'abroadCountriesOther', header: 'Abroad countries (other)' },
   { key: 'locationSeek', header: 'Location' },
+  { key: 'locationSeekOther', header: 'Location abroad (country)' },
   { key: 'yerevanDistricts', header: 'Yerevan district' },
   { key: 'marzRegions', header: 'Region (marz)' },
   { key: 'areaSqm', header: 'Property size (sqm)' },

@@ -49,6 +49,7 @@ const locationSeekSchema = z.discriminatedUnion('scope', [
   }),
   z.object({
     scope: z.literal('abroad'),
+    other: otherTextSchema,
   }),
 ]);
 

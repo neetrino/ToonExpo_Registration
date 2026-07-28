@@ -29,6 +29,7 @@ export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUp
             onUpdate('interestType', value);
             if (value === 'abroad') {
               onUpdate('locationSeekScope', '');
+              onUpdate('locationSeekOther', '');
               onUpdate('yerevanDistricts', []);
               onUpdate('marzRegions', []);
             } else {
@@ -96,6 +97,9 @@ export function OwnResidenceLocationStep({ state, errors, disabled, locale, onUp
             onUpdate('locationSeekScope', value);
             onUpdate('yerevanDistricts', []);
             onUpdate('marzRegions', []);
+            if (value !== 'abroad') {
+              onUpdate('locationSeekOther', '');
+            }
           }}
           disabled={disabled}
           error={Boolean(errors.locationSeekScope)}
@@ -131,6 +135,23 @@ export function OwnResidenceLocationStep({ state, errors, disabled, locale, onUp
             error={Boolean(errors.marzRegions)}
           />
         </QuestionField>
+      ) : null}
+
+      {state.locationSeekScope === 'abroad' ? (
+        <FormField
+          id="locationSeekOther"
+          label={getQuestionLabel('locationSeekOther', locale)}
+          error={errors.locationSeekOther}
+          input={
+            <Input
+              id="locationSeekOther"
+              value={state.locationSeekOther}
+              disabled={disabled}
+              aria-invalid={Boolean(errors.locationSeekOther)}
+              onChange={(event) => onUpdate('locationSeekOther', event.target.value)}
+            />
+          }
+        />
       ) : null}
     </div>
   );

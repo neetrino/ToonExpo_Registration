@@ -71,6 +71,10 @@ function flattenLocationSeek(
       setColumn(columns, 'marzRegions', joinOptionLabels('marzRegion', regions));
     }
   }
+
+  if (scope === 'abroad' && typeof locationSeek.other === 'string' && locationSeek.other) {
+    setColumn(columns, 'locationSeekOther', locationSeek.other);
+  }
 }
 
 function flattenOwnResidence(columns: FlattenedAnswerColumns, a: Record<string, unknown>): void {

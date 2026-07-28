@@ -47,7 +47,7 @@ export type PurchaseHorizon = (typeof PURCHASE_HORIZONS)[number];
 export type LocationSeek =
   | { scope: 'yerevan'; districts: YerevanDistrict[] }
   | { scope: 'marz'; regions: MarzRegion[] }
-  | { scope: 'abroad' };
+  | { scope: 'abroad'; other: string };
 
 export type OwnResidenceAnswers = {
   ageBand: AgeBand;
