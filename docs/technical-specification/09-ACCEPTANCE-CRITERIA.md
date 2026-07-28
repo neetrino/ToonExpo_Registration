@@ -5,7 +5,7 @@
 - [ ] Repeated-email rule is approved and reflected consistently.
 - [ ] Mootq minimal inbound, fast feed and full-sync fixtures are approved.
 - [ ] `TE…` and `MQ…` ticket codes (`^(TE|MQ)[A-Z0-9]{11}$`) from both generators scan on real devices.
-- [ ] Peleka and Resend production contracts/settings are confirmed.
+- [ ] Dexatel and Resend production contracts/settings are confirmed.
 
 ## Toon Expo ticket
 
@@ -26,7 +26,7 @@
 
 - [ ] EMAIL/SMS jobs persist with the registration/import transaction.
 - [ ] Resend inline QR and link render in representative clients.
-- [ ] Peleka link opens the correct ticket.
+- [ ] Dexatel SMS link opens the correct ticket.
 - [ ] Retryable failures recover; terminal failures are visible.
 - [ ] Provider throttling does not block registration.
 

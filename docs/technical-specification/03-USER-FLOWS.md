@@ -36,7 +36,7 @@
 ## Delivery retry
 
 1. Dispatcher claims a bounded batch of due jobs.
-2. It sends through Resend or Peleka with timeout/idempotency.
+2. It sends through Resend or Dexatel with timeout/idempotency.
 3. Success marks the job sent.
 4. Retryable failure schedules another attempt.
 5. Permanent/max-attempt failure becomes visible to operations.

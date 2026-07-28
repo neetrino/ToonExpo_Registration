@@ -1,14 +1,14 @@
 # Toon Expo Registration — brief
 
-**Status:** owner decisions recorded 2026-07-27; Mootq partner contract draft in review; Peleka SMS deferred
+**Status:** owner decisions recorded 2026-07-28; Mootq partner contract draft in review; Dexatel SMS approved
 
-**Updated:** 2026-07-27
+**Updated:** 2026-07-28
 
 ## Product
 
-Toon Expo Registration is the main registration and ticket-delivery application for Toon Expo. It accepts registrations on the Toon Expo form, creates a QR ticket, shows it immediately, and sends the same ticket through email (SMS later via Peleka).
+Toon Expo Registration is the main registration and ticket-delivery application for Toon Expo. It accepts registrations on the Toon Expo form, creates a QR ticket, shows it immediately, and sends the same ticket through email and Dexatel SMS.
 
-Mootq operates a second registration form for roughly 10% of attendees and owns the scanning/check-in system. Mootq creates its own `MQ…` ticket codes in the shared prefixed format and shows them on its frontend. Toon Expo receives those registrations, stores the supplied code unchanged, and sends the matching QR through email (and later SMS).
+Mootq operates a second registration form for roughly 10% of attendees and owns the scanning/check-in system. Mootq creates its own `MQ…` ticket codes in the shared prefixed format and shows them on its frontend. Toon Expo receives those registrations, stores the supplied code unchanged, and sends the matching QR through email and SMS.
 
 ## Responsibility boundary
 
@@ -21,7 +21,7 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 | QR shown after Toon Expo registration | Owns                                     | No                                |
 | QR shown after Mootq registration     | No                                       | Owns                              |
 | Ticket email                          | Owns for both sources                    | Supplies recipient data           |
-| Ticket SMS                            | Deferred (Peleka); planned for both      | Supplies recipient data           |
+| Ticket SMS                            | Owns for both (Dexatel)                  | Supplies recipient data           |
 | Scanner/check-in                      | No                                       | Owns                              |
 | Fast Toon Expo registration push      | Pushes after each registration           | Receives at `MOOTQ_PUSH_URL`      |
 | Fast Toon Expo registration feed      | Exposes backup cursor feed               | Polls when needed                 |
@@ -54,7 +54,7 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 1. Toon Expo validates and saves the registration.
 2. Toon Expo generates and stores a unique `TE…` ticket code and assigns `sourceSystem=TOON_EXPO`.
 3. The success page shows the QR immediately.
-4. Email delivery jobs are saved (SMS jobs when Peleka is enabled).
+4. Email and SMS delivery jobs are saved when providers are configured.
 5. Toon Expo pushes the registration to Mootq after the HTTP response (primary fast path).
 6. The same registration is also available through the backup cursor feed if push failed or was missed.
 
@@ -63,7 +63,7 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 1. Mootq validates its form, generates an `MQ…` ticket code and shows its QR.
 2. Mootq sends the exact code plus the minimum recipient data to Toon Expo.
 3. The authenticated Mootq endpoint assigns `sourceSystem=MOOTQ` and stores the supplied code unchanged.
-4. Toon Expo creates email delivery jobs for the same code (SMS when Peleka is enabled).
+4. Toon Expo creates email and SMS delivery jobs for the same code when providers are configured.
 5. Toon Expo acknowledges persistence with an HTTP status; it does not issue or return a replacement ticket code.
 
 ## Ticket delivery
@@ -72,8 +72,8 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 - Email uses Resend Pro with pay-as-you-go included; production sender is `hi@mail.toonexpo.com` on verified domain `mail.toonexpo.com`.
 - Email contains an inline QR image, readable code and a link to the hosted ticket page.
 - Hosted ticket pages use production domain `reg.toonexpo.com` (planned).
-- Interim email copy may use a polished designed template until final marketing copy is approved; SMS copy will be short when SMS ships.
-- SMS through Peleka is deferred; implementation continues without SMS until the Peleka contract is ready.
+- Interim email copy may use a polished designed template until final marketing copy is approved; SMS copy is short and localized.
+- SMS uses Dexatel (`TOONEXPO` sender) with the hosted-ticket link; API verified 2026-07-28.
 - Provider failures do not remove the registration or ticket.
 - A small PostgreSQL delivery-job table provides durable retry; no external queue is introduced.
 - The process-local `5 / 10 minutes / IP` registration limiter is removed; public abuse protection relies on honeypot, origin/body validation and Vercel WAF.
@@ -113,12 +113,10 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 - Visitor block/ban, ticket revoke/cancellation workflow, or soft-delete lifecycle.
 - External message brokers or a separate backend service.
 - Storing QR image binaries in PostgreSQL.
-- Peleka SMS in the first implementation slice (deferred, not cancelled).
 
 ## Remaining inputs
 
 1. Mootq sign-off on the single partner contract draft (push endpoint, fast + full field names, URLs, auth).
 2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
-2. Peleka API contract when SMS is unblocked.
 3. Final marketing email/SMS copy (interim designed email template is acceptable to ship).
 4. Confirm production DNS for `reg.toonexpo.com` points at the app for hosted tickets.

@@ -8,7 +8,7 @@
 | PUB-02 | An accepted Toon Expo registration MUST assign `sourceSystem=TOON_EXPO` server-side. |
 | PUB-03 | It MUST receive one unique `TE…` ticket code matching `^(TE\|MQ)[A-Z0-9]{11}$`.     |
 | PUB-04 | Success MUST show the stored QR and readable code immediately.                       |
-| PUB-05 | Success MUST NOT wait for Resend or Peleka.                                          |
+| PUB-05 | Success MUST NOT wait for Resend or Dexatel.                                         |
 | PUB-06 | The current `5 / 10 minutes / IP` process-local limiter MUST be removed.             |
 | PUB-07 | The same email and phone MAY create multiple intentional registrations.              |
 | PUB-08 | Accidental double-submit MUST be protected by an idempotency key, not email/phone uniqueness. |
@@ -45,12 +45,12 @@
 | ------ | -------------------------------------------------------------------- |
 | DEL-01 | Registration/import and EMAIL jobs MUST be committed atomically.     |
 | DEL-02 | Email MUST contain inline QR, readable code and hosted-ticket link.  |
-| DEL-03 | SMS MUST contain the hosted-ticket link when Peleka is enabled.      |
+| DEL-03 | SMS MUST contain the hosted-ticket link when Dexatel is configured.  |
 | DEL-04 | Both channels MUST use the stored code for the registration.         |
 | DEL-05 | Provider failures MUST NOT roll back the registration.               |
 | DEL-06 | Logical sends MUST be idempotent and retries bounded.                |
 | DEL-07 | Admin/operations MUST see pending and terminal failures.             |
-| DEL-08 | Peleka SMS is deferred; first delivery slice is EMAIL-only.          |
+| DEL-08 | Dexatel SMS MUST use sender `TOONEXPO` via `POST /v1/messages`.      |
 
 ## Fast exchange
 

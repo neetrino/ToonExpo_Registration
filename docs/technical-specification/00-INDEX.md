@@ -2,9 +2,9 @@
 
 **Version:** 2.3
 
-**Date:** 2026-07-27
+**Date:** 2026-07-28
 
-**Status:** owner decisions recorded; Mootq partner contract draft ready for sign-off; Peleka SMS deferred
+**Status:** owner decisions recorded; Mootq partner contract draft ready for sign-off; Dexatel SMS approved
 
 ## Document map
 
@@ -32,7 +32,7 @@
 - Every code is exactly 13 ASCII characters: `TE` or `MQ` prefix plus 11 uppercase alphanumeric body (`^(TE|MQ)[A-Z0-9]{11}$`).
 - Toon Expo stores a Mootq-supplied code unchanged and does not return a replacement.
 - Registration origin is the separate trusted `sourceSystem = TOON_EXPO | MOOTQ` field.
-- Toon Expo delivers the stored code through Resend email and Peleka SMS for both sources.
+- Toon Expo delivers the stored code through Resend email and Dexatel SMS for both sources.
 - QR payload is exactly `ticketCode`; hosted links use a separate private token.
 - Fast exchange contains minimum operational data.
 - Mootq independently controls fast-feed polling frequency.
@@ -41,7 +41,7 @@
 - PostgreSQL delivery jobs provide retry; no Redis, NATS or external broker is added.
 - Same email and same phone MAY register multiple participants; accidental retries use an idempotency key.
 - Hosted tickets use `reg.toonexpo.com`; Resend sender is `hi@mail.toonexpo.com`.
-- Peleka SMS is deferred; email ships first.
+- Dexatel SMS is approved (`TOONEXPO` sender; API verified 2026-07-28).
 - No visitor block/ban/revoke product workflow.
 
 ## Closed owner decisions (2026-07-27)
@@ -53,9 +53,9 @@
 | Accidental double-submit                          | Idempotency key                                                            |
 | Mootq fast/full API                               | Implement from draft [`14-MOOTQ-PARTNER-CONTRACT.md`](./14-MOOTQ-PARTNER-CONTRACT.md); agree with Mootq |
 | `TE`/`MQ` prefixed scanner format (`^(TE\|MQ)[A-Z0-9]{11}$`) | Confirmed by Mootq with Toon Expo                                     |
-| Peleka API contract                               | Deferred                                                                   |
+| Dexatel SMS API                                   | Approved; existing Toon Expo account (`TOONEXPO`)                      |
 | Resend pay-as-you-go/domain                       | Pro includes pay-as-you-go; `mail.toonexpo.com` verified; from `hi@mail.toonexpo.com` |
-| Email/SMS copy and ticket domain                  | Interim designed email OK; SMS short later; domain `reg.toonexpo.com`      |
+| Email/SMS copy and ticket domain                  | Interim designed email OK; SMS short localized; domain `reg.toonexpo.com` |
 | Block/ban/deletion product features               | Out of scope — registration and ticket delivery only                       |
 
 ## Remaining inputs
@@ -63,8 +63,7 @@
 | Input                                             | Impact                                      |
 | ------------------------------------------------- | ------------------------------------------- |
 | Mootq sign-off on partner contract draft          | Final field names/URLs if they differ       |
-| Peleka API when SMS is unblocked                  | SMS adapter                                 |
-| Final marketing email copy                        | Replace interim template                    |
+| Final marketing email/SMS copy                    | Replace interim templates                   |
 | DNS for `reg.toonexpo.com` at release             | Hosted ticket production URL                |
 
 Pending partner field renames must not invent product behavior; adjust only transport naming after sign-off.

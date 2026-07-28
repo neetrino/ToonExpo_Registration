@@ -30,7 +30,7 @@ Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, d
 - Mootq registration backend creates and sends Mootq-origin records.
 - Mootq scanner system pulls new Toon Expo-origin records and owns attendance.
 - Resend sends ticket email.
-- Peleka sends ticket-link SMS.
+- Dexatel sends ticket-link SMS.
 - Neon stores application data.
 - Vercel runs the application and WAF.
 
@@ -54,7 +54,7 @@ Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, d
 ### Delivery
 
 - Inline QR email through Resend.
-- Hosted-ticket link through email and Peleka SMS.
+- Hosted-ticket link through email and Dexatel SMS.
 - Small PostgreSQL retry mechanism.
 - Basic pending/sent/failed visibility.
 

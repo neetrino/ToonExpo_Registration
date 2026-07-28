@@ -1,6 +1,6 @@
 # Security checklist status — Toon Expo Registration
 
-**Updated:** 2026-07-27
+**Updated:** 2026-07-28
 
 Status values: **Done** · **Planned** · **Owner** · **Deferred** · **N/A**
 
@@ -25,7 +25,7 @@ Status values: **Done** · **Planned** · **Owner** · **Deferred** · **N/A**
 | 4.4 | Safe ticket migration      | Done/Planned   | Expand+backfill done; final NOT NULL constraints later       |
 | 4.5 | Duplicate-email decision   | Done           | Shared email/phone allowed; idempotency key                  |
 | 5.1 | Secrets in server env      | Done/Owner     | Separate Preview/Production, no public secrets               |
-| 5.2 | Secret rotation            | Planned/Owner  | Mootq/Resend/Peleka rotation procedure                       |
+| 5.2 | Secret rotation            | Planned/Owner  | Mootq/Resend/Dexatel rotation procedure                      |
 | 6.1 | Redacted logs              | Done           | No ticket codes/tokens in app logger fields                  |
 | 6.2 | Operational alerts         | Owner          | Registration, delivery, integration and quota failures       |
 | 6.3 | No ticket values in logs   | Done           | App logs avoid codes/tokens; sync errors omit ticket codes   |
@@ -33,7 +33,7 @@ Status values: **Done** · **Planned** · **Owner** · **Deferred** · **N/A**
 | 8.1 | Dependency/security checks | Done/Owner     | CI baseline; patched production dependencies                 |
 | 9.1 | Data-sharing agreement     | Owner          | Fast/full field allowlists, purpose and retention            |
 | 9.2 | Resend readiness           | Owner          | Domain verified; confirm prod `SITE_URL` + monitoring        |
-| 9.3 | Peleka readiness           | Deferred       | SMS deferred                                                 |
+| 9.3 | Dexatel readiness          | Done/Owner     | API verified; Production env set; monitor delivery           |
 
 ## Required before production
 
