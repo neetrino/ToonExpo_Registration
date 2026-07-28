@@ -8,7 +8,7 @@
 
 ## Purpose
 
-The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends matching tickets through Resend and Peleka, pushes new Toon Expo registrations to Mootq, exposes a backup fast feed, and supports rare manual full reconciliation.
+The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends matching tickets through Resend and Dexatel SMS, pushes new Toon Expo registrations to Mootq, exposes a backup fast feed, and supports rare manual full reconciliation.
 
 ## System context
 
@@ -117,7 +117,7 @@ The API never replaces or returns a different ticket code. Identical retries are
 
 - Generate the QR image in memory from `ticketCode`.
 - Email through Resend includes inline QR, readable code and hosted-ticket link.
-- SMS through Peleka includes the hosted-ticket link.
+- SMS through Dexatel includes the hosted-ticket link.
 - The hosted page shows the same QR and provides PNG download.
 - Registration/import success does not wait for provider delivery.
 - A `DeliveryJob` record tracks pending, processing, sent and failed work.

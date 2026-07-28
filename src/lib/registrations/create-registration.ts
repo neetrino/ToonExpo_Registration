@@ -1,5 +1,6 @@
 import { getPrisma } from '@/lib/db/prisma';
-import { TICKET_EMAIL_TEMPLATE_VERSION } from '@/lib/delivery/constants';
+import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
+import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError, type RegistrationAppError } from '@/lib/registrations/errors';
@@ -59,7 +60,10 @@ export async function createRegistration(
   }
 
   try {
-    await processDueDeliveryJobs({ registrationId: created.registrationId, limit: 2 });
+    await processDueDeliveryJobs({
+      registrationId: created.registrationId,
+      limit: DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE,
+    });
   } catch (error: unknown) {
     logger.error('Delivery processing after registration failed', {
       registrationId: created.registrationId,
@@ -143,15 +147,7 @@ async function createWithTicketRetry(
           },
         });
 
-        await tx.deliveryJob.create({
-          data: {
-            registrationId: registration.id,
-            channel: 'EMAIL',
-            templateVersion: TICKET_EMAIL_TEMPLATE_VERSION,
-            status: 'PENDING',
-            nextAttemptAt: new Date(),
-          },
-        });
+        await createTicketDeliveryJobs(tx, registration.id);
 
         await tx.partnerPushDelivery.create({
           data: {

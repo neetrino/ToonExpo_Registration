@@ -1,5 +1,6 @@
 import { getPrisma } from '@/lib/db/prisma';
-import { TICKET_EMAIL_TEMPLATE_VERSION } from '@/lib/delivery/constants';
+import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
+import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { MOOTQ_PRIVACY_POLICY_VERSION } from '@/lib/integrations/mootq/constants';
 import type { MootqInboundBody } from '@/lib/integrations/mootq/inbound-schema';
@@ -97,21 +98,16 @@ export async function importMootqRegistration(
         select: { id: true },
       });
 
-      await tx.deliveryJob.create({
-        data: {
-          registrationId: registration.id,
-          channel: 'EMAIL',
-          templateVersion: TICKET_EMAIL_TEMPLATE_VERSION,
-          status: 'PENDING',
-          nextAttemptAt: new Date(),
-        },
-      });
+      await createTicketDeliveryJobs(tx, registration.id);
 
       return registration;
     });
 
     try {
-      await processDueDeliveryJobs({ registrationId: created.id, limit: 2 });
+      await processDueDeliveryJobs({
+        registrationId: created.id,
+        limit: DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE,
+      });
     } catch (error: unknown) {
       logger.error('Mootq import: delivery processing failed', {
         registrationId: created.id,
