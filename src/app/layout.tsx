@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/react';
 import { Geist, Noto_Sans, Noto_Sans_Armenian, Unbounded } from 'next/font/google';
 import './globals.css';
 
@@ -41,6 +42,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${notoSans.variable} ${notoSansArmenian.variable} ${unbounded.variable} min-h-dvh bg-primary antialiased`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
