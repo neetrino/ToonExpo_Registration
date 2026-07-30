@@ -127,7 +127,7 @@ Toon Expo pushes each new Toon Expo-origin registration to Mootq individually as
 1. Persist the registration and append one outbox row in the same PostgreSQL transaction.
 2. Return the ticket to the browser.
 3. After the HTTP response (`after()`), send one push per outbox row.
-4. A minute cron retries outbox rows that failed or were not yet sent (safety net only).
+4. A cron retries outbox rows that failed or were not yet sent (safety net only; scheduled only when `MOOTQ_PUSH_*` is configured).
 
 There is no event-day mode switch on either side. Toon Expo may retry the same push after `429`, `5xx`, or request timeout.
 

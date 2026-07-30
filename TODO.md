@@ -5,7 +5,7 @@ Updated: 2026-07-27
 ## Решения (зафиксировано)
 
 1. **QR:** `TE` + 11 / `MQ` + 11; алфавит `A-Z0-9`; regex `^(TE|MQ)[A-Z0-9]{11}$`. Мы генерируем только `TE…`. `sourceSystem` отдельно.
-2. **Fast push:** outbox в PostgreSQL → отправка сразу после ответа (`after()`), cron раз в минуту только как страховка. По одной регистрации, без батча. GET feed остаётся backup. Full sync — руками из админки.
+2. **Fast push:** outbox в PostgreSQL → отправка сразу после ответа (`after()`), cron-retry только когда есть `MOOTQ_PUSH_*` (сейчас в `vercel.json` отключён). По одной регистрации, без батча. GET feed остаётся backup. Full sync — руками из админки. Delivery cron — раз в час, оба gated env: `DELIVERY_CRON_ENABLED` / `MOOTQ_PUSH_CRON_ENABLED` (opt-in).
 3. **Event-day режим:** не нужен.
 4. **Минимальный push body (мы решаем):** `sourceRegistrationId`, `ticketCode`, `sourceSystem`, `createdAt` (+ `Idempotency-Key` header; `eventId` если у них multi-event). Без email/phone. Имя — только если Mootq попросит для сканера.
 
@@ -21,5 +21,5 @@ Updated: 2026-07-27
 ## Реализация (после/параллельно контракту)
 
 [x] Сменить генерацию/валидацию ticket code на `TE`/`MQ` + `A-Z0-9`
-[x] Outbox + `after()` push client + minute cron retry
+[x] Outbox + `after()` push client + cron retry (scheduled only when `MOOTQ_PUSH_*` exists)
 [x] Обновить `14-MOOTQ-PARTNER-CONTRACT.md` / ticketing docs

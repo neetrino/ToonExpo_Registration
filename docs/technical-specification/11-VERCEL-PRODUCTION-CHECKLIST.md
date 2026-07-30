@@ -29,6 +29,7 @@ Owner/operator actions only. Documentation or implementation work does not autho
 - [ ] Separate Mootq write and read/export credentials.
 - [ ] Preview credentials/resources separate from Production.
 - [ ] No secret uses a `NEXT_PUBLIC_` variable.
+- [ ] Cron flags: `DELIVERY_CRON_ENABLED` / `MOOTQ_PUSH_CRON_ENABLED` (`false` idle; `true` on event day). `CRON_SECRET` set.
 
 ## Database release
 
