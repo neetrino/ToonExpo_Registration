@@ -94,7 +94,7 @@ One short database transaction:
 5. Append one outbox row for Mootq push and one minimal fast-feed item (backup).
 6. Commit and return the ticket to the browser.
 
-Provider calls and outbound push happen after commit. Push uses `after()`; a minute cron retries failed outbox rows.
+Provider calls and outbound push happen after commit. Push uses `after()`; a cron retries failed outbox rows when `MOOTQ_PUSH_*` is configured and `MOOTQ_PUSH_CRON_ENABLED=true`. Delivery email/SMS use the same pattern with an hourly retry cron gated by `DELIVERY_CRON_ENABLED=true`.
 
 ### Mootq registration
 
@@ -143,7 +143,7 @@ These fields are sufficient for storage and ticket delivery.
 
 Toon Expo pushes each new Toon Expo-origin registration to Mootq individually after the visitor HTTP response. Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`. The minimal push body contains `sourceRegistrationId`, `ticketCode`, `sourceSystem`, and `createdAt`; the `Idempotency-Key` header equals `sourceRegistrationId`. Email, phone and name are excluded unless Mootq later requests name fields.
 
-A PostgreSQL outbox persists pending pushes; a minute cron retries failures. There is no event-day mode switch.
+A PostgreSQL outbox persists pending pushes; cron retries failures only when outbound push is configured. There is no event-day mode switch.
 
 Mootq MAY also poll an authenticated cursor endpoint as backup when push missed or failed. Each feed item explicitly contains `sourceSystem=TOON_EXPO`; the feed is:
 
@@ -189,7 +189,7 @@ Each import/export creates one `IntegrationSyncRun` with direction, timestamps, 
 ## Reliability and scale
 
 - Expected peak is about 1.7 registrations/second averaged over ten minutes.
-- Outbound push sends one registration per outbox row after each response; minute cron retries failures.
+- Outbound push sends one registration per outbox row after each response; cron retries failures when `MOOTQ_PUSH_*` is configured.
 - Backup fast feed polling frequency is controlled by Mootq.
 - Use the Neon pooled connection and colocate the Vercel function region.
 - Keep transactions short and indexes aligned with ticket/source IDs, delivery jobs and cursors.

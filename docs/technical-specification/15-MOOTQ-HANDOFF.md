@@ -82,7 +82,7 @@ Error body: `{ "ok": false, "code": "...", "requestId": "..." }`
 
 ## What WE will send to you (Toon Expo → Mootq)
 
-**When:** On every Toon Expo-origin registration, asynchronously after the visitor HTTP response. We retry on failure (outbox + minute cron safety net).
+**When:** On every Toon Expo-origin registration, asynchronously after the visitor HTTP response. We retry on failure (outbox + cron safety net once `MOOTQ_PUSH_*` is configured).
 
 ```http
 POST <MOOTQ_PUSH_URL>

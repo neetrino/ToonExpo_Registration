@@ -69,7 +69,7 @@ In one short PostgreSQL transaction:
 
 Commit before provider calls and before outbound push. Return the stored code to the Toon Expo browser for immediate display.
 
-After the HTTP response, Toon Expo sends one push per outbox row to Mootq. A minute cron retries unsent or failed outbox rows.
+After the HTTP response, Toon Expo sends one push per outbox row to Mootq. A cron retries unsent or failed outbox rows when `MOOTQ_PUSH_*` is configured (not scheduled until Mootq provides the endpoint).
 
 ## 4. Mootq registration import
 
@@ -121,7 +121,7 @@ The open repeated-email decision is closed: shared email/phone are allowed. Tran
 
 Toon Expo pushes each new Toon Expo-origin registration individually to Mootq after the visitor response completes.
 
-Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`. Toon Expo stores pending pushes in a PostgreSQL outbox table, sends one registration per HTTP request, and uses a minute cron only as a retry safety net.
+Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`. Toon Expo stores pending pushes in a PostgreSQL outbox table, sends one registration per HTTP request, and uses a cron only as a retry safety net after those credentials exist.
 
 ```http
 POST <MOOTQ_PUSH_URL>

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { processDuePartnerPushes } from '@/lib/integrations/mootq/process-partner-pushes';
 import { logger } from '@/lib/logger';
+import {
+  isCronFlagEnabled,
+  MOOTQ_PUSH_CRON_ENABLED_ENV,
+} from '@/lib/ops/cron-flags';
 import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
 import { secureSecretEqual } from '@/lib/security/secure-compare';
 
@@ -10,6 +14,8 @@ export const dynamic = 'force-dynamic';
  * Internal Mootq fast-push outbox dispatcher for Vercel Cron / ops retries.
  * Requires Authorization: Bearer <CRON_SECRET>.
  * Vercel Cron invokes GET and injects Bearer from env `CRON_SECRET`.
+ * Gated by `MOOTQ_PUSH_CRON_ENABLED`: true|1 = ON; unset|false = OFF.
+ * Also no-ops when `MOOTQ_PUSH_*` credentials are missing.
  */
 export async function GET(request: Request): Promise<NextResponse> {
   return processMootqPush(request);
@@ -43,6 +49,13 @@ async function processMootqPush(request: Request): Promise<NextResponse> {
     return NextResponse.json(
       { ok: false, code: 'UNAUTHORIZED', requestId },
       { status: 401, headers: requestIdHeaders(requestId) },
+    );
+  }
+
+  if (!isCronFlagEnabled(MOOTQ_PUSH_CRON_ENABLED_ENV)) {
+    return NextResponse.json(
+      { ok: true, code: 'DISABLED', requestId, skipped: true },
+      { status: 200, headers: requestIdHeaders(requestId) },
     );
   }
 

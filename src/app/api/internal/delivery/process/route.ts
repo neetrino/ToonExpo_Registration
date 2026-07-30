@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { processDueDeliveryJobs } from '@/lib/delivery';
 import { logger } from '@/lib/logger';
+import {
+  DELIVERY_CRON_ENABLED_ENV,
+  isCronFlagEnabled,
+} from '@/lib/ops/cron-flags';
 import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
 import { secureSecretEqual } from '@/lib/security/secure-compare';
 
@@ -10,6 +14,7 @@ export const dynamic = 'force-dynamic';
  * Internal delivery dispatcher for Vercel Cron / ops retries.
  * Requires Authorization: Bearer <CRON_SECRET>.
  * Vercel Cron invokes GET and injects Bearer from env `CRON_SECRET`.
+ * Gated by `DELIVERY_CRON_ENABLED`: true|1 = ON; unset|false = OFF (no Neon).
  */
 export async function GET(request: Request): Promise<NextResponse> {
   return processDelivery(request);
@@ -43,6 +48,13 @@ async function processDelivery(request: Request): Promise<NextResponse> {
     return NextResponse.json(
       { ok: false, code: 'UNAUTHORIZED', requestId },
       { status: 401, headers: requestIdHeaders(requestId) },
+    );
+  }
+
+  if (!isCronFlagEnabled(DELIVERY_CRON_ENABLED_ENV)) {
+    return NextResponse.json(
+      { ok: true, code: 'DISABLED', requestId, skipped: true },
+      { status: 200, headers: requestIdHeaders(requestId) },
     );
   }
 
