@@ -1,25 +1,31 @@
 # Toon Expo Registration — TODO
 
-Updated: 2026-07-27
+Updated: 2026-07-30
+
+## Перед событием (ops)
+
+- [ ] Vercel: `DELIVERY_CRON_ENABLED=true` (+ redeploy)
+- [ ] Когда есть `MOOTQ_PUSH_URL`/`MOOTQ_PUSH_KEY`: вернуть mootq-push в `vercel.json`, `MOOTQ_PUSH_CRON_ENABLED=true`
+- [ ] После события: оба cron-флага снова `false` (см. [`README.md`](README.md))
 
 ## Решения (зафиксировано)
 
 1. **QR:** `TE` + 11 / `MQ` + 11; алфавит `A-Z0-9`; regex `^(TE|MQ)[A-Z0-9]{11}$`. Мы генерируем только `TE…`. `sourceSystem` отдельно.
-2. **Fast push:** outbox в PostgreSQL → отправка сразу после ответа (`after()`), cron-retry только когда есть `MOOTQ_PUSH_*` (сейчас в `vercel.json` отключён). По одной регистрации, без батча. GET feed остаётся backup. Full sync — руками из админки. Delivery cron — раз в час, оба gated env: `DELIVERY_CRON_ENABLED` / `MOOTQ_PUSH_CRON_ENABLED` (opt-in).
-3. **Event-day режим:** не нужен.
-4. **Минимальный push body (мы решаем):** `sourceRegistrationId`, `ticketCode`, `sourceSystem`, `createdAt` (+ `Idempotency-Key` header; `eventId` если у них multi-event). Без email/phone. Имя — только если Mootq попросит для сканера.
+2. **Fast push:** outbox → `after()` сразу; cron-retry только с `MOOTQ_PUSH_*` + `MOOTQ_PUSH_CRON_ENABLED=true`. Delivery cron раз в час + `DELIVERY_CRON_ENABLED`.
+3. **Event-day режим приложения:** не нужен (только env-флаги cron).
+4. **Минимальный push body:** `sourceRegistrationId`, `ticketCode`, `sourceSystem`, `createdAt` (+ `Idempotency-Key`). Без email/phone.
 
 ## С Mootq
 
-[x] Подготовить handoff-пакет: [`14-MOOTQ-PARTNER-CONTRACT.md`](docs/technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) + [`15-MOOTQ-HANDOFF.md`](docs/technical-specification/15-MOOTQ-HANDOFF.md)
+[x] Handoff: [`14-MOOTQ-PARTNER-CONTRACT.md`](docs/technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) + [`15-MOOTQ-HANDOFF.md`](docs/technical-specification/15-MOOTQ-HANDOFF.md)
 [ ] Отправить handoff Mootq + выдать `MOOTQ_WRITE_KEY` / `MOOTQ_READ_KEY`
-[ ] Получить от них `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY`
-[ ] Совместный smoke: inbound POST, наш push, feed GET, full export (см. handoff § smoke test)
+[ ] Получить `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY`
+[ ] Smoke: inbound POST, наш push, feed GET, full export
 [ ] Получить `MOOTQ_FULL_EXPORT_BASE_URL` + `MOOTQ_FULL_EXPORT_KEY`
-[ ] Проверить на их сканере коды `TE…` / `MQ…` (uppercase)
+[ ] Сканер: коды `TE…` / `MQ…` (uppercase)
 
-## Реализация (после/параллельно контракту)
+## Реализация
 
-[x] Сменить генерацию/валидацию ticket code на `TE`/`MQ` + `A-Z0-9`
-[x] Outbox + `after()` push client + cron retry (scheduled only when `MOOTQ_PUSH_*` exists)
-[x] Обновить `14-MOOTQ-PARTNER-CONTRACT.md` / ticketing docs
+[x] Ticket code `TE`/`MQ` + `A-Z0-9`
+[x] Outbox + `after()` push + cron flags (`DELIVERY_CRON_ENABLED` / `MOOTQ_PUSH_CRON_ENABLED`)
+[x] Docs / README ops-памятка
