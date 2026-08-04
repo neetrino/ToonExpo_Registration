@@ -117,6 +117,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     privacyPolicyVersion: parsed.data.privacyPolicyVersion,
     formVersion: parsed.data.formVersion,
     answers: parsed.data.answers,
+    utmSource: parsed.data.utmSource,
+    utmMedium: parsed.data.utmMedium,
+    utmCampaign: parsed.data.utmCampaign,
     idempotencyKey,
   };
 

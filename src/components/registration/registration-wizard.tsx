@@ -11,6 +11,10 @@ import { buildRegistrationPayload } from './wizard/build-payload';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
 import { clearRegistrationIdempotencyKey } from './idempotency';
 import { storeTicketHandoff } from './ticket-handoff';
+import {
+  captureAndPersistUtmFromLocation,
+  clearPersistedUtmAttribution,
+} from './utm-attribution';
 import { getWizardSteps } from './wizard/steps';
 import { FinishStep } from './wizard/step-finish';
 import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
@@ -77,6 +81,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const [draftReady, setDraftReady] = useState(false);
 
   useEffect(() => {
+    // Capture landing UTM before/alongside draft hydrate so multi-step navigation keeps attribution.
+    captureAndPersistUtmFromLocation();
+
     const draft = loadWizardDraft();
     if (draft) {
       const draftSteps = getWizardSteps(draft.state.visitPurpose, draft.state.interestType);
@@ -226,6 +233,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     if (result.ok) {
       clearWizardDraft();
       clearRegistrationIdempotencyKey();
+      clearPersistedUtmAttribution();
       storeTicketHandoff({
         ticketCode: result.ticketCode,
         ticketViewToken: result.ticketViewToken,

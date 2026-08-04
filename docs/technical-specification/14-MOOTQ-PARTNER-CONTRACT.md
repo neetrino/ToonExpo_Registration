@@ -149,15 +149,28 @@ Content-Type: application/json
 }
 ```
 
+Optional additive marketing attribution (omit when absent):
+
+```json
+{
+  "utmSource": "facebook",
+  "utmMedium": "video",
+  "utmCampaign": "tey26"
+}
+```
+
 | Field | Required | Notes |
 | ----- | -------- | ----- |
 | `sourceRegistrationId` | Yes | Toon Expo registration ID; also sent as `Idempotency-Key` header |
 | `ticketCode` | Yes | Exact Toon Expo-generated code matching `^TE[A-Z0-9]{11}$` |
 | `sourceSystem` | Yes | Always `TOON_EXPO` for this path |
 | `createdAt` | Yes | ISO-8601 registration creation time |
+| `utmSource` | No | Landing `utm_source` when captured; omit when absent |
+| `utmMedium` | No | Landing `utm_medium` when captured; omit when absent |
+| `utmCampaign` | No | Landing `utm_campaign` when captured; omit when absent |
 | `eventId` | No | Include only if Mootq documents multi-event support |
 
-This push payload intentionally excludes email, phone and name. Name fields may be added later only if Mootq requests them for scanner display.
+This push payload intentionally excludes email, phone and name. Name fields may be added later only if Mootq requests them for scanner display. UTM fields are additive and may be ignored by Mootq until they opt in.
 
 ### Required Mootq endpoint behavior
 
@@ -206,7 +219,10 @@ Cache-Control: no-store
       "lastName": "Visitor",
       "email": "visitor@example.com",
       "phone": "+37400000000",
-      "createdAt": "2026-07-27T10:15:30.000Z"
+      "createdAt": "2026-07-27T10:15:30.000Z",
+      "utmSource": "facebook",
+      "utmMedium": "video",
+      "utmCampaign": "tey26"
     }
   ],
   "nextCursor": "12451",
@@ -222,6 +238,7 @@ Cache-Control: no-store
 | Replay | Safe from a previous cursor |
 | Catch-up | If `hasMore=true`, fetch next page immediately |
 | Fields | Minimum operational identity/contact only |
+| UTM | Optional additive `utmSource` / `utmMedium` / `utmCampaign` (null when absent) |
 
 For Toon Expo-origin rows, `sourceRegistrationId` is Toon Expo's registration id.
 
@@ -251,6 +268,7 @@ Authorization: Bearer <mootq-read-key>
 - Dataset may contain both origins.
 - Match key: `ticketCode`.
 - Includes approved registration/questionnaire fields and `attendanceStatus` when present.
+- Includes optional additive marketing attribution: `utmSource`, `utmMedium`, `utmCampaign` (null when absent).
 - Excludes secrets, ticket-view tokens, provider internals, delivery locks.
 
 Exact page JSON field list is finalized at sign-off; semantics above stay fixed.

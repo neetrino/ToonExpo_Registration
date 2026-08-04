@@ -102,11 +102,14 @@ Content-Type: application/json
 }
 ```
 
+Optional additive marketing attribution (omit when absent): `utmSource`, `utmMedium`, `utmCampaign`.
+
 | Field | Notes |
 | ----- | ----- |
 | `ticketCode` | `^TE[A-Z0-9]{11}$` — we generate only `TE…` codes |
 | `sourceSystem` | Always `TOON_EXPO` on this path |
 | Header `Idempotency-Key` | Same value as `sourceRegistrationId` |
+| `utmSource` / `utmMedium` / `utmCampaign` | Optional; present only when captured from the visitor landing URL |
 
 No email, phone, or name unless we agree later for scanner display.
 

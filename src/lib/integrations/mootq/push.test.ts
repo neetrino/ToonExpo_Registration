@@ -22,6 +22,27 @@ describe('buildMootqPushPayload', () => {
       createdAt: '2026-07-27T12:00:00.000Z',
     });
   });
+
+  it('includes optional UTM fields when present and omits when absent', () => {
+    const createdAt = new Date('2026-07-27T12:00:00.000Z');
+    expect(
+      buildMootqPushPayload({
+        registrationId: 'reg_123',
+        ticketCode: 'TEABCDEFGHIJK',
+        createdAt,
+        utmSource: 'facebook',
+        utmMedium: null,
+        utmCampaign: 'tey26',
+      }),
+    ).toEqual({
+      sourceRegistrationId: 'reg_123',
+      ticketCode: 'TEABCDEFGHIJK',
+      sourceSystem: 'TOON_EXPO',
+      createdAt: '2026-07-27T12:00:00.000Z',
+      utmSource: 'facebook',
+      utmCampaign: 'tey26',
+    });
+  });
 });
 
 describe('classifyMootqPushHttpStatus', () => {

@@ -2,6 +2,7 @@ import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import type { Locale } from '@/types/locale';
 import { getOrCreateRegistrationIdempotencyKey } from './idempotency';
+import { loadPersistedUtmAttribution } from './utm-attribution';
 import type { RegistrationSubmitPayload } from './wizard/build-payload';
 import type {
   RegistrationApiErrorBody,
@@ -45,6 +46,7 @@ export async function submitRegistration(
 ): Promise<SubmitRegistrationResult> {
   let response: Response;
   const idempotencyKey = getOrCreateRegistrationIdempotencyKey();
+  const utm = loadPersistedUtmAttribution();
 
   try {
     response = await fetch('/api/registrations', {
@@ -65,6 +67,9 @@ export async function submitRegistration(
         formVersion: values.formVersion,
         answers: values.answers,
         website: honeypot,
+        ...(utm.utmSource ? { utmSource: utm.utmSource } : {}),
+        ...(utm.utmMedium ? { utmMedium: utm.utmMedium } : {}),
+        ...(utm.utmCampaign ? { utmCampaign: utm.utmCampaign } : {}),
       }),
     });
   } catch {

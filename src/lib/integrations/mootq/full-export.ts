@@ -15,6 +15,9 @@ export type FullExportRecord = {
   attendanceStatus: 'NOT_VISITED' | 'VISITED' | null;
   formVersion: string | null;
   answers: unknown;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -126,6 +129,9 @@ export async function getFullExportPage(params: {
         attendanceStatus: true,
         formVersion: true,
         answers: true,
+        utmSource: true,
+        utmMedium: true,
+        utmCampaign: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -152,6 +158,9 @@ export async function getFullExportPage(params: {
         attendanceStatus: row.attendanceStatus,
         formVersion: row.formVersion,
         answers: row.answers,
+        utmSource: row.utmSource,
+        utmMedium: row.utmMedium,
+        utmCampaign: row.utmCampaign,
         createdAt: row.createdAt.toISOString(),
         updatedAt: row.updatedAt.toISOString(),
       });

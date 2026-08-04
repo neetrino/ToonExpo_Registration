@@ -96,6 +96,9 @@ async function processClaimedPartnerPush(
           ticketCode: true,
           createdAt: true,
           sourceSystem: true,
+          utmSource: true,
+          utmMedium: true,
+          utmCampaign: true,
         },
       },
     },
@@ -121,6 +124,9 @@ async function processClaimedPartnerPush(
     registrationId: registration.id,
     ticketCode: registration.ticketCode,
     createdAt: registration.createdAt,
+    utmSource: registration.utmSource,
+    utmMedium: registration.utmMedium,
+    utmCampaign: registration.utmCampaign,
   });
 
   const attemptedAt = new Date();

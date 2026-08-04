@@ -1,4 +1,5 @@
 export { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
+export { UTM_MAX_LENGTH, UTM_VALUE_PATTERN } from '@/lib/attribution/utm';
 
 export const NAME_MIN_LENGTH = 1;
 export const NAME_MAX_LENGTH = 100;
