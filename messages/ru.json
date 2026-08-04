@@ -1,13 +1,13 @@
 {
   "common": {
-    "siteName": "Toon Expo",
+    "siteName": "TOON EXPO",
     "privacy": "Конфиденциальность",
     "languageSwitcher": "Язык"
   },
   "landing": {
     "eyebrow": "Мероприятие анимации и комиксов",
-    "title": "Toon Expo",
-    "description": "Зарегистрируйтесь на Toon Expo — праздник анимации и комиксов. Дата и место проведения будут объявлены позже.",
+    "title": "TOON EXPO",
+    "description": "Зарегистрируйтесь на TOON EXPO — праздник анимации и комиксов. Дата и место проведения будут объявлены позже.",
     "eventDetailsTitle": "Детали мероприятия",
     "dateLabel": "Дата",
     "dateValue": "[PLACEHOLDER] Дата будет объявлена позже",
@@ -81,10 +81,10 @@
   },
   "success": {
     "title": "Регистрация получена",
-    "description": "Спасибо за регистрацию на Toon Expo. Ваши данные успешно сохранены.",
+    "description": "Спасибо за регистрацию на TOON EXPO. Ваши данные успешно сохранены.",
     "ticketTitle": "Вы зарегистрированы",
     "ticketDescription": "Покажите этот QR-код на входе. Также можно открыть или скачать билет.",
-    "qrAlt": "QR-код вашего билета Toon Expo",
+    "qrAlt": "QR-код вашего билета TOON EXPO",
     "codeHint": "Читаемый код билета",
     "openTicket": "Открыть страницу билета",
     "downloadQr": "Скачать QR PNG",

@@ -1,13 +1,13 @@
 {
   "common": {
-    "siteName": "Toon Expo",
+    "siteName": "TOON EXPO",
     "privacy": "Գաղտնիություն",
     "languageSwitcher": "Լեզու"
   },
   "landing": {
     "eyebrow": "Անիմացիայի և կոմիքսների միջոցառում",
-    "title": "Toon Expo",
-    "description": "Գրանցվեք Toon Expo-ի համար՝ անիմացիայի և կոմիքսների տոն։ Միջոցառման ամսաթիվը և վայրը կհայտարարվեն ավելի ուշ։",
+    "title": "TOON EXPO",
+    "description": "Գրանցվեք TOON EXPO-ի համար՝ անիմացիայի և կոմիքսների տոն։ Միջոցառման ամսաթիվը և վայրը կհայտարարվեն ավելի ուշ։",
     "eventDetailsTitle": "Միջոցառման մանրամասներ",
     "dateLabel": "Ամսաթիվ",
     "dateValue": "[PLACEHOLDER] Ամսաթիվը կհայտարարվի ավելի ուշ",
@@ -81,10 +81,10 @@
   },
   "success": {
     "title": "Գրանցումը ստացվել է",
-    "description": "Շնորհակալություն Toon Expo-ի գրանցման համար։ Ձեր տվյալները հաջողությամբ պահպանվել են։",
+    "description": "Շնորհակալություն TOON EXPO-ի գրանցման համար։ Ձեր տվյալները հաջողությամբ պահպանվել են։",
     "ticketTitle": "Դուք գրանցված եք",
     "ticketDescription": "Ցույց տվեք այս QR կոդը մուտքի մոտ։ Կարող եք նաև բացել կամ ներբեռնել տոմսը։",
-    "qrAlt": "Ձեր Toon Expo տոմսի QR կոդը",
+    "qrAlt": "Ձեր TOON EXPO տոմսի QR կոդը",
     "codeHint": "Ընթեռնելի տոմսի կոդ",
     "openTicket": "Բացել տոմսի էջը",
     "downloadQr": "Ներբեռնել QR PNG",

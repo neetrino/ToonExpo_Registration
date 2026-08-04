@@ -3,7 +3,7 @@ import { ToonExpoLogo } from '@/components/brand/toon-expo-logo';
 import { AdminLoginForm } from '@/components/admin/admin-login-form';
 
 export const metadata: Metadata = {
-  title: 'Admin login — Toon Expo Registration',
+  title: 'Admin login — TOON EXPO Registration',
   robots: { index: false, follow: false },
 };
 

@@ -11,7 +11,7 @@ export function SiteFooter({ privacyLabel }: SiteFooterProps) {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 text-xs text-white/60">
         <p className="flex items-center gap-2">
           <ToonExpoLogo size={22} className="opacity-90" />
-          <span>Toon Expo</span>
+          <span>TOON EXPO</span>
         </p>
         <Link
           href="/privacy"

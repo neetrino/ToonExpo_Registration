@@ -6,7 +6,7 @@ describe('buildTicketSmsMessage', () => {
 
   it('builds English copy with the ticket URL', () => {
     expect(buildTicketSmsMessage('en', { ticketUrl })).toBe(
-      'Toon Expo ticket: https://reg.toonexpo.com/ticket/abc',
+      'TOON EXPO ticket: https://reg.toonexpo.com/ticket/abc',
     );
   });
 
