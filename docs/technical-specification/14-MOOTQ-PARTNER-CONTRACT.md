@@ -2,11 +2,14 @@
 
 **Status:** locked for partner handoff — transport names may change at sign-off; semantics below are normative
 
-**Date:** 2026-07-27
+**Date:** 2026-07-27  
+**Updated:** 2026-08-04
 
 **Audience:** Toon Expo + Mootq engineering
 
 **Handoff one-pager:** [`15-MOOTQ-HANDOFF.md`](./15-MOOTQ-HANDOFF.md)
+
+> **Changelog — 2026-08-04:** Clarified optional marketing UTM attribution on Toon Expo → Mootq paths (push §2, backup feed §3, full export §4). Field names `utmSource`, `utmMedium`, `utmCampaign` are locked; push omits absent keys; feed/export may use `null`. Summary and Mootq action items: [`15-MOOTQ-HANDOFF.md`](./15-MOOTQ-HANDOFF.md) § “Contract update — 2026-08-04”. Inbound Mootq → Toon Expo (§1) unchanged.
 
 This is the single partner-facing contract for bidirectional fast exchange and rare full reconciliation. Two primary directions:
 
@@ -140,6 +143,8 @@ Content-Type: application/json
 
 ### Request body (locked minimum)
 
+Without captured UTM parameters:
+
 ```json
 {
   "sourceRegistrationId": "te-registration-id",
@@ -149,15 +154,21 @@ Content-Type: application/json
 }
 ```
 
-Optional additive marketing attribution (omit when absent):
+With captured UTM (example landing: `utm_source=facebook&utm_medium=video&utm_campaign=tey26`):
 
 ```json
 {
+  "sourceRegistrationId": "te-registration-id",
+  "ticketCode": "TE7K4M2X9P3R8",
+  "sourceSystem": "TOON_EXPO",
+  "createdAt": "2026-07-27T10:15:30.000Z",
   "utmSource": "facebook",
   "utmMedium": "video",
   "utmCampaign": "tey26"
 }
 ```
+
+On push, Toon Expo **omits** UTM keys when not captured (never sends JSON `null` for missing UTM on this path). Partial capture sends only keys that have values.
 
 | Field | Required | Notes |
 | ----- | -------- | ----- |
@@ -165,12 +176,12 @@ Optional additive marketing attribution (omit when absent):
 | `ticketCode` | Yes | Exact Toon Expo-generated code matching `^TE[A-Z0-9]{11}$` |
 | `sourceSystem` | Yes | Always `TOON_EXPO` for this path |
 | `createdAt` | Yes | ISO-8601 registration creation time |
-| `utmSource` | No | Landing `utm_source` when captured; omit when absent |
-| `utmMedium` | No | Landing `utm_medium` when captured; omit when absent |
-| `utmCampaign` | No | Landing `utm_campaign` when captured; omit when absent |
+| `utmSource` | No | Landing `utm_source` when captured; omit key on push when absent |
+| `utmMedium` | No | Landing `utm_medium` when captured; omit key on push when absent |
+| `utmCampaign` | No | Landing `utm_campaign` when captured; omit key on push when absent |
 | `eventId` | No | Include only if Mootq documents multi-event support |
 
-This push payload intentionally excludes email, phone and name. Name fields may be added later only if Mootq requests them for scanner display. UTM fields are additive and may be ignored by Mootq until they opt in.
+This push payload intentionally excludes email, phone and name. Name fields may be added later only if Mootq requests them for scanner display. UTM fields are additive: Mootq MUST accept pushes that include them without validation failure; Mootq SHOULD persist them for post-event reporting. Mootq MAY ignore them until opt-in.
 
 ### Required Mootq endpoint behavior
 
@@ -326,6 +337,7 @@ Mootq owns attendance. No detailed per-scan history in this contract.
 - [ ] Provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY` (direction B receiving API)
 - [ ] Implement push endpoint: idempotency, `2xx` / `409` / retryable `429`/`5xx`, 10–20 req/s
 - [ ] Confirm push accepts locked minimal body and `Idempotency-Key` header
+- [ ] Accept optional `utmSource`, `utmMedium`, `utmCampaign` on push (omit-safe); persist for reporting when ready (see handoff § “Contract update — 2026-08-04”)
 - [ ] Confirm backup feed path, cursor param names, `limit` max (§3)
 - [ ] Confirm full-export run + page endpoints (or equivalent) for rare sync (§4–5)
 - [ ] Provide Mootq full-export URL/auth/pagination for Toon Expo import
