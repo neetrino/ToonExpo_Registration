@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { processDuePartnerPushes } from '@/lib/integrations/mootq/process-partner-pushes';
 import { logger } from '@/lib/logger';
-import {
-  isCronFlagEnabled,
-  MOOTQ_PUSH_CRON_ENABLED_ENV,
-} from '@/lib/ops/cron-flags';
+import { isCronFlagEnabled, MOOTQ_PUSH_CRON_ENABLED_ENV } from '@/lib/ops/cron-flags';
 import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
 import { secureSecretEqual } from '@/lib/security/secure-compare';
 

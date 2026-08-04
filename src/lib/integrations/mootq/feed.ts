@@ -13,6 +13,9 @@ export type MootqFeedItem = {
   email: string;
   phone: string;
   createdAt: string;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
 };
 
 export type MootqFeedPage = {
@@ -71,6 +74,9 @@ export async function getMootqToonExpoFeed(params: {
             email: true,
             phoneNormalized: true,
             createdAt: true,
+            utmSource: true,
+            utmMedium: true,
+            utmCampaign: true,
           },
         },
       },
@@ -94,6 +100,9 @@ export async function getMootqToonExpoFeed(params: {
         email: row.registration.email,
         phone: row.registration.phoneNormalized,
         createdAt: row.registration.createdAt.toISOString(),
+        utmSource: row.registration.utmSource,
+        utmMedium: row.registration.utmMedium,
+        utmCampaign: row.registration.utmCampaign,
       });
     }
 

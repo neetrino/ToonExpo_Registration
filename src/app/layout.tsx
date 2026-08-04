@@ -27,8 +27,8 @@ const unbounded = Unbounded({
 });
 
 export const metadata: Metadata = {
-  title: 'Toon Expo Registration',
-  description: 'Register for Toon Expo — event details to be confirmed.',
+  title: 'TOON EXPO Registration',
+  description: 'Register for TOON EXPO — event details to be confirmed.',
 };
 
 export default function RootLayout({

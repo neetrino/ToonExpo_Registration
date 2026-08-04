@@ -1,6 +1,55 @@
 # Prisma migration notes
 
-## Latest change — `20260727120000_ticketing_and_integrations`
+## Latest change — `20260804120000_registration_utm_attribution`
+
+### Change
+
+Add nullable marketing attribution columns on `Registration`:
+
+- `utmSource` (TEXT, nullable)
+- `utmMedium` (TEXT, nullable)
+- `utmCampaign` (TEXT, nullable)
+
+Captured from landing UTM query params on public registration; no backfill required.
+
+### Framework
+
+Prisma 7 + PostgreSQL (Neon). CLI via `DIRECT_URL`; runtime via pooled `DATABASE_URL`.
+
+### Risk classification
+
+**LOW** — additive nullable columns only; no indexes, constraints, rewrites, or data backfill.
+
+### Data and availability risks
+
+- Existing rows remain valid with NULL UTM fields.
+- Rolling deploy: old app ignores new columns; new app writes them when present.
+- No lock risk beyond a brief metadata ALTER on Neon/Postgres for small additive columns.
+
+### Migration plan
+
+1. Review SQL in `prisma/migrations/20260804120000_registration_utm_attribution/migration.sql`.
+2. Non-prod only: `pnpm db:migrate:deploy` (or `pnpm db:migrate`).
+3. `pnpm prisma:generate`.
+4. **Never** apply to production without owner authorization.
+
+### Validation
+
+- Columns exist and are nullable.
+- New public registrations persist UTM when submitted; admin list/detail/CSV and Mootq push/feed/export surface them when set.
+
+### Deployment / rollback
+
+- Deploy: `prisma migrate deploy` with migration role + `DIRECT_URL`, then application that writes/reads UTM.
+- Rollback: prefer forward-fix (stop writing UTM); dropping columns is a later contract step only after consumers stop reading them.
+
+### Approval required
+
+Production migrate: **owner only**.
+
+---
+
+## Previous — `20260727120000_ticketing_and_integrations`
 
 ### Change
 

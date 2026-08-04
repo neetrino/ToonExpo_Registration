@@ -16,6 +16,9 @@ export type AdminRegistrationRow = {
   emailLastAttemptAt: Date | null;
   sourceSystem: string | null;
   sourceRegistrationId: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
   ticketCode: string | null;
   ticketViewToken: string | null;
   attendanceStatus: string | null;
@@ -118,6 +121,9 @@ export async function listAdminRegistrations(options: {
         emailDeliveryStatus: true,
         sourceSystem: true,
         sourceRegistrationId: true,
+        utmSource: true,
+        utmMedium: true,
+        utmCampaign: true,
         ticketCode: true,
         ticketViewToken: true,
         attendanceStatus: true,
@@ -174,6 +180,9 @@ export async function listRegistrationsForExport(search?: string): Promise<{
       emailDeliveryStatus: true,
       sourceSystem: true,
       sourceRegistrationId: true,
+      utmSource: true,
+      utmMedium: true,
+      utmCampaign: true,
       ticketCode: true,
       ticketViewToken: true,
       attendanceStatus: true,

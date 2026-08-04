@@ -136,6 +136,9 @@ async function createWithTicketRetry(
             ticketViewToken,
             attendanceStatus: 'NOT_VISITED',
             idempotencyKey: input.idempotencyKey,
+            utmSource: input.utmSource ?? null,
+            utmMedium: input.utmMedium ?? null,
+            utmCampaign: input.utmCampaign ?? null,
           },
           select: { id: true, ticketCode: true, ticketViewToken: true },
         });

@@ -7,6 +7,8 @@ import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   PRIVACY_POLICY_VERSION,
+  UTM_MAX_LENGTH,
+  UTM_VALUE_PATTERN,
 } from '@/lib/validation/constants';
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
@@ -23,6 +25,21 @@ const phoneCountrySchema = z
   })
   .optional()
   .default(DEFAULT_PHONE_COUNTRY);
+
+/**
+ * Optional marketing UTM label: trim, empty → absent, charset allowlist.
+ * Does not accept or trust `sourceSystem` (server-assigned).
+ */
+const optionalUtmFieldSchema = z.preprocess((value) => {
+  if (value == null || value === '') {
+    return undefined;
+  }
+  if (typeof value !== 'string') {
+    return value;
+  }
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+}, z.string().max(UTM_MAX_LENGTH).regex(UTM_VALUE_PATTERN, 'Invalid UTM value').optional());
 
 /**
  * Raw registration body schema (pre-normalization transforms applied via Zod).
@@ -47,6 +64,9 @@ export const registrationBodySchema = z
     website: z.string().max(200).optional().default(''),
     formVersion: z.literal(FORM_VERSION),
     answers: questionnaireAnswersSchema,
+    utmSource: optionalUtmFieldSchema,
+    utmMedium: optionalUtmFieldSchema,
+    utmCampaign: optionalUtmFieldSchema,
   })
   .superRefine((data, ctx) => {
     const phone = normalizePhone(data.phone, data.phoneCountry);
@@ -77,6 +97,9 @@ export const registrationBodySchema = z
       website: data.website,
       formVersion: data.formVersion,
       answers: data.answers,
+      utmSource: data.utmSource,
+      utmMedium: data.utmMedium,
+      utmCampaign: data.utmCampaign,
     };
   });
 

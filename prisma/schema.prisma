@@ -116,6 +116,10 @@ model Registration {
   attendanceStatus       AttendanceStatus?
   /// Client idempotency key for public accidental double-submit. Null for partner imports.
   idempotencyKey         String?
+  /// Marketing attribution from landing UTM (nullable; captured client-side).
+  utmSource              String?
+  utmMedium              String?
+  utmCampaign            String?
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
 

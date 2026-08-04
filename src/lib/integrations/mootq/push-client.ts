@@ -17,6 +17,9 @@ export type MootqPushClientInput = {
   registrationId: string;
   ticketCode: string;
   createdAt: Date;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
 };
 
 export type MootqPushFetch = (

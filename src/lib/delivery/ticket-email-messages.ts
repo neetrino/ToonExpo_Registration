@@ -34,15 +34,15 @@ export function buildTicketEmailMessage(
 }
 
 function buildEnMessage(input: TicketEmailMessageInput): TicketEmailMessage {
-  const subject = 'Toon Expo — your ticket';
+  const subject = 'TOON EXPO — your ticket';
   const text = [
     `Hello, ${input.firstName}.`,
-    'Your Toon Expo registration is confirmed. Keep this ticket for entry.',
+    'Your TOON EXPO registration is confirmed. Keep this ticket for entry.',
     `Ticket code: ${input.ticketCode}`,
     `Open your ticket: ${input.ticketUrl}`,
     'Event details (TBA):\n• Date: to be announced\n• Venue: to be announced',
     `Event website: ${input.siteUrl}`,
-    '— Toon Expo',
+    '— TOON EXPO',
   ].join('\n\n');
 
   return {
@@ -51,7 +51,7 @@ function buildEnMessage(input: TicketEmailMessageInput): TicketEmailMessage {
     html: buildHtml({
       locale: 'en',
       greeting: `Hello, ${escapeHtml(input.firstName)}.`,
-      intro: 'Your Toon Expo registration is confirmed. Keep this ticket for entry.',
+      intro: 'Your TOON EXPO registration is confirmed. Keep this ticket for entry.',
       codeLabel: 'Ticket code',
       ticketCode: input.ticketCode,
       linkLabel: 'Open your ticket',
@@ -64,15 +64,15 @@ function buildEnMessage(input: TicketEmailMessageInput): TicketEmailMessage {
 }
 
 function buildHyMessage(input: TicketEmailMessageInput): TicketEmailMessage {
-  const subject = 'Toon Expo — ձեր տոմսը';
+  const subject = 'TOON EXPO — ձեր տոմսը';
   const text = [
     `Բարև, ${input.firstName}։`,
-    'Ձեր Toon Expo գրանցումը հաստատված է։ Պահեք այս տոմսը մուտքի համար։',
+    'Ձեր TOON EXPO գրանցումը հաստատված է։ Պահեք այս տոմսը մուտքի համար։',
     `Տոմսի կոդ՝ ${input.ticketCode}`,
     `Բացել տոմսը՝ ${input.ticketUrl}`,
     'Միջոցառման մանրամասներ (TBA).\n• Ամսաթիվ. կհայտարարվի ավելի ուշ\n• Վայր. կհայտարարվի ավելի ուշ',
     `Միջոցառման կայք՝ ${input.siteUrl}`,
-    '— Toon Expo',
+    '— TOON EXPO',
   ].join('\n\n');
 
   return {
@@ -81,7 +81,7 @@ function buildHyMessage(input: TicketEmailMessageInput): TicketEmailMessage {
     html: buildHtml({
       locale: 'hy',
       greeting: `Բարև, ${escapeHtml(input.firstName)}։`,
-      intro: 'Ձեր Toon Expo գրանցումը հաստատված է։ Պահեք այս տոմսը մուտքի համար։',
+      intro: 'Ձեր TOON EXPO գրանցումը հաստատված է։ Պահեք այս տոմսը մուտքի համար։',
       codeLabel: 'Տոմսի կոդ',
       ticketCode: input.ticketCode,
       linkLabel: 'Բացել տոմսը',
@@ -94,15 +94,15 @@ function buildHyMessage(input: TicketEmailMessageInput): TicketEmailMessage {
 }
 
 function buildRuMessage(input: TicketEmailMessageInput): TicketEmailMessage {
-  const subject = 'Toon Expo — ваш билет';
+  const subject = 'TOON EXPO — ваш билет';
   const text = [
     `Здравствуйте, ${input.firstName}.`,
-    'Ваша регистрация на Toon Expo подтверждена. Сохраните этот билет для входа.',
+    'Ваша регистрация на TOON EXPO подтверждена. Сохраните этот билет для входа.',
     `Код билета: ${input.ticketCode}`,
     `Открыть билет: ${input.ticketUrl}`,
     'Детали мероприятия (TBA):\n• Дата: будет объявлена позже\n• Место: будет объявлено позже',
     `Сайт мероприятия: ${input.siteUrl}`,
-    '— Toon Expo',
+    '— TOON EXPO',
   ].join('\n\n');
 
   return {
@@ -111,7 +111,7 @@ function buildRuMessage(input: TicketEmailMessageInput): TicketEmailMessage {
     html: buildHtml({
       locale: 'ru',
       greeting: `Здравствуйте, ${escapeHtml(input.firstName)}.`,
-      intro: 'Ваша регистрация на Toon Expo подтверждена. Сохраните этот билет для входа.',
+      intro: 'Ваша регистрация на TOON EXPO подтверждена. Сохраните этот билет для входа.',
       codeLabel: 'Код билета',
       ticketCode: input.ticketCode,
       linkLabel: 'Открыть билет',
@@ -141,7 +141,7 @@ function buildHtml(parts: HtmlParts): string {
 <html lang="${parts.locale}">
 <body style="margin:0;padding:24px;background:#f4f7f8;color:#00303d;font-family:Arial,Helvetica,sans-serif;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;padding:28px;">
-    <tr><td style="font-size:22px;font-weight:800;">Toon Expo</td></tr>
+    <tr><td style="font-size:22px;font-weight:800;">TOON EXPO</td></tr>
     <tr><td style="padding-top:16px;font-size:16px;line-height:1.5;">${parts.greeting}</td></tr>
     <tr><td style="padding-top:8px;font-size:16px;line-height:1.5;">${parts.intro}</td></tr>
     <tr><td style="padding-top:20px;text-align:center;">
@@ -157,7 +157,7 @@ function buildHtml(parts: HtmlParts): string {
       ${escapeHtml(parts.siteLabel)}:<br />
       <a href="${escapeHtml(parts.siteUrl)}" style="color:#00303d;">${escapeHtml(parts.siteUrl)}</a>
     </td></tr>
-    <tr><td style="padding-top:24px;font-size:14px;">— Toon Expo</td></tr>
+    <tr><td style="padding-top:24px;font-size:14px;">— TOON EXPO</td></tr>
   </table>
 </body>
 </html>`;

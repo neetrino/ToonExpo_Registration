@@ -23,6 +23,9 @@ export type AdminRegistrationDetail = {
   emailLastAttemptAt: Date | null;
   sourceSystem: string | null;
   sourceRegistrationId: string | null;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
   ticketCode: string | null;
   ticketViewToken: string | null;
   attendanceStatus: string | null;
@@ -67,6 +70,9 @@ export async function getAdminRegistration(
       emailLastAttemptAt: true,
       sourceSystem: true,
       sourceRegistrationId: true,
+      utmSource: true,
+      utmMedium: true,
+      utmCampaign: true,
       ticketCode: true,
       ticketViewToken: true,
       attendanceStatus: true,

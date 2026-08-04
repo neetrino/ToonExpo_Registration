@@ -122,7 +122,7 @@ export function RegistrationDetailCard({
               label="Source"
               value={
                 registration.sourceSystem === 'TOON_EXPO'
-                  ? 'Toon Expo'
+                  ? 'TOON EXPO'
                   : registration.sourceSystem === 'MOOTQ'
                     ? 'Mootq'
                     : '—'
@@ -151,6 +151,9 @@ export function RegistrationDetailCard({
                 </span>
               }
             />
+            <DetailField label="UTM source" value={registration.utmSource ?? '—'} />
+            <DetailField label="UTM medium" value={registration.utmMedium ?? '—'} />
+            <DetailField label="UTM campaign" value={registration.utmCampaign ?? '—'} />
             {registration.ticketViewToken && registration.ticketCode ? (
               <div className="sm:col-span-2 flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="outline">

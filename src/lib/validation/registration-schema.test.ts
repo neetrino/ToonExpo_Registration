@@ -145,4 +145,42 @@ describe('registrationBodySchema', () => {
     });
     expect(parsed.success).toBe(false);
   });
+
+  it('accepts optional UTM attribution fields', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      utmSource: '  facebook  ',
+      utmMedium: 'video',
+      utmCampaign: 'tey26',
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.utmSource).toBe('facebook');
+    expect(parsed.data.utmMedium).toBe('video');
+    expect(parsed.data.utmCampaign).toBe('tey26');
+  });
+
+  it('treats empty UTM strings as absent', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      utmSource: '  ',
+      utmMedium: '',
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.utmSource).toBeUndefined();
+    expect(parsed.data.utmMedium).toBeUndefined();
+  });
+
+  it('rejects invalid UTM charset', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      utmSource: 'face book',
+    });
+    expect(parsed.success).toBe(false);
+  });
 });

@@ -7,10 +7,7 @@ type Localized = Record<QuestionnaireLocale, string>;
 export type FlattenedAnswerColumns = Record<(typeof CSV_ANSWER_COLUMNS)[number]['key'], string>;
 
 type LabelHelpers = {
-  optionLabel: <G extends keyof typeof questionnaireI18n.options>(
-    group: G,
-    key: string,
-  ) => string;
+  optionLabel: <G extends keyof typeof questionnaireI18n.options>(group: G, key: string) => string;
   joinOptionLabels: <G extends keyof typeof questionnaireI18n.options>(
     group: G,
     keys: string[],
@@ -71,11 +68,7 @@ function flattenLocationSeek(
       (item): item is string => typeof item === 'string',
     );
     if (districts.length > 0) {
-      setColumn(
-        columns,
-        'yerevanDistricts',
-        labels.joinOptionLabels('yerevanDistrict', districts),
-      );
+      setColumn(columns, 'yerevanDistricts', labels.joinOptionLabels('yerevanDistrict', districts));
     }
   }
 
@@ -198,11 +191,7 @@ function flattenMarketResearch(
     setColumn(columns, 'researchGoal', labels.optionLabel('researchGoal', a.researchGoal));
   }
   if (typeof a.interestedWhere === 'string') {
-    setColumn(
-      columns,
-      'interestedWhere',
-      labels.optionLabel('interestedWhere', a.interestedWhere),
-    );
+    setColumn(columns, 'interestedWhere', labels.optionLabel('interestedWhere', a.interestedWhere));
   }
   if (typeof a.interestedWhereOther === 'string') {
     setColumn(columns, 'interestedWhereOther', a.interestedWhereOther);

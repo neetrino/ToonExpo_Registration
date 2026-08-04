@@ -12,7 +12,7 @@ describe('envSchema', () => {
   it('parses a valid environment object without DIRECT_URL', () => {
     const parsed = envSchema.safeParse({
       ...baseEnv,
-      RESEND_FROM_EMAIL: 'Toon Expo <registration@example.com>',
+      RESEND_FROM_EMAIL: 'TOON EXPO <registration@example.com>',
     });
 
     expect(parsed.success).toBe(true);

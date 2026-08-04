@@ -39,7 +39,7 @@ function emailStatusClass(status: string): string {
 
 function sourceLabel(sourceSystem: string | null): string {
   if (sourceSystem === 'TOON_EXPO') {
-    return 'Toon Expo';
+    return 'TOON EXPO';
   }
   if (sourceSystem === 'MOOTQ') {
     return 'Mootq';
@@ -64,6 +64,21 @@ function SourceBadge({ sourceSystem }: { sourceSystem: string | null }) {
   return (
     <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground">
       {sourceLabel(sourceSystem)}
+    </span>
+  );
+}
+
+function UtmSourceLabel({ utmSource }: { utmSource: string | null }) {
+  if (!utmSource) {
+    return null;
+  }
+
+  return (
+    <span
+      className="mt-1 block max-w-[10rem] truncate text-[11px] text-muted-foreground"
+      title={utmSource}
+    >
+      UTM: {utmSource}
     </span>
   );
 }
@@ -154,6 +169,7 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 </td>
                 <td className="px-5 py-4">
                   <SourceBadge sourceSystem={row.sourceSystem} />
+                  <UtmSourceLabel utmSource={row.utmSource} />
                 </td>
                 <td className="px-5 py-4 font-mono text-xs tracking-wide text-foreground">
                   {row.ticketCode ?? '—'}
@@ -197,6 +213,14 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
               </span>
               <span className="mt-1 flex flex-wrap items-center gap-2">
                 <SourceBadge sourceSystem={row.sourceSystem} />
+                {row.utmSource ? (
+                  <span
+                    className="max-w-[8rem] truncate text-[11px] text-muted-foreground"
+                    title={row.utmSource}
+                  >
+                    UTM: {row.utmSource}
+                  </span>
+                ) : null}
                 <span className="font-mono text-xs tracking-wide text-muted-foreground">
                   {row.ticketCode ?? 'No ticket'}
                 </span>

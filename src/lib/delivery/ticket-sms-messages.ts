@@ -7,9 +7,9 @@ export type TicketSmsMessageInput = {
 type MessageBuilder = (input: TicketSmsMessageInput) => string;
 
 const messageBuilders: Record<Locale, MessageBuilder> = {
-  hy: ({ ticketUrl }) => `Toon Expo տոմս՝ ${ticketUrl}`,
-  en: ({ ticketUrl }) => `Toon Expo ticket: ${ticketUrl}`,
-  ru: ({ ticketUrl }) => `Билет Toon Expo: ${ticketUrl}`,
+  hy: ({ ticketUrl }) => `TOON EXPO տոմս՝ ${ticketUrl}`,
+  en: ({ ticketUrl }) => `TOON EXPO ticket: ${ticketUrl}`,
+  ru: ({ ticketUrl }) => `Билет TOON EXPO: ${ticketUrl}`,
 };
 
 /**
