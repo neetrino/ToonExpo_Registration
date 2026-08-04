@@ -11,10 +11,7 @@ import { buildRegistrationPayload } from './wizard/build-payload';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
 import { clearRegistrationIdempotencyKey } from './idempotency';
 import { storeTicketHandoff } from './ticket-handoff';
-import {
-  captureAndPersistUtmFromLocation,
-  clearPersistedUtmAttribution,
-} from './utm-attribution';
+import { captureAndPersistUtmFromLocation, clearPersistedUtmAttribution } from './utm-attribution';
 import { getWizardSteps } from './wizard/steps';
 import { FinishStep } from './wizard/step-finish';
 import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';

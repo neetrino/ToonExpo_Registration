@@ -65,12 +65,8 @@ export function getQueryParamCaseInsensitive(
 export function captureUtmFromSearchParams(params: URLSearchParams): UtmAttribution {
   const result: UtmAttribution = {};
 
-  const source = normalizeUtmValue(
-    getQueryParamCaseInsensitive(params, UTM_PARAM_KEYS.utmSource),
-  );
-  const medium = normalizeUtmValue(
-    getQueryParamCaseInsensitive(params, UTM_PARAM_KEYS.utmMedium),
-  );
+  const source = normalizeUtmValue(getQueryParamCaseInsensitive(params, UTM_PARAM_KEYS.utmSource));
+  const medium = normalizeUtmValue(getQueryParamCaseInsensitive(params, UTM_PARAM_KEYS.utmMedium));
   const campaign = normalizeUtmValue(
     getQueryParamCaseInsensitive(params, UTM_PARAM_KEYS.utmCampaign),
   );

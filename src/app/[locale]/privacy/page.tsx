@@ -70,9 +70,7 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
                     ))}
                   </ul>
                 ) : null}
-                {section.closing ? (
-                  <p className="whitespace-pre-line">{section.closing}</p>
-                ) : null}
+                {section.closing ? <p className="whitespace-pre-line">{section.closing}</p> : null}
               </section>
             ))}
           </div>

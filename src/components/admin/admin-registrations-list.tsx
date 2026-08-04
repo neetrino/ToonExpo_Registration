@@ -74,7 +74,10 @@ function UtmSourceLabel({ utmSource }: { utmSource: string | null }) {
   }
 
   return (
-    <span className="mt-1 block max-w-[10rem] truncate text-[11px] text-muted-foreground" title={utmSource}>
+    <span
+      className="mt-1 block max-w-[10rem] truncate text-[11px] text-muted-foreground"
+      title={utmSource}
+    >
       UTM: {utmSource}
     </span>
   );
@@ -211,7 +214,10 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
               <span className="mt-1 flex flex-wrap items-center gap-2">
                 <SourceBadge sourceSystem={row.sourceSystem} />
                 {row.utmSource ? (
-                  <span className="max-w-[8rem] truncate text-[11px] text-muted-foreground" title={row.utmSource}>
+                  <span
+                    className="max-w-[8rem] truncate text-[11px] text-muted-foreground"
+                    title={row.utmSource}
+                  >
                     UTM: {row.utmSource}
                   </span>
                 ) : null}

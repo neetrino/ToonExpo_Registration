@@ -27,9 +27,7 @@ describe('normalizeUtmValue', () => {
 
 describe('captureUtmFromSearchParams', () => {
   it('reads case-insensitive param names', () => {
-    const params = new URLSearchParams(
-      'UTM_SOURCE=facebook&utm_Medium=video&Utm_Campaign=tey26',
-    );
+    const params = new URLSearchParams('UTM_SOURCE=facebook&utm_Medium=video&Utm_Campaign=tey26');
     expect(captureUtmFromSearchParams(params)).toEqual({
       utmSource: 'facebook',
       utmMedium: 'video',
@@ -48,10 +46,7 @@ describe('captureUtmFromSearchParams', () => {
 describe('mergeUtmAttribution', () => {
   it('keeps the first non-empty value per field', () => {
     expect(
-      mergeUtmAttribution(
-        { utmSource: 'facebook' },
-        { utmSource: 'google', utmMedium: 'video' },
-      ),
+      mergeUtmAttribution({ utmSource: 'facebook' }, { utmSource: 'google', utmMedium: 'video' }),
     ).toEqual({
       utmSource: 'facebook',
       utmMedium: 'video',
