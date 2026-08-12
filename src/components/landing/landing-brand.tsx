@@ -11,21 +11,12 @@ type LandingBrandProps = {
   meta: LandingBrandMetaItem[];
 };
 
-export function LandingBrand({
-  title,
-  titleBrand,
-  titleEvent,
-  lead,
-  meta,
-}: LandingBrandProps) {
+export function LandingBrand({ title, titleBrand, titleEvent, lead, meta }: LandingBrandProps) {
   return (
     <header className="landing-brand mx-auto w-full max-w-3xl min-w-0 text-center">
       <h1 className="font-display font-extrabold tracking-tight text-white">
         <span className="sr-only">{title}</span>
-        <span
-          aria-hidden="true"
-          className="block text-[clamp(1.75rem,6vw,2.75rem)] leading-none"
-        >
+        <span aria-hidden="true" className="block text-[clamp(1.75rem,6vw,2.75rem)] leading-none">
           {titleBrand}
         </span>
         <span
