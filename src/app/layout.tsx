@@ -27,8 +27,9 @@ const unbounded = Unbounded({
 });
 
 export const metadata: Metadata = {
-  title: 'TOON EXPO Registration',
-  description: 'Register for TOON EXPO — event details to be confirmed.',
+  title: 'TOON EXPO. Invest 2026 Vol. 2 Registration',
+  description:
+    'Register for TOON EXPO. Invest 2026 Vol. 2 — international real estate and investment exhibition, November 13–15 at Meridian Exhibition Center.',
 };
 
 export default function RootLayout({
