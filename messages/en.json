@@ -5,18 +5,41 @@
     "languageSwitcher": "Language"
   },
   "landing": {
-    "eyebrow": "Animation & comics event",
-    "title": "TOON EXPO",
-    "description": "Register for TOON EXPO — a celebration of animation and comics. Event date and venue will be announced soon.",
+    "eyebrow": "Real estate and investment exhibition",
+    "title": "TOON EXPO. Invest 2026 Vol. 2",
+    "description": "Hello, dear visitor.",
+    "paragraphs": [
+      "Hello, dear visitor.",
+      "From November 13 to 15, Armenia will host one of the largest international real estate and investment exhibitions — TOON EXPO. Invest 2026 Vol. 2.",
+      "The exhibition will bring together leading companies in real estate and construction on one platform — developers, real estate agencies, financial organizations, and other companies related to the industry.",
+      "During TOON EXPO. Invest 2026 Vol. 2, visitors will have the opportunity to explore new projects, special offers, investment opportunities, and the latest offerings on the real estate market."
+    ],
     "eventDetailsTitle": "Event details",
-    "dateLabel": "Date",
-    "dateValue": "[PLACEHOLDER] Date TBA",
+    "dateLabel": "Dates",
+    "dateValue": "November 13, 14, 15",
+    "hoursLabel": "Working hours",
+    "hoursValue": "11:00-20:00",
     "venueLabel": "Venue",
-    "venueValue": "[PLACEHOLDER] Venue TBA",
+    "venueValue": "Meridian Exhibition Center (Voskerichneri 1)",
+    "attentionTitle": "ATTENTION",
+    "attentionParagraphs": [
+      "Dear visitor,",
+      "The information and personal data you fill in or provide are strictly confidential.",
+      "Completed data will not be transferred to any third party in any way and will be used only by the organizer for internal analysis and statistical purposes.",
+      "Please also note that by completing this questionnaire you automatically give your consent to receive periodic reminder emails about the exhibition from us, the organizer.",
+      "We value the confidentiality of your personal data and commit to ensuring their security and integrity.",
+      "Thank you."
+    ],
+    "signature": "With care, the Big Projects team.",
     "registrationTitle": "Registration",
     "registrationDescription": "Complete the form below to register. All fields are required.",
     "registerCta": "Register now",
-    "privacyLink": "Privacy policy"
+    "privacyLink": "Privacy policy",
+    "lead": "From November 13 to 15, Armenia will host one of the largest international real estate and investment exhibitions — TOON EXPO. Invest 2026 Vol. 2.",
+    "aboutToggle": "About the exhibition",
+    "privacyNoticeToggle": "Privacy notice",
+    "titleBrand": "TOON EXPO.",
+    "titleEvent": "Invest 2026 Vol. 2"
   },
   "privacy": {
     "title": "Personal data privacy policy",
