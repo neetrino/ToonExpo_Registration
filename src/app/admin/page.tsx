@@ -45,9 +45,13 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
       <header className="sticky top-0 z-20 border-b border-white/10 bg-primary">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/95 shadow-sm">
-              <ToonExpoLogo size={28} />
+            <div className="flex shrink-0 items-center gap-2.5">
+              <ToonExpoLogo size={36} className="shrink-0" />
+              <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
+                TOON EXPO
+              </span>
             </div>
+            <div className="hidden h-8 w-px shrink-0 bg-white/20 sm:block" aria-hidden="true" />
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
                 Admin
