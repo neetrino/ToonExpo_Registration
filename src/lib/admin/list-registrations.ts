@@ -1,6 +1,7 @@
 import type { Prisma } from '@/generated/prisma';
 import { getPrisma } from '@/lib/db';
-import { ADMIN_PAGE_SIZE, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
+import { ADMIN_PAGE_SIZE } from '@/lib/admin/constants';
+import { normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import type { Locale } from '@/types/locale';
 
 export type AdminRegistrationRow = {
@@ -38,12 +39,7 @@ export type AdminListResult = {
 };
 
 function normalizeSearch(raw: string | undefined): string | undefined {
-  if (!raw) {
-    return undefined;
-  }
-
-  const trimmed = raw.trim().slice(0, ADMIN_SEARCH_MAX_LENGTH);
-  return trimmed.length > 0 ? trimmed : undefined;
+  return normalizeAdminSearchQuery(raw);
 }
 
 function buildSearchWhere(

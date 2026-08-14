@@ -9,17 +9,11 @@ import { ADMIN_SEARCH_DEBOUNCE_MS, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/c
 import { buildAdminSearchHref, normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import { cn } from '@/lib/utils';
 
-const SEARCH_DEBOUNCE_MS = 300;
-
 type AdminSearchFormProps = {
   initialQuery: string;
   variant?: 'default' | 'toolbar';
   className?: string;
 };
-
-function normalizeQuery(value: string): string {
-  return value.trim().slice(0, ADMIN_SEARCH_MAX_LENGTH);
-}
 
 export function AdminSearchForm({
   initialQuery,
