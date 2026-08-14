@@ -10,21 +10,31 @@ const geistSans = Geist({
 });
 
 const notoSans = Noto_Sans({
-  subsets: ['latin', 'cyrillic'],
+  subsets: ['latin'],
   variable: '--font-noto-sans',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700'],
+  display: 'swap',
+});
+
+const notoSansCyrillic = Noto_Sans({
+  subsets: ['cyrillic'],
+  variable: '--font-noto-cyrillic',
+  weight: ['400', '700'],
+  display: 'swap',
 });
 
 const notoSansArmenian = Noto_Sans_Armenian({
   subsets: ['armenian'],
   variable: '--font-noto-armenian',
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 const unbounded = Unbounded({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-unbounded',
   weight: ['700', '800'],
+  display: 'swap',
 });
 
 export const viewport: Viewport = {
@@ -59,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="hy" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${notoSans.variable} ${notoSansArmenian.variable} ${unbounded.variable} min-h-dvh bg-primary antialiased`}
+        className={`${geistSans.variable} ${notoSans.variable} ${notoSansCyrillic.variable} ${notoSansArmenian.variable} ${unbounded.variable} min-h-dvh bg-primary antialiased`}
       >
         {children}
         <Analytics />

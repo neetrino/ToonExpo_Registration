@@ -20,8 +20,10 @@
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --font-sans:
-    var(--font-noto-armenian), var(--font-noto-sans), var(--font-geist-sans), system-ui, sans-serif;
-  --font-display: var(--font-unbounded), var(--font-noto-sans), system-ui, sans-serif;
+    var(--font-noto-armenian), var(--font-noto-sans), var(--font-noto-cyrillic),
+    var(--font-geist-sans), system-ui, sans-serif;
+  --font-display:
+    var(--font-unbounded), var(--font-noto-sans), var(--font-noto-cyrillic), system-ui, sans-serif;
 }
 
 :root {

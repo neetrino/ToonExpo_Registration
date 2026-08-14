@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "postinstall": "prisma generate",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint . --max-warnings 0 && node -e \"console.log('ESLint: passed')\"",
     "lint:fix": "eslint . --fix --max-warnings 0",
