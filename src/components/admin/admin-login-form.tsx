@@ -29,7 +29,7 @@ export function AdminLoginForm() {
   const [state, formAction] = useActionState(loginFormAction, initialState);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="admin-email">Email</Label>
         <Input
@@ -37,6 +37,7 @@ export function AdminLoginForm() {
           name="email"
           type="email"
           autoComplete="username"
+          placeholder="admin@toonexpo.com"
           required
           maxLength={254}
           className="bg-background"
@@ -49,6 +50,7 @@ export function AdminLoginForm() {
           name="password"
           type="password"
           autoComplete="current-password"
+          placeholder="••••••••"
           required
           maxLength={256}
           className="bg-background"

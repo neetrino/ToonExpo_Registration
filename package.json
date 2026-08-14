@@ -11,7 +11,8 @@
     "postinstall": "prisma generate",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0 && node -e \"console.log('ESLint: passed')\"",
+    "lint:fix": "eslint . --fix --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"messages/**/*.json\" \"e2e/**/*.ts\" \"*.{ts,js,mjs,cjs,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"messages/**/*.json\" \"e2e/**/*.ts\" \"*.{ts,js,mjs,cjs,json}\"",
     "typecheck": "tsc --noEmit",
@@ -28,19 +29,10 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/engines",
-      "prisma",
-      "argon2",
-      "esbuild",
-      "sharp",
-      "@swc/core",
-      "@parcel/watcher",
-      "unrs-resolver"
-    ]
-  },
   "dependencies": {
+    "@fontsource/noto-sans": "^5.3.0",
+    "@fontsource/noto-sans-armenian": "^5.3.0",
+    "@fontsource/unbounded": "^5.3.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@prisma/client-runtime-utils": "^7.8.0",

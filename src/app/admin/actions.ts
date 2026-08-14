@@ -2,7 +2,7 @@
 
 import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
-import { deleteRegistration } from '@/lib/admin';
+import { deleteRegistration, resendRegistrationTicket } from '@/lib/admin';
 import { AdminSessionError, requireAdminSession, signIn, signOut } from '@/lib/auth';
 import { startFullImportFromMootq } from '@/lib/integrations/mootq/full-import';
 import { logger } from '@/lib/logger';
@@ -76,6 +76,42 @@ export async function deleteRegistrationAction(
   }
 
   logger.info('Admin deleted registration', { requestId, registrationId });
+  return { ok: true };
+}
+
+export type ResendTicketActionResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Re-send the existing ticket QR (email) and ticket link (SMS) to the participant.
+ */
+export async function resendTicketAction(
+  registrationId: string,
+): Promise<ResendTicketActionResult> {
+  const requestId = createRequestId();
+
+  try {
+    await requireAdminSession({ verifyActiveInDb: true });
+  } catch (error: unknown) {
+    if (error instanceof AdminSessionError) {
+      return { ok: false, error: 'Unauthorized.' };
+    }
+    throw error;
+  }
+
+  if (!registrationId || registrationId.length > 64) {
+    return { ok: false, error: 'Invalid registration.' };
+  }
+
+  const result = await resendRegistrationTicket(registrationId);
+  if (!result.ok) {
+    return { ok: false, error: result.error };
+  }
+
+  logger.info('Admin resent ticket', {
+    requestId,
+    registrationId,
+    smsQueued: result.smsQueued,
+  });
   return { ok: true };
 }
 

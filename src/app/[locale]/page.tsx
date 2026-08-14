@@ -20,7 +20,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-primary">
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center gap-8 px-4 py-6 sm:gap-10 sm:py-8 md:py-10">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center gap-10 px-4 py-8 sm:gap-12 sm:py-10 md:py-14">
         <LandingBrand
           title={t('title')}
           titleBrand={t('titleBrand')}

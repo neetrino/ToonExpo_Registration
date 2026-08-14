@@ -117,6 +117,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           ? 'profile'
           : (steps[0] ?? 'identity');
   const safeStepIndex = steps.indexOf(safeStep);
+  if (currentStep !== safeStep) {
+    setCurrentStep(safeStep);
+  }
   const isFirstStep = safeStepIndex <= 0;
   const isLastStep = safeStep === 'finish';
   const stepIsValid = isWizardStepValid(safeStep, state, errorTranslator);
@@ -356,7 +359,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
         </p>
       ) : null}
 
-      <div className="relative z-0 mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+      <div className="relative z-0 mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Button
           type="button"
           variant="outline"

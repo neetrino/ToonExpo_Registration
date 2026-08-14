@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import { ADMIN_SEARCH_DEBOUNCE_MS, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
+import { buildAdminSearchHref, normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import { cn } from '@/lib/utils';
 
 type AdminSearchFormProps = {
@@ -15,77 +20,133 @@ export function AdminSearchForm({
   variant = 'default',
   className,
 }: AdminSearchFormProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [value, setValue] = useState(initialQuery);
+  const committedQuery = useRef(initialQuery);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isToolbar = variant === 'toolbar';
 
-  if (isToolbar) {
-    return (
-      <form
-        method="get"
-        action="/admin"
-        className={cn('flex w-full min-w-0 items-center gap-2', className)}
-      >
-        <div className="relative min-w-0 flex-1">
-          <Input
-            id="admin-search"
-            name="q"
-            type="search"
-            defaultValue={initialQuery}
-            placeholder="Name, email, or phone"
-            maxLength={100}
-            aria-label="Search registrations"
-            className="h-11 rounded-xl border-border/80 bg-background pr-[5.25rem] shadow-sm sm:h-10"
-          />
-          <Button
-            type="submit"
-            variant="secondary"
-            size="sm"
-            className="absolute top-1/2 right-1 h-9 -translate-y-1/2 rounded-lg px-3 sm:h-8"
-          >
-            Search
-          </Button>
-        </div>
-        {initialQuery ? (
-          <Button type="button" variant="ghost" size="sm" asChild className="min-h-10 shrink-0">
-            <Link href={buildAdminHref()}>Clear</Link>
-          </Button>
-        ) : null}
-      </form>
-    );
-  }
+  const applySearch = (rawValue: string) => {
+    const nextQuery = normalizeAdminSearchQuery(rawValue) ?? '';
+    if (nextQuery === committedQuery.current) {
+      return;
+    }
+
+    committedQuery.current = nextQuery;
+    startTransition(() => {
+      router.replace(buildAdminSearchHref(rawValue));
+    });
+  };
+
+  useEffect(() => {
+    if (initialQuery === committedQuery.current) {
+      return;
+    }
+
+    committedQuery.current = initialQuery;
+    setValue(initialQuery);
+  }, [initialQuery]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleSearch = (nextValue: string) => {
+    setValue(nextValue);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      applySearch(nextValue);
+    }, ADMIN_SEARCH_DEBOUNCE_MS);
+  };
+
+  const flushSearch = (nextValue: string = value) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    applySearch(nextValue);
+  };
+
+  const input = (
+    <Input
+      id="admin-search"
+      name="q"
+      type="search"
+      value={value}
+      placeholder="Name, email, or phone"
+      maxLength={ADMIN_SEARCH_MAX_LENGTH}
+      aria-label="Search registrations"
+      aria-busy={isPending || undefined}
+      onChange={(event) => scheduleSearch(event.target.value)}
+      className={cn(
+        isToolbar
+          ? 'h-11 rounded-full border-border/80 bg-muted/50 pl-11 shadow-none'
+          : 'rounded-xl',
+      )}
+    />
+  );
+
+  const clearControl =
+    value || initialQuery ? (
+      <Button type="button" variant="ghost" size="sm" asChild className="min-h-10 shrink-0">
+        <Link href={buildAdminSearchHref('')}>Clear</Link>
+      </Button>
+    ) : null;
 
   return (
     <form
       method="get"
       action="/admin"
-      className={cn('flex w-full flex-col gap-3 sm:flex-row sm:items-end', className)}
+      className={cn(
+        isToolbar
+          ? 'flex w-full min-w-0 items-center gap-2'
+          : 'flex w-full flex-col gap-3 sm:flex-row sm:items-end',
+        className,
+      )}
+      onSubmit={(event) => {
+        event.preventDefault();
+        flushSearch();
+      }}
     >
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <label
-          htmlFor="admin-search"
-          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          Search
-        </label>
-        <Input
-          id="admin-search"
-          name="q"
-          type="search"
-          defaultValue={initialQuery}
-          placeholder="Name, email, or phone"
-          maxLength={100}
-          className="rounded-xl"
-        />
-      </div>
-      <div className="flex shrink-0 gap-2">
-        <Button type="submit" variant="secondary" size="sm">
-          Search
-        </Button>
-        {initialQuery ? (
-          <Button type="button" variant="ghost" size="sm" asChild>
-            <Link href={buildAdminHref()}>Clear</Link>
-          </Button>
-        ) : null}
-      </div>
+      {isToolbar ? (
+        <div className="relative min-w-0 flex-1">
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-secondary">
+            <svg
+              viewBox="0 0 24 24"
+              className="size-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3-3" />
+            </svg>
+          </span>
+          {input}
+        </div>
+      ) : (
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <label
+            htmlFor="admin-search"
+            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+          >
+            Search
+          </label>
+          {input}
+        </div>
+      )}
+      {isToolbar ? clearControl : <div className="flex shrink-0 gap-2">{clearControl}</div>}
     </form>
   );
 }
