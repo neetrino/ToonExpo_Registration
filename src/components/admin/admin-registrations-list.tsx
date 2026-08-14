@@ -190,41 +190,43 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
               onClick={() => onOpen(row)}
               className="flex min-h-[4.5rem] min-w-0 flex-1 items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-accent/[0.07] focus-visible:bg-accent/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:bg-accent/[0.1]"
             >
-            <span
-              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary"
-              aria-hidden="true"
-            >
-              {initials(row.firstName, row.lastName)}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex items-start justify-between gap-2">
-                <span className="truncate font-medium text-foreground">
-                  {row.firstName} {row.lastName}
-                </span>
-                <EmailStatusBadge status={row.emailDeliveryStatus} />
+              <span
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary"
+                aria-hidden="true"
+              >
+                {initials(row.firstName, row.lastName)}
               </span>
-              <span className="mt-1 flex flex-wrap items-center gap-2">
-                <SourceBadge sourceSystem={row.sourceSystem} />
-                {row.utmSource ? (
-                  <span
-                    className="max-w-[8rem] truncate text-[11px] text-muted-foreground"
-                    title={row.utmSource}
-                  >
-                    UTM: {row.utmSource}
+              <span className="min-w-0 flex-1">
+                <span className="flex items-start justify-between gap-2">
+                  <span className="truncate font-medium text-foreground">
+                    {row.firstName} {row.lastName}
                   </span>
-                ) : null}
-                <span className="font-mono text-xs tracking-wide text-muted-foreground">
-                  {row.ticketCode ?? 'No ticket'}
+                  <EmailStatusBadge status={row.emailDeliveryStatus} />
+                </span>
+                <span className="mt-1 flex flex-wrap items-center gap-2">
+                  <SourceBadge sourceSystem={row.sourceSystem} />
+                  {row.utmSource ? (
+                    <span
+                      className="max-w-[8rem] truncate text-[11px] text-muted-foreground"
+                      title={row.utmSource}
+                    >
+                      UTM: {row.utmSource}
+                    </span>
+                  ) : null}
+                  <span className="font-mono text-xs tracking-wide text-muted-foreground">
+                    {row.ticketCode ?? 'No ticket'}
+                  </span>
+                </span>
+                <span className="mt-1 block truncate text-sm text-muted-foreground">
+                  {row.email}
+                </span>
+                <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                  <span>{row.phone}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{formatRegisteredAtShort(row.createdAt)}</span>
                 </span>
               </span>
-              <span className="mt-1 block truncate text-sm text-muted-foreground">{row.email}</span>
-              <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                <span>{row.phone}</span>
-                <span aria-hidden="true">·</span>
-                <span>{formatRegisteredAtShort(row.createdAt)}</span>
-              </span>
-            </span>
-            <ChevronIcon />
+              <ChevronIcon />
             </button>
             <div className="flex items-center pr-3">
               <SendQrButton registrationId={row.id} compact />

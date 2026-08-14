@@ -70,7 +70,9 @@ export function AdminSyncPanel({ runs }: AdminSyncPanelProps) {
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Full sync
             </p>
-            <h2 className="mt-1 font-display text-xl font-bold text-primary">Mootq reconciliation</h2>
+            <h2 className="mt-1 font-display text-xl font-bold text-primary">
+              Mootq reconciliation
+            </h2>
             <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
               Manual import pulls partner pages when configured. Export is started by Mootq against
               our API.
@@ -91,40 +93,40 @@ export function AdminSyncPanel({ runs }: AdminSyncPanelProps) {
           </p>
         ) : (
           <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-border/80 bg-muted/40">
-                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  Started
-                </th>
-                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  Direction
-                </th>
-                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  Status
-                </th>
-                <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  Counts
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {runs.map((run) => (
-                <tr key={run.id}>
-                  <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                    {formatWhen(run.startedAt)}
-                  </td>
-                  <td className="px-3 py-3 font-medium text-foreground">{run.direction}</td>
-                  <td className="px-3 py-3 text-foreground">{run.status}</td>
-                  <td className="px-3 py-3 text-xs text-muted-foreground">
-                    read {run.readCount} · created {run.createdCount} · updated {run.updatedCount} ·
-                    skipped {run.skippedCount} · conflict {run.conflictCount} · error{' '}
-                    {run.errorCount}
-                  </td>
+            <table className="min-w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border/80 bg-muted/40">
+                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    Started
+                  </th>
+                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    Direction
+                  </th>
+                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    Counts
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border/60">
+                {runs.map((run) => (
+                  <tr key={run.id}>
+                    <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
+                      {formatWhen(run.startedAt)}
+                    </td>
+                    <td className="px-3 py-3 font-medium text-foreground">{run.direction}</td>
+                    <td className="px-3 py-3 text-foreground">{run.status}</td>
+                    <td className="px-3 py-3 text-xs text-muted-foreground">
+                      read {run.readCount} · created {run.createdCount} · updated {run.updatedCount}{' '}
+                      · skipped {run.skippedCount} · conflict {run.conflictCount} · error{' '}
+                      {run.errorCount}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

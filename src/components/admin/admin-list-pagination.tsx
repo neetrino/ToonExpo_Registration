@@ -60,9 +60,7 @@ function PageControl({
   const className = cn(
     'inline-flex size-9 items-center justify-center rounded-full transition-colors',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-    enabled
-      ? 'text-primary hover:bg-primary/10'
-      : 'cursor-not-allowed text-muted-foreground/35',
+    enabled ? 'text-primary hover:bg-primary/10' : 'cursor-not-allowed text-muted-foreground/35',
   );
 
   if (!enabled) {

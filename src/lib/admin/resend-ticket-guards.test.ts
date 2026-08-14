@@ -8,9 +8,7 @@ import {
 
 const now = new Date('2026-08-14T10:00:00.000Z');
 
-function registration(
-  overrides: Partial<TicketResendRegistration> = {},
-): TicketResendRegistration {
+function registration(overrides: Partial<TicketResendRegistration> = {}): TicketResendRegistration {
   return {
     ticketCode: 'TEHV6TUGERFQB',
     ticketViewToken: 'token-abc',
@@ -38,7 +36,9 @@ describe('isTicketResendCoolingDown', () => {
 
 describe('evaluateTicketResend', () => {
   it('rejects when there is no active event', () => {
-    expect(evaluateTicketResend({ hasActiveEvent: false, registration: registration(), now })).toEqual({
+    expect(
+      evaluateTicketResend({ hasActiveEvent: false, registration: registration(), now }),
+    ).toEqual({
       ok: false,
       error: 'No active event.',
     });
@@ -94,7 +94,9 @@ describe('evaluateTicketResend', () => {
   });
 
   it('allows a resend of the same existing ticket', () => {
-    expect(evaluateTicketResend({ hasActiveEvent: true, registration: registration(), now })).toEqual({
+    expect(
+      evaluateTicketResend({ hasActiveEvent: true, registration: registration(), now }),
+    ).toEqual({
       ok: true,
     });
   });

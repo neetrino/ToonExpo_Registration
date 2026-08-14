@@ -1,9 +1,6 @@
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/constants';
 
-export function getAdminPageCount(
-  totalItems: number,
-  pageSize: number = ADMIN_PAGE_SIZE,
-): number {
+export function getAdminPageCount(totalItems: number, pageSize: number = ADMIN_PAGE_SIZE): number {
   if (totalItems <= 0) {
     return 1;
   }

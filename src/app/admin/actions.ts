@@ -84,7 +84,9 @@ export type ResendTicketActionResult = { ok: true } | { ok: false; error: string
 /**
  * Re-send the existing ticket QR (email) and ticket link (SMS) to the participant.
  */
-export async function resendTicketAction(registrationId: string): Promise<ResendTicketActionResult> {
+export async function resendTicketAction(
+  registrationId: string,
+): Promise<ResendTicketActionResult> {
   const requestId = createRequestId();
 
   try {

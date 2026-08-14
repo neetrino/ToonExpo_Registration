@@ -10,8 +10,7 @@ import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { getDexatelSmsConfig } from '@/lib/integrations/dexatel/config';
 
 export type ResendTicketResult =
-  | { ok: true; emailQueued: boolean; smsQueued: boolean }
-  | { ok: false; error: string };
+  { ok: true; emailQueued: boolean; smsQueued: boolean } | { ok: false; error: string };
 
 /**
  * Re-queue the existing ticket email/SMS for one registration (same QR, same hosted link).

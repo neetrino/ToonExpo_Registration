@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TICKET_EMAIL_TEMPLATE_VERSION, TICKET_SMS_TEMPLATE_VERSION } from '@/lib/delivery/constants';
+import {
+  TICKET_EMAIL_TEMPLATE_VERSION,
+  TICKET_SMS_TEMPLATE_VERSION,
+} from '@/lib/delivery/constants';
 
 const getPrisma = vi.hoisted(() => vi.fn());
 const createTicketDeliveryJobs = vi.hoisted(() => vi.fn());

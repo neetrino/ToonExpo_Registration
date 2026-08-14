@@ -1,14 +1,7 @@
 import type { ReactNode } from 'react';
 
 type ColumnIconName =
-  | 'registered'
-  | 'name'
-  | 'source'
-  | 'ticket'
-  | 'email'
-  | 'phone'
-  | 'emailStatus'
-  | 'sendQr';
+  'registered' | 'name' | 'source' | 'ticket' | 'email' | 'phone' | 'emailStatus' | 'sendQr';
 
 const iconClassName = 'size-3.5 shrink-0 text-secondary';
 
