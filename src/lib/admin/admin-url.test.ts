@@ -13,4 +13,8 @@ describe('buildAdminHref', () => {
   it('keeps page only when it is greater than 1', () => {
     expect(buildAdminHref({ q: 'sipan', page: 2 })).toBe('/admin?q=sipan&page=2');
   });
+
+  it('builds a next-page href without a search query', () => {
+    expect(buildAdminHref({ page: 2 })).toBe('/admin?page=2');
+  });
 });

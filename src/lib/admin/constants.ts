@@ -1,5 +1,5 @@
 /** Default page size for the admin registration table. */
-export const ADMIN_PAGE_SIZE = 25;
+export const ADMIN_PAGE_SIZE = 20;
 
 /** Maximum search query length accepted by admin list/export filters. */
 export const ADMIN_SEARCH_MAX_LENGTH = 100;

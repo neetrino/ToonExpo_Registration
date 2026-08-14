@@ -6,6 +6,7 @@ import { AdminSyncPanel } from '@/components/admin/admin-sync-panel';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
 import { Button } from '@/components/ui/button';
 import { buildAdminHref } from '@/lib/admin/admin-url';
+import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
 import { listAdminSyncRuns } from '@/lib/admin/list-sync-runs';
@@ -33,7 +34,8 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
     listAdminSyncRuns(20),
   ]);
 
-  const totalPages = Math.max(1, Math.ceil(data.filteredCount / data.pageSize));
+  const totalPages = getAdminPageCount(data.filteredCount, data.pageSize);
+  const pageRange = getAdminPageRange(data.page, data.filteredCount, data.pageSize);
   const exportHref = query
     ? `/api/admin/registrations/export?q=${encodeURIComponent(query)}`
     : '/api/admin/registrations/export';
@@ -43,7 +45,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   return (
     <div className="min-h-dvh bg-muted">
       <header className="sticky top-0 z-20 border-b border-white/10 bg-primary">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex shrink-0 items-center gap-2.5">
               <ToonExpoLogo size={36} className="shrink-0" />
@@ -68,7 +70,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-screen-2xl space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-8">
         <section className="rounded-2xl border border-border/80 bg-background p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -155,6 +157,10 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           {data.event && data.filteredCount > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/40 px-4 py-3.5 text-sm sm:px-5">
               <p className="text-muted-foreground">
+                {pageRange.from}–{pageRange.to} of {data.filteredCount}
+                <span className="mx-2 text-border" aria-hidden="true">
+                  ·
+                </span>
                 Page {data.page} of {totalPages}
               </p>
               <div className="flex gap-2">
@@ -162,12 +168,20 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
                   <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
                     <Link href={listHref(data.page - 1)}>Previous</Link>
                   </Button>
-                ) : null}
+                ) : (
+                  <Button type="button" variant="outline" size="sm" className="min-h-10 px-4" disabled>
+                    Previous
+                  </Button>
+                )}
                 {data.page < totalPages ? (
                   <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
                     <Link href={listHref(data.page + 1)}>Next</Link>
                   </Button>
-                ) : null}
+                ) : (
+                  <Button type="button" variant="outline" size="sm" className="min-h-10 px-4" disabled>
+                    Next
+                  </Button>
+                )}
               </div>
             </div>
           ) : null}
