@@ -123,7 +123,7 @@
     "lastName": "Last name",
     "lastNamePlaceholder": "Doe",
     "email": "Email",
-    "emailPlaceholder": "john.doe@email.com",
+    "emailPlaceholder": "john.doe@gmail.com",
     "phone": "Phone",
     "phoneCountry": "Country code",
     "phoneCountrySearch": "Search by country or code",
