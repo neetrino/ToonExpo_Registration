@@ -4,6 +4,7 @@ import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
 import { AdminRegistrationsPanel } from '@/components/admin/admin-registrations-panel';
 import { AdminSyncPanel } from '@/components/admin/admin-sync-panel';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
+import { AdminListPagination } from '@/components/admin/admin-list-pagination';
 import { Button } from '@/components/ui/button';
 import { buildAdminHref } from '@/lib/admin/admin-url';
 import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
@@ -155,35 +156,15 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           )}
 
           {data.event && data.filteredCount > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/40 px-4 py-3.5 text-sm sm:px-5">
-              <p className="text-muted-foreground">
-                {pageRange.from}–{pageRange.to} of {data.filteredCount}
-                <span className="mx-2 text-border" aria-hidden="true">
-                  ·
-                </span>
-                Page {data.page} of {totalPages}
-              </p>
-              <div className="flex gap-2">
-                {data.page > 1 ? (
-                  <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
-                    <Link href={listHref(data.page - 1)}>Previous</Link>
-                  </Button>
-                ) : (
-                  <Button type="button" variant="outline" size="sm" className="min-h-10 px-4" disabled>
-                    Previous
-                  </Button>
-                )}
-                {data.page < totalPages ? (
-                  <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
-                    <Link href={listHref(data.page + 1)}>Next</Link>
-                  </Button>
-                ) : (
-                  <Button type="button" variant="outline" size="sm" className="min-h-10 px-4" disabled>
-                    Next
-                  </Button>
-                )}
-              </div>
-            </div>
+            <AdminListPagination
+              from={pageRange.from}
+              to={pageRange.to}
+              total={data.filteredCount}
+              page={data.page}
+              totalPages={totalPages}
+              prevHref={listHref(data.page - 1)}
+              nextHref={listHref(data.page + 1)}
+            />
           ) : null}
         </section>
       </main>

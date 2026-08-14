@@ -1,6 +1,7 @@
 'use client';
 
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
+import { AdminListColumnHeader } from '@/components/admin/admin-list-column-header';
 import { SendQrButton } from '@/components/admin/send-qr-button';
 import { cn } from '@/lib/utils';
 
@@ -114,30 +115,14 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
         <table className="min-w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border/80 bg-muted/40">
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Registered
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Name
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Source
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Ticket
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Email
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Phone
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Email status
-              </th>
-              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Send QR
-              </th>
+              <AdminListColumnHeader icon="registered">Registered</AdminListColumnHeader>
+              <AdminListColumnHeader icon="name">Name</AdminListColumnHeader>
+              <AdminListColumnHeader icon="source">Source</AdminListColumnHeader>
+              <AdminListColumnHeader icon="ticket">Ticket</AdminListColumnHeader>
+              <AdminListColumnHeader icon="email">Email</AdminListColumnHeader>
+              <AdminListColumnHeader icon="phone">Phone</AdminListColumnHeader>
+              <AdminListColumnHeader icon="emailStatus">Email status</AdminListColumnHeader>
+              <AdminListColumnHeader icon="sendQr">Send QR</AdminListColumnHeader>
               <th className="w-10 px-3 py-3.5" aria-hidden="true" />
             </tr>
           </thead>
