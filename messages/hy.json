@@ -123,6 +123,7 @@
     "lastName": "Ազգանուն",
     "lastNamePlaceholder": "Doe",
     "email": "Էլ. փոստ",
+    "emailPlaceholder": "john.doe@email.com",
     "phone": "Հեռախոս",
     "phoneCountry": "Երկրի կոդ",
     "phoneCountrySearch": "Որոնել ըստ երկրի կամ կոդի",

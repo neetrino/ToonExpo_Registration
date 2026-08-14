@@ -68,6 +68,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: StepProps) {
             type="email"
             autoComplete="email"
             inputMode="email"
+            placeholder={tForm('emailPlaceholder')}
             value={state.email}
             disabled={disabled}
             aria-invalid={Boolean(errors.email)}

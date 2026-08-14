@@ -123,6 +123,7 @@
     "lastName": "Фамилия",
     "lastNamePlaceholder": "Doe",
     "email": "Email",
+    "emailPlaceholder": "john.doe@email.com",
     "phone": "Телефон",
     "phoneCountry": "Код страны",
     "phoneCountrySearch": "Поиск по стране или коду",
