@@ -88,7 +88,7 @@ export function AdminSearchForm({
       onChange={(event) => scheduleSearch(event.target.value)}
       className={cn(
         isToolbar
-          ? 'h-11 rounded-xl border-border/80 bg-background shadow-sm sm:h-10'
+          ? 'h-11 rounded-full border-border/80 bg-muted/50 pl-11 shadow-none'
           : 'rounded-xl',
       )}
     />
@@ -117,7 +117,24 @@ export function AdminSearchForm({
       }}
     >
       {isToolbar ? (
-        <div className="relative min-w-0 flex-1">{input}</div>
+        <div className="relative min-w-0 flex-1">
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-secondary">
+            <svg
+              viewBox="0 0 24 24"
+              className="size-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3-3" />
+            </svg>
+          </span>
+          {input}
+        </div>
       ) : (
         <div className="min-w-0 flex-1 space-y-1.5">
           <label
