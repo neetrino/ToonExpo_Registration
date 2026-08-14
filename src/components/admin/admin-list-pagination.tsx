@@ -59,7 +59,7 @@ export function AdminListPagination({
   const controlClassName = 'size-9 shrink-0 rounded-full p-0';
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/30 px-4 py-3 sm:px-5">
+    <div className="flex flex-col items-center justify-center gap-2 border-t border-border/70 bg-muted/30 px-4 py-4 sm:px-5">
       <p className="text-sm text-muted-foreground">
         Showing{' '}
         <span className="font-medium tabular-nums text-foreground">
