@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 type AdminListPaginationProps = {
   from: number;
@@ -45,6 +46,40 @@ function ChevronRightIcon() {
   );
 }
 
+function PageControl({
+  href,
+  enabled,
+  label,
+  children,
+}: {
+  href: string;
+  enabled: boolean;
+  label: string;
+  children: ReactNode;
+}) {
+  const className = cn(
+    'inline-flex size-9 items-center justify-center rounded-full transition-colors',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+    enabled
+      ? 'text-primary hover:bg-primary/10'
+      : 'cursor-not-allowed text-muted-foreground/35',
+  );
+
+  if (!enabled) {
+    return (
+      <span className={className} aria-disabled="true" aria-label={label}>
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <Link href={href} aria-label={label} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 export function AdminListPagination({
   from,
   to,
@@ -54,62 +89,28 @@ export function AdminListPagination({
   prevHref,
   nextHref,
 }: AdminListPaginationProps) {
-  const hasPrev = page > 1;
-  const hasNext = page < totalPages;
-  const controlClassName = 'size-9 shrink-0 rounded-full p-0';
-
   return (
-    <div className="flex flex-col items-center justify-center gap-2 border-t border-border/70 bg-muted/30 px-4 py-4 sm:px-5">
-      <p className="text-sm text-muted-foreground">
-        Showing{' '}
-        <span className="font-medium tabular-nums text-foreground">
-          {from}–{to}
-        </span>{' '}
-        of <span className="font-medium tabular-nums text-foreground">{total}</span>
+    <div className="flex flex-col items-center justify-center gap-3 border-t border-border/70 bg-muted/40 px-4 py-5 sm:px-5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        Showing {from}–{to} of {total}
       </p>
 
-      <div className="flex items-center gap-2">
-        {hasPrev ? (
-          <Button asChild variant="outline" size="sm" className={controlClassName}>
-            <Link href={prevHref} aria-label="Previous page">
-              <ChevronLeftIcon />
-            </Link>
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className={controlClassName}
-            disabled
-            aria-label="Previous page"
-          >
-            <ChevronLeftIcon />
-          </Button>
-        )}
+      <div
+        className="inline-flex items-center gap-0.5 rounded-full border border-border bg-background p-0.5 shadow-sm"
+        role="navigation"
+        aria-label="Pagination"
+      >
+        <PageControl href={prevHref} enabled={page > 1} label="Previous page">
+          <ChevronLeftIcon />
+        </PageControl>
 
-        <span className="min-w-[4.5rem] rounded-full bg-background px-3 py-1.5 text-center text-xs font-medium tabular-nums text-foreground">
+        <span className="min-w-[3.75rem] rounded-full bg-primary px-3.5 py-1.5 text-center text-xs font-semibold tabular-nums tracking-wide text-primary-foreground">
           {page} / {totalPages}
         </span>
 
-        {hasNext ? (
-          <Button asChild variant="outline" size="sm" className={controlClassName}>
-            <Link href={nextHref} aria-label="Next page">
-              <ChevronRightIcon />
-            </Link>
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className={controlClassName}
-            disabled
-            aria-label="Next page"
-          >
-            <ChevronRightIcon />
-          </Button>
-        )}
+        <PageControl href={nextHref} enabled={page < totalPages} label="Next page">
+          <ChevronRightIcon />
+        </PageControl>
       </div>
     </div>
   );
