@@ -3,7 +3,10 @@ import { getPrisma } from '@/lib/db/prisma';
 import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
 import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
-import { MOOTQ_PRIVACY_POLICY_VERSION } from '@/lib/integrations/mootq/constants';
+import {
+  MOOTQ_FULL_IMPORT_MAX_PAGES,
+  MOOTQ_PRIVACY_POLICY_VERSION,
+} from '@/lib/integrations/mootq/constants';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError } from '@/lib/registrations/errors';
 import { generateTicketViewToken } from '@/lib/tickets/codes';
@@ -82,8 +85,19 @@ export async function startFullImportFromMootq(
   try {
     let after: string | null = null;
     let hasMore = true;
+    let pages = 0;
 
     while (hasMore) {
+      pages += 1;
+      if (pages > MOOTQ_FULL_IMPORT_MAX_PAGES) {
+        logger.error('Full import stopped: page limit reached', { runId: run.id, pages });
+        await finishRun(run.id, 'FAILED', counters, after, [
+          ...errorSummary,
+          { code: 'PAGE_LIMIT' },
+        ]);
+        return { ok: true, runId: run.id, status: 'FAILED' };
+      }
+
       const page = await fetchMootqFullPage(baseUrl, exportKey, after);
       if (!page.ok) {
         counters.error += 1;
@@ -103,8 +117,9 @@ export async function startFullImportFromMootq(
         }
       }
 
+      const previousCursor = after;
       after = page.nextCursor;
-      hasMore = page.hasMore;
+      hasMore = page.hasMore && after !== null && after !== previousCursor;
       await prisma.integrationSyncRun.update({
         where: { id: run.id },
         data: {

@@ -117,6 +117,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           ? 'profile'
           : (steps[0] ?? 'identity');
   const safeStepIndex = steps.indexOf(safeStep);
+  if (currentStep !== safeStep) {
+    setCurrentStep(safeStep);
+  }
   const isFirstStep = safeStepIndex <= 0;
   const isLastStep = safeStep === 'finish';
   const stepIsValid = isWizardStepValid(safeStep, state, errorTranslator);
