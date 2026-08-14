@@ -18,7 +18,7 @@ type AdminDashboardPageProps = {
 };
 
 export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
-  // Defense-in-depth: middleware already blocks unauthenticated /admin/*
+  // Defense-in-depth: proxy already blocks unauthenticated /admin/*
   // requests, but this page must not rely on that alone.
   await requireAdminSession({ redirectOnFailure: true });
 

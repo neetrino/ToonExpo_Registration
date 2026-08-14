@@ -9,7 +9,7 @@ const { auth } = NextAuth(authConfig);
 
 const ADMIN_NO_STORE = 'private, no-store, max-age=0, must-revalidate';
 
-export default auth((request) => {
+export const proxy = auth((request) => {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith('/admin')) {
