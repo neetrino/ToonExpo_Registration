@@ -119,7 +119,9 @@
   },
   "form": {
     "firstName": "First name",
+    "firstNamePlaceholder": "John",
     "lastName": "Last name",
+    "lastNamePlaceholder": "Doe",
     "email": "Email",
     "phone": "Phone",
     "phoneCountry": "Country code",

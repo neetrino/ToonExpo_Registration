@@ -119,7 +119,9 @@
   },
   "form": {
     "firstName": "Имя",
+    "firstNamePlaceholder": "John",
     "lastName": "Фамилия",
+    "lastNamePlaceholder": "Doe",
     "email": "Email",
     "phone": "Телефон",
     "phoneCountry": "Код страны",

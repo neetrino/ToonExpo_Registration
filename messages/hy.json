@@ -119,7 +119,9 @@
   },
   "form": {
     "firstName": "Անուն",
+    "firstNamePlaceholder": "John",
     "lastName": "Ազգանուն",
+    "lastNamePlaceholder": "Doe",
     "email": "Էլ. փոստ",
     "phone": "Հեռախոս",
     "phoneCountry": "Երկրի կոդ",
