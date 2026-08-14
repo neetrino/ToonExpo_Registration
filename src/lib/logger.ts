@@ -2,6 +2,9 @@ type LogLevel = 'info' | 'warn' | 'error';
 
 type LogFields = Record<string, string | number | boolean | undefined>;
 
+const ANSI_RED = '\x1b[31m';
+const ANSI_RESET = '\x1b[0m';
+
 function write(level: LogLevel, message: string, fields?: LogFields): void {
   const payload = {
     level,
@@ -22,8 +25,20 @@ function write(level: LogLevel, message: string, fields?: LogFields): void {
   }
 }
 
+export function logDatabaseDisconnected(): void {
+  const message = 'Database connection disconnected';
+
+  if (process.env.NODE_ENV === 'production') {
+    write('warn', message);
+    return;
+  }
+
+  process.stderr.write(`${ANSI_RED}${message}${ANSI_RESET}\n`);
+}
+
 export const logger = {
   info: (message: string, fields?: LogFields) => write('info', message, fields),
   warn: (message: string, fields?: LogFields) => write('warn', message, fields),
   error: (message: string, fields?: LogFields) => write('error', message, fields),
 };
+
