@@ -1,6 +1,7 @@
 'use client';
 
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
+import { SendQrButton } from '@/components/admin/send-qr-button';
 import { cn } from '@/lib/utils';
 
 type AdminRegistrationsListProps = {
@@ -134,6 +135,9 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
               <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Email status
               </th>
+              <th className="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Send QR
+              </th>
               <th className="w-10 px-3 py-3.5" aria-hidden="true" />
             </tr>
           </thead>
@@ -179,6 +183,9 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 <td className="px-5 py-4">
                   <EmailStatusBadge status={row.emailDeliveryStatus} />
                 </td>
+                <td className="px-5 py-4">
+                  <SendQrButton registrationId={row.id} compact />
+                </td>
                 <td className="px-3 py-4">
                   <span className="inline-flex opacity-40 transition-opacity group-hover:opacity-100">
                     <ChevronIcon />
@@ -192,12 +199,12 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
 
       <div className="divide-y divide-border/60 md:hidden">
         {rows.map((row) => (
-          <button
-            key={row.id}
-            type="button"
-            onClick={() => onOpen(row)}
-            className="flex w-full min-h-[4.5rem] items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-accent/[0.07] focus-visible:bg-accent/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:bg-accent/[0.1]"
-          >
+          <div key={row.id} className="flex items-stretch">
+            <button
+              type="button"
+              onClick={() => onOpen(row)}
+              className="flex min-h-[4.5rem] min-w-0 flex-1 items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-accent/[0.07] focus-visible:bg-accent/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:bg-accent/[0.1]"
+            >
             <span
               className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary"
               aria-hidden="true"
@@ -233,7 +240,11 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
               </span>
             </span>
             <ChevronIcon />
-          </button>
+            </button>
+            <div className="flex items-center pr-3">
+              <SendQrButton registrationId={row.id} compact />
+            </div>
+          </div>
         ))}
       </div>
     </>

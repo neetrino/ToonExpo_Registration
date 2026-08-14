@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import { ADMIN_SEARCH_DEBOUNCE_MS, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
+import { buildAdminSearchHref, normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import { cn } from '@/lib/utils';
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -34,14 +34,14 @@ export function AdminSearchForm({
   const isToolbar = variant === 'toolbar';
 
   const applySearch = (rawValue: string) => {
-    const nextQuery = normalizeQuery(rawValue);
+    const nextQuery = normalizeAdminSearchQuery(rawValue) ?? '';
     if (nextQuery === committedQuery.current) {
       return;
     }
 
     committedQuery.current = nextQuery;
     startTransition(() => {
-      router.replace(buildAdminHref({ q: nextQuery || undefined }));
+      router.replace(buildAdminSearchHref(rawValue));
     });
   };
 
@@ -70,7 +70,7 @@ export function AdminSearchForm({
 
     debounceRef.current = setTimeout(() => {
       applySearch(nextValue);
-    }, SEARCH_DEBOUNCE_MS);
+    }, ADMIN_SEARCH_DEBOUNCE_MS);
   };
 
   const flushSearch = (nextValue: string = value) => {
@@ -103,7 +103,7 @@ export function AdminSearchForm({
   const clearControl =
     value || initialQuery ? (
       <Button type="button" variant="ghost" size="sm" asChild className="min-h-10 shrink-0">
-        <Link href={buildAdminHref()}>Clear</Link>
+        <Link href={buildAdminSearchHref('')}>Clear</Link>
       </Button>
     ) : null;
 

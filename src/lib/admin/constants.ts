@@ -4,6 +4,12 @@ export const ADMIN_PAGE_SIZE = 25;
 /** Maximum search query length accepted by admin list/export filters. */
 export const ADMIN_SEARCH_MAX_LENGTH = 100;
 
+/** Delay before live admin search updates the URL. */
+export const ADMIN_SEARCH_DEBOUNCE_MS = 300;
+
+/** Minimum wait between admin QR resends for the same registration. */
+export const ADMIN_TICKET_RESEND_COOLDOWN_MS = 60_000;
+
 /** Cache-Control for admin responses that include participant data. */
 export const ADMIN_NO_STORE_HEADERS = {
   'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
