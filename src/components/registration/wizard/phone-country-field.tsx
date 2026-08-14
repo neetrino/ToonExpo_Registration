@@ -22,7 +22,7 @@ type PhoneCountryFieldProps = {
 };
 
 const triggerClassName = cn(
-  'flex h-10 shrink-0 items-center gap-1.5 rounded-md border border-input bg-background px-2.5 text-sm text-foreground',
+  'flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-input bg-background px-2.5 text-sm text-foreground',
   'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
   'disabled:cursor-not-allowed disabled:opacity-50',
   'min-w-[7.5rem] max-w-[48%] sm:max-w-[11rem]',
