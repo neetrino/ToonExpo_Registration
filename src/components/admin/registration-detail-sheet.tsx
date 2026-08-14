@@ -11,6 +11,23 @@ type RegistrationDetailSheetProps = {
   onClose?: () => void;
 };
 
+function lockDocumentScroll(): () => void {
+  const root = document.documentElement;
+  const scrollbarWidth = window.innerWidth - root.clientWidth;
+  const previousOverflow = root.style.overflow;
+  const previousPaddingRight = root.style.paddingRight;
+
+  root.style.overflow = 'hidden';
+  if (scrollbarWidth > 0) {
+    root.style.paddingRight = `${scrollbarWidth}px`;
+  }
+
+  return () => {
+    root.style.overflow = previousOverflow;
+    root.style.paddingRight = previousPaddingRight;
+  };
+}
+
 export function RegistrationDetailSheet({
   registration,
   closeHref,
@@ -33,11 +50,11 @@ export function RegistrationDetailSheet({
     }
 
     document.addEventListener('keydown', onKeyDown);
-    document.body.style.overflow = 'hidden';
+    const unlockScroll = lockDocumentScroll();
 
     return () => {
       document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = '';
+      unlockScroll();
     };
   }, [close]);
 
