@@ -1,6 +1,7 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 import { Geist, Noto_Sans, Noto_Sans_Armenian, Unbounded } from 'next/font/google';
+import { getMetadataBase, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from '@/lib/brand/site';
 import './globals.css';
 
 const geistSans = Geist({
@@ -26,10 +27,28 @@ const unbounded = Unbounded({
   weight: ['700', '800'],
 });
 
+export const viewport: Viewport = {
+  themeColor: '#00303D',
+};
+
 export const metadata: Metadata = {
-  title: 'TOON EXPO. Invest 2026 Vol. 2 Registration',
-  description:
-    'Register for TOON EXPO. Invest 2026 Vol. 2 — international real estate and investment exhibition, November 13–15 at Meridian Exhibition Center.',
+  metadataBase: getMetadataBase(),
+  applicationName: SITE_NAME,
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    locale: 'hy_AM',
+    alternateLocale: ['en_US', 'ru_RU'],
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

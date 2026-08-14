@@ -7,6 +7,12 @@ const eslintConfig = [
   ...nextTypescript,
   prettier,
   {
+    files: ['src/app/apple-icon.tsx', 'src/app/opengraph-image.tsx'],
+    rules: {
+      '@next/next/no-img-element': 'off',
+    },
+  },
+  {
     ignores: [
       '.next/**',
       'node_modules/**',
