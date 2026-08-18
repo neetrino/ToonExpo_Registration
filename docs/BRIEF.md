@@ -1,14 +1,14 @@
 # Toon Expo Registration — brief
 
-**Status:** owner decisions recorded 2026-07-28; Mootq partner contract draft in review; Dexatel SMS approved
+**Status:** owner decisions recorded 2026-07-28; Mootq v1 contract approved by Toon Expo 2026-08-18 (awaiting partner sign-off); Dexatel SMS approved
 
-**Updated:** 2026-07-28
+**Updated:** 2026-08-18
 
 ## Product
 
 Toon Expo Registration is the main registration and ticket-delivery application for Toon Expo. It accepts registrations on the Toon Expo form, creates a QR ticket, shows it immediately, and sends the same ticket through email and Dexatel SMS.
 
-Mootq operates a second registration form for roughly 10% of attendees and owns the scanning/check-in system. Mootq creates its own `MQ…` ticket codes in the shared prefixed format and shows them on its frontend. Toon Expo receives those registrations, stores the supplied code unchanged, and sends the matching QR through email and SMS.
+Mootq operates a second registration form for roughly 10% of attendees and owns the scanning/check-in system. Mootq creates its own `MQ…` ticket codes in the shared prefixed format, shows them on its frontend, and delivers those tickets. Toon Expo receives those registrations nightly, stores the supplied code unchanged, and does not email or SMS those visitors.
 
 ## Responsibility boundary
 
@@ -20,12 +20,12 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 | Registration-source assignment        | Server assigns `TOON_EXPO`               | Toon Expo API assigns `MOOTQ`     |
 | QR shown after Toon Expo registration | Owns                                     | No                                |
 | QR shown after Mootq registration     | No                                       | Owns                              |
-| Ticket email                          | Owns for both sources                    | Supplies recipient data           |
-| Ticket SMS                            | Owns for both (Dexatel)                  | Supplies recipient data           |
+| Ticket email                          | Owns for Toon Expo-origin only           | Owns for Mootq-origin only        |
+| Ticket SMS                            | Owns for Toon Expo-origin only (Dexatel) | Owns for Mootq-origin only        |
 | Scanner/check-in                      | No                                       | Owns                              |
-| Fast Toon Expo registration push      | Pushes after each registration           | Receives at `MOOTQ_PUSH_URL`      |
-| Fast Toon Expo registration feed      | Exposes backup cursor feed               | Polls when needed                 |
-| Full reconciliation data              | Exposes and imports independently        | Exposes and imports independently |
+| Toon Expo registration push           | Immediate full POST after registration   | Receives at Mootq URL             |
+| Mootq registration delivery           | Stores nightly POST                      | Sends nightly                     |
+| Cursor feed / full dump               | Internal recovery only                   | Not a v1 obligation               |
 
 ## Confirmed operating model
 
@@ -55,16 +55,15 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 2. Toon Expo generates and stores a unique `TE…` ticket code and assigns `sourceSystem=TOON_EXPO`.
 3. The success page shows the QR immediately.
 4. Email and SMS delivery jobs are saved when providers are configured.
-5. Toon Expo pushes the registration to Mootq after the HTTP response (primary fast path).
-6. The same registration is also available through the backup cursor feed if push failed or was missed.
+5. Toon Expo pushes the full registration to Mootq after the HTTP response (identity, locale, answers, optional UTM).
 
 ### Mootq source
 
 1. Mootq validates its form, generates an `MQ…` ticket code and shows its QR.
-2. Mootq sends the exact code plus the minimum recipient data to Toon Expo.
-3. The authenticated Mootq endpoint assigns `sourceSystem=MOOTQ` and stores the supplied code unchanged.
-4. Toon Expo creates email and SMS delivery jobs for the same code when providers are configured.
-5. Toon Expo acknowledges persistence with an HTTP status; it does not issue or return a replacement ticket code.
+2. Mootq delivers that ticket to the visitor.
+3. A nightly job POSTs the full record to Toon Expo.
+4. The authenticated endpoint assigns `sourceSystem=MOOTQ` and stores the supplied code unchanged.
+5. Toon Expo acknowledges persistence with `204` and does not send email, SMS, or a replacement ticket code.
 
 ## Ticket delivery
 
@@ -80,27 +79,15 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 
 ## Partner data exchange
 
-### Fast operational exchange
+### Partner exchange (v1)
 
-- Mootq posts each Mootq-origin registration to Toon Expo after its own registration succeeds.
-- Toon Expo pushes each Toon Expo-origin registration to Mootq after the visitor HTTP response (primary). Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
-- Push payload (proposed by Toon Expo): `sourceRegistrationId`, `ticketCode`, `sourceSystem`, `createdAt`; header `Idempotency-Key: <sourceRegistrationId>`. No email/phone; name only if Mootq requests it later.
-- Mootq MAY poll Toon Expo's incremental backup feed when push missed or failed. Polling frequency is controlled entirely by Mootq.
-- Toon Expo has no environment variable or admin switch for partner polling or event-day mode.
-- Inbound fast payloads still contain stable IDs, ticket code, first/last name, email and phone.
-- Implementation starts from the draft contract in [`technical-specification/14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md); field names/URLs are finalized with Mootq from that single document.
+Normative document: [`technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md). Cover letter: [`technical-specification/15-MOOTQ-HANDOFF.md`](./technical-specification/15-MOOTQ-HANDOFF.md).
 
-### Full reconciliation
-
-- Each company starts its own full synchronization independently.
-- Toon Expo has a manual admin action to import full data from Mootq.
-- Mootq may request a paginated full export from Toon Expo whenever it chooses.
-- Every full record carries its stored `sourceSystem`; full exchange may contain records from both origins.
-- Full records are matched primarily by immutable `ticketCode`, with explicit `sourceSystem` and source/external IDs retained for ownership, idempotency and diagnostics.
-- Full synchronization may include questionnaire data and the minimal attendance status `NOT_VISITED` or `VISITED`.
-- Every full import/export run has a stored history with direction, status, counts, cursor and a bounded error summary.
-- A full synchronization is required after the event; additional runs are allowed when needed.
-- Full sync also starts from the same partner contract draft and is adjusted after Mootq sign-off.
+- Toon Expo pushes each Toon Expo-origin registration to Mootq immediately after the visitor HTTP response. Body is full (name, email, phone, `locale`, flattened `answers`, optional UTM). Header `Idempotency-Key` is the Toon Expo registration id. Maximum 5 requests/second.
+- Mootq posts each Mootq-origin registration to Toon Expo in a nightly batch.
+- Toon Expo has no event-day mode switch and does not use WebSocket or continuous polling.
+- Cursor feed and full dump stay as internal recovery tools. They are not v1 partner obligations.
+- Attendance inbound is not in v1.
 
 ## Explicit exclusions
 
@@ -116,7 +103,8 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 
 ## Remaining inputs
 
-1. Mootq sign-off on the single partner contract draft (push endpoint, fast + full field names, URLs, auth).
+1. Mootq sign-off on [`technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md).
 2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
-3. Final marketing email/SMS copy (interim designed email template is acceptable to ship).
-4. Confirm production DNS for `reg.toonexpo.com` points at the app for hosted tickets.
+3. Adapt Toon Expo push/inbound code to contract `16` after sign-off.
+4. Final marketing email/SMS copy (interim designed email template is acceptable to ship).
+5. Confirm production DNS for `reg.toonexpo.com` points at the app for hosted tickets.

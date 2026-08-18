@@ -1,8 +1,8 @@
 # Toon Expo Registration — progress and implementation plan
 
-**Updated:** 2026-07-28
+**Updated:** 2026-08-18
 
-**Status:** Phase 1–2 in progress; Dexatel SMS approved and integrated
+**Status:** Partner v1 contract approved by Toon Expo, awaiting Mootq sign-off; Dexatel SMS approved and integrated
 
 ## 1. Current baseline
 
@@ -42,10 +42,10 @@ Not implemented:
 - Toon Expo stores Mootq's exact supplied code unchanged.
 - `sourceSystem=TOON_EXPO|MOOTQ` is the only canonical registration-origin marker and is assigned by trusted server routes.
 - Toon Expo never replaces or returns a partner ticket code; it only acknowledges storage.
-- Toon Expo sends matching email and Dexatel SMS for both sources.
-- Mootq independently controls fast-feed polling frequency.
-- Fast exchange carries minimum operational fields.
-- Full exchange is manual, paginated and independently initiated by each company.
+- Toon Expo sends email and Dexatel SMS only for Toon Expo-origin tickets.
+- Mootq delivers tickets for Mootq-origin visitors.
+- Partner v1 exchange is one full idempotent POST per registration (immediate TE → Mootq, nightly Mootq → TE).
+- Cursor feed and full exchange remain internal recovery tools.
 - Full records carry immutable `sourceSystem` because a full dataset may contain both origins.
 - Attendance is initially only `NOT_VISITED` or `VISITED`.
 - PostgreSQL delivery jobs provide retry; no external queue or Redis is added.
@@ -116,7 +116,7 @@ No production migration is authorized by this plan.
 - [x] Hosted ticket domain chosen: `reg.toonexpo.com`.
 - [x] Dexatel SMS chosen and integrated.
 - [x] No block/ban/revoke product scope.
-- [ ] Assemble and send [`14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) for Mootq sign-off.
+- [ ] Send [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md) and [`15-MOOTQ-HANDOFF.md`](./technical-specification/15-MOOTQ-HANDOFF.md) for Mootq sign-off.
 - [ ] Confirm DNS for `reg.toonexpo.com` at release time.
 - [ ] Replace interim email/SMS copy with final marketing text when available.
 
@@ -187,13 +187,12 @@ No production migration is authorized by this plan.
 ## 7. Acceptance summary
 
 - A Toon Expo registration shows and sends the same stored `TE…` ticket code.
-- A Mootq registration stores and sends the exact supplied `MQ…` ticket code.
+- A Mootq registration stores the exact supplied `MQ…` ticket code and does not trigger Toon Expo email/SMS.
 - Admin and synchronization distinguish sources by `sourceSystem`, never by parsing the code.
 - Provider failures do not lose a registration or ticket.
 - Mootq retries do not create duplicate transport records or repeated logical sends.
 - Public accidental retries are idempotent without blocking intentional shared email/phone.
-- The Toon Expo-origin fast feed is incremental, replayable and controlled by Mootq polling.
-- Full import/export is manual, paginated, rerunnable and recorded in history.
+- Partner v1 does not require Mootq to poll a feed or consume a full dump.
 - Shared venue traffic is not blocked by the process-local IP limit.
 - No unnecessary backend, broker or cache infrastructure is added.
 - SMS via Dexatel uses the same ticket codes and hosted-ticket tokens as email.

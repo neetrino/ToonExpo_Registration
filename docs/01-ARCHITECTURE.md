@@ -4,11 +4,11 @@
 
 **Architecture:** Small Next.js modular monolith with Neon PostgreSQL
 
-**Updated:** 2026-07-27
+**Updated:** 2026-08-18
 
 ## Purpose
 
-The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends matching tickets through Resend and Dexatel SMS, pushes new Toon Expo registrations to Mootq, exposes a backup fast feed, and supports rare manual full reconciliation.
+The application registers Toon Expo visitors, stores QR ticket codes from two issuers, displays Toon Expo tickets immediately, sends Toon Expo-origin tickets through Resend and Dexatel SMS, and pushes each new Toon Expo registration to Mootq as a full idempotent POST. Mootq-origin registrations arrive nightly and are stored only. Cursor feed and full reconciliation remain internal recovery tools.
 
 ## System context
 
@@ -19,25 +19,17 @@ Toon Expo visitor
             │
             └── create TE ticket code ──┬── show QR
                                         ├── queue email/SMS
-                                        ├── outbox push (primary) ──> Mootq scanner DB
-                                        └── expose in fast feed (backup) ──> Mootq
+                                        └── outbox push (full body, ≤5 req/s) ──> Mootq scanner DB
 
 Mootq visitor
     │
     └── Mootq form
             │
             ├── Mootq creates MQ ticket code and shows QR
-            └── POST code + recipient data ──> Toon Expo
-                                                   │
-                                                   ├── store exact code
-                                                   └── queue matching email/SMS
-
-Manual full reconciliation
-    ├── Toon Expo admin pulls full Mootq data
-    └── Mootq independently pulls full Toon Expo data
+            └── nightly POST ──> Toon Expo stores exact code (no email/SMS)
 ```
 
-All Toon Expo pages, APIs, admin functions and delivery processing remain in one Next.js deployment. Neon PostgreSQL is the durable application store. Mootq owns scanning/check-in. Toon Expo pushes each new registration to Mootq after the HTTP response; Mootq may also poll the backup feed.
+All Toon Expo pages, APIs, admin functions and delivery processing remain in one Next.js deployment. Neon PostgreSQL is the durable application store. Mootq owns scanning/check-in. Toon Expo pushes each new registration to Mootq after the HTTP response.
 
 ## Core decisions
 
@@ -49,10 +41,9 @@ All Toon Expo pages, APIs, admin functions and delivery processing remain in one
 - Both QR images encode the exact stored `ticketCode`.
 - Registration origin is stored in `sourceSystem`, never inferred from the prefix alone.
 - The same stored code is used for browser display, email QR, SMS ticket page and scanner exchange.
-- Email/SMS delivery is asynchronous but persisted durably in PostgreSQL.
-- Fast exchange and full reconciliation are separate contracts.
-- Fast push to Mootq is primary; the cursor feed is backup catch-up.
-- Toon Expo does not control how often Mootq polls the backup feed.
+- Email/SMS delivery is asynchronous, persisted in PostgreSQL, and used only for Toon Expo-origin tickets.
+- Partner v1 exchange is one full idempotent POST per registration.
+- Cursor feed and full reconciliation are internal recovery tools, not Mootq v1 obligations.
 
 ## Identifiers
 
@@ -91,14 +82,14 @@ One short database transaction:
 2. Assign `sourceSystem=TOON_EXPO` and create a unique `TE…` ticket code.
 3. Generate the hosted-ticket token.
 4. Create EMAIL and SMS delivery jobs.
-5. Append one outbox row for Mootq push and one minimal fast-feed item (backup).
+5. Append one outbox row for Mootq push.
 6. Commit and return the ticket to the browser.
 
 Provider calls and outbound push happen after commit. Push uses `after()`; a cron retries failed outbox rows when `MOOTQ_PUSH_*` is configured and `MOOTQ_PUSH_CRON_ENABLED=true`. Delivery email/SMS use the same pattern with an hourly retry cron gated by `DELIVERY_CRON_ENABLED=true`.
 
 ### Mootq registration
 
-Mootq creates and displays its code before or while sending the registration to Toon Expo.
+Mootq creates and displays its code at registration time. It POSTs the record to Toon Expo in a nightly batch.
 
 One Toon Expo transaction:
 
@@ -107,13 +98,14 @@ One Toon Expo transaction:
 3. Validate the exact `^MQ[A-Z0-9]{11}$` format and uniqueness.
 4. Apply transport idempotency by `sourceRegistrationId`.
 5. Store the supplied ticket code unchanged.
-6. Generate a Toon Expo hosted-ticket token.
-7. Create EMAIL and SMS delivery jobs.
-8. Commit and return only an HTTP acknowledgement.
+6. Do not create EMAIL or SMS delivery jobs.
+7. Commit and return only an HTTP acknowledgement.
 
 The API never replaces or returns a different ticket code. Identical retries are safe. A reused external ID with different content or reused code for a different registration is a conflict.
 
 ## Ticket delivery
+
+Applies only to Toon Expo-origin registrations.
 
 - Generate the QR image in memory from `ticketCode`.
 - Email through Resend includes inline QR, readable code and hosted-ticket link.
@@ -126,60 +118,27 @@ The API never replaces or returns a different ticket code. Identical retries are
 
 ## Fast operational exchange
 
+Normative partner fields: [`technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md).
+
 ### Mootq to Toon Expo
 
-Mootq posts one minimal record after each Mootq registration. The payload contains:
-
-- stable Mootq registration ID;
-- exact Mootq-generated ticket code;
-- name;
-- email;
-- phone;
-- optional locale and agreed legal metadata.
-
-These fields are sufficient for storage and ticket delivery.
+Mootq posts one full record per registration in a nightly batch. Toon Expo stores the supplied `MQ…` code and answers. It does not email or SMS that visitor.
 
 ### Toon Expo to Mootq
 
-Toon Expo pushes each new Toon Expo-origin registration to Mootq individually after the visitor HTTP response. Mootq must provide `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`. The minimal push body contains `sourceRegistrationId`, `ticketCode`, `sourceSystem`, and `createdAt`; the `Idempotency-Key` header equals `sourceRegistrationId`. Email, phone and name are excluded unless Mootq later requests name fields.
+Toon Expo pushes each new Toon Expo-origin registration to Mootq after the visitor HTTP response. Body includes identity, `locale`, flattened `answers`, and optional UTM. `sourceRegistrationId` is the `Idempotency-Key` header only. Maximum 5 requests/second.
 
-A PostgreSQL outbox persists pending pushes; cron retries failures only when outbound push is configured. There is no event-day mode switch.
-
-Mootq MAY also poll an authenticated cursor endpoint as backup when push missed or failed. Each feed item explicitly contains `sourceSystem=TOON_EXPO`; the feed is:
-
-- incremental;
-- ordered;
-- bounded;
-- replay-safe;
-- no-store;
-- limited to contract-approved operational fields.
-
-When `hasMore=true`, Mootq fetches the next page immediately.
+A PostgreSQL outbox persists pending pushes; cron retries failures only when outbound push is configured. There is no event-day mode switch and no WebSocket.
 
 ## Manual full reconciliation
 
-Fast exchange does not carry the complete questionnaire or analytics dataset.
+Internal recovery only. Not a v1 partner obligation.
 
-### Import from Mootq
-
-- A Toon Expo administrator manually starts an import.
-- Toon Expo pulls bounded pages from the Mootq full-export API.
-- Full pages may contain both origins, so every record carries its stored `sourceSystem`.
-- Records are matched by `ticketCode` and checked against immutable source/source IDs.
-- Mootq-owned full data and `NOT_VISITED`/`VISITED` status are applied idempotently.
-
-### Export to Mootq
-
-- Mootq starts the operation independently on its side.
-- Mootq requests a full export run from Toon Expo and downloads bounded pages.
-- Toon Expo exports the stored `sourceSystem` for every record.
-- Toon Expo does not schedule or push this operation.
-
-Each import/export creates one `IntegrationSyncRun` with direction, timestamps, status, counts, cursor and bounded error summary. Rerunning a completed or partial synchronization is safe.
+Existing import/export tables and admin actions may stay for operators. They are not described to Mootq as required v1 APIs.
 
 ## Data ownership
 
-- Toon Expo owns registration/questionnaire data for `sourceSystem=TOON_EXPO` and email/SMS delivery state for both origins.
+- Toon Expo owns registration/questionnaire data for `sourceSystem=TOON_EXPO` and email/SMS delivery state for Toon Expo-origin tickets only.
 - Mootq owns registration input for `sourceSystem=MOOTQ` and scanning/attendance status for both origins.
 - Each system owns its internal IDs.
 - Ticket code, source and source registration ID are immutable integration identifiers.
@@ -189,8 +148,7 @@ Each import/export creates one `IntegrationSyncRun` with direction, timestamps, 
 ## Reliability and scale
 
 - Expected peak is about 1.7 registrations/second averaged over ten minutes.
-- Outbound push sends one registration per outbox row after each response; cron retries failures when `MOOTQ_PUSH_*` is configured.
-- Backup fast feed polling frequency is controlled by Mootq.
+- Outbound push sends one full registration per outbox row after each response, at most 5 req/s; cron retries failures when `MOOTQ_PUSH_*` is configured.
 - Use the Neon pooled connection and colocate the Vercel function region.
 - Keep transactions short and indexes aligned with ticket/source IDs, delivery jobs and cursors.
 - Validate provider quotas and load with 1,000 registrations over ten minutes.

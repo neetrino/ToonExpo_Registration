@@ -1,6 +1,6 @@
 # API and validation
 
-Exact URLs may change during the Mootq contract review; behavior is normative.
+Partner v1 request/response shapes: [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md). Sections below still describe the current implemented routes; adapt them after Mootq sign-off. Cursor feed and full export are internal recovery APIs, not partner v1 obligations.
 
 ## Public registration
 
