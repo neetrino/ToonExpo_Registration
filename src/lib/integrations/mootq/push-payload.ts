@@ -1,44 +1,74 @@
-import { MOOTQ_PUSH_SOURCE_SYSTEM } from '@/lib/integrations/mootq/push-constants';
+import {
+  flattenQuestionnaireAnswers,
+  type MootqAnswers,
+} from '@/lib/integrations/mootq/flatten-answers';
+
+export type MootqPushLocale = 'hy' | 'en' | 'ru';
 
 export type MootqPushPayload = {
-  sourceRegistrationId: string;
   ticketCode: string;
-  sourceSystem: typeof MOOTQ_PUSH_SOURCE_SYSTEM;
-  createdAt: string;
+  registeredAt: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  locale: MootqPushLocale;
+  answers?: MootqAnswers;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
 };
 
-/**
- * Minimal Toon Expo → Mootq fast-push body (no PII beyond ticket identity).
- * For TOON_EXPO, sourceRegistrationId is the local Registration.id.
- * Optional UTM fields are omitted when absent (additive contract).
- */
-export function buildMootqPushPayload(input: {
-  registrationId: string;
+export type BuildMootqPushPayloadInput = {
   ticketCode: string;
-  createdAt: Date;
+  registeredAt: Date;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  locale: MootqPushLocale;
+  answers?: unknown;
+  formVersion?: string | null;
   utmSource?: string | null;
   utmMedium?: string | null;
   utmCampaign?: string | null;
-}): MootqPushPayload {
+};
+
+/**
+ * Toon Expo → Mootq registration body (contract 16).
+ * sourceRegistrationId is the Idempotency-Key header only, not a JSON field.
+ */
+export function buildMootqPushPayload(input: BuildMootqPushPayloadInput): MootqPushPayload {
   const payload: MootqPushPayload = {
-    sourceRegistrationId: input.registrationId,
     ticketCode: input.ticketCode,
-    sourceSystem: MOOTQ_PUSH_SOURCE_SYSTEM,
-    createdAt: input.createdAt.toISOString(),
+    registeredAt: input.registeredAt.toISOString(),
+    firstName: input.firstName,
+    lastName: input.lastName,
+    email: input.email,
+    phone: input.phone,
+    locale: input.locale,
   };
 
-  if (input.utmSource) {
-    payload.utmSource = input.utmSource;
-  }
-  if (input.utmMedium) {
-    payload.utmMedium = input.utmMedium;
-  }
-  if (input.utmCampaign) {
-    payload.utmCampaign = input.utmCampaign;
+  const answers = flattenQuestionnaireAnswers({
+    formVersion: input.formVersion,
+    answers: input.answers,
+  });
+  if (answers) {
+    payload.answers = answers;
   }
 
+  assignOptionalUtm(payload, 'utmSource', input.utmSource);
+  assignOptionalUtm(payload, 'utmMedium', input.utmMedium);
+  assignOptionalUtm(payload, 'utmCampaign', input.utmCampaign);
   return payload;
+}
+
+function assignOptionalUtm(
+  payload: MootqPushPayload,
+  key: 'utmSource' | 'utmMedium' | 'utmCampaign',
+  value: string | null | undefined,
+): void {
+  if (value) {
+    payload[key] = value;
+  }
 }

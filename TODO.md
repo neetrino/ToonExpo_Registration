@@ -1,6 +1,6 @@
 # Toon Expo Registration — TODO
 
-Updated: 2026-08-18
+Updated: 2026-08-31
 
 ## Перед событием (ops)
 
@@ -19,16 +19,16 @@ Updated: 2026-08-18
 ## С Mootq
 
 [x] Внутренние решения закрыты; контракт `16` и cover `15` готовы
-[ ] Отправить `15` + `16` Mootq
-[ ] Получить sign-off
+[x] Отправить `15` + `16` Mootq
+[x] Получить sign-off
 [ ] Выдать write-ключ (один на событие) + non-prod URL
 [ ] Получить `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY`
-[ ] После sign-off: адаптировать код push/inbound под `16`
+[x] После sign-off: адаптировать код push/inbound под `16`
 [ ] Smoke: наш полный push, их nightly POST, сканер `TE…` / `MQ…`
 
-## Реализация (текущий код ещё под отозванный draft)
+## Реализация
 
 [x] Ticket code `TE`/`MQ` + `A-Z0-9`
 [x] Outbox + `after()` push + cron flags
-[ ] Push body: полное тело, без `sourceRegistrationId`/`sourceSystem` в JSON, `registeredAt`, flatten `answers`, UTM optional, ≤5 req/s
-[ ] Inbound: `registeredAt` + required `locale` + optional `answers`; не создавать EMAIL/SMS
+[x] Push body: полное тело, без `sourceRegistrationId`/`sourceSystem` в JSON, `registeredAt`, flatten `answers`, UTM optional, ≤5 req/s
+[x] Inbound: `registeredAt` + required `locale` + optional `answers`; не создавать EMAIL/SMS

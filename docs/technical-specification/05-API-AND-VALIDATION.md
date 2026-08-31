@@ -26,7 +26,7 @@ Successful response adds the Toon Expo ticket result needed by the browser:
 
 The route sets `sourceSystem=TOON_EXPO` server-side. The strict request schema rejects any client-supplied source field. The raw private token must not be logged.
 
-## Mootq minimal inbound
+## Mootq inbound
 
 ```http
 POST /api/v1/integrations/mootq/registrations
@@ -37,14 +37,14 @@ Content-Type: application/json
 Validate:
 
 - bounded request size;
-- exact source ID format/length;
-- `ticketCode` matches `^(TE|MQ)[A-Z0-9]{11}$` (Mootq supplies `MQ…` codes);
-- name bounds;
-- normalized email/phone;
-- locale if supplied;
-- timestamps if supplied.
+- `sourceRegistrationId` format/length;
+- `ticketCode` matching `^MQ[A-Z0-9]{11}$`;
+- name, email, phone;
+- required `locale` (`hy` | `en` | `ru`);
+- required `registeredAt`;
+- optional `answers` object (unknown keys kept; nested object values dropped).
 
-The authenticated route sets `sourceSystem=MOOTQ`; the body does not choose it. Success returns `204 No Content`. No ticket code or replacement payload is returned.
+The authenticated route sets `sourceSystem=MOOTQ`. Success returns `204`. No email/SMS jobs. No ticket payload in the response.
 
 ## Fast Toon Expo-origin feed
 

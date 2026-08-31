@@ -6,7 +6,7 @@
 
 **Date:** 2026-07-27
 
-**Status:** owner decisions recorded 2026-07-28; Mootq v1 contract approved by Toon Expo 2026-08-18 (awaiting partner sign-off); Dexatel SMS approved
+**Status:** owner decisions recorded 2026-07-28; Mootq v1 contract signed off 2026-08-31; Dexatel SMS approved
 
 ## 1. Foundation
 
@@ -39,7 +39,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | -------------------- | ------------------------------------------------------------ | ---------------------------- |
 | Server API           | Next.js Route Handlers and server-only modules               | Approved                     |
 | Public API           | Existing `POST /api/registrations`                           | Existing; extension required |
-| Mootq inbound        | Nightly idempotent POST; store only; no email/SMS            | Contract `16`; await Mootq sign-off          |
+| Mootq inbound        | Nightly idempotent POST; store only; no email/SMS            | Contract `16`; signed off 2026-08-31         |
 | Toon Expo fast push  | Outbox + full-body POST after response; max 5 req/s          | Contract `16`; Mootq must provide endpoint   |
 | Toon Expo fast feed  | Internal recovery only; not a v1 partner obligation          | Keep code; do not require from Mootq         |
 | Full import          | Internal recovery only                                       | Keep code; do not require from Mootq         |

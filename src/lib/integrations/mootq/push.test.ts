@@ -1,44 +1,77 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { executeMootqPushRequest } from '@/lib/integrations/mootq/push-client';
+import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
 import {
   classifyMootqPushHttpStatus,
   resolvePartnerPushRetryDecision,
 } from '@/lib/integrations/mootq/push-outcome';
 
+const registeredAt = new Date('2026-07-27T12:00:00.000Z');
+
+const fullPushInput = {
+  ticketCode: 'TEABCDEFGHIJK',
+  registeredAt,
+  firstName: 'Example',
+  lastName: 'Visitor',
+  email: 'visitor@example.com',
+  phone: '+37499123456',
+  locale: 'hy' as const,
+};
+
 describe('buildMootqPushPayload', () => {
-  it('builds the minimal Toon Expo push body', () => {
-    const createdAt = new Date('2026-07-27T12:00:00.000Z');
-    expect(
-      buildMootqPushPayload({
-        registrationId: 'reg_123',
-        ticketCode: 'TEABCDEFGHIJK',
-        createdAt,
-      }),
-    ).toEqual({
-      sourceRegistrationId: 'reg_123',
+  it('builds the full Toon Expo push body without source ids', () => {
+    expect(buildMootqPushPayload(fullPushInput)).toEqual({
       ticketCode: 'TEABCDEFGHIJK',
-      sourceSystem: 'TOON_EXPO',
-      createdAt: '2026-07-27T12:00:00.000Z',
+      registeredAt: '2026-07-27T12:00:00.000Z',
+      firstName: 'Example',
+      lastName: 'Visitor',
+      email: 'visitor@example.com',
+      phone: '+37499123456',
+      locale: 'hy',
     });
   });
 
-  it('includes optional UTM fields when present and omits when absent', () => {
-    const createdAt = new Date('2026-07-27T12:00:00.000Z');
+  it('includes flattened answers and omits absent UTM keys', () => {
     expect(
       buildMootqPushPayload({
-        registrationId: 'reg_123',
-        ticketCode: 'TEABCDEFGHIJK',
-        createdAt,
+        ...fullPushInput,
+        formVersion: FORM_VERSION,
+        answers: {
+          ageBand: '25-34',
+          visitPurpose: 'investment',
+          investmentPropertyType: 'apartment',
+          investmentMarket: 'armenia',
+          investmentGoal: 'rental_income',
+          investmentTimeline: '6_months',
+          investmentBudgetUsd: '100k-250k',
+          priorInvestmentExperience: 'no_first',
+          newsletter: false,
+        },
         utmSource: 'facebook',
         utmMedium: null,
         utmCampaign: 'tey26',
       }),
     ).toEqual({
-      sourceRegistrationId: 'reg_123',
       ticketCode: 'TEABCDEFGHIJK',
-      sourceSystem: 'TOON_EXPO',
-      createdAt: '2026-07-27T12:00:00.000Z',
+      registeredAt: '2026-07-27T12:00:00.000Z',
+      firstName: 'Example',
+      lastName: 'Visitor',
+      email: 'visitor@example.com',
+      phone: '+37499123456',
+      locale: 'hy',
+      answers: {
+        form_version: FORM_VERSION,
+        age_band: '25-34',
+        visit_purpose: 'investment',
+        newsletter: false,
+        investment_property_type: 'apartment',
+        investment_market: 'armenia',
+        investment_goal: 'rental_income',
+        investment_timeline: '6_months',
+        investment_budget_usd: '100k-250k',
+        prior_investment_experience: 'no_first',
+      },
       utmSource: 'facebook',
       utmCampaign: 'tey26',
     });
@@ -97,14 +130,10 @@ describe('executeMootqPushRequest', () => {
     url: 'https://mootq.example/push',
     key: 'k'.repeat(32),
     registrationId: 'reg_abc',
-    payload: buildMootqPushPayload({
-      registrationId: 'reg_abc',
-      ticketCode: 'TEABCDEFGHIJK',
-      createdAt: new Date('2026-07-27T12:00:00.000Z'),
-    }),
+    payload: buildMootqPushPayload(fullPushInput),
   };
 
-  it('sends Authorization, Idempotency-Key, and JSON body', async () => {
+  it('sends Authorization, Idempotency-Key, and JSON body without source ids', async () => {
     const fetchImpl = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
       expect(init?.method).toBe('POST');
       expect(init?.headers).toMatchObject({
@@ -112,7 +141,10 @@ describe('executeMootqPushRequest', () => {
         'Content-Type': 'application/json',
         'Idempotency-Key': 'reg_abc',
       });
-      expect(JSON.parse(String(init?.body))).toEqual(baseParams.payload);
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      expect(body).toEqual(baseParams.payload);
+      expect(body).not.toHaveProperty('sourceRegistrationId');
+      expect(body).not.toHaveProperty('sourceSystem');
       return new Response(null, { status: 201 });
     });
 

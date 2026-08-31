@@ -1,12 +1,11 @@
 # Mootq integration — cover letter
 
 **Date:** 2026-08-18  
+**Signed off:** 2026-08-31  
 **Audience:** Mootq engineering  
-**Contract to approve:** [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md)
+**Contract:** [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md)
 
-This is the email-ready summary. The previous Toon Expo draft (`14`) is withdrawn. We reviewed your `INTEGRATION-CONTRACT.en.md` (draft for approval, 2026-07-27) and accept it as the v1 base, with the decisions below already written into document `16`.
-
-Please read `16` as the single contract and confirm sign-off.
+Mootq confirmed this contract on 2026-08-31. The previous Toon Expo draft (`14`) remains withdrawn.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Updated:** 2026-08-18
 
-**Status:** Partner v1 contract approved by Toon Expo, awaiting Mootq sign-off; Dexatel SMS approved and integrated
+**Status:** Partner v1 contract signed off 2026-08-31; Dexatel SMS approved and integrated
 
 ## 1. Current baseline
 
@@ -116,7 +116,7 @@ No production migration is authorized by this plan.
 - [x] Hosted ticket domain chosen: `reg.toonexpo.com`.
 - [x] Dexatel SMS chosen and integrated.
 - [x] No block/ban/revoke product scope.
-- [ ] Send [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md) and [`15-MOOTQ-HANDOFF.md`](./technical-specification/15-MOOTQ-HANDOFF.md) for Mootq sign-off.
+- [x] Send [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md) and [`15-MOOTQ-HANDOFF.md`](./technical-specification/15-MOOTQ-HANDOFF.md); Mootq signed off 2026-08-31.
 - [ ] Confirm DNS for `reg.toonexpo.com` at release time.
 - [ ] Replace interim email/SMS copy with final marketing text when available.
 

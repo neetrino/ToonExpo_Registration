@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-18
 
-**Status:** owner decisions recorded; Mootq v1 contract approved by Toon Expo, awaiting partner sign-off; Dexatel SMS approved
+**Status:** owner decisions recorded; Mootq v1 contract signed off 2026-08-31; Dexatel SMS approved
 
 ## Document map
 
@@ -53,7 +53,7 @@
 | Repeated intentional registrations with one email | Allowed; also same phone allowed                                           |
 | Email uniqueness DB constraint                    | Remove `(eventId, emailNormalized)` unique                                 |
 | Accidental double-submit                          | Idempotency key                                                            |
-| Mootq partner API                                 | [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md); await Mootq sign-off |
+| Mootq partner API                                 | [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md); signed off 2026-08-31 |
 | `TE`/`MQ` prefixed scanner format (`^(TE\|MQ)[A-Z0-9]{11}$`) | Confirmed by Mootq with Toon Expo                                     |
 | Dexatel SMS API                                   | Approved; existing Toon Expo account (`TOONEXPO`)                      |
 | Resend pay-as-you-go/domain                       | Pro includes pay-as-you-go; `mail.toonexpo.com` verified; from `hi@mail.toonexpo.com` |
@@ -65,7 +65,7 @@
 
 | Input                                             | Impact                                      |
 | ------------------------------------------------- | ------------------------------------------- |
-| Mootq sign-off on [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md) | Push URL, credentials, nightly window |
+| Mootq push URL and credentials                    | Enable outbound push after `MOOTQ_PUSH_*` |
 | Final marketing email/SMS copy                    | Replace interim templates                   |
 | DNS for `reg.toonexpo.com` at release             | Hosted ticket production URL                |
 

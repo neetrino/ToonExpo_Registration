@@ -1,6 +1,6 @@
 # Toon Expo Registration — brief
 
-**Status:** owner decisions recorded 2026-07-28; Mootq v1 contract approved by Toon Expo 2026-08-18 (awaiting partner sign-off); Dexatel SMS approved
+**Status:** owner decisions recorded 2026-07-28; Mootq v1 contract signed off 2026-08-31; Dexatel SMS approved
 
 **Updated:** 2026-08-18
 
@@ -103,8 +103,6 @@ Normative document: [`technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`]
 
 ## Remaining inputs
 
-1. Mootq sign-off on [`technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md).
-2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
-3. Adapt Toon Expo push/inbound code to contract `16` after sign-off.
-4. Final marketing email/SMS copy (interim designed email template is acceptable to ship).
-5. Confirm production DNS for `reg.toonexpo.com` points at the app for hosted tickets.
+1. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
+2. Final marketing email/SMS copy (interim designed email template is acceptable to ship).
+3. Confirm production DNS for `reg.toonexpo.com` points at the app for hosted tickets.

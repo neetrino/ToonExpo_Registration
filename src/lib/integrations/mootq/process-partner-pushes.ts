@@ -1,7 +1,10 @@
 import { getPrisma } from '@/lib/db/prisma';
 import { getMootqPushConfig } from '@/lib/integrations/mootq/push-config';
 import { pushRegistrationToMootq } from '@/lib/integrations/mootq/push-client';
-import { MOOTQ_PUSH_CLAIM_BATCH_SIZE } from '@/lib/integrations/mootq/push-constants';
+import {
+  MOOTQ_PUSH_CLAIM_BATCH_SIZE,
+  MOOTQ_PUSH_MIN_INTERVAL_MS,
+} from '@/lib/integrations/mootq/push-constants';
 import { resolvePartnerPushRetryDecision } from '@/lib/integrations/mootq/push-outcome';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError } from '@/lib/registrations/errors';
@@ -57,7 +60,12 @@ export async function processDuePartnerPushes(options?: {
     skippedNotConfigured: false,
   };
 
-  for (const candidate of candidates) {
+  for (let index = 0; index < candidates.length; index += 1) {
+    const candidate = candidates[index];
+    if (!candidate) {
+      continue;
+    }
+
     const claimed = await prisma.partnerPushDelivery.updateMany({
       where: { id: candidate.id, status: 'PENDING' },
       data: {
@@ -73,9 +81,19 @@ export async function processDuePartnerPushes(options?: {
 
     result.claimed += 1;
     await processClaimedPartnerPush(candidate.id, result);
+
+    if (index < candidates.length - 1) {
+      await delay(MOOTQ_PUSH_MIN_INTERVAL_MS);
+    }
   }
 
   return result;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 async function processClaimedPartnerPush(
@@ -96,6 +114,13 @@ async function processClaimedPartnerPush(
           ticketCode: true,
           createdAt: true,
           sourceSystem: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          locale: true,
+          answers: true,
+          formVersion: true,
           utmSource: true,
           utmMedium: true,
           utmCampaign: true,
@@ -123,7 +148,14 @@ async function processClaimedPartnerPush(
   const pushResult = await pushRegistrationToMootq({
     registrationId: registration.id,
     ticketCode: registration.ticketCode,
-    createdAt: registration.createdAt,
+    registeredAt: registration.createdAt,
+    firstName: registration.firstName,
+    lastName: registration.lastName,
+    email: registration.email,
+    phone: registration.phone,
+    locale: registration.locale,
+    answers: registration.answers,
+    formVersion: registration.formVersion,
     utmSource: registration.utmSource,
     utmMedium: registration.utmMedium,
     utmCampaign: registration.utmCampaign,

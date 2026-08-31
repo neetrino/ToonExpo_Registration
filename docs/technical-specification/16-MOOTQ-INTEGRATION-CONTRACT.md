@@ -1,8 +1,9 @@
 # Mootq ↔ Toon Expo Integration
 
-**Status:** approved by Toon Expo — awaiting Mootq sign-off  
+**Status:** signed off by Toon Expo and Mootq  
 **Language:** English  
 **Date:** 2026-08-18  
+**Signed off:** 2026-08-31  
 **Parties:** Mootq and Toon Expo  
 **Based on:** Mootq `INTEGRATION-CONTRACT.en.md` (draft for approval, 2026-07-27)
 

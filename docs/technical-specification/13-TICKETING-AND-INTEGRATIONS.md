@@ -1,6 +1,6 @@
 # Ticketing, delivery and Mootq integration
 
-**Status:** partner v1 contract approved by Toon Expo 2026-08-18; awaiting Mootq sign-off; Dexatel SMS approved
+**Status:** partner v1 contract signed off 2026-08-31; Dexatel SMS approved
 
 ## Owner notes (2026-08-18)
 
@@ -171,10 +171,8 @@ Shared field: `NOT_VISITED` | `VISITED`. Mootq owns it. v1 does not include an a
 
 ## 13. Pending contract items
 
-1. Send [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md) and [`15-MOOTQ-HANDOFF.md`](./15-MOOTQ-HANDOFF.md); get Mootq sign-off.
-2. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
-3. Adapt Toon Expo push/inbound implementation to contract `16` after sign-off (code still matches the withdrawn draft).
-4. Final marketing email/SMS copy (interim designed template acceptable).
-5. DNS confirmation for `reg.toonexpo.com`.
+1. Mootq provision of `MOOTQ_PUSH_URL` and `MOOTQ_PUSH_KEY`.
+2. Final marketing email/SMS copy (interim designed template acceptable).
+3. DNS confirmation for `reg.toonexpo.com`.
 
 Closed: repeated email/phone allowed; scanner format uppercase `TE`/`MQ`; Resend/Dexatel approved; no block/ban/revoke; each party delivers only its own tickets; full POST body; nightly Mootq → TE; feed/full-sync/attendance inbound not in v1.
