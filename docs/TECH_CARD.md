@@ -30,6 +30,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Localization        | `next-intl`; `hy`, `en`, `ru`                                        | Approved                |
 | Public registration | Existing wizard and Zod validation                                   | Approved                |
 | Success page        | Immediate QR, readable code and PNG download                         | Required                |
+| Public analytics    | Vercel Analytics + GTM `GTM-NJZV2NL3` on `[locale]` routes only; `registration_complete` on success | Client request 2026-09-03 |
 | Hosted ticket       | Private bearer-link page used by email/SMS                           | Required                |
 | Admin               | Existing single-admin application plus delivery/full-sync visibility | Approved                |
 

@@ -125,8 +125,7 @@
     "phoneCountryEmpty": "No countries found",
     "phoneHint": "Select your country, then enter the local number without the country code.",
     "phonePlaceholder": "XX XXX XXX",
-    "consentPrefix": "I agree to the",
-    "consentLink": "privacy policy",
+    "consent": "I have read and agree to the <terms>Terms of Use</terms> and the <privacy>Privacy Policy</privacy>",
     "submit": "Submit registration",
     "submitting": "Submitting…"
   },
@@ -142,7 +141,7 @@
     "required": "This field is required.",
     "invalidEmail": "Enter a valid email address.",
     "invalidPhone": "Enter a valid phone number.",
-    "consentRequired": "You must agree to the privacy policy.",
+    "consentRequired": "You must agree to the Terms of Use and the Privacy Policy.",
     "validation": "Please check the highlighted fields and try again.",
     "duplicate": "This email is already registered for the event.",
     "rateLimit": "Too many attempts. Please wait a moment and try again.",

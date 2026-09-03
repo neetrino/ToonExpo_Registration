@@ -49,7 +49,7 @@ function buildResearchLocation(state: WizardState): ResearchLocation {
 export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnswers | null {
   const residence = buildResidence(state);
 
-  if (!state.ageBand || !state.visitPurpose || state.newsletter === null || !residence) {
+  if (!state.ageBand || !state.visitPurpose || !residence) {
     return null;
   }
 
@@ -57,7 +57,7 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
     ageBand: state.ageBand,
     residence,
     visitPurpose: state.visitPurpose,
-    newsletter: state.newsletter,
+    newsletter: false,
   };
 
   if (state.visitPurpose === 'own_residence') {
@@ -77,7 +77,9 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
       interestType: state.interestType,
       abroadCountries: state.interestType === 'abroad' ? state.abroadCountries : undefined,
       abroadCountriesOther:
-        state.interestType === 'abroad' ? state.abroadCountriesOther.trim() || undefined : undefined,
+        state.interestType === 'abroad'
+          ? state.abroadCountriesOther.trim() || undefined
+          : undefined,
       locationSeek: buildLocationChoice(state),
       areaSqm: state.areaSqm,
       purchaseMethod: state.purchaseMethod,

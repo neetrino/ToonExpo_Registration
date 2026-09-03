@@ -188,7 +188,6 @@ const marketResearchFocusSchema = z.object({
 const marketResearchWhereSchema = researchLocationStepSchema;
 
 const finishStepSchema = z.object({
-  newsletter: z.boolean(),
   privacyConsent: z.literal(true),
 });
 
@@ -313,7 +312,6 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       };
     case 'finish':
       return {
-        newsletter: state.newsletter ?? undefined,
         privacyConsent: state.privacyConsent ? true : undefined,
       };
     default:
