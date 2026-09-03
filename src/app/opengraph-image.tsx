@@ -39,7 +39,7 @@ export default async function OpenGraphImage() {
         }}
       />
       <div style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
-        <img alt="" src={logoSrc} width={168} height={171} />
+        <img alt="" src={logoSrc} width={168} height={181} />
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div
             style={{

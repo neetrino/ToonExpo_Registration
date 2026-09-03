@@ -47,7 +47,7 @@ export function TicketPageView({
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col items-center px-4 py-10">
-      <ToonExpoLogo className="h-10 w-auto" priority />
+      <ToonExpoLogo size={72} alt="TOON Real Estate Expo" priority />
       <h1 className="mt-8 text-center font-display text-3xl font-extrabold tracking-tight">
         {copy.title}
       </h1>

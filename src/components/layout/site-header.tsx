@@ -17,6 +17,7 @@ export function SiteHeader() {
         >
           <ToonExpoLogo
             size={36}
+            inverted
             priority
             className="shrink-0 transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
