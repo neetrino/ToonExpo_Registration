@@ -49,7 +49,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex shrink-0 items-center gap-2.5">
-              <ToonExpoLogo size={36} className="shrink-0" />
+              <ToonExpoLogo size={36} inverted className="shrink-0" />
               <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
                 TOON EXPO
               </span>

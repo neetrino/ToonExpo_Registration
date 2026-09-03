@@ -14,7 +14,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-primary px-4 py-10">
       <div className="admin-login-enter w-full max-w-md">
         <div className="mb-6 flex items-center justify-center gap-2.5">
-          <ToonExpoLogo size={36} priority className="shrink-0" />
+          <ToonExpoLogo size={36} inverted priority className="shrink-0" />
           <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
             TOON EXPO
           </span>
