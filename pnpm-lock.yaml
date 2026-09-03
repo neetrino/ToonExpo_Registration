@@ -14,9 +14,9 @@ importers:
       '@fontsource/noto-sans-armenian':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/unbounded':
-        specifier: ^5.3.0
-        version: 5.3.0
+      '@fontsource/onest':
+        specifier: ^5.3.1
+        version: 5.3.1
       '@prisma/adapter-neon':
         specifier: ^7.8.0
         version: 7.8.0
@@ -500,8 +500,8 @@ packages:
   '@fontsource/noto-sans@5.3.0':
     resolution: {integrity: sha512-fBCog2PY7DiVVTEEqtI/Qdinx/knobHYfoGpjFXdfBX5RoJaBp1Prw2G75p0OIsdlMZg3cLo0c+YbIUYOxnQJw==}
 
-  '@fontsource/unbounded@5.3.0':
-    resolution: {integrity: sha512-pPD6hsTnjoQRr6pCsqMHbHBfauB4LZygCNQEUJHu+CO2wzDFHqELEFSG7sTwo5Z5Gr4q3OK0fIILOXBJDv6lcw==}
+  '@fontsource/onest@5.3.1':
+    resolution: {integrity: sha512-2uA9HUzQHBB8H7T2R6inmrnqPofB6+svATHM/huIG640duJr4rm+uanmAIheTTlbZvRC0ujMtf2T4U4RX51oEQ==}
 
   '@formatjs/fast-memoize@3.1.7':
     resolution: {integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA==}
@@ -2238,6 +2238,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -4028,7 +4029,7 @@ snapshots:
 
   '@fontsource/noto-sans@5.3.0': {}
 
-  '@fontsource/unbounded@5.3.0': {}
+  '@fontsource/onest@5.3.1': {}
 
   '@formatjs/fast-memoize@3.1.7': {}
 

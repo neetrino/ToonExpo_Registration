@@ -27,7 +27,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Framework           | Next.js 16 App Router, React 19                                      | Approved                |
 | Hosting             | Vercel Pro                                                           | Required for production |
 | Styling             | Tailwind CSS 4 and existing components                               | Approved                |
-| Localization        | `next-intl`; `hy`, `en`, `ru`                                        | Approved                |
+| Localization        | `next-intl`; `hy`, `en`, `ru`; first visit defaults to `hy` (browser language ignored); later visits use the locale cookie | Approved                |
 | Public registration | Existing wizard and Zod validation                                   | Approved                |
 | Success page        | Immediate QR, readable code and PNG download                         | Required                |
 | Public analytics    | Vercel Analytics + GTM `GTM-NJZV2NL3` on `[locale]` routes only; `registration_complete` on success | Client request 2026-09-03 |

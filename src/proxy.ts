@@ -1,10 +1,8 @@
-import createMiddleware from 'next-intl/middleware';
 import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authConfig } from '@/lib/auth/config';
-import { routing } from './i18n/routing';
+import { handleIntlRouting } from './i18n/intl-middleware';
 
-const intlMiddleware = createMiddleware(routing);
 const { auth } = NextAuth(authConfig);
 
 const ADMIN_NO_STORE = 'private, no-store, max-age=0, must-revalidate';
@@ -43,7 +41,7 @@ export const proxy = auth((request) => {
     return response;
   }
 
-  return intlMiddleware(request);
+  return handleIntlRouting(request);
 });
 
 export const config = {
