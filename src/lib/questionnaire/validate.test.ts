@@ -2,8 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 
+const residence = { scope: 'yerevan' as const, district: 'kentron' as const };
+
+const locationSeek = {
+  yerevanDistricts: ['kentron', 'arabkir'] as const,
+  marzRegions: [] as const,
+  abroadCountries: [] as const,
+};
+
 const sharedOwnResidence = {
   ageBand: '35-44' as const,
+  residence,
   visitPurpose: 'own_residence' as const,
   areaSqm: '70-90' as const,
   purchaseMethod: 'mortgage' as const,
@@ -15,30 +24,35 @@ const sharedOwnResidence = {
 const validOwnResidence = {
   ...sharedOwnResidence,
   interestType: 'apartment_new' as const,
-  locationSeek: {
-    scope: 'yerevan' as const,
-    districts: ['kentron', 'arabkir'] as const,
-  },
+  locationSeek,
 };
 
 const validInvestment = {
   ageBand: '25-34' as const,
+  residence,
   visitPurpose: 'investment' as const,
   investmentPropertyType: 'apartment' as const,
-  investmentMarket: 'armenia' as const,
+  locationSeek,
   investmentGoal: 'rental_income' as const,
-  investmentTimeline: '6_months' as const,
-  investmentBudgetUsd: '100k-250k' as const,
+  areaSqm: '70-90' as const,
+  purchaseMethod: 'cash' as const,
+  investmentTimeline: '6-12_months' as const,
+  investmentBudgetUsd: '150k-300k' as const,
   priorInvestmentExperience: 'no_first' as const,
   newsletter: false,
 };
 
 const validMarketResearch = {
   ageBand: '45-54' as const,
+  residence,
   visitPurpose: 'market_research' as const,
   marketInterests: ['new_apartments', 'price_trends'] as const,
   researchGoal: 'browse_offers' as const,
-  interestedWhere: 'yerevan' as const,
+  researchLocation: {
+    undecided: false,
+    yerevanDistricts: ['kentron'] as const,
+    marzRegions: [] as const,
+  },
   purchaseHorizon: '1-2_years' as const,
   newsletter: true,
 };
@@ -49,12 +63,13 @@ describe('questionnaireAnswersSchema', () => {
     expect(parsed.success).toBe(true);
   });
 
-  it('accepts own_residence abroad interest without locationSeek', () => {
+  it('accepts own_residence abroad interest with locationSeek', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
       ...sharedOwnResidence,
       interestType: 'abroad',
       abroadCountries: ['uae', 'other'],
       abroadCountriesOther: 'Portugal',
+      locationSeek,
     });
     expect(parsed.success).toBe(true);
   });
@@ -71,46 +86,24 @@ describe('questionnaireAnswersSchema', () => {
 
   it('rejects own_residence-only payload when visitPurpose is investment', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
-      ageBand: '35-44',
+      ...validOwnResidence,
       visitPurpose: 'investment',
-      interestType: 'apartment_new',
-      locationSeek: {
-        scope: 'yerevan',
-        districts: ['kentron'],
-      },
-      areaSqm: '70-90',
-      purchaseMethod: 'mortgage',
-      monthlyBudget: '300k-500k',
-      decisionStage: 'searching_6_months',
-      newsletter: true,
     });
     expect(parsed.success).toBe(false);
   });
 
   it('rejects investment-only payload when visitPurpose is own_residence', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
-      ageBand: '25-34',
+      ...validInvestment,
       visitPurpose: 'own_residence',
-      investmentPropertyType: 'apartment',
-      investmentMarket: 'armenia',
-      investmentGoal: 'rental_income',
-      investmentTimeline: '6_months',
-      investmentBudgetUsd: '100k-250k',
-      priorInvestmentExperience: 'no_first',
-      newsletter: false,
     });
     expect(parsed.success).toBe(false);
   });
 
   it('rejects market_research-only payload when visitPurpose is investment', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
-      ageBand: '45-54',
+      ...validMarketResearch,
       visitPurpose: 'investment',
-      marketInterests: ['new_apartments'],
-      researchGoal: 'browse_offers',
-      interestedWhere: 'yerevan',
-      purchaseHorizon: '1-2_years',
-      newsletter: true,
     });
     expect(parsed.success).toBe(false);
   });
@@ -133,37 +126,67 @@ describe('questionnaireAnswersSchema', () => {
       ...sharedOwnResidence,
       interestType: 'abroad',
       abroadCountries: ['other'],
+      locationSeek,
     });
     expect(parsed.success).toBe(false);
   });
 
-  it('rejects house_townhouse without locationSeek', () => {
+  it('rejects house_townhouse without locationSeek leaves', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
       ...sharedOwnResidence,
       interestType: 'house_townhouse',
+      locationSeek: {
+        yerevanDistricts: [],
+        marzRegions: [],
+        abroadCountries: [],
+      },
     });
     expect(parsed.success).toBe(false);
   });
 
-  it('accepts locationSeek abroad with country text', () => {
+  it('accepts locationSeek abroad with country codes', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
       ...sharedOwnResidence,
       interestType: 'apartment_new',
       locationSeek: {
-        scope: 'abroad',
-        other: 'Portugal',
+        yerevanDistricts: [],
+        marzRegions: [],
+        abroadCountries: ['italy', 'other'],
+        abroadCountriesOther: 'Portugal',
       },
     });
     expect(parsed.success).toBe(true);
   });
 
-  it('rejects locationSeek abroad without country text', () => {
+  it('rejects locationSeek abroad without other text when other selected', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
       ...sharedOwnResidence,
       interestType: 'apartment_new',
       locationSeek: {
-        scope: 'abroad',
+        yerevanDistricts: [],
+        marzRegions: [],
+        abroadCountries: ['other'],
       },
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('rejects research location with more than 3 leaves', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...validMarketResearch,
+      researchLocation: {
+        undecided: false,
+        yerevanDistricts: ['kentron', 'arabkir', 'ajapnyak', 'davtashen'],
+        marzRegions: [],
+      },
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('requires residence on every branch', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...validOwnResidence,
+      residence: undefined,
     });
     expect(parsed.success).toBe(false);
   });
@@ -171,6 +194,6 @@ describe('questionnaireAnswersSchema', () => {
 
 describe('FORM_VERSION', () => {
   it('is the active visitor registration version', () => {
-    expect(FORM_VERSION).toBe('2026-vis-reg-v1');
+    expect(FORM_VERSION).toBe('2026-vis-reg-v2');
   });
 });

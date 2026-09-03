@@ -51,36 +51,95 @@ function setColumn(
   columns[key] = value;
 }
 
+function stringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === 'string');
+}
+
+function flattenResidence(
+  columns: FlattenedAnswerColumns,
+  residence: Record<string, unknown>,
+  labels: LabelHelpers,
+): void {
+  const scope = residence.scope;
+  if (typeof scope !== 'string') {
+    return;
+  }
+
+  setColumn(columns, 'residence', labels.optionLabel('locationSeekScope', scope));
+
+  if (scope === 'yerevan' && typeof residence.district === 'string') {
+    setColumn(
+      columns,
+      'residenceDetail',
+      labels.optionLabel('yerevanDistrict', residence.district),
+    );
+  }
+
+  if (scope === 'marz' && typeof residence.region === 'string') {
+    setColumn(columns, 'residenceDetail', labels.optionLabel('marzRegion', residence.region));
+  }
+
+  if (scope === 'abroad' && typeof residence.country === 'string') {
+    setColumn(columns, 'residenceDetail', residence.country);
+  }
+}
+
 function flattenLocationSeek(
   columns: FlattenedAnswerColumns,
   locationSeek: Record<string, unknown>,
   labels: LabelHelpers,
 ): void {
-  const scope = locationSeek.scope;
-  if (typeof scope !== 'string') {
-    return;
-  }
+  if (typeof locationSeek.scope === 'string') {
+    setColumn(columns, 'locationSeek', labels.optionLabel('locationSeekScope', locationSeek.scope));
 
-  setColumn(columns, 'locationSeek', labels.optionLabel('locationSeekScope', scope));
-
-  if (scope === 'yerevan' && Array.isArray(locationSeek.districts)) {
-    const districts = locationSeek.districts.filter(
-      (item): item is string => typeof item === 'string',
-    );
+    const districts = stringArray(locationSeek.districts);
     if (districts.length > 0) {
       setColumn(columns, 'yerevanDistricts', labels.joinOptionLabels('yerevanDistrict', districts));
     }
-  }
 
-  if (scope === 'marz' && Array.isArray(locationSeek.regions)) {
-    const regions = locationSeek.regions.filter((item): item is string => typeof item === 'string');
+    const regions = stringArray(locationSeek.regions);
     if (regions.length > 0) {
       setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));
     }
+
+    if (typeof locationSeek.other === 'string' && locationSeek.other) {
+      setColumn(columns, 'locationSeekOther', locationSeek.other);
+    }
+
+    return;
   }
 
-  if (scope === 'abroad' && typeof locationSeek.other === 'string' && locationSeek.other) {
-    setColumn(columns, 'locationSeekOther', locationSeek.other);
+  const districts = stringArray(locationSeek.yerevanDistricts);
+  const regions = stringArray(locationSeek.marzRegions);
+  const countries = stringArray(locationSeek.abroadCountries);
+  const scopes = [
+    ...(districts.length > 0 ? ['yerevan'] : []),
+    ...(regions.length > 0 ? ['marz'] : []),
+    ...(countries.length > 0 ? ['abroad'] : []),
+  ];
+
+  if (scopes.length > 0) {
+    setColumn(columns, 'locationSeek', labels.joinOptionLabels('locationSeekScope', scopes));
+  }
+  if (districts.length > 0) {
+    setColumn(columns, 'yerevanDistricts', labels.joinOptionLabels('yerevanDistrict', districts));
+  }
+  if (regions.length > 0) {
+    setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));
+  }
+  if (countries.length > 0) {
+    setColumn(
+      columns,
+      'locationSeekAbroadCountries',
+      labels.joinOptionLabels('abroadCountry', countries),
+    );
+  }
+  if (typeof locationSeek.abroadCountriesOther === 'string') {
+    setColumn(columns, 'locationSeekOther', locationSeek.abroadCountriesOther);
   }
 }
 
@@ -103,11 +162,7 @@ function flattenOwnResidence(
     }
   }
 
-  if (
-    (a.interestType === 'house_townhouse' || a.interestType === 'apartment_new') &&
-    a.locationSeek &&
-    typeof a.locationSeek === 'object'
-  ) {
+  if (a.locationSeek && typeof a.locationSeek === 'object') {
     flattenLocationSeek(columns, a.locationSeek as Record<string, unknown>, labels);
   }
 
@@ -174,6 +229,18 @@ function flattenInvestment(
       labels.optionLabel('priorInvestmentExperience', a.priorInvestmentExperience),
     );
   }
+  if (typeof a.priorInvestmentExperienceOther === 'string') {
+    setColumn(columns, 'priorInvestmentExperienceOther', a.priorInvestmentExperienceOther);
+  }
+  if (a.locationSeek && typeof a.locationSeek === 'object') {
+    flattenLocationSeek(columns, a.locationSeek as Record<string, unknown>, labels);
+  }
+  if (typeof a.areaSqm === 'string') {
+    setColumn(columns, 'areaSqm', labels.optionLabel('areaSqm', a.areaSqm));
+  }
+  if (typeof a.purchaseMethod === 'string') {
+    setColumn(columns, 'purchaseMethod', labels.optionLabel('purchaseMethod', a.purchaseMethod));
+  }
 }
 
 function flattenMarketResearch(
@@ -195,6 +262,36 @@ function flattenMarketResearch(
   }
   if (typeof a.interestedWhereOther === 'string') {
     setColumn(columns, 'interestedWhereOther', a.interestedWhereOther);
+  }
+  if (a.researchLocation && typeof a.researchLocation === 'object') {
+    const location = a.researchLocation as Record<string, unknown>;
+    if (location.undecided === true) {
+      setColumn(columns, 'interestedWhere', labels.optionLabel('locationSeekScope', 'undecided'));
+    } else {
+      const districts = stringArray(location.yerevanDistricts);
+      const regions = stringArray(location.marzRegions);
+      const scopes = [
+        ...(districts.length > 0 ? ['yerevan'] : []),
+        ...(regions.length > 0 ? ['marz'] : []),
+        ...(typeof location.abroadCountry === 'string' && location.abroadCountry ? ['abroad'] : []),
+      ];
+      if (scopes.length > 0) {
+        setColumn(columns, 'interestedWhere', labels.joinOptionLabels('locationSeekScope', scopes));
+      }
+      if (districts.length > 0) {
+        setColumn(
+          columns,
+          'yerevanDistricts',
+          labels.joinOptionLabels('yerevanDistrict', districts),
+        );
+      }
+      if (regions.length > 0) {
+        setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));
+      }
+      if (typeof location.abroadCountry === 'string') {
+        setColumn(columns, 'interestedWhereOther', location.abroadCountry);
+      }
+    }
   }
   if (typeof a.purchaseHorizon === 'string') {
     setColumn(columns, 'purchaseHorizon', labels.optionLabel('purchaseHorizon', a.purchaseHorizon));
@@ -225,6 +322,10 @@ export function flattenRegistrationAnswersForExport(
 
   if (typeof record.ageBand === 'string') {
     setColumn(columns, 'ageBand', labels.optionLabel('ageBand', record.ageBand));
+  }
+
+  if (record.residence && typeof record.residence === 'object') {
+    flattenResidence(columns, record.residence as Record<string, unknown>, labels);
   }
 
   switch (visitPurpose) {

@@ -7,11 +7,10 @@ type LandingBrandProps = {
   title: string;
   titleBrand: string;
   titleEvent: string;
-  lead: string;
   meta: LandingBrandMetaItem[];
 };
 
-export function LandingBrand({ title, titleBrand, titleEvent, lead, meta }: LandingBrandProps) {
+export function LandingBrand({ title, titleBrand, titleEvent, meta }: LandingBrandProps) {
   return (
     <header className="landing-brand mx-auto w-full max-w-3xl min-w-0 text-center">
       <h1 className="font-display font-extrabold tracking-tight text-white">
@@ -26,9 +25,6 @@ export function LandingBrand({ title, titleBrand, titleEvent, lead, meta }: Land
           {titleEvent}
         </span>
       </h1>
-      <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-        {lead}
-      </p>
       <p className="mx-auto mt-6 flex max-w-3xl flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-center text-sm font-bold text-white sm:text-base">
         {meta.map((item, index) => (
           <span key={item.label} className="inline-flex min-w-0 items-baseline gap-2">

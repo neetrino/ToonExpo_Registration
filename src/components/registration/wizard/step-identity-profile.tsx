@@ -6,6 +6,7 @@ import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { OptionRadioGroup } from './option-groups';
 import { PhoneCountryField } from './phone-country-field';
+import { ResidenceFields } from './residence-fields';
 import type { WizardFieldErrors, WizardState } from './types';
 
 type StepProps = {
@@ -118,6 +119,14 @@ export function ProfileStep({
           error={Boolean(errors.ageBand)}
         />
       </QuestionField>
+
+      <ResidenceFields
+        state={state}
+        errors={errors}
+        disabled={disabled}
+        locale={locale}
+        onUpdate={onUpdate}
+      />
 
       <QuestionField legend={getQuestionLabel('visitPurpose', locale)} error={errors.visitPurpose}>
         <OptionRadioGroup

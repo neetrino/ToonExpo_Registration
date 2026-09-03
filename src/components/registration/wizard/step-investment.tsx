@@ -3,6 +3,7 @@ import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
+import { LocationChoiceFields } from './location-choice-fields';
 import { OptionRadioGroup } from './option-groups';
 import type { WizardFieldErrors, WizardState } from './types';
 
@@ -55,44 +56,20 @@ export function InvestmentTypeStep({ state, errors, disabled, locale, onUpdate }
           }
         />
       ) : null}
-
-      <QuestionField
-        legend={getQuestionLabel('investmentMarket', locale)}
-        error={errors.investmentMarket}
-      >
-        <OptionRadioGroup
-          name="investmentMarket"
-          value={state.investmentMarket}
-          options={investment.investmentMarket.options}
-          getLabel={(value) => getOptionLabel('investmentMarket', value, locale)}
-          onChange={(value) => {
-            onUpdate('investmentMarket', value);
-            if (value !== 'other') {
-              onUpdate('investmentMarketOther', '');
-            }
-          }}
-          disabled={disabled}
-          error={Boolean(errors.investmentMarket)}
-        />
-      </QuestionField>
-
-      {state.investmentMarket === 'other' ? (
-        <FormField
-          id="investmentMarketOther"
-          label={getQuestionLabel('investmentMarketOther', locale)}
-          error={errors.investmentMarketOther}
-          input={
-            <Input
-              id="investmentMarketOther"
-              value={state.investmentMarketOther}
-              disabled={disabled}
-              aria-invalid={Boolean(errors.investmentMarketOther)}
-              onChange={(event) => onUpdate('investmentMarketOther', event.target.value)}
-            />
-          }
-        />
-      ) : null}
     </div>
+  );
+}
+
+export function InvestmentLocationStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <LocationChoiceFields
+      questionKey="investmentLocation"
+      state={state}
+      errors={errors}
+      disabled={disabled}
+      locale={locale}
+      onUpdate={onUpdate}
+    />
   );
 }
 
@@ -132,6 +109,39 @@ export function InvestmentGoalStep({ state, errors, disabled, locale, onUpdate }
   );
 }
 
+export function InvestmentSizeStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
+  return (
+    <div className="space-y-8">
+      <QuestionField legend={getQuestionLabel('areaSqm', locale)} error={errors.areaSqm}>
+        <OptionRadioGroup
+          name="investmentAreaSqm"
+          value={state.areaSqm}
+          options={investment.areaSqm.options}
+          getLabel={(value) => getOptionLabel('areaSqm', value, locale)}
+          onChange={(value) => onUpdate('areaSqm', value)}
+          disabled={disabled}
+          error={Boolean(errors.areaSqm)}
+        />
+      </QuestionField>
+
+      <QuestionField
+        legend={getQuestionLabel('purchaseMethod', locale)}
+        error={errors.purchaseMethod}
+      >
+        <OptionRadioGroup
+          name="investmentPurchaseMethod"
+          value={state.purchaseMethod}
+          options={investment.purchaseMethod.options}
+          getLabel={(value) => getOptionLabel('purchaseMethod', value, locale)}
+          onChange={(value) => onUpdate('purchaseMethod', value)}
+          disabled={disabled}
+          error={Boolean(errors.purchaseMethod)}
+        />
+      </QuestionField>
+    </div>
+  );
+}
+
 export function InvestmentBudgetStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
     <div className="space-y-8">
@@ -159,11 +169,33 @@ export function InvestmentBudgetStep({ state, errors, disabled, locale, onUpdate
           value={state.priorInvestmentExperience}
           options={investment.priorInvestmentExperience.options}
           getLabel={(value) => getOptionLabel('priorInvestmentExperience', value, locale)}
-          onChange={(value) => onUpdate('priorInvestmentExperience', value)}
+          onChange={(value) => {
+            onUpdate('priorInvestmentExperience', value);
+            if (value !== 'yes_abroad') {
+              onUpdate('priorInvestmentExperienceOther', '');
+            }
+          }}
           disabled={disabled}
           error={Boolean(errors.priorInvestmentExperience)}
         />
       </QuestionField>
+
+      {state.priorInvestmentExperience === 'yes_abroad' ? (
+        <FormField
+          id="priorInvestmentExperienceOther"
+          label={getQuestionLabel('priorInvestmentExperienceOther', locale)}
+          error={errors.priorInvestmentExperienceOther}
+          input={
+            <Input
+              id="priorInvestmentExperienceOther"
+              value={state.priorInvestmentExperienceOther}
+              disabled={disabled}
+              aria-invalid={Boolean(errors.priorInvestmentExperienceOther)}
+              onChange={(event) => onUpdate('priorInvestmentExperienceOther', event.target.value)}
+            />
+          }
+        />
+      ) : null}
     </div>
   );
 }

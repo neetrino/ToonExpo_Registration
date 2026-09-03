@@ -1,5 +1,6 @@
 import {
   buildMootqPushPayload,
+  type BuildMootqPushPayloadInput,
   type MootqPushPayload,
 } from '@/lib/integrations/mootq/push-payload';
 import {
@@ -13,13 +14,8 @@ import { logger } from '@/lib/logger';
 export type MootqPushClientResult =
   { ok: true } | { ok: false; reason: string; retryable: boolean };
 
-export type MootqPushClientInput = {
+export type MootqPushClientInput = BuildMootqPushPayloadInput & {
   registrationId: string;
-  ticketCode: string;
-  createdAt: Date;
-  utmSource?: string | null;
-  utmMedium?: string | null;
-  utmCampaign?: string | null;
 };
 
 export type MootqPushFetch = (

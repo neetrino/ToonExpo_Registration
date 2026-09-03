@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { setRequestLocale } from 'next-intl/server';
+import { RegistrationCompleteTracker } from '@/components/analytics/registration-complete-tracker';
 import { SuccessTicketCard } from '@/components/registration/success-ticket-card';
 
 type SuccessPageProps = {
@@ -12,6 +13,7 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:py-16">
+      <RegistrationCompleteTracker />
       <div className="success-card-enter w-full max-w-md">
         <div
           role="status"

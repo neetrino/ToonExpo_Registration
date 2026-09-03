@@ -32,7 +32,7 @@
 - QR contains only the 13-character ticket code (`^(TE|MQ)[A-Z0-9]{11}$`) and no PII.
 - Hosted page uses a separate high-entropy token.
 - Ticket/PNG responses are private/no-store/noindex.
-- Use a restrictive referrer policy and keep ticket routes out of analytics.
+- Use a restrictive referrer policy and keep ticket routes out of analytics. GTM loads only on `[locale]` public routes, not `/ticket` or `/admin`.
 - Do not log codes, tokens or full URLs.
 - Screenshots can be forwarded; admission/duplicate-scan enforcement belongs to Mootq.
 

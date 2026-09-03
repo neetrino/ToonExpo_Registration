@@ -2,7 +2,7 @@ import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
 import type { WizardState, WizardStepId } from './types';
 import { initialWizardState } from './types';
 
-const STORAGE_KEY = 'toon-expo-registration-wizard-v1';
+const STORAGE_KEY = 'toon-expo-registration-wizard-v2';
 
 type PersistedWizard = {
   state: WizardState;
@@ -17,7 +17,9 @@ const CURRENT_STEP_IDS: ReadonlySet<string> = new Set([
   'own-residence-size',
   'own-residence-budget',
   'investment-type',
+  'investment-location',
   'investment-goal',
+  'investment-size',
   'investment-budget',
   'market-research-focus',
   'market-research-where',

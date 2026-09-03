@@ -7,9 +7,13 @@ import { MOOTQ_SOURCE_REGISTRATION_ID_MAX } from '@/lib/integrations/mootq/const
 
 const localeSchema = z.enum(['hy', 'en', 'ru']);
 
+export type MootqInboundAnswerValue = string | number | boolean | null | Array<string | number>;
+
+export type MootqInboundAnswers = Record<string, MootqInboundAnswerValue>;
+
 /**
- * Minimal Mootq inbound registration body (draft partner contract).
- * Rejects any attempt to supply sourceSystem.
+ * Mootq → Toon Expo registration body (contract 16).
+ * Rejects sourceSystem. Unknown answers keys are kept; nested objects are dropped.
  */
 export const mootqInboundBodySchema = z
   .object({
@@ -34,8 +38,9 @@ export const mootqInboundBodySchema = z
       .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
     email: z.string().transform(trimEmail).pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
     phone: z.string().min(1).max(64),
-    locale: localeSchema.optional(),
-    createdAt: z.string().datetime({ offset: true }).optional(),
+    locale: localeSchema,
+    registeredAt: z.string().datetime({ offset: true }),
+    answers: z.unknown().optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -45,6 +50,14 @@ export const mootqInboundBodySchema = z
         code: z.ZodIssueCode.custom,
         path: ['phone'],
         message: 'Invalid phone number',
+      });
+    }
+
+    if (data.answers !== undefined && !isPlainObject(data.answers)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['answers'],
+        message: 'answers must be an object',
       });
     }
   })
@@ -63,9 +76,44 @@ export const mootqInboundBodySchema = z
       emailNormalized: normalizeEmail(data.email),
       phone: phone.phone,
       phoneNormalized: phone.phoneNormalized,
-      locale: data.locale ?? ('hy' as const),
-      createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
+      locale: data.locale,
+      registeredAt: new Date(data.registeredAt),
+      answers: sanitizeInboundAnswers(data.answers),
     };
   });
 
 export type MootqInboundBody = z.infer<typeof mootqInboundBodySchema>;
+
+export function sanitizeInboundAnswers(value: unknown): MootqInboundAnswers | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!isPlainObject(value)) {
+    return undefined;
+  }
+
+  const sanitized: MootqInboundAnswers = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (isAllowedAnswerValue(entry)) {
+      sanitized[key] = entry;
+    }
+  }
+  return sanitized;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isAllowedAnswerValue(value: unknown): value is MootqInboundAnswerValue {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return true;
+  }
+  if (!Array.isArray(value)) {
+    return false;
+  }
+  return value.every((item) => typeof item === 'string' || typeof item === 'number');
+}

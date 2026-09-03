@@ -3,6 +3,7 @@ import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
+import { LocationChoiceFields } from './location-choice-fields';
 import { OptionCheckboxGroup, OptionRadioGroup } from './option-groups';
 import type { WizardFieldErrors, WizardState } from './types';
 
@@ -27,12 +28,7 @@ export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUp
           getLabel={(value) => getOptionLabel('interestType', value, locale)}
           onChange={(value) => {
             onUpdate('interestType', value);
-            if (value === 'abroad') {
-              onUpdate('locationSeekScope', '');
-              onUpdate('locationSeekOther', '');
-              onUpdate('yerevanDistricts', []);
-              onUpdate('marzRegions', []);
-            } else {
+            if (value !== 'abroad') {
               onUpdate('abroadCountries', []);
               onUpdate('abroadCountriesOther', '');
             }
@@ -83,77 +79,14 @@ export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUp
 
 export function OwnResidenceLocationStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
-    <div className="space-y-8">
-      <QuestionField
-        legend={getQuestionLabel('locationSeek', locale)}
-        error={errors.locationSeekScope}
-      >
-        <OptionRadioGroup
-          name="locationSeekScope"
-          value={state.locationSeekScope}
-          options={ownResidence.locationSeek.scopes}
-          getLabel={(value) => getOptionLabel('locationSeekScope', value, locale)}
-          onChange={(value) => {
-            onUpdate('locationSeekScope', value);
-            onUpdate('yerevanDistricts', []);
-            onUpdate('marzRegions', []);
-            if (value !== 'abroad') {
-              onUpdate('locationSeekOther', '');
-            }
-          }}
-          disabled={disabled}
-          error={Boolean(errors.locationSeekScope)}
-        />
-      </QuestionField>
-
-      {state.locationSeekScope === 'yerevan' ? (
-        <QuestionField
-          legend={getQuestionLabel('yerevanDistricts', locale)}
-          error={errors.yerevanDistricts}
-        >
-          <OptionCheckboxGroup
-            name="yerevanDistricts"
-            values={state.yerevanDistricts}
-            options={ownResidence.locationSeek.yerevanDistricts}
-            getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
-            onChange={(values) => onUpdate('yerevanDistricts', values)}
-            disabled={disabled}
-            error={Boolean(errors.yerevanDistricts)}
-          />
-        </QuestionField>
-      ) : null}
-
-      {state.locationSeekScope === 'marz' ? (
-        <QuestionField legend={getQuestionLabel('marzRegions', locale)} error={errors.marzRegions}>
-          <OptionCheckboxGroup
-            name="marzRegions"
-            values={state.marzRegions}
-            options={ownResidence.locationSeek.marzRegions}
-            getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
-            onChange={(values) => onUpdate('marzRegions', values)}
-            disabled={disabled}
-            error={Boolean(errors.marzRegions)}
-          />
-        </QuestionField>
-      ) : null}
-
-      {state.locationSeekScope === 'abroad' ? (
-        <FormField
-          id="locationSeekOther"
-          label={getQuestionLabel('locationSeekOther', locale)}
-          error={errors.locationSeekOther}
-          input={
-            <Input
-              id="locationSeekOther"
-              value={state.locationSeekOther}
-              disabled={disabled}
-              aria-invalid={Boolean(errors.locationSeekOther)}
-              onChange={(event) => onUpdate('locationSeekOther', event.target.value)}
-            />
-          }
-        />
-      ) : null}
-    </div>
+    <LocationChoiceFields
+      questionKey="locationSeek"
+      state={state}
+      errors={errors}
+      disabled={disabled}
+      locale={locale}
+      onUpdate={onUpdate}
+    />
   );
 }
 

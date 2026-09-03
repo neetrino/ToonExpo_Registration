@@ -15,16 +15,29 @@ describe('formatRegistrationAnswersForDisplay', () => {
       newsletter: true,
     });
 
-    expect(result.visitPurposeLabel).toBe('Buying property for own residence');
+    expect(result.visitPurposeLabel).toBe('Purchasing real estate for personal residence');
     expect(result.rows).toEqual(
       expect.arrayContaining([
-        { label: 'Age', value: '25–34 years' },
-        { label: 'What are you interested in?', value: 'House / townhouse' },
+        { label: 'Age', value: '25–34' },
+        {
+          label: 'What type of property are you interested in?',
+          value: 'Private house / Townhouse',
+        },
         { label: 'Where are you looking for real estate?', value: 'Yerevan' },
-        { label: 'Yerevan — district', value: 'Kentron, Arabkir' },
+        { label: 'Yerevan', value: 'Kentron, Arabkir' },
+        { label: 'What property size are you looking for?', value: '70–90 sq. m' },
+        { label: 'How are you planning to purchase the property?', value: 'Mortgage' },
+        {
+          label: 'What monthly payment budget are you considering?',
+          value: 'AMD 500,000–700,000',
+        },
+        {
+          label: 'What stage are you currently at?',
+          value: 'I have selected several options and plan to make a decision within 3 months',
+        },
         {
           label:
-            'Would you like to receive industry news, analysis, and special offers after the exhibition?',
+            'Would you like to receive industry news, market analysis, and special offers after the exhibition?',
           value: 'Yes',
         },
       ]),

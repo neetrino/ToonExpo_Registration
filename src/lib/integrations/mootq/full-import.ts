@@ -1,8 +1,5 @@
 import { z } from 'zod';
 import { getPrisma } from '@/lib/db/prisma';
-import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
-import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
-import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import {
   MOOTQ_FULL_IMPORT_MAX_PAGES,
   MOOTQ_PRIVACY_POLICY_VERSION,
@@ -262,39 +259,27 @@ async function upsertImportedRecord(
       return 'error';
     }
 
-    const created = await prisma.$transaction(async (tx) => {
-      const registration = await tx.registration.create({
-        data: {
-          eventId: activeEvent.id,
-          firstName,
-          lastName,
-          email,
-          emailNormalized,
-          phone: phone.phone,
-          phoneNormalized: phone.phoneNormalized,
-          locale: input.locale ?? 'hy',
-          consentAcceptedAt: input.createdAt ? new Date(input.createdAt) : new Date(),
-          privacyPolicyVersion: MOOTQ_PRIVACY_POLICY_VERSION,
-          sourceSystem: 'MOOTQ',
-          sourceRegistrationId: input.sourceRegistrationId,
-          ticketCode: input.ticketCode,
-          ticketViewToken: generateTicketViewToken(),
-          attendanceStatus: input.attendanceStatus ?? 'NOT_VISITED',
-          formVersion: input.formVersion ?? null,
-          answers: input.answers === undefined ? undefined : (input.answers as object),
-          emailDeliveryStatus: 'PENDING',
-        },
-        select: { id: true },
-      });
-
-      await createTicketDeliveryJobs(tx, registration.id);
-
-      return registration;
-    });
-
-    await processDueDeliveryJobs({
-      registrationId: created.id,
-      limit: DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE,
+    await prisma.registration.create({
+      data: {
+        eventId: activeEvent.id,
+        firstName,
+        lastName,
+        email,
+        emailNormalized,
+        phone: phone.phone,
+        phoneNormalized: phone.phoneNormalized,
+        locale: input.locale ?? 'hy',
+        consentAcceptedAt: input.createdAt ? new Date(input.createdAt) : new Date(),
+        privacyPolicyVersion: MOOTQ_PRIVACY_POLICY_VERSION,
+        sourceSystem: 'MOOTQ',
+        sourceRegistrationId: input.sourceRegistrationId,
+        ticketCode: input.ticketCode,
+        ticketViewToken: generateTicketViewToken(),
+        attendanceStatus: input.attendanceStatus ?? 'NOT_VISITED',
+        formVersion: input.formVersion ?? null,
+        answers: input.answers === undefined ? undefined : (input.answers as object),
+        emailDeliveryStatus: 'PENDING',
+      },
     });
     return 'created';
   } catch (error: unknown) {

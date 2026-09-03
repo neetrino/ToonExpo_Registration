@@ -4,10 +4,8 @@ import type {
   AREA_SQM_BANDS,
   DECISION_STAGES,
   INTEREST_TYPES,
-  INTERESTED_WHERE_OPTIONS,
   INVESTMENT_BUDGETS_USD,
   INVESTMENT_GOALS,
-  INVESTMENT_MARKETS,
   INVESTMENT_PROPERTY_TYPES,
   INVESTMENT_TIMELINES,
   LOCATION_SEEK_SCOPES,
@@ -18,6 +16,7 @@ import type {
   PURCHASE_HORIZONS,
   PURCHASE_METHODS,
   RESEARCH_GOALS,
+  RESEARCH_LOCATION_SCOPES,
   VISIT_PURPOSES,
   YEREVAN_DISTRICTS,
 } from '@/lib/questionnaire/options';
@@ -29,63 +28,77 @@ export type AbroadCountry = (typeof ABROAD_COUNTRIES)[number];
 export type YerevanDistrict = (typeof YEREVAN_DISTRICTS)[number];
 export type MarzRegion = (typeof MARZ_REGIONS)[number];
 export type LocationSeekScope = (typeof LOCATION_SEEK_SCOPES)[number];
+export type ResearchLocationScope = (typeof RESEARCH_LOCATION_SCOPES)[number];
 export type AreaSqmBand = (typeof AREA_SQM_BANDS)[number];
 export type PurchaseMethod = (typeof PURCHASE_METHODS)[number];
 export type MonthlyBudget = (typeof MONTHLY_BUDGETS)[number];
 export type DecisionStage = (typeof DECISION_STAGES)[number];
 export type InvestmentPropertyType = (typeof INVESTMENT_PROPERTY_TYPES)[number];
-export type InvestmentMarket = (typeof INVESTMENT_MARKETS)[number];
 export type InvestmentGoal = (typeof INVESTMENT_GOALS)[number];
 export type InvestmentTimeline = (typeof INVESTMENT_TIMELINES)[number];
 export type InvestmentBudgetUsd = (typeof INVESTMENT_BUDGETS_USD)[number];
 export type PriorInvestmentExperience = (typeof PRIOR_INVESTMENT_EXPERIENCES)[number];
 export type MarketInterest = (typeof MARKET_INTERESTS)[number];
 export type ResearchGoal = (typeof RESEARCH_GOALS)[number];
-export type InterestedWhere = (typeof INTERESTED_WHERE_OPTIONS)[number];
 export type PurchaseHorizon = (typeof PURCHASE_HORIZONS)[number];
 
-export type LocationSeek =
-  | { scope: 'yerevan'; districts: YerevanDistrict[] }
-  | { scope: 'marz'; regions: MarzRegion[] }
-  | { scope: 'abroad'; other: string };
+export type ResidencePlace =
+  | { scope: 'yerevan'; district: YerevanDistrict }
+  | { scope: 'marz'; region: MarzRegion }
+  | { scope: 'abroad'; country: string };
 
-export type OwnResidenceAnswers = {
+export type LocationChoice = {
+  yerevanDistricts: YerevanDistrict[];
+  marzRegions: MarzRegion[];
+  abroadCountries: AbroadCountry[];
+  abroadCountriesOther?: string;
+};
+
+export type ResearchLocation = {
+  undecided: boolean;
+  yerevanDistricts: YerevanDistrict[];
+  marzRegions: MarzRegion[];
+  abroadCountry?: string;
+};
+
+type SharedAnswers = {
   ageBand: AgeBand;
+  residence: ResidencePlace;
+  newsletter: boolean;
+};
+
+export type OwnResidenceAnswers = SharedAnswers & {
   visitPurpose: 'own_residence';
   interestType: InterestType;
   abroadCountries?: AbroadCountry[];
   abroadCountriesOther?: string;
-  locationSeek?: LocationSeek;
+  locationSeek: LocationChoice;
   areaSqm: AreaSqmBand;
   purchaseMethod: PurchaseMethod;
   monthlyBudget: MonthlyBudget;
   decisionStage: DecisionStage;
-  newsletter: boolean;
 };
 
-export type InvestmentAnswers = {
-  ageBand: AgeBand;
+export type InvestmentAnswers = SharedAnswers & {
   visitPurpose: 'investment';
   investmentPropertyType: InvestmentPropertyType;
   investmentPropertyTypeOther?: string;
-  investmentMarket: InvestmentMarket;
-  investmentMarketOther?: string;
+  locationSeek: LocationChoice;
   investmentGoal: InvestmentGoal;
+  areaSqm: AreaSqmBand;
+  purchaseMethod: PurchaseMethod;
   investmentTimeline: InvestmentTimeline;
   investmentBudgetUsd: InvestmentBudgetUsd;
   priorInvestmentExperience: PriorInvestmentExperience;
-  newsletter: boolean;
+  priorInvestmentExperienceOther?: string;
 };
 
-export type MarketResearchAnswers = {
-  ageBand: AgeBand;
+export type MarketResearchAnswers = SharedAnswers & {
   visitPurpose: 'market_research';
   marketInterests: MarketInterest[];
   researchGoal: ResearchGoal;
-  interestedWhere: InterestedWhere;
-  interestedWhereOther?: string;
+  researchLocation: ResearchLocation;
   purchaseHorizon: PurchaseHorizon;
-  newsletter: boolean;
 };
 
 export type QuestionnaireAnswers = OwnResidenceAnswers | InvestmentAnswers | MarketResearchAnswers;

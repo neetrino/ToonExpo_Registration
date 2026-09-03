@@ -46,20 +46,53 @@ function pushRow(rows: AnswerDisplayRow[], label: string, value: string | undefi
   rows.push({ label, value });
 }
 
-function formatLocationSeek(locationSeek: Record<string, unknown>): AnswerDisplayRow[] {
+function stringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === 'string');
+}
+
+function formatResidence(residence: Record<string, unknown>): AnswerDisplayRow[] {
   const rows: AnswerDisplayRow[] = [];
-  const scope = locationSeek.scope;
+  const scope = residence.scope;
 
   if (typeof scope !== 'string') {
     return rows;
   }
 
-  pushRow(rows, questionLabel('locationSeek'), optionLabel('locationSeekScope', scope));
+  pushRow(rows, questionLabel('residence'), optionLabel('locationSeekScope', scope));
 
-  if (scope === 'yerevan' && Array.isArray(locationSeek.districts)) {
-    const districts = locationSeek.districts.filter(
-      (item): item is string => typeof item === 'string',
+  if (scope === 'yerevan' && typeof residence.district === 'string') {
+    pushRow(
+      rows,
+      questionLabel('residenceDistrict'),
+      optionLabel('yerevanDistrict', residence.district),
     );
+  }
+
+  if (scope === 'marz' && typeof residence.region === 'string') {
+    pushRow(rows, questionLabel('residenceRegion'), optionLabel('marzRegion', residence.region));
+  }
+
+  if (scope === 'abroad' && typeof residence.country === 'string') {
+    pushRow(rows, questionLabel('residenceCountry'), residence.country);
+  }
+
+  return rows;
+}
+
+function formatLocationChoice(
+  locationSeek: Record<string, unknown>,
+  questionKey: 'locationSeek' | 'investmentLocation' = 'locationSeek',
+): AnswerDisplayRow[] {
+  const rows: AnswerDisplayRow[] = [];
+
+  if (typeof locationSeek.scope === 'string') {
+    pushRow(rows, questionLabel(questionKey), optionLabel('locationSeekScope', locationSeek.scope));
+
+    const districts = stringArray(locationSeek.districts);
     if (districts.length > 0) {
       pushRow(
         rows,
@@ -67,17 +100,46 @@ function formatLocationSeek(locationSeek: Record<string, unknown>): AnswerDispla
         joinOptionLabels('yerevanDistrict', districts),
       );
     }
-  }
 
-  if (scope === 'marz' && Array.isArray(locationSeek.regions)) {
-    const regions = locationSeek.regions.filter((item): item is string => typeof item === 'string');
+    const regions = stringArray(locationSeek.regions);
     if (regions.length > 0) {
       pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
     }
+
+    if (typeof locationSeek.other === 'string' && locationSeek.other) {
+      pushRow(rows, questionLabel('locationSeekOther'), locationSeek.other);
+    }
+
+    return rows;
   }
 
-  if (scope === 'abroad' && typeof locationSeek.other === 'string' && locationSeek.other) {
-    pushRow(rows, questionLabel('locationSeekOther'), locationSeek.other);
+  const districts = stringArray(locationSeek.yerevanDistricts);
+  const regions = stringArray(locationSeek.marzRegions);
+  const countries = stringArray(locationSeek.abroadCountries);
+  const scopes = [
+    ...(districts.length > 0 ? ['yerevan'] : []),
+    ...(regions.length > 0 ? ['marz'] : []),
+    ...(countries.length > 0 ? ['abroad'] : []),
+  ];
+
+  if (scopes.length > 0) {
+    pushRow(rows, questionLabel(questionKey), joinOptionLabels('locationSeekScope', scopes));
+  }
+  if (districts.length > 0) {
+    pushRow(
+      rows,
+      questionLabel('yerevanDistricts'),
+      joinOptionLabels('yerevanDistrict', districts),
+    );
+  }
+  if (regions.length > 0) {
+    pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
+  }
+  if (countries.length > 0) {
+    pushRow(rows, questionLabel('abroadCountries'), joinOptionLabels('abroadCountry', countries));
+  }
+  if (typeof locationSeek.abroadCountriesOther === 'string') {
+    pushRow(rows, questionLabel('locationSeekOther'), locationSeek.abroadCountriesOther);
   }
 
   return rows;
@@ -98,12 +160,8 @@ function formatOwnResidenceAnswers(a: Record<string, unknown>, rows: AnswerDispl
     }
   }
 
-  if (
-    (a.interestType === 'house_townhouse' || a.interestType === 'apartment_new') &&
-    a.locationSeek &&
-    typeof a.locationSeek === 'object'
-  ) {
-    rows.push(...formatLocationSeek(a.locationSeek as Record<string, unknown>));
+  if (a.locationSeek && typeof a.locationSeek === 'object') {
+    rows.push(...formatLocationChoice(a.locationSeek as Record<string, unknown>));
   }
 
   if (typeof a.areaSqm === 'string') {
@@ -131,6 +189,11 @@ function formatInvestmentAnswers(a: Record<string, unknown>, rows: AnswerDisplay
   if (typeof a.investmentPropertyTypeOther === 'string') {
     pushRow(rows, questionLabel('investmentPropertyTypeOther'), a.investmentPropertyTypeOther);
   }
+  if (a.locationSeek && typeof a.locationSeek === 'object') {
+    rows.push(
+      ...formatLocationChoice(a.locationSeek as Record<string, unknown>, 'investmentLocation'),
+    );
+  }
   if (typeof a.investmentMarket === 'string') {
     pushRow(
       rows,
@@ -140,6 +203,19 @@ function formatInvestmentAnswers(a: Record<string, unknown>, rows: AnswerDisplay
   }
   if (typeof a.investmentMarketOther === 'string') {
     pushRow(rows, questionLabel('investmentMarketOther'), a.investmentMarketOther);
+  }
+  if (typeof a.areaSqm === 'string') {
+    pushRow(rows, questionLabel('areaSqm'), optionLabel('areaSqm', a.areaSqm));
+  }
+  if (typeof a.purchaseMethod === 'string') {
+    pushRow(rows, questionLabel('purchaseMethod'), optionLabel('purchaseMethod', a.purchaseMethod));
+  }
+  if (typeof a.priorInvestmentExperienceOther === 'string') {
+    pushRow(
+      rows,
+      questionLabel('priorInvestmentExperienceOther'),
+      a.priorInvestmentExperienceOther,
+    );
   }
   if (typeof a.investmentGoal === 'string') {
     pushRow(rows, questionLabel('investmentGoal'), optionLabel('investmentGoal', a.investmentGoal));
@@ -191,6 +267,44 @@ function formatMarketResearchAnswers(a: Record<string, unknown>, rows: AnswerDis
   if (typeof a.interestedWhereOther === 'string') {
     pushRow(rows, questionLabel('interestedWhereOther'), a.interestedWhereOther);
   }
+  if (a.researchLocation && typeof a.researchLocation === 'object') {
+    const location = a.researchLocation as Record<string, unknown>;
+    if (location.undecided === true) {
+      pushRow(
+        rows,
+        questionLabel('interestedWhere'),
+        optionLabel('locationSeekScope', 'undecided'),
+      );
+    } else {
+      const districts = stringArray(location.yerevanDistricts);
+      const regions = stringArray(location.marzRegions);
+      const scopes = [
+        ...(districts.length > 0 ? ['yerevan'] : []),
+        ...(regions.length > 0 ? ['marz'] : []),
+        ...(typeof location.abroadCountry === 'string' && location.abroadCountry ? ['abroad'] : []),
+      ];
+      if (scopes.length > 0) {
+        pushRow(
+          rows,
+          questionLabel('interestedWhere'),
+          joinOptionLabels('locationSeekScope', scopes),
+        );
+      }
+      if (districts.length > 0) {
+        pushRow(
+          rows,
+          questionLabel('yerevanDistricts'),
+          joinOptionLabels('yerevanDistrict', districts),
+        );
+      }
+      if (regions.length > 0) {
+        pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
+      }
+      if (typeof location.abroadCountry === 'string') {
+        pushRow(rows, questionLabel('interestedWhereOther'), location.abroadCountry);
+      }
+    }
+  }
   if (typeof a.purchaseHorizon === 'string') {
     pushRow(
       rows,
@@ -223,6 +337,10 @@ export function formatRegistrationAnswersForDisplay(
 
   if (typeof record.ageBand === 'string') {
     pushRow(rows, questionLabel('ageBand'), optionLabel('ageBand', record.ageBand));
+  }
+
+  if (record.residence && typeof record.residence === 'object') {
+    rows.push(...formatResidence(record.residence as Record<string, unknown>));
   }
 
   switch (visitPurpose) {

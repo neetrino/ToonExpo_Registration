@@ -16,7 +16,7 @@ Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, d
 
 - Completes the Mootq form.
 - Receives an immediate QR from Mootq.
-- Receives the matching email/SMS from Toon Expo after the record arrives.
+- Does not receive email or SMS from Toon Expo. Toon Expo only stores the record.
 
 ### Toon Expo administrator
 
@@ -45,11 +45,11 @@ Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, d
 
 ### Mootq registration intake
 
-- Authenticated minimal POST.
+- Authenticated nightly POST.
 - Exact Mootq-generated code stored unchanged.
 - Trusted server-side `MOOTQ` source assignment.
 - Source-ID idempotency and conflict handling.
-- Email/SMS jobs after successful persistence.
+- No email/SMS jobs for Mootq-origin rows.
 
 ### Delivery
 
@@ -58,20 +58,11 @@ Register up to 30,000 Toon Expo attendees, provide a scannable QR immediately, d
 - Small PostgreSQL retry mechanism.
 - Basic pending/sent/failed visibility.
 
-### Fast exchange
+### Partner exchange
 
-- Minimal ordered Toon Expo-origin cursor feed.
-- Mootq-controlled polling frequency.
-- Replay/catch-up behavior.
-
-### Full reconciliation
-
-- Manual Toon Expo import from Mootq.
-- On-demand paginated Toon Expo export for Mootq.
-- Match/upsert by `ticketCode`.
-- Questionnaire/full approved fields.
-- `NOT_VISITED`/`VISITED`.
-- Stored run history.
+- Immediate full POST of each Toon Expo-origin registration to Mootq (outbox, ≤5 req/s).
+- Nightly full POST of each Mootq-origin registration into Toon Expo.
+- Cursor feed and full reconciliation remain internal recovery tools.
 
 ### Administration
 

@@ -6,7 +6,7 @@
 
 **Date:** 2026-07-27
 
-**Status:** owner decisions recorded 2026-07-28; Mootq contract draft in review; Dexatel SMS approved
+**Status:** owner decisions recorded 2026-07-28; Mootq v1 contract signed off 2026-08-31; Dexatel SMS approved
 
 ## 1. Foundation
 
@@ -30,6 +30,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Localization        | `next-intl`; `hy`, `en`, `ru`                                        | Approved                |
 | Public registration | Existing wizard and Zod validation                                   | Approved                |
 | Success page        | Immediate QR, readable code and PNG download                         | Required                |
+| Public analytics    | Vercel Analytics + GTM `GTM-NJZV2NL3` on `[locale]` routes only; `registration_complete` on success | Client request 2026-09-03 |
 | Hosted ticket       | Private bearer-link page used by email/SMS                           | Required                |
 | Admin               | Existing single-admin application plus delivery/full-sync visibility | Approved                |
 
@@ -39,11 +40,11 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | -------------------- | ------------------------------------------------------------ | ---------------------------- |
 | Server API           | Next.js Route Handlers and server-only modules               | Approved                     |
 | Public API           | Existing `POST /api/registrations`                           | Existing; extension required |
-| Mootq inbound        | Authenticated idempotent POST carrying Mootq's existing code | Draft contract; implement & agree with Mootq |
-| Toon Expo fast push  | Outbox + post-response push to Mootq (`MOOTQ_PUSH_URL`)      | Draft contract; Mootq must provide endpoint  |
-| Toon Expo fast feed  | Authenticated incremental feed (backup catch-up)             | Draft contract; implement & agree with Mootq |
-| Full import          | Manual Toon Expo admin action that pulls Mootq pages         | Draft contract; implement & agree with Mootq |
-| Full export          | Authenticated paginated export requested by Mootq            | Draft contract; implement & agree with Mootq |
+| Mootq inbound        | Nightly idempotent POST; store only; no email/SMS            | Contract `16`; signed off 2026-08-31         |
+| Toon Expo fast push  | Outbox + full-body POST after response; max 5 req/s          | Contract `16`; Mootq must provide endpoint   |
+| Toon Expo fast feed  | Internal recovery only; not a v1 partner obligation          | Keep code; do not require from Mootq         |
+| Full import          | Internal recovery only                                       | Keep code; do not require from Mootq         |
+| Full export          | Internal recovery only                                       | Keep code; do not require from Mootq         |
 | Delivery retry       | PostgreSQL `DeliveryJob` records and a small dispatcher      | Approved                     |
 | External broker      | None                                                         | Approved                     |
 | Partner polling mode | Controlled by Mootq; no Toon Expo switch                     | Approved                     |
@@ -76,7 +77,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Service    | Purpose                                          | Status                         |
 | ---------- | ------------------------------------------------ | ------------------------------ |
 | Resend Pro | Ticket email; pay-as-you-go in Pro; sender `hi@mail.toonexpo.com` | Approved; domain `mail.toonexpo.com` verified |
-| Dexatel    | Ticket-link SMS for both sources (`TOONEXPO` sender)               | Approved; API verified 2026-07-28             |
+| Dexatel    | Ticket-link SMS for Toon Expo-origin tickets (`TOONEXPO` sender)   | Approved; API verified 2026-07-28             |
 | Ticket host | Hosted ticket pages on `reg.toonexpo.com`                         | Approved (DNS confirm at release)             |
 
 Email displays the QR inline and includes readable code plus hosted-ticket link. SMS sends the hosted-ticket link. Delivery provider calls occur after the registration/import transaction and are retried from PostgreSQL records.
@@ -101,9 +102,8 @@ Redis is not introduced for rate limiting. The current process-local `5 / 10 min
 - Rehearse 1,000 registrations in ten minutes plus short bursts.
 - Keep database transactions short and use the Neon pooled URL.
 - Save registration/ticket and delivery jobs atomically.
-- Fast push sends one registration per outbox row after the HTTP response; cron retries failures only when `MOOTQ_PUSH_*` is configured (disabled until Mootq provides the endpoint).
-- Fast feed is incremental backup catch-up; Mootq controls polling frequency.
-- Full synchronization is manual, paginated, idempotent and resumable.
+- Fast push sends one full registration per outbox row after the HTTP response, at most 5 req/s; cron retries failures only when `MOOTQ_PUSH_*` is configured (disabled until Mootq provides the endpoint).
+- Cursor feed and full synchronization are internal recovery tools, not v1 partner obligations.
 - Monitor registration errors, delivery backlog, partner import failures and full-sync results.
 
 ## 8. Testing
@@ -112,9 +112,8 @@ Redis is not introduced for rate limiting. The current process-local `5 / 10 min
 - Integration tests for atomic ticket/delivery persistence.
 - Scanner fixture tests with codes generated by each source.
 - Email rendering and Dexatel SMS API tests.
-- Outbound push outbox and retry tests.
-- Fast-feed cursor catch-up tests (backup path).
-- Full import/export rerun and partial-failure tests.
+- Outbound push outbox, full-body payload, 5 req/s drain, and retry tests.
+- Inbound nightly POST tests (idempotency, no delivery jobs).
 - Load test at the agreed peak.
 - Format, lint, typecheck, tests and production build before release.
 
@@ -146,4 +145,5 @@ Owner decision (2026-07-27): repeated intentional registrations with the same em
 - [`PROGRESS.md`](./PROGRESS.md)
 - [`technical-specification/00-INDEX.md`](./technical-specification/00-INDEX.md)
 - [`technical-specification/13-TICKETING-AND-INTEGRATIONS.md`](./technical-specification/13-TICKETING-AND-INTEGRATIONS.md)
-- [`technical-specification/14-MOOTQ-PARTNER-CONTRACT.md`](./technical-specification/14-MOOTQ-PARTNER-CONTRACT.md)
+- [`technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`](./technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md)
+- [`technical-specification/15-MOOTQ-HANDOFF.md`](./technical-specification/15-MOOTQ-HANDOFF.md)

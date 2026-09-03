@@ -1,6 +1,6 @@
 # Toon Expo Registration — TODO
 
-Updated: 2026-07-30
+Updated: 2026-08-31
 
 ## Перед событием (ops)
 
@@ -8,24 +8,27 @@ Updated: 2026-07-30
 - [ ] Когда есть `MOOTQ_PUSH_URL`/`MOOTQ_PUSH_KEY`: вернуть mootq-push в `vercel.json`, `MOOTQ_PUSH_CRON_ENABLED=true`
 - [ ] После события: оба cron-флага снова `false` (см. [`README.md`](README.md))
 
-## Решения (зафиксировано)
+## Решения (зафиксировано 2026-08-18)
 
-1. **QR:** `TE` + 11 / `MQ` + 11; алфавит `A-Z0-9`; regex `^(TE|MQ)[A-Z0-9]{11}$`. Мы генерируем только `TE…`. `sourceSystem` отдельно.
-2. **Fast push:** outbox → `after()` сразу; cron-retry только с `MOOTQ_PUSH_*` + `MOOTQ_PUSH_CRON_ENABLED=true`. Delivery cron раз в час + `DELIVERY_CRON_ENABLED`.
-3. **Event-day режим приложения:** не нужен (только env-флаги cron).
-4. **Минимальный push body:** `sourceRegistrationId`, `ticketCode`, `sourceSystem`, `createdAt` (+ `Idempotency-Key`). Без email/phone.
+1. **QR:** `TE` + 11 / `MQ` + 11; алфавит `A-Z0-9`; regex `^(TE|MQ)[A-Z0-9]{11}$`. Мы генерируем только `TE…`.
+2. **TE → Mootq:** полный POST сразу после нашей регистрации (ФИО, email, phone, `locale`, плоские `answers`, optional UTM). `sourceRegistrationId` только в `Idempotency-Key`. Макс. 5 req/s. Outbox + retry.
+3. **Mootq → TE:** ночной POST. Мы только сохраняем. Email/SMS на MQ не шлём.
+4. **Feed / full-sync / attendance inbound:** не в v1 для партнёра. Код recovery оставляем.
+5. Контракт: [`docs/technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md`](docs/technical-specification/16-MOOTQ-INTEGRATION-CONTRACT.md). Письмо: [`15-MOOTQ-HANDOFF.md`](docs/technical-specification/15-MOOTQ-HANDOFF.md). Документ `14` отозван.
 
 ## С Mootq
 
-[x] Handoff: [`14-MOOTQ-PARTNER-CONTRACT.md`](docs/technical-specification/14-MOOTQ-PARTNER-CONTRACT.md) + [`15-MOOTQ-HANDOFF.md`](docs/technical-specification/15-MOOTQ-HANDOFF.md)
-[ ] Отправить handoff Mootq + выдать `MOOTQ_WRITE_KEY` / `MOOTQ_READ_KEY`
+[x] Внутренние решения закрыты; контракт `16` и cover `15` готовы
+[x] Отправить `15` + `16` Mootq
+[x] Получить sign-off
+[ ] Выдать write-ключ (один на событие) + non-prod URL
 [ ] Получить `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY`
-[ ] Smoke: inbound POST, наш push, feed GET, full export
-[ ] Получить `MOOTQ_FULL_EXPORT_BASE_URL` + `MOOTQ_FULL_EXPORT_KEY`
-[ ] Сканер: коды `TE…` / `MQ…` (uppercase)
+[x] После sign-off: адаптировать код push/inbound под `16`
+[ ] Smoke: наш полный push, их nightly POST, сканер `TE…` / `MQ…`
 
 ## Реализация
 
 [x] Ticket code `TE`/`MQ` + `A-Z0-9`
-[x] Outbox + `after()` push + cron flags (`DELIVERY_CRON_ENABLED` / `MOOTQ_PUSH_CRON_ENABLED`)
-[x] Docs / README ops-памятка
+[x] Outbox + `after()` push + cron flags
+[x] Push body: полное тело, без `sourceRegistrationId`/`sourceSystem` в JSON, `registeredAt`, flatten `answers`, UTM optional, ≤5 req/s
+[x] Inbound: `registeredAt` + required `locale` + optional `answers`; не создавать EMAIL/SMS
