@@ -1,10 +1,12 @@
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import type {
   InvestmentAnswers,
-  LocationSeek,
+  LocationChoice,
   MarketResearchAnswers,
   OwnResidenceAnswers,
   QuestionnaireAnswers,
+  ResearchLocation,
+  ResidencePlace,
 } from '@/lib/questionnaire/types';
 import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 
@@ -49,72 +51,93 @@ function flattenParsedAnswers(answers: QuestionnaireAnswers): MootqAnswers {
   }
 }
 
-function flattenOwnResidence(answers: OwnResidenceAnswers): MootqAnswers {
+function flattenShared(answers: QuestionnaireAnswers): MootqAnswers {
   const flat: MootqAnswers = {
     age_band: answers.ageBand,
     visit_purpose: answers.visitPurpose,
     newsletter: answers.newsletter,
-    interest_type: answers.interestType,
-    area_sqm: answers.areaSqm,
-    purchase_method: answers.purchaseMethod,
-    monthly_budget: answers.monthlyBudget,
-    decision_stage: answers.decisionStage,
   };
 
+  assignResidence(flat, answers.residence);
+  return flat;
+}
+
+function flattenOwnResidence(answers: OwnResidenceAnswers): MootqAnswers {
+  const flat = flattenShared(answers);
+  flat.interest_type = answers.interestType;
+  flat.area_sqm = answers.areaSqm;
+  flat.purchase_method = answers.purchaseMethod;
+  flat.monthly_budget = answers.monthlyBudget;
+  flat.decision_stage = answers.decisionStage;
   assignOptional(flat, 'abroad_countries', answers.abroadCountries);
   assignOptional(flat, 'abroad_countries_other', answers.abroadCountriesOther);
-  assignLocationSeek(flat, answers.locationSeek);
+  assignLocationChoice(flat, answers.locationSeek);
   return flat;
 }
 
 function flattenInvestment(answers: InvestmentAnswers): MootqAnswers {
-  const flat: MootqAnswers = {
-    age_band: answers.ageBand,
-    visit_purpose: answers.visitPurpose,
-    newsletter: answers.newsletter,
-    investment_property_type: answers.investmentPropertyType,
-    investment_market: answers.investmentMarket,
-    investment_goal: answers.investmentGoal,
-    investment_timeline: answers.investmentTimeline,
-    investment_budget_usd: answers.investmentBudgetUsd,
-    prior_investment_experience: answers.priorInvestmentExperience,
-  };
-
+  const flat = flattenShared(answers);
+  flat.investment_property_type = answers.investmentPropertyType;
+  flat.investment_goal = answers.investmentGoal;
+  flat.area_sqm = answers.areaSqm;
+  flat.purchase_method = answers.purchaseMethod;
+  flat.investment_timeline = answers.investmentTimeline;
+  flat.investment_budget_usd = answers.investmentBudgetUsd;
+  flat.prior_investment_experience = answers.priorInvestmentExperience;
   assignOptional(flat, 'investment_property_type_other', answers.investmentPropertyTypeOther);
-  assignOptional(flat, 'investment_market_other', answers.investmentMarketOther);
+  assignOptional(flat, 'prior_investment_experience_other', answers.priorInvestmentExperienceOther);
+  assignLocationChoice(flat, answers.locationSeek);
   return flat;
 }
 
 function flattenMarketResearch(answers: MarketResearchAnswers): MootqAnswers {
-  const flat: MootqAnswers = {
-    age_band: answers.ageBand,
-    visit_purpose: answers.visitPurpose,
-    newsletter: answers.newsletter,
-    market_interests: answers.marketInterests,
-    research_goal: answers.researchGoal,
-    interested_where: answers.interestedWhere,
-    purchase_horizon: answers.purchaseHorizon,
-  };
-
-  assignOptional(flat, 'interested_where_other', answers.interestedWhereOther);
+  const flat = flattenShared(answers);
+  flat.market_interests = answers.marketInterests;
+  flat.research_goal = answers.researchGoal;
+  flat.purchase_horizon = answers.purchaseHorizon;
+  assignResearchLocation(flat, answers.researchLocation);
   return flat;
 }
 
-function assignLocationSeek(target: MootqAnswers, locationSeek: LocationSeek | undefined): void {
-  if (!locationSeek) {
+function assignResidence(target: MootqAnswers, residence: ResidencePlace): void {
+  target.residence_scope = residence.scope;
+  if (residence.scope === 'yerevan') {
+    target.residence_district = residence.district;
+    return;
+  }
+  if (residence.scope === 'marz') {
+    target.residence_region = residence.region;
+    return;
+  }
+  target.residence_country = residence.country;
+}
+
+function assignLocationChoice(target: MootqAnswers, locationSeek: LocationChoice): void {
+  if (locationSeek.yerevanDistricts.length > 0) {
+    target.location_seek_districts = locationSeek.yerevanDistricts;
+  }
+  if (locationSeek.marzRegions.length > 0) {
+    target.location_seek_regions = locationSeek.marzRegions;
+  }
+  if (locationSeek.abroadCountries.length > 0) {
+    target.location_seek_abroad_countries = locationSeek.abroadCountries;
+  }
+  assignOptional(target, 'location_seek_abroad_other', locationSeek.abroadCountriesOther);
+}
+
+function assignResearchLocation(target: MootqAnswers, location: ResearchLocation): void {
+  if (location.undecided) {
+    target.research_undecided = true;
     return;
   }
 
-  target.location_seek_scope = locationSeek.scope;
-  if (locationSeek.scope === 'yerevan') {
-    target.location_seek_districts = locationSeek.districts;
-    return;
+  if (location.yerevanDistricts.length > 0) {
+    target.research_districts = location.yerevanDistricts;
   }
-  if (locationSeek.scope === 'marz') {
-    target.location_seek_regions = locationSeek.regions;
-    return;
+  if (location.marzRegions.length > 0) {
+    target.research_regions = location.marzRegions;
   }
-  target.location_seek_abroad_other = locationSeek.other;
+  assignOptional(target, 'research_abroad_country', location.abroadCountry);
 }
 
 function assignOptional(

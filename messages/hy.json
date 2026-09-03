@@ -18,7 +18,7 @@
     "dateLabel": "Օրերը",
     "dateValue": "Նոյեմբերի 13, 14, 15",
     "hoursLabel": "Աշխատանքային ժամերը",
-    "hoursValue": "11:00-20:00",
+    "hoursValue": "11:00-21:00",
     "venueLabel": "Վայրը",
     "venueValue": "Մերիդիան ցուցահանդեսային կենտրոն (Ոսկերիչների 1)",
     "attentionTitle": "ՈՒՇԱԴՐՈՒԹՅՈՒՆ",
@@ -35,9 +35,7 @@
     "registrationDescription": "Լրացրեք ստորևի ձևը գրանցվելու համար։ Բոլոր դաշտերը պարտադիր են։",
     "registerCta": "Գրանցվել",
     "privacyLink": "Գաղտնիության քաղաքականություն",
-    "lead": "Նոյեմբերի 13-ից 15-ը Հայաստանում տեղի կունենա միջազգային խոշորագույն անշարժ գույքի և ներդրումային ցուցահանդեսը՝ TOON EXPO. Invest 2026 Vol. 2-ը։",
     "aboutToggle": "Ցուցահանդեսի մասին",
-    "privacyNoticeToggle": "Գաղտնիության ծանուցում",
     "titleBrand": "TOON EXPO.",
     "titleEvent": "Invest 2026 Vol. 2"
   },
@@ -137,6 +135,7 @@
     "back": "Հետ",
     "next": "Հաջորդ",
     "marketInterestsHint": "Ընտրեք առավելագույնը {max} տարբերակ",
+    "locationChoiceHint": "Կարելի է ընտրել մինչև {max} տարբերակ",
     "maxSelections": "Ընտրեք ոչ ավելի, քան {max} տարբերակ"
   },
   "errors": {

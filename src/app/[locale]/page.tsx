@@ -16,7 +16,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
   const t = await getTranslations('landing');
   const resolvedLocale = locales.includes(locale as Locale) ? (locale as Locale) : 'hy';
   const paragraphs = t.raw('paragraphs') as string[];
-  const attentionParagraphs = t.raw('attentionParagraphs') as string[];
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-primary">
@@ -25,7 +24,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
           title={t('title')}
           titleBrand={t('titleBrand')}
           titleEvent={t('titleEvent')}
-          lead={t('lead')}
           meta={[
             { label: t('dateLabel'), value: t('dateValue') },
             { label: t('hoursLabel'), value: t('hoursValue') },
@@ -35,14 +33,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
 
         <LandingRegistrationCard locale={resolvedLocale} />
 
-        <LandingInfoDetails
-          aboutToggle={t('aboutToggle')}
-          privacyNoticeToggle={t('privacyNoticeToggle')}
-          paragraphs={paragraphs}
-          attentionTitle={t('attentionTitle')}
-          attentionParagraphs={attentionParagraphs}
-          signature={t('signature')}
-        />
+        <LandingInfoDetails aboutToggle={t('aboutToggle')} paragraphs={paragraphs} />
       </div>
       <SiteFooter privacyLabel={t('privacyLink')} />
     </div>

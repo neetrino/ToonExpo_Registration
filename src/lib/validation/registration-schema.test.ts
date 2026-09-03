@@ -7,11 +7,13 @@ import { registrationBodySchema } from '@/lib/validation/registration-schema';
 
 const validAnswers = {
   ageBand: '35-44' as const,
+  residence: { scope: 'yerevan' as const, district: 'kentron' as const },
   visitPurpose: 'own_residence' as const,
   interestType: 'apartment_new' as const,
   locationSeek: {
-    scope: 'yerevan' as const,
-    districts: ['kentron'] as const,
+    yerevanDistricts: ['kentron'] as const,
+    marzRegions: [] as const,
+    abroadCountries: [] as const,
   },
   areaSqm: '70-90' as const,
   purchaseMethod: 'mortgage' as const,

@@ -26,7 +26,7 @@ Mootq confirmed this contract on 2026-08-31. The previous Toon Expo draft (`14`)
 
 ## What we add (please confirm)
 
-1. **Answers catalog.** Toon Expo → Mootq uses form `2026-vis-reg-v1`. Keys are snake_case and flattened (no nested objects). Full list: contract Appendix A. Your inbound keys may differ; we will store unknown keys and still accept the ticket.
+1. **Answers catalog.** Toon Expo → Mootq uses form `2026-vis-reg-v2`. Keys are snake_case and flattened (no nested objects). Full list: contract Appendix A. Your inbound keys may differ; we will store unknown keys and still accept the ticket. Older stored rows may still use `2026-vis-reg-v1`.
 2. **UTM.** Optional top-level `utmSource`, `utmMedium`, `utmCampaign` on Toon Expo → Mootq only. Omit the key when not captured. Do not reject the request if these keys are present or absent.
 3. **Our receive URL.**
 

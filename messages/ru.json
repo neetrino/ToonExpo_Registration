@@ -18,7 +18,7 @@
     "dateLabel": "Дни",
     "dateValue": "13, 14, 15 ноября",
     "hoursLabel": "Часы работы",
-    "hoursValue": "11:00-20:00",
+    "hoursValue": "11:00-21:00",
     "venueLabel": "Место",
     "venueValue": "Выставочный центр «Меридиан» (ул. Воскеричнери, 1)",
     "attentionTitle": "ВНИМАНИЕ",
@@ -35,9 +35,7 @@
     "registrationDescription": "Заполните форму ниже для регистрации. Все поля обязательны.",
     "registerCta": "Зарегистрироваться",
     "privacyLink": "Политика конфиденциальности",
-    "lead": "С 13 по 15 ноября в Армении состоится крупнейшая международная выставка недвижимости и инвестиций — TOON EXPO. Invest 2026 Vol. 2.",
     "aboutToggle": "О выставке",
-    "privacyNoticeToggle": "Уведомление о конфиденциальности",
     "titleBrand": "TOON EXPO.",
     "titleEvent": "Invest 2026 Vol. 2"
   },
@@ -137,6 +135,7 @@
     "back": "Назад",
     "next": "Далее",
     "marketInterestsHint": "Выберите до {max} вариантов",
+    "locationChoiceHint": "Можно выбрать до {max} вариантов",
     "maxSelections": "Выберите не более {max} вариантов"
   },
   "errors": {

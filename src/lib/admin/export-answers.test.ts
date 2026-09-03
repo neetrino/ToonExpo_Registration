@@ -18,9 +18,9 @@ describe('flattenRegistrationAnswersForExport', () => {
   it('flattens own_residence answers into English labels for en locale', () => {
     const result = flattenRegistrationAnswersForExport(ownResidenceAnswers, 'en');
 
-    expect(result.visitPurpose).toBe('Buying property for own residence');
-    expect(result.ageBand).toBe('25–34 years');
-    expect(result.interestType).toBe('House / townhouse');
+    expect(result.visitPurpose).toBe('Purchasing real estate for personal residence');
+    expect(result.ageBand).toBe('25–34');
+    expect(result.interestType).toBe('Private house / Townhouse');
     expect(result.locationSeek).toBe('Yerevan');
     expect(result.yerevanDistricts).toBe('Kentron, Arabkir');
     expect(result.newsletter).toBe('Yes');
@@ -31,9 +31,9 @@ describe('flattenRegistrationAnswersForExport', () => {
   it('flattens own_residence answers into Russian labels for ru locale', () => {
     const result = flattenRegistrationAnswersForExport(ownResidenceAnswers, 'ru');
 
-    expect(result.visitPurpose).toBe('Покупка недвижимости для собственного проживания');
-    expect(result.ageBand).toBe('25–34 лет');
-    expect(result.interestType).toBe('Частный дом / таунхаус');
+    expect(result.visitPurpose).toBe('Покупка недвижимости для себя или семьи');
+    expect(result.ageBand).toBe('25–34 года');
+    expect(result.interestType).toBe('Частный дом / вилла / таунхаус');
     expect(result.locationSeek).toBe('Ереван');
     expect(result.newsletter).toBe('Да');
   });
@@ -63,7 +63,7 @@ describe('flattenRegistrationAnswersForExport', () => {
       'en',
     );
 
-    expect(result.visitPurpose).toBe('Interested in investments');
+    expect(result.visitPurpose).toBe('Interested in real estate investment');
     expect(result.investmentPropertyType).toBe('Apartment');
     expect(result.investmentMarket).toBe('Armenia');
     expect(result.interestType).toBe('');

@@ -22,7 +22,7 @@ Toon Expo reviewed the Mootq draft and records the following.
 | TE → Mootq timing | Immediate after Toon Expo commit; visitor does not wait for Mootq |
 | MQ → Toon Expo timing | Accept nightly batched POST |
 | Ticket delivery | Each party delivers tickets only for registrations created on its own form |
-| `answers` | Toon Expo catalog for form `2026-vis-reg-v1`, flattened keys (Appendix A) |
+| `answers` | Toon Expo catalog for form `2026-vis-reg-v2`, flattened keys (Appendix A) |
 | UTM | Optional top-level `utmSource` / `utmMedium` / `utmCampaign` on TE → Mootq only |
 | Rate limit | Accept maximum 5 POST/s Toon Expo → Mootq per credential |
 | Transport | HTTPS POST only; no WebSocket; no continuous polling |
@@ -153,14 +153,18 @@ Example:
   "phone": "+37400000000",
   "locale": "hy",
   "answers": {
-    "form_version": "2026-vis-reg-v1",
+    "form_version": "2026-vis-reg-v2",
     "age_band": "25-34",
+    "residence_scope": "yerevan",
+    "residence_district": "kentron",
     "visit_purpose": "investment",
     "investment_property_type": "apartment",
-    "investment_market": "armenia",
+    "location_seek_districts": ["kentron"],
     "investment_goal": "rental_income",
-    "investment_timeline": "3_months",
-    "investment_budget_usd": "100k-250k",
+    "area_sqm": "70-90",
+    "purchase_method": "cash",
+    "investment_timeline": "6-12_months",
+    "investment_budget_usd": "150k-300k",
     "prior_investment_experience": "no_first",
     "newsletter": true
   },
@@ -299,7 +303,7 @@ The key is a stable technical code:
 
 The key is not the displayed question text. It does not change when a translation changes. UI translations live in each system. The receiver uses the registration `locale` to pick labels.
 
-Toon Expo → Mootq uses the catalog in Appendix A (`form_version`: `2026-vis-reg-v1`).
+Toon Expo → Mootq uses the catalog in Appendix A (`form_version`: `2026-vis-reg-v2`).
 
 Mootq → Toon Expo may use Mootq's own keys. Toon Expo will store unknown keys for later mapping and will still accept the ticket.
 
@@ -453,15 +457,17 @@ Attendance endpoint is not required for v1.
 
 ---
 
-## Appendix A — Toon Expo `answers` catalog (`2026-vis-reg-v1`)
+## Appendix A — Toon Expo `answers` catalog (`2026-vis-reg-v2`)
 
 Wire keys are snake_case. Branch-specific keys are omitted when that branch was not used. Absent optional keys are omitted (not sent as `null`) unless the visitor entered a value.
 
 `form_version` is always sent when `answers` is present:
 
 ```json
-{ "form_version": "2026-vis-reg-v1" }
+{ "form_version": "2026-vis-reg-v2" }
 ```
+
+Older stored rows may still use `2026-vis-reg-v1`. New public submissions use v2 only.
 
 ### A.1 Keys
 
@@ -469,31 +475,36 @@ Wire keys are snake_case. Branch-specific keys are omitted when that branch was 
 | --- | --- | --- | --- |
 | `form_version` | string | whenever `answers` is sent | Catalog version (not shown to the visitor) |
 | `age_band` | string | all branches | Age / Տարիք / Возраст |
-| `visit_purpose` | string | all branches | Main purpose of visit / Ձեր այցի հիմնական նպատակը TOON EXPO-ին / Какова основная цель вашего визита на TOON EXPO? |
+| `residence_scope` | string | all branches | Place of residence |
+| `residence_district` | string | `residence_scope=yerevan` | Yerevan district |
+| `residence_region` | string | `residence_scope=marz` | Region (marz) |
+| `residence_country` | string | `residence_scope=abroad` | Country (free text) |
+| `visit_purpose` | string | all branches | Main purpose of visit |
 | `newsletter` | boolean | all branches | Post-exhibition newsletter opt-in |
-| `interest_type` | string | `visit_purpose=own_residence` | What are you interested in? |
+| `interest_type` | string | `visit_purpose=own_residence` | What type of property are you interested in? |
 | `abroad_countries` | string[] | own residence and `interest_type=abroad` | Property abroad — country |
 | `abroad_countries_other` | string | when `abroad` includes `other` | Other (please specify) |
-| `location_seek_scope` | string | own residence when location seek is shown | Where are you looking for real estate? |
-| `location_seek_districts` | string[] | `location_seek_scope=yerevan` | Yerevan — district |
-| `location_seek_regions` | string[] | `location_seek_scope=marz` | Region (marz) |
-| `location_seek_abroad_other` | string | `location_seek_scope=abroad` | Please specify the country |
-| `area_sqm` | string | `own_residence` | Property size (sqm) |
-| `purchase_method` | string | `own_residence` | How do you want to purchase? |
+| `location_seek_districts` | string[] | when Yerevan is selected in a location question | Yerevan districts (max 3 leaves total) |
+| `location_seek_regions` | string[] | when marz is selected in a location question | Regions |
+| `location_seek_abroad_countries` | string[] | when abroad is selected in a location question | Abroad countries |
+| `location_seek_abroad_other` | string | when abroad countries include `other` | Please specify the country |
+| `area_sqm` | string | `own_residence` and `investment` | Property size |
+| `purchase_method` | string | `own_residence` and `investment` | How do you want to purchase? |
 | `monthly_budget` | string | `own_residence` | Monthly payment budget |
 | `decision_stage` | string | `own_residence` | What stage are you at? |
 | `investment_property_type` | string | `investment` | Investment property type |
 | `investment_property_type_other` | string | when type is `other` | Other (please specify) |
-| `investment_market` | string | `investment` | Investment market |
-| `investment_market_other` | string | when market is `other` | Other (please specify) |
 | `investment_goal` | string | `investment` | Investment goal |
 | `investment_timeline` | string | `investment` | Investment decision timeline |
 | `investment_budget_usd` | string | `investment` | Investment budget |
 | `prior_investment_experience` | string | `investment` | Prior real-estate investment |
+| `prior_investment_experience_other` | string | when prior experience is `yes_abroad` | Country (free text) |
 | `market_interests` | string[] | `market_research` | Market interests (max 3) |
 | `research_goal` | string | `market_research` | Why are you researching the market? |
-| `interested_where` | string | `market_research` | Where are you interested in real estate? |
-| `interested_where_other` | string | when `interested_where=abroad` | Please specify the country |
+| `research_undecided` | boolean | market research when undecided | Not decided yet |
+| `research_districts` | string[] | market research Yerevan | Yerevan districts |
+| `research_regions` | string[] | market research marz | Regions |
+| `research_abroad_country` | string | market research abroad | Country (free text) |
 | `purchase_horizon` | string | `market_research` | When is a purchase possible? |
 
 `location_seek_*` is the flattened form of Toon Expo's internal `locationSeek` object. Nested objects are not sent.
@@ -505,28 +516,27 @@ Values are codes, not localized labels.
 | Key | Codes |
 | --- | --- |
 | `age_band` | `18-24`, `25-34`, `35-44`, `45-54`, `55-64`, `65_plus` |
+| `residence_scope` | `yerevan`, `marz`, `abroad` |
 | `visit_purpose` | `own_residence`, `investment`, `market_research` |
-| `interest_type` | `house_townhouse`, `apartment_new`, `abroad` |
-| `abroad_countries` | `uae`, `russia`, `spain`, `cyprus`, `georgia`, `other` |
-| `location_seek_scope` | `yerevan`, `marz`, `abroad` |
-| `location_seek_districts` | `kentron`, `arabkir`, `ajapnyak`, `davtashen`, `nor_nork`, `avan`, `kanaker_zeytun`, `nork_marash`, `shengavit`, `malatia_sebastia`, `erebuni`, `nubarashen` |
-| `location_seek_regions` | `aragatsotn`, `ararat`, `armavir`, `gegharkunik`, `lori`, `kotayk`, `shirak`, `syunik`, `vayots_dzor`, `tavush` |
+| `interest_type` | `apartment_new`, `house_townhouse`, `abroad` |
+| `abroad_countries` | `russia`, `uae`, `georgia`, `spain`, `cyprus`, `italy`, `bali`, `other` |
+| `location_seek_districts` / `residence_district` / `research_districts` | `kentron`, `arabkir`, `ajapnyak`, `davtashen`, `nor_nork`, `avan`, `kanaker_zeytun`, `nork_marash`, `shengavit`, `malatia_sebastia`, `erebuni`, `nubarashen` |
+| `location_seek_regions` / `residence_region` / `research_regions` | `aragatsotn`, `ararat`, `armavir`, `gegharkunik`, `lori`, `kotayk`, `shirak`, `syunik`, `vayots_dzor`, `tavush` |
+| `location_seek_abroad_countries` | same as `abroad_countries` |
 | `area_sqm` | `up_to_50`, `50-70`, `70-90`, `90-120`, `120_plus` |
 | `purchase_method` | `cash`, `mortgage`, `installment`, `mixed` |
 | `monthly_budget` | `up_to_300k`, `300k-500k`, `500k-700k`, `700k-1m`, `1m_plus`, `paying_cash` |
 | `decision_stage` | `ready_1_month`, `choosing_3_months`, `searching_6_months`, `just_researching` |
 | `investment_property_type` | `apartment`, `apart_hotel`, `commercial`, `office`, `land`, `house_villa`, `other` |
-| `investment_market` | `armenia`, `uae`, `greece`, `spain`, `cyprus`, `montenegro`, `other` |
 | `investment_goal` | `rental_income`, `appreciation`, `diversification`, `citizenship_residency`, `multiple` |
-| `investment_timeline` | `1_month`, `3_months`, `6_months`, `12_months`, `just_researching` |
-| `investment_budget_usd` | `up_to_100k`, `100k-250k`, `250k-500k`, `500k_plus` |
+| `investment_timeline` | `up_to_3_months`, `3-6_months`, `6-12_months`, `1-2_years` |
+| `investment_budget_usd` | `up_to_150k`, `150k-300k`, `300k-500k`, `500k_plus` |
 | `prior_investment_experience` | `yes_armenia`, `yes_abroad`, `yes_both`, `no_first` |
 | `market_interests` | `new_apartments`, `houses_townhouses`, `investment_opportunities`, `foreign_property`, `mortgage_programs`, `price_trends`, `developer_offers`, `urban_projects` |
 | `research_goal` | `future_purchase`, `future_investment`, `professional`, `browse_offers` |
-| `interested_where` | `yerevan`, `regions`, `abroad`, `undecided` |
-| `purchase_horizon` | `within_1_year`, `1-2_years`, `2-5_years`, `no_plans` |
+| `purchase_horizon` | `up_to_3_months`, `3-6_months`, `6-12_months`, `1-2_years`, `no_plans` |
 
-Free-text keys have no code list: `abroad_countries_other`, `location_seek_abroad_other`, `investment_property_type_other`, `investment_market_other`, `interested_where_other`.
+Free-text keys have no code list: `residence_country`, `abroad_countries_other`, `location_seek_abroad_other`, `investment_property_type_other`, `prior_investment_experience_other`, `research_abroad_country`.
 
 Option display translations live in Toon Expo. Mootq may ignore them for scanning and store codes as-is.
 

@@ -5,10 +5,8 @@ import type {
   AreaSqmBand,
   DecisionStage,
   InterestType,
-  InterestedWhere,
   InvestmentBudgetUsd,
   InvestmentGoal,
-  InvestmentMarket,
   InvestmentPropertyType,
   InvestmentTimeline,
   LocationSeekScope,
@@ -19,6 +17,7 @@ import type {
   PurchaseHorizon,
   PurchaseMethod,
   ResearchGoal,
+  ResearchLocationScope,
   VisitPurpose,
   YerevanDistrict,
 } from '@/lib/questionnaire/types';
@@ -32,7 +31,9 @@ export type WizardStepId =
   | 'own-residence-size'
   | 'own-residence-budget'
   | 'investment-type'
+  | 'investment-location'
   | 'investment-goal'
+  | 'investment-size'
   | 'investment-budget'
   | 'market-research-focus'
   | 'market-research-where'
@@ -45,12 +46,17 @@ export type WizardState = {
   phone: string;
   phoneCountry: CountryCode;
   ageBand: AgeBand | '';
+  residenceScope: LocationSeekScope | '';
+  residenceDistrict: YerevanDistrict | '';
+  residenceRegion: MarzRegion | '';
+  residenceCountry: string;
   visitPurpose: VisitPurpose | '';
   interestType: InterestType | '';
   abroadCountries: AbroadCountry[];
   abroadCountriesOther: string;
-  locationSeekScope: LocationSeekScope | '';
-  locationSeekOther: string;
+  locationSeekScopes: LocationSeekScope[];
+  locationSeekAbroadCountries: AbroadCountry[];
+  locationSeekAbroadOther: string;
   yerevanDistricts: YerevanDistrict[];
   marzRegions: MarzRegion[];
   areaSqm: AreaSqmBand | '';
@@ -59,16 +65,15 @@ export type WizardState = {
   decisionStage: DecisionStage | '';
   investmentPropertyType: InvestmentPropertyType | '';
   investmentPropertyTypeOther: string;
-  investmentMarket: InvestmentMarket | '';
-  investmentMarketOther: string;
   investmentGoal: InvestmentGoal | '';
   investmentTimeline: InvestmentTimeline | '';
   investmentBudgetUsd: InvestmentBudgetUsd | '';
   priorInvestmentExperience: PriorInvestmentExperience | '';
+  priorInvestmentExperienceOther: string;
   marketInterests: MarketInterest[];
   researchGoal: ResearchGoal | '';
-  interestedWhere: InterestedWhere | '';
-  interestedWhereOther: string;
+  researchScopes: ResearchLocationScope[];
+  researchAbroadCountry: string;
   purchaseHorizon: PurchaseHorizon | '';
   newsletter: boolean | null;
   privacyConsent: boolean;
@@ -84,12 +89,17 @@ export const initialWizardState: WizardState = {
   phone: '',
   phoneCountry: DEFAULT_PHONE_COUNTRY,
   ageBand: '',
+  residenceScope: '',
+  residenceDistrict: '',
+  residenceRegion: '',
+  residenceCountry: '',
   visitPurpose: '',
   interestType: '',
   abroadCountries: [],
   abroadCountriesOther: '',
-  locationSeekScope: '',
-  locationSeekOther: '',
+  locationSeekScopes: [],
+  locationSeekAbroadCountries: [],
+  locationSeekAbroadOther: '',
   yerevanDistricts: [],
   marzRegions: [],
   areaSqm: '',
@@ -98,16 +108,15 @@ export const initialWizardState: WizardState = {
   decisionStage: '',
   investmentPropertyType: '',
   investmentPropertyTypeOther: '',
-  investmentMarket: '',
-  investmentMarketOther: '',
   investmentGoal: '',
   investmentTimeline: '',
   investmentBudgetUsd: '',
   priorInvestmentExperience: '',
+  priorInvestmentExperienceOther: '',
   marketInterests: [],
   researchGoal: '',
-  interestedWhere: '',
-  interestedWhereOther: '',
+  researchScopes: [],
+  researchAbroadCountry: '',
   purchaseHorizon: '',
   newsletter: null,
   privacyConsent: false,

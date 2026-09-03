@@ -4,10 +4,8 @@ import {
   AGE_BANDS,
   AREA_SQM_BANDS,
   DECISION_STAGES,
-  INTERESTED_WHERE_OPTIONS,
   INVESTMENT_BUDGETS_USD,
   INVESTMENT_GOALS,
-  INVESTMENT_MARKETS,
   INVESTMENT_PROPERTY_TYPES,
   INVESTMENT_TIMELINES,
   INTEREST_TYPES,
@@ -15,17 +13,18 @@ import {
   MARKET_INTERESTS,
   MARZ_REGIONS,
   MONTHLY_BUDGETS,
+  OTHER_TEXT_MAX_LENGTH,
   PRIOR_INVESTMENT_EXPERIENCES,
-  PURCHASE_HORIZONS,
   PURCHASE_METHODS,
   RESEARCH_GOALS,
   VISIT_PURPOSES,
   YEREVAN_DISTRICTS,
 } from '@/lib/questionnaire';
-import { MARKET_INTERESTS_MAX, OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
+import { LOCATION_CHOICE_MAX, MARKET_INTERESTS_MAX } from '@/lib/questionnaire/constants';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { normalizePhone } from '@/lib/validation/phone';
 import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
+import { locationChoiceStepSchema, researchLocationStepSchema } from './location-validation';
 import type { WizardFieldErrors, WizardState, WizardStepId } from './types';
 
 type ErrorTranslator = {
@@ -55,12 +54,37 @@ const identityStepSchema = z
     }
   });
 
-const profileStepSchema = z.object({
-  ageBand: z.enum(AGE_BANDS),
-  visitPurpose: z.enum(VISIT_PURPOSES),
-});
-
 const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
+
+const profileStepSchema = z
+  .object({
+    ageBand: z.enum(AGE_BANDS),
+    visitPurpose: z.enum(VISIT_PURPOSES),
+    residenceScope: z.enum(LOCATION_SEEK_SCOPES),
+    residenceDistrict: z.enum(YEREVAN_DISTRICTS).or(z.literal('')),
+    residenceRegion: z.enum(MARZ_REGIONS).or(z.literal('')),
+    residenceCountry: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.residenceScope === 'yerevan' && !data.residenceDistrict) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['residenceDistrict'], message: 'required' });
+    }
+
+    if (data.residenceScope === 'marz' && !data.residenceRegion) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['residenceRegion'], message: 'required' });
+    }
+
+    if (data.residenceScope === 'abroad') {
+      const other = otherTextSchema.safeParse(data.residenceCountry);
+      if (!other.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['residenceCountry'],
+          message: 'required',
+        });
+      }
+    }
+  });
 
 const ownResidenceInterestSchema = z
   .object({
@@ -89,46 +113,7 @@ const ownResidenceInterestSchema = z
     }
   });
 
-const ownResidenceLocationSchema = z
-  .object({
-    locationSeekScope: z.enum(LOCATION_SEEK_SCOPES).or(z.literal('')),
-    locationSeekOther: z.string(),
-    yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
-    marzRegions: z.array(z.enum(MARZ_REGIONS)),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.locationSeekScope) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['locationSeekScope'],
-        message: 'required',
-      });
-      return;
-    }
-
-    if (data.locationSeekScope === 'yerevan' && data.yerevanDistricts.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['yerevanDistricts'],
-        message: 'required',
-      });
-    }
-
-    if (data.locationSeekScope === 'marz' && data.marzRegions.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['marzRegions'], message: 'required' });
-    }
-
-    if (data.locationSeekScope === 'abroad') {
-      const other = otherTextSchema.safeParse(data.locationSeekOther);
-      if (!other.success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['locationSeekOther'],
-          message: 'required',
-        });
-      }
-    }
-  });
+const ownResidenceLocationSchema = locationChoiceStepSchema;
 
 const ownResidenceSizeSchema = z.object({
   areaSqm: z.enum(AREA_SQM_BANDS),
@@ -144,8 +129,6 @@ const investmentTypeSchema = z
   .object({
     investmentPropertyType: z.enum(INVESTMENT_PROPERTY_TYPES),
     investmentPropertyTypeOther: z.string(),
-    investmentMarket: z.enum(INVESTMENT_MARKETS),
-    investmentMarketOther: z.string(),
   })
   .superRefine((data, ctx) => {
     if (data.investmentPropertyType === 'other') {
@@ -158,28 +141,38 @@ const investmentTypeSchema = z
         });
       }
     }
-
-    if (data.investmentMarket === 'other') {
-      const other = otherTextSchema.safeParse(data.investmentMarketOther);
-      if (!other.success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['investmentMarketOther'],
-          message: 'required',
-        });
-      }
-    }
   });
+
+const investmentLocationSchema = locationChoiceStepSchema;
+
+const investmentSizeSchema = z.object({
+  areaSqm: z.enum(AREA_SQM_BANDS),
+  purchaseMethod: z.enum(PURCHASE_METHODS),
+});
 
 const investmentGoalSchema = z.object({
   investmentGoal: z.enum(INVESTMENT_GOALS),
   investmentTimeline: z.enum(INVESTMENT_TIMELINES),
 });
 
-const investmentBudgetSchema = z.object({
-  investmentBudgetUsd: z.enum(INVESTMENT_BUDGETS_USD),
-  priorInvestmentExperience: z.enum(PRIOR_INVESTMENT_EXPERIENCES),
-});
+const investmentBudgetSchema = z
+  .object({
+    investmentBudgetUsd: z.enum(INVESTMENT_BUDGETS_USD),
+    priorInvestmentExperience: z.enum(PRIOR_INVESTMENT_EXPERIENCES),
+    priorInvestmentExperienceOther: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.priorInvestmentExperience === 'yes_abroad') {
+      const other = otherTextSchema.safeParse(data.priorInvestmentExperienceOther);
+      if (!other.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['priorInvestmentExperienceOther'],
+          message: 'required',
+        });
+      }
+    }
+  });
 
 const marketResearchFocusSchema = z.object({
   marketInterests: z
@@ -192,24 +185,7 @@ const marketResearchFocusSchema = z.object({
   researchGoal: z.enum(RESEARCH_GOALS),
 });
 
-const marketResearchWhereSchema = z
-  .object({
-    interestedWhere: z.enum(INTERESTED_WHERE_OPTIONS),
-    interestedWhereOther: z.string(),
-    purchaseHorizon: z.enum(PURCHASE_HORIZONS),
-  })
-  .superRefine((data, ctx) => {
-    if (data.interestedWhere === 'abroad') {
-      const other = otherTextSchema.safeParse(data.interestedWhereOther);
-      if (!other.success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['interestedWhereOther'],
-          message: 'required',
-        });
-      }
-    }
-  });
+const marketResearchWhereSchema = researchLocationStepSchema;
 
 const finishStepSchema = z.object({
   newsletter: z.boolean(),
@@ -231,6 +207,10 @@ function mapIssueMessage(issue: z.ZodIssue, t: ErrorTranslator): string {
 
   if (issue.message === 'unique') {
     return t.validation;
+  }
+
+  if (issue.message === 'max') {
+    return t.maxSelections(LOCATION_CHOICE_MAX);
   }
 
   if (issue.message === 'required' || issue.code === 'too_small' || issue.code === 'invalid_type') {
@@ -267,6 +247,10 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       return {
         ageBand: state.ageBand || undefined,
         visitPurpose: state.visitPurpose || undefined,
+        residenceScope: state.residenceScope || undefined,
+        residenceDistrict: state.residenceDistrict,
+        residenceRegion: state.residenceRegion,
+        residenceCountry: state.residenceCountry,
       };
     case 'own-residence-interest':
       return {
@@ -275,9 +259,11 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
         abroadCountriesOther: state.abroadCountriesOther,
       };
     case 'own-residence-location':
+    case 'investment-location':
       return {
-        locationSeekScope: state.locationSeekScope,
-        locationSeekOther: state.locationSeekOther,
+        locationSeekScopes: state.locationSeekScopes,
+        locationSeekAbroadCountries: state.locationSeekAbroadCountries,
+        locationSeekAbroadOther: state.locationSeekAbroadOther,
         yerevanDistricts: state.yerevanDistricts,
         marzRegions: state.marzRegions,
       };
@@ -295,8 +281,11 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       return {
         investmentPropertyType: state.investmentPropertyType || undefined,
         investmentPropertyTypeOther: state.investmentPropertyTypeOther,
-        investmentMarket: state.investmentMarket || undefined,
-        investmentMarketOther: state.investmentMarketOther,
+      };
+    case 'investment-size':
+      return {
+        areaSqm: state.areaSqm || undefined,
+        purchaseMethod: state.purchaseMethod || undefined,
       };
     case 'investment-goal':
       return {
@@ -307,6 +296,7 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       return {
         investmentBudgetUsd: state.investmentBudgetUsd || undefined,
         priorInvestmentExperience: state.priorInvestmentExperience || undefined,
+        priorInvestmentExperienceOther: state.priorInvestmentExperienceOther,
       };
     case 'market-research-focus':
       return {
@@ -315,8 +305,10 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       };
     case 'market-research-where':
       return {
-        interestedWhere: state.interestedWhere || undefined,
-        interestedWhereOther: state.interestedWhereOther,
+        researchScopes: state.researchScopes,
+        yerevanDistricts: state.yerevanDistricts,
+        marzRegions: state.marzRegions,
+        researchAbroadCountry: state.researchAbroadCountry,
         purchaseHorizon: state.purchaseHorizon || undefined,
       };
     case 'finish':
@@ -361,8 +353,14 @@ export function validateWizardStep(
     case 'investment-type':
       result = investmentTypeSchema.safeParse(data);
       break;
+    case 'investment-location':
+      result = investmentLocationSchema.safeParse(data);
+      break;
     case 'investment-goal':
       result = investmentGoalSchema.safeParse(data);
+      break;
+    case 'investment-size':
+      result = investmentSizeSchema.safeParse(data);
       break;
     case 'investment-budget':
       result = investmentBudgetSchema.safeParse(data);

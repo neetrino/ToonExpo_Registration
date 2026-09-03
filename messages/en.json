@@ -18,7 +18,7 @@
     "dateLabel": "Dates",
     "dateValue": "November 13, 14, 15",
     "hoursLabel": "Working hours",
-    "hoursValue": "11:00-20:00",
+    "hoursValue": "11:00-21:00",
     "venueLabel": "Venue",
     "venueValue": "Meridian Exhibition Center (Voskerichneri 1)",
     "attentionTitle": "ATTENTION",
@@ -35,9 +35,7 @@
     "registrationDescription": "Complete the form below to register. All fields are required.",
     "registerCta": "Register now",
     "privacyLink": "Privacy policy",
-    "lead": "From November 13 to 15, Armenia will host one of the largest international real estate and investment exhibitions — TOON EXPO. Invest 2026 Vol. 2.",
     "aboutToggle": "About the exhibition",
-    "privacyNoticeToggle": "Privacy notice",
     "titleBrand": "TOON EXPO.",
     "titleEvent": "Invest 2026 Vol. 2"
   },
@@ -137,6 +135,7 @@
     "back": "Back",
     "next": "Next",
     "marketInterestsHint": "Select up to {max} options",
+    "locationChoiceHint": "You can select up to {max} options",
     "maxSelections": "Select at most {max} options"
   },
   "errors": {

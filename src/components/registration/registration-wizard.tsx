@@ -18,6 +18,8 @@ import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
 import {
   InvestmentBudgetStep,
   InvestmentGoalStep,
+  InvestmentLocationStep,
+  InvestmentSizeStep,
   InvestmentTypeStep,
 } from './wizard/step-investment';
 import { MarketResearchFocusStep, MarketResearchWhereStep } from './wizard/step-market-research';
@@ -83,7 +85,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
     const draft = loadWizardDraft();
     if (draft) {
-      const draftSteps = getWizardSteps(draft.state.visitPurpose, draft.state.interestType);
+      const draftSteps = getWizardSteps(draft.state.visitPurpose);
       const restoredStep = draftSteps.includes(draft.currentStep)
         ? draft.currentStep
         : draftSteps.includes('own-residence-interest')
@@ -106,7 +108,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     saveWizardDraft(state, currentStep);
   }, [state, currentStep, draftReady]);
 
-  const steps = getWizardSteps(state.visitPurpose, state.interestType);
+  const steps = getWizardSteps(state.visitPurpose);
   const stepIndex = steps.indexOf(currentStep);
   const safeStep: WizardStepId =
     stepIndex >= 0
@@ -132,8 +134,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           interestType: '',
           abroadCountries: [],
           abroadCountriesOther: '',
-          locationSeekScope: '',
-          locationSeekOther: '',
+          locationSeekScopes: [],
+          locationSeekAbroadCountries: [],
+          locationSeekAbroadOther: '',
           yerevanDistricts: [],
           marzRegions: [],
           areaSqm: '',
@@ -142,16 +145,15 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           decisionStage: '',
           investmentPropertyType: '',
           investmentPropertyTypeOther: '',
-          investmentMarket: '',
-          investmentMarketOther: '',
           investmentGoal: '',
           investmentTimeline: '',
           investmentBudgetUsd: '',
           priorInvestmentExperience: '',
+          priorInvestmentExperienceOther: '',
           marketInterests: [],
           researchGoal: '',
-          interestedWhere: '',
-          interestedWhereOther: '',
+          researchScopes: [],
+          researchAbroadCountry: '',
           purchaseHorizon: '',
           newsletter: null,
         };
@@ -314,7 +316,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           {safeStep === 'own-residence-size' ? <OwnResidenceSizeStep {...stepProps} /> : null}
           {safeStep === 'own-residence-budget' ? <OwnResidenceBudgetStep {...stepProps} /> : null}
           {safeStep === 'investment-type' ? <InvestmentTypeStep {...stepProps} /> : null}
+          {safeStep === 'investment-location' ? <InvestmentLocationStep {...stepProps} /> : null}
           {safeStep === 'investment-goal' ? <InvestmentGoalStep {...stepProps} /> : null}
+          {safeStep === 'investment-size' ? <InvestmentSizeStep {...stepProps} /> : null}
           {safeStep === 'investment-budget' ? <InvestmentBudgetStep {...stepProps} /> : null}
           {safeStep === 'market-research-focus' ? <MarketResearchFocusStep {...stepProps} /> : null}
           {safeStep === 'market-research-where' ? <MarketResearchWhereStep {...stepProps} /> : null}
