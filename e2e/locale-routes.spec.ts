@@ -2,9 +2,7 @@ import { test, expect } from '@playwright/test';
 import { routing } from '../src/i18n/routing';
 
 test.describe('public routes', () => {
-  test('redirects root to Armenian even when the browser prefers English', async ({
-    browser,
-  }) => {
+  test('redirects root to Armenian even when the browser prefers English', async ({ browser }) => {
     const context = await browser.newContext({
       locale: 'en-US',
       extraHTTPHeaders: { 'Accept-Language': 'en-US,en;q=0.9' },
