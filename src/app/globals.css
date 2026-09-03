@@ -20,7 +20,7 @@
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --font-sans: 'Noto Sans Armenian', 'Noto Sans', var(--font-geist-sans), system-ui, sans-serif;
-  --font-display: Unbounded, 'Noto Sans', system-ui, sans-serif;
+  --font-display: Onest, 'Noto Sans', system-ui, sans-serif;
 }
 
 :root {
