@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { DeleteRegistrationButton } from '@/components/admin/delete-registration-button';
+import { SendQrButton } from '@/components/admin/send-qr-button';
 import { Button } from '@/components/ui/button';
 import type { AdminRegistrationDetail } from '@/lib/admin/get-registration';
 import { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers';
@@ -116,7 +117,10 @@ export function RegistrationDetailCard({
         </header>
 
         <section className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Ticket</h2>
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Ticket</h2>
+            <SendQrButton registrationId={registration.id} compact />
+          </div>
           <dl className="mt-4 grid gap-4 sm:grid-cols-2">
             <DetailField
               label="Source"

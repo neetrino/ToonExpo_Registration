@@ -31,6 +31,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: StepProps) {
               id="firstName"
               name="firstName"
               autoComplete="given-name"
+              placeholder={tForm('firstNamePlaceholder')}
               value={state.firstName}
               disabled={disabled}
               aria-invalid={Boolean(errors.firstName)}
@@ -47,6 +48,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: StepProps) {
               id="lastName"
               name="lastName"
               autoComplete="family-name"
+              placeholder={tForm('lastNamePlaceholder')}
               value={state.lastName}
               disabled={disabled}
               aria-invalid={Boolean(errors.lastName)}
@@ -67,6 +69,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: StepProps) {
             type="email"
             autoComplete="email"
             inputMode="email"
+            placeholder={tForm('emailPlaceholder')}
             value={state.email}
             disabled={disabled}
             aria-invalid={Boolean(errors.email)}

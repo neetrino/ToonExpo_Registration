@@ -4,8 +4,10 @@ import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
 import { AdminRegistrationsPanel } from '@/components/admin/admin-registrations-panel';
 import { AdminSyncPanel } from '@/components/admin/admin-sync-panel';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
+import { AdminListPagination } from '@/components/admin/admin-list-pagination';
 import { Button } from '@/components/ui/button';
 import { buildAdminHref } from '@/lib/admin/admin-url';
+import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
 import { listAdminSyncRuns } from '@/lib/admin/list-sync-runs';
@@ -18,7 +20,7 @@ type AdminDashboardPageProps = {
 };
 
 export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
-  // Defense-in-depth: middleware already blocks unauthenticated /admin/*
+  // Defense-in-depth: proxy already blocks unauthenticated /admin/*
   // requests, but this page must not rely on that alone.
   await requireAdminSession({ redirectOnFailure: true });
 
@@ -33,7 +35,8 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
     listAdminSyncRuns(20),
   ]);
 
-  const totalPages = Math.max(1, Math.ceil(data.filteredCount / data.pageSize));
+  const totalPages = getAdminPageCount(data.filteredCount, data.pageSize);
+  const pageRange = getAdminPageRange(data.page, data.filteredCount, data.pageSize);
   const exportHref = query
     ? `/api/admin/registrations/export?q=${encodeURIComponent(query)}`
     : '/api/admin/registrations/export';
@@ -43,11 +46,15 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   return (
     <div className="min-h-dvh bg-muted">
       <header className="sticky top-0 z-20 border-b border-white/10 bg-primary">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/95 shadow-sm">
-              <ToonExpoLogo size={28} />
+            <div className="flex shrink-0 items-center gap-2.5">
+              <ToonExpoLogo size={36} className="shrink-0" />
+              <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
+                TOON EXPO
+              </span>
             </div>
+            <div className="hidden h-8 w-px shrink-0 bg-white/20 sm:block" aria-hidden="true" />
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
                 Admin
@@ -64,25 +71,27 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-8">
-        <section className="rounded-2xl border border-border/80 bg-background p-4 shadow-sm sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                Total
-              </p>
-              <p className="mt-1 font-display text-4xl font-bold tabular-nums leading-none text-primary">
-                {data.totalCount}
-              </p>
+      <main className="mx-auto max-w-screen-2xl space-y-4 px-4 py-5 sm:space-y-5 sm:px-6 sm:py-8">
+        <section className="rounded-2xl border border-border/80 bg-background p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-2xl bg-muted/70 px-5 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Total
+                </p>
+                <p className="mt-1 font-display text-4xl font-bold tabular-nums leading-none text-primary">
+                  {data.totalCount}
+                </p>
+              </div>
             </div>
 
-            <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5 sm:flex-row sm:items-center lg:justify-end">
+            <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5 sm:flex-row sm:items-center lg:max-w-3xl lg:justify-end">
               <AdminSearchForm initialQuery={query} variant="toolbar" className="min-w-0 flex-1" />
               <Button
                 asChild
-                variant="secondary"
+                variant="default"
                 size="sm"
-                className="size-11 shrink-0 p-0 sm:size-10"
+                className="size-11 shrink-0 rounded-full p-0"
               >
                 <a href={exportHref} aria-label="Export CSV" title="Export CSV">
                   <svg
@@ -149,23 +158,15 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           )}
 
           {data.event && data.filteredCount > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 bg-muted/40 px-4 py-3.5 text-sm sm:px-5">
-              <p className="text-muted-foreground">
-                Page {data.page} of {totalPages}
-              </p>
-              <div className="flex gap-2">
-                {data.page > 1 ? (
-                  <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
-                    <Link href={listHref(data.page - 1)}>Previous</Link>
-                  </Button>
-                ) : null}
-                {data.page < totalPages ? (
-                  <Button asChild variant="outline" size="sm" className="min-h-10 px-4">
-                    <Link href={listHref(data.page + 1)}>Next</Link>
-                  </Button>
-                ) : null}
-              </div>
-            </div>
+            <AdminListPagination
+              from={pageRange.from}
+              to={pageRange.to}
+              total={data.filteredCount}
+              page={data.page}
+              totalPages={totalPages}
+              prevHref={listHref(data.page - 1)}
+              nextHref={listHref(data.page + 1)}
+            />
           ) : null}
         </section>
       </main>

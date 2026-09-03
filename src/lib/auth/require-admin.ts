@@ -34,9 +34,9 @@ export type RequireAdminSessionOptions = {
 /**
  * Defense-in-depth session guard for admin entry points.
  *
- * Middleware already blocks unauthenticated requests to `/admin/*`, but each
+ * Proxy already blocks unauthenticated requests to `/admin/*`, but each
  * entry point (page, server action, route handler) must independently
- * verify the session instead of relying solely on middleware. Call this at
+ * verify the session instead of relying solely on proxy. Call this at
  * the top of every admin page, server action, and route handler.
  */
 export async function requireAdminSession(

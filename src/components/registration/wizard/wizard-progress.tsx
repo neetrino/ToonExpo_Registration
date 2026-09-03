@@ -14,15 +14,15 @@ export function WizardProgress({ currentStep, steps }: WizardProgressProps) {
   const progressPercent = totalSteps > 0 ? (stepNumber / totalSteps) * 100 : 0;
 
   return (
-    <div className="mb-8 space-y-3">
+    <div className="mb-9 space-y-3">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           {tWizard('progress', { current: stepNumber, total: totalSteps })}
         </p>
-        <span className="text-xs font-medium tabular-nums text-accent">{stepNumber}</span>
+        <span className="text-xs font-semibold tabular-nums text-accent">{stepNumber}</span>
       </div>
       <div
-        className="relative h-1.5 overflow-hidden rounded-full bg-muted"
+        className="relative h-2 overflow-hidden rounded-full bg-muted"
         role="progressbar"
         aria-valuenow={stepNumber}
         aria-valuemin={1}
