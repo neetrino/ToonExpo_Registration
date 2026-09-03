@@ -67,7 +67,11 @@ const profileStepSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.residenceScope === 'yerevan' && !data.residenceDistrict) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['residenceDistrict'], message: 'required' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['residenceDistrict'],
+        message: 'required',
+      });
     }
 
     if (data.residenceScope === 'marz' && !data.residenceRegion) {

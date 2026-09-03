@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { LOCATION_CHOICE_MAX, OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
-import {
-  ABROAD_COUNTRIES,
-  MARZ_REGIONS,
-  YEREVAN_DISTRICTS,
-} from '@/lib/questionnaire/options';
+import { ABROAD_COUNTRIES, MARZ_REGIONS, YEREVAN_DISTRICTS } from '@/lib/questionnaire/options';
 import type { ResidencePlace } from '@/lib/questionnaire/types';
 
 const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
@@ -93,8 +89,7 @@ export const researchLocationSchema = z
     const hasYerevan = data.yerevanDistricts.length > 0;
     const hasMarz = data.marzRegions.length > 0;
     const hasAbroad = Boolean(data.abroadCountry);
-    const leafCount =
-      data.yerevanDistricts.length + data.marzRegions.length + Number(hasAbroad);
+    const leafCount = data.yerevanDistricts.length + data.marzRegions.length + Number(hasAbroad);
 
     if (data.undecided) {
       if (hasYerevan || hasMarz || hasAbroad) {

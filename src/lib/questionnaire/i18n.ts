@@ -383,7 +383,11 @@ export const questionnaireI18n = {
       ),
     },
     marketInterest: {
-      new_apartments: L('Նորակառույց բնակարաններ', 'New-build apartments', 'Квартиры в новостройках'),
+      new_apartments: L(
+        'Նորակառույց բնակարաններ',
+        'New-build apartments',
+        'Квартиры в новостройках',
+      ),
       houses_townhouses: L(
         'Առանձնատներ և թաունհաուսներ',
         'Private houses and townhouses',

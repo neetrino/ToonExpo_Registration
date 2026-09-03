@@ -21,11 +21,15 @@ type LocationChoiceFieldsProps = {
 const { locationChoice } = QUESTIONNAIRE_DEFINITION;
 
 function remainingLeaves(state: WizardState, currentCount: number): number {
-  return LOCATION_CHOICE_MAX - (countLocationChoiceLeaves({
-    yerevanDistricts: state.yerevanDistricts,
-    marzRegions: state.marzRegions,
-    abroadCountries: state.locationSeekAbroadCountries,
-  }) - currentCount);
+  return (
+    LOCATION_CHOICE_MAX -
+    (countLocationChoiceLeaves({
+      yerevanDistricts: state.yerevanDistricts,
+      marzRegions: state.marzRegions,
+      abroadCountries: state.locationSeekAbroadCountries,
+    }) -
+      currentCount)
+  );
 }
 
 export function LocationChoiceFields({
@@ -78,7 +82,9 @@ export function LocationChoiceFields({
             name="yerevanDistricts"
             values={state.yerevanDistricts}
             options={locationChoice.yerevanDistricts}
-            max={state.yerevanDistricts.length + remainingLeaves(state, state.yerevanDistricts.length)}
+            max={
+              state.yerevanDistricts.length + remainingLeaves(state, state.yerevanDistricts.length)
+            }
             getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
             onChange={(values) => onUpdate('yerevanDistricts', values)}
             disabled={disabled}

@@ -19,7 +19,10 @@ describe('formatRegistrationAnswersForDisplay', () => {
     expect(result.rows).toEqual(
       expect.arrayContaining([
         { label: 'Age', value: '25–34' },
-        { label: 'What type of property are you interested in?', value: 'Private house / Townhouse' },
+        {
+          label: 'What type of property are you interested in?',
+          value: 'Private house / Townhouse',
+        },
         { label: 'Where are you looking for real estate?', value: 'Yerevan' },
         { label: 'Yerevan', value: 'Kentron, Arabkir' },
         { label: 'What property size are you looking for?', value: '70–90 sq. m' },

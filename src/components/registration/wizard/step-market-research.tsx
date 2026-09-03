@@ -123,7 +123,10 @@ export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpd
             name="researchYerevanDistricts"
             values={state.yerevanDistricts}
             options={locationChoice.yerevanDistricts}
-            max={state.yerevanDistricts.length + remainingResearchLeaves(state, state.yerevanDistricts.length)}
+            max={
+              state.yerevanDistricts.length +
+              remainingResearchLeaves(state, state.yerevanDistricts.length)
+            }
             getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
             onChange={(values) => onUpdate('yerevanDistricts', values)}
             disabled={disabled}
@@ -138,7 +141,9 @@ export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpd
             name="researchMarzRegions"
             values={state.marzRegions}
             options={locationChoice.marzRegions}
-            max={state.marzRegions.length + remainingResearchLeaves(state, state.marzRegions.length)}
+            max={
+              state.marzRegions.length + remainingResearchLeaves(state, state.marzRegions.length)
+            }
             getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
             onChange={(values) => onUpdate('marzRegions', values)}
             disabled={disabled}

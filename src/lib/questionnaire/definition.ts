@@ -1,4 +1,8 @@
-import { FORM_VERSION, LOCATION_CHOICE_MAX, MARKET_INTERESTS_MAX } from '@/lib/questionnaire/constants';
+import {
+  FORM_VERSION,
+  LOCATION_CHOICE_MAX,
+  MARKET_INTERESTS_MAX,
+} from '@/lib/questionnaire/constants';
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,

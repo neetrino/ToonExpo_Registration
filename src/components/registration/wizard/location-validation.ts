@@ -22,7 +22,11 @@ export const locationChoiceStepSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.locationSeekScopes.includes('yerevan') && data.yerevanDistricts.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['yerevanDistricts'], message: 'required' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['yerevanDistricts'],
+        message: 'required',
+      });
     }
 
     if (data.locationSeekScopes.includes('marz') && data.marzRegions.length === 0) {
@@ -85,7 +89,11 @@ export const researchLocationStepSchema = z
     }
 
     if (data.researchScopes.includes('yerevan') && data.yerevanDistricts.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['yerevanDistricts'], message: 'required' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['yerevanDistricts'],
+        message: 'required',
+      });
     }
 
     if (data.researchScopes.includes('marz') && data.marzRegions.length === 0) {

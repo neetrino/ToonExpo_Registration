@@ -72,7 +72,11 @@ function flattenResidence(
   setColumn(columns, 'residence', labels.optionLabel('locationSeekScope', scope));
 
   if (scope === 'yerevan' && typeof residence.district === 'string') {
-    setColumn(columns, 'residenceDetail', labels.optionLabel('yerevanDistrict', residence.district));
+    setColumn(
+      columns,
+      'residenceDetail',
+      labels.optionLabel('yerevanDistrict', residence.district),
+    );
   }
 
   if (scope === 'marz' && typeof residence.region === 'string') {
@@ -272,14 +276,14 @@ function flattenMarketResearch(
         ...(typeof location.abroadCountry === 'string' && location.abroadCountry ? ['abroad'] : []),
       ];
       if (scopes.length > 0) {
-        setColumn(
-          columns,
-          'interestedWhere',
-          labels.joinOptionLabels('locationSeekScope', scopes),
-        );
+        setColumn(columns, 'interestedWhere', labels.joinOptionLabels('locationSeekScope', scopes));
       }
       if (districts.length > 0) {
-        setColumn(columns, 'yerevanDistricts', labels.joinOptionLabels('yerevanDistrict', districts));
+        setColumn(
+          columns,
+          'yerevanDistricts',
+          labels.joinOptionLabels('yerevanDistrict', districts),
+        );
       }
       if (regions.length > 0) {
         setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));

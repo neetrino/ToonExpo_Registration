@@ -65,7 +65,11 @@ function formatResidence(residence: Record<string, unknown>): AnswerDisplayRow[]
   pushRow(rows, questionLabel('residence'), optionLabel('locationSeekScope', scope));
 
   if (scope === 'yerevan' && typeof residence.district === 'string') {
-    pushRow(rows, questionLabel('residenceDistrict'), optionLabel('yerevanDistrict', residence.district));
+    pushRow(
+      rows,
+      questionLabel('residenceDistrict'),
+      optionLabel('yerevanDistrict', residence.district),
+    );
   }
 
   if (scope === 'marz' && typeof residence.region === 'string') {
@@ -90,7 +94,11 @@ function formatLocationChoice(
 
     const districts = stringArray(locationSeek.districts);
     if (districts.length > 0) {
-      pushRow(rows, questionLabel('yerevanDistricts'), joinOptionLabels('yerevanDistrict', districts));
+      pushRow(
+        rows,
+        questionLabel('yerevanDistricts'),
+        joinOptionLabels('yerevanDistrict', districts),
+      );
     }
 
     const regions = stringArray(locationSeek.regions);
@@ -118,7 +126,11 @@ function formatLocationChoice(
     pushRow(rows, questionLabel(questionKey), joinOptionLabels('locationSeekScope', scopes));
   }
   if (districts.length > 0) {
-    pushRow(rows, questionLabel('yerevanDistricts'), joinOptionLabels('yerevanDistrict', districts));
+    pushRow(
+      rows,
+      questionLabel('yerevanDistricts'),
+      joinOptionLabels('yerevanDistrict', districts),
+    );
   }
   if (regions.length > 0) {
     pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
@@ -199,7 +211,11 @@ function formatInvestmentAnswers(a: Record<string, unknown>, rows: AnswerDisplay
     pushRow(rows, questionLabel('purchaseMethod'), optionLabel('purchaseMethod', a.purchaseMethod));
   }
   if (typeof a.priorInvestmentExperienceOther === 'string') {
-    pushRow(rows, questionLabel('priorInvestmentExperienceOther'), a.priorInvestmentExperienceOther);
+    pushRow(
+      rows,
+      questionLabel('priorInvestmentExperienceOther'),
+      a.priorInvestmentExperienceOther,
+    );
   }
   if (typeof a.investmentGoal === 'string') {
     pushRow(rows, questionLabel('investmentGoal'), optionLabel('investmentGoal', a.investmentGoal));
@@ -254,7 +270,11 @@ function formatMarketResearchAnswers(a: Record<string, unknown>, rows: AnswerDis
   if (a.researchLocation && typeof a.researchLocation === 'object') {
     const location = a.researchLocation as Record<string, unknown>;
     if (location.undecided === true) {
-      pushRow(rows, questionLabel('interestedWhere'), optionLabel('locationSeekScope', 'undecided'));
+      pushRow(
+        rows,
+        questionLabel('interestedWhere'),
+        optionLabel('locationSeekScope', 'undecided'),
+      );
     } else {
       const districts = stringArray(location.yerevanDistricts);
       const regions = stringArray(location.marzRegions);
@@ -271,7 +291,11 @@ function formatMarketResearchAnswers(a: Record<string, unknown>, rows: AnswerDis
         );
       }
       if (districts.length > 0) {
-        pushRow(rows, questionLabel('yerevanDistricts'), joinOptionLabels('yerevanDistrict', districts));
+        pushRow(
+          rows,
+          questionLabel('yerevanDistricts'),
+          joinOptionLabels('yerevanDistrict', districts),
+        );
       }
       if (regions.length > 0) {
         pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
