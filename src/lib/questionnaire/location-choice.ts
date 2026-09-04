@@ -28,6 +28,14 @@ export function countLocationChoiceLeaves(choice: {
   return choice.yerevanDistricts.length + choice.marzRegions.length + choice.abroadCountries.length;
 }
 
+function countActiveLocationGroups(
+  hasYerevan: boolean,
+  hasMarz: boolean,
+  hasAbroad: boolean,
+): number {
+  return Number(hasYerevan) + Number(hasMarz) + Number(hasAbroad);
+}
+
 export const residencePlaceSchema: z.ZodType<ResidencePlace> = z.discriminatedUnion('scope', [
   z.object({
     scope: z.literal('yerevan'),
@@ -52,12 +60,25 @@ export const locationChoiceSchema = z
   })
   .superRefine((data, ctx) => {
     const count = countLocationChoiceLeaves(data);
+    const groups = countActiveLocationGroups(
+      data.yerevanDistricts.length > 0,
+      data.marzRegions.length > 0,
+      data.abroadCountries.length > 0,
+    );
 
     if (count < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['yerevanDistricts'],
         message: 'Select at least one location',
+      });
+    }
+
+    if (groups > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['yerevanDistricts'],
+        message: 'Select locations from only one scope',
       });
     }
 
@@ -107,6 +128,14 @@ export const researchLocationSchema = z
         code: z.ZodIssueCode.custom,
         path: ['yerevanDistricts'],
         message: 'Select at least one location',
+      });
+    }
+
+    if (countActiveLocationGroups(hasYerevan, hasMarz, hasAbroad) > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['yerevanDistricts'],
+        message: 'Select locations from only one scope',
       });
     }
 

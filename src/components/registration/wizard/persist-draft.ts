@@ -30,6 +30,29 @@ function isWizardStepId(value: unknown): value is WizardStepId {
   return typeof value === 'string' && CURRENT_STEP_IDS.has(value);
 }
 
+function firstScope<T extends string>(scopes: T[]): T[] {
+  return scopes[0] ? [scopes[0]] : [];
+}
+
+/** Keeps only one top-level location scope from older multi-select drafts. */
+function normalizeSingleLocationScope(state: WizardState): WizardState {
+  const locationSeekScopes = firstScope(state.locationSeekScopes);
+  const researchScopes = firstScope(state.researchScopes);
+  const activeScope =
+    state.visitPurpose === 'market_research' ? researchScopes[0] : locationSeekScopes[0];
+
+  return {
+    ...state,
+    locationSeekScopes,
+    researchScopes,
+    yerevanDistricts: activeScope === 'yerevan' ? state.yerevanDistricts : [],
+    marzRegions: activeScope === 'marz' ? state.marzRegions : [],
+    locationSeekAbroadCountries: activeScope === 'abroad' ? state.locationSeekAbroadCountries : [],
+    locationSeekAbroadOther: activeScope === 'abroad' ? state.locationSeekAbroadOther : '',
+    researchAbroadCountry: activeScope === 'abroad' ? state.researchAbroadCountry : '',
+  };
+}
+
 /** Maps legacy draft step ids after step splits. */
 function migrateStepId(value: unknown): WizardStepId | null {
   if (value === 'own-residence-details') {
@@ -76,7 +99,7 @@ export function loadWizardDraft(): PersistedWizard | null {
 
     return {
       state: {
-        ...mergedState,
+        ...normalizeSingleLocationScope(mergedState),
         // Never restore honeypot — autofill must not poison drafts across retries.
         website: '',
         phoneCountry: resolvePhoneCountry(mergedState.phoneCountry),

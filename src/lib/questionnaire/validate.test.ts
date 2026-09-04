@@ -171,6 +171,32 @@ describe('questionnaireAnswersSchema', () => {
     expect(parsed.success).toBe(false);
   });
 
+  it('rejects locationSeek that mixes Yerevan and marz', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...sharedOwnResidence,
+      interestType: 'apartment_new',
+      locationSeek: {
+        yerevanDistricts: ['kentron'],
+        marzRegions: ['kotayk'],
+        abroadCountries: [],
+      },
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('rejects research location that mixes Yerevan and abroad', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...validMarketResearch,
+      researchLocation: {
+        undecided: false,
+        yerevanDistricts: ['kentron'],
+        marzRegions: [],
+        abroadCountry: 'UAE',
+      },
+    });
+    expect(parsed.success).toBe(false);
+  });
+
   it('rejects research location with more than 3 leaves', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
       ...validMarketResearch,

@@ -1,12 +1,11 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { LOCATION_CHOICE_MAX, QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire';
-import { countLocationChoiceLeaves } from '@/lib/questionnaire/location-choice';
-import type { AbroadCountry } from '@/lib/questionnaire/types';
+import type { AbroadCountry, LocationSeekScope } from '@/lib/questionnaire/types';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
-import { OptionCheckboxGroup } from './option-groups';
+import { OptionCheckboxGroup, OptionRadioGroup } from './option-groups';
 import type { WizardFieldErrors, WizardState } from './types';
 
 type LocationChoiceFieldsProps = {
@@ -20,16 +19,21 @@ type LocationChoiceFieldsProps = {
 
 const { locationChoice } = QUESTIONNAIRE_DEFINITION;
 
-function remainingLeaves(state: WizardState, currentCount: number): number {
-  return (
-    LOCATION_CHOICE_MAX -
-    (countLocationChoiceLeaves({
-      yerevanDistricts: state.yerevanDistricts,
-      marzRegions: state.marzRegions,
-      abroadCountries: state.locationSeekAbroadCountries,
-    }) -
-      currentCount)
-  );
+function applyLocationSeekScope(
+  onUpdate: LocationChoiceFieldsProps['onUpdate'],
+  scope: LocationSeekScope,
+): void {
+  onUpdate('locationSeekScopes', [scope]);
+  if (scope !== 'yerevan') {
+    onUpdate('yerevanDistricts', []);
+  }
+  if (scope !== 'marz') {
+    onUpdate('marzRegions', []);
+  }
+  if (scope !== 'abroad') {
+    onUpdate('locationSeekAbroadCountries', []);
+    onUpdate('locationSeekAbroadOther', '');
+  }
 }
 
 export function LocationChoiceFields({
@@ -41,50 +45,37 @@ export function LocationChoiceFields({
   onUpdate,
 }: LocationChoiceFieldsProps) {
   const tWizard = useTranslations('wizard');
+  const selectedScope = state.locationSeekScopes[0];
+  const leafHint = tWizard('locationChoiceHint', { max: LOCATION_CHOICE_MAX });
 
   return (
     <div className="space-y-8">
       <QuestionField
         legend={getQuestionLabel(questionKey, locale)}
-        hint={tWizard('locationChoiceHint', { max: LOCATION_CHOICE_MAX })}
         error={errors.locationSeekScopes}
       >
-        <OptionCheckboxGroup
+        <OptionRadioGroup
           name="locationSeekScopes"
-          values={state.locationSeekScopes}
+          value={selectedScope ?? ''}
           options={locationChoice.scopes}
           getLabel={(value) => getOptionLabel('locationSeekScope', value, locale)}
-          onChange={(values) => {
-            const removed = state.locationSeekScopes.filter((scope) => !values.includes(scope));
-            onUpdate('locationSeekScopes', values);
-            if (removed.includes('yerevan')) {
-              onUpdate('yerevanDistricts', []);
-            }
-            if (removed.includes('marz')) {
-              onUpdate('marzRegions', []);
-            }
-            if (removed.includes('abroad')) {
-              onUpdate('locationSeekAbroadCountries', []);
-              onUpdate('locationSeekAbroadOther', '');
-            }
-          }}
+          onChange={(scope) => applyLocationSeekScope(onUpdate, scope)}
           disabled={disabled}
           error={Boolean(errors.locationSeekScopes)}
         />
       </QuestionField>
 
-      {state.locationSeekScopes.includes('yerevan') ? (
+      {selectedScope === 'yerevan' ? (
         <QuestionField
           legend={getQuestionLabel('yerevanDistricts', locale)}
+          hint={leafHint}
           error={errors.yerevanDistricts}
         >
           <OptionCheckboxGroup
             name="yerevanDistricts"
             values={state.yerevanDistricts}
             options={locationChoice.yerevanDistricts}
-            max={
-              state.yerevanDistricts.length + remainingLeaves(state, state.yerevanDistricts.length)
-            }
+            max={LOCATION_CHOICE_MAX}
             getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
             onChange={(values) => onUpdate('yerevanDistricts', values)}
             disabled={disabled}
@@ -93,13 +84,17 @@ export function LocationChoiceFields({
         </QuestionField>
       ) : null}
 
-      {state.locationSeekScopes.includes('marz') ? (
-        <QuestionField legend={getQuestionLabel('marzRegions', locale)} error={errors.marzRegions}>
+      {selectedScope === 'marz' ? (
+        <QuestionField
+          legend={getQuestionLabel('marzRegions', locale)}
+          hint={leafHint}
+          error={errors.marzRegions}
+        >
           <OptionCheckboxGroup
             name="marzRegions"
             values={state.marzRegions}
             options={locationChoice.marzRegions}
-            max={state.marzRegions.length + remainingLeaves(state, state.marzRegions.length)}
+            max={LOCATION_CHOICE_MAX}
             getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
             onChange={(values) => onUpdate('marzRegions', values)}
             disabled={disabled}
@@ -108,20 +103,18 @@ export function LocationChoiceFields({
         </QuestionField>
       ) : null}
 
-      {state.locationSeekScopes.includes('abroad') ? (
+      {selectedScope === 'abroad' ? (
         <>
           <QuestionField
             legend={getQuestionLabel('abroadCountries', locale)}
+            hint={leafHint}
             error={errors.locationSeekAbroadCountries}
           >
             <OptionCheckboxGroup
               name="locationSeekAbroadCountries"
               values={state.locationSeekAbroadCountries}
               options={locationChoice.abroadCountries}
-              max={
-                state.locationSeekAbroadCountries.length +
-                remainingLeaves(state, state.locationSeekAbroadCountries.length)
-              }
+              max={LOCATION_CHOICE_MAX}
               getLabel={(value) => getOptionLabel('abroadCountries', value, locale)}
               onChange={(values) => onUpdate('locationSeekAbroadCountries', values)}
               disabled={disabled}
