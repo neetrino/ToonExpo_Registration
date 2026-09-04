@@ -14,7 +14,7 @@ const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 
 export const locationChoiceStepSchema = z
   .object({
-    locationSeekScopes: z.array(z.enum(LOCATION_SEEK_SCOPES)).min(1),
+    locationSeekScopes: z.array(z.enum(LOCATION_SEEK_SCOPES)).min(1).max(1),
     locationSeekAbroadCountries: z.array(z.enum(ABROAD_COUNTRIES)),
     locationSeekAbroadOther: z.string(),
     yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
@@ -71,7 +71,7 @@ export const locationChoiceStepSchema = z
 
 export const researchLocationStepSchema = z
   .object({
-    researchScopes: z.array(z.enum(RESEARCH_LOCATION_SCOPES)).min(1).max(LOCATION_CHOICE_MAX),
+    researchScopes: z.array(z.enum(RESEARCH_LOCATION_SCOPES)).min(1).max(1),
     yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
     marzRegions: z.array(z.enum(MARZ_REGIONS)),
     researchAbroadCountry: z.string(),
@@ -84,10 +84,6 @@ export const researchLocationStepSchema = z
     ]),
   })
   .superRefine((data, ctx) => {
-    if (data.researchScopes.includes('undecided') && data.researchScopes.length > 1) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['researchScopes'], message: 'required' });
-    }
-
     if (data.researchScopes.includes('yerevan') && data.yerevanDistricts.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

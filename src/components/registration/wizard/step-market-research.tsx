@@ -20,15 +20,17 @@ type StepProps = {
 const { market_research: marketResearch } = QUESTIONNAIRE_DEFINITION.branches;
 const { locationChoice } = QUESTIONNAIRE_DEFINITION;
 
-function nextResearchScopes(
-  values: ResearchLocationScope[],
-  previous: ResearchLocationScope[],
-): ResearchLocationScope[] {
-  if (values.includes('undecided') && !previous.includes('undecided')) {
-    return ['undecided'];
+function applyResearchScope(onUpdate: StepProps['onUpdate'], scope: ResearchLocationScope): void {
+  onUpdate('researchScopes', [scope]);
+  if (scope !== 'yerevan') {
+    onUpdate('yerevanDistricts', []);
   }
-
-  return values.filter((scope) => scope !== 'undecided');
+  if (scope !== 'marz') {
+    onUpdate('marzRegions', []);
+  }
+  if (scope !== 'abroad') {
+    onUpdate('researchAbroadCountry', '');
+  }
 }
 
 export function MarketResearchFocusStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
@@ -68,65 +70,39 @@ export function MarketResearchFocusStep({ state, errors, disabled, locale, onUpd
   );
 }
 
-function remainingResearchLeaves(state: WizardState, currentCount: number): number {
-  const abroadLeaf = state.researchScopes.includes('abroad') ? 1 : 0;
-  const used = state.yerevanDistricts.length + state.marzRegions.length + abroadLeaf;
-  return LOCATION_CHOICE_MAX - (used - currentCount);
-}
-
 export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpdate }: StepProps) {
   const tWizard = useTranslations('wizard');
-  const undecided = state.researchScopes.includes('undecided');
+  const selectedScope = state.researchScopes[0];
+  const leafHint = tWizard('locationChoiceHint', { max: LOCATION_CHOICE_MAX });
 
   return (
     <div className="space-y-8">
       <QuestionField
         legend={getQuestionLabel('interestedWhere', locale)}
-        hint={tWizard('locationChoiceHint', { max: LOCATION_CHOICE_MAX })}
         error={errors.researchScopes}
       >
-        <OptionCheckboxGroup
+        <OptionRadioGroup
           name="researchScopes"
-          values={state.researchScopes}
+          value={selectedScope ?? ''}
           options={marketResearch.researchLocation.scopes}
-          max={LOCATION_CHOICE_MAX}
           getLabel={(value) => getOptionLabel('researchScopes', value, locale)}
-          onChange={(values) => {
-            const next = nextResearchScopes(values, state.researchScopes);
-            onUpdate('researchScopes', next);
-            if (next.includes('undecided')) {
-              onUpdate('yerevanDistricts', []);
-              onUpdate('marzRegions', []);
-              onUpdate('researchAbroadCountry', '');
-            }
-            if (!next.includes('yerevan')) {
-              onUpdate('yerevanDistricts', []);
-            }
-            if (!next.includes('marz')) {
-              onUpdate('marzRegions', []);
-            }
-            if (!next.includes('abroad')) {
-              onUpdate('researchAbroadCountry', '');
-            }
-          }}
+          onChange={(scope) => applyResearchScope(onUpdate, scope)}
           disabled={disabled}
           error={Boolean(errors.researchScopes)}
         />
       </QuestionField>
 
-      {!undecided && state.researchScopes.includes('yerevan') ? (
+      {selectedScope === 'yerevan' ? (
         <QuestionField
           legend={getQuestionLabel('yerevanDistricts', locale)}
+          hint={leafHint}
           error={errors.yerevanDistricts}
         >
           <OptionCheckboxGroup
             name="researchYerevanDistricts"
             values={state.yerevanDistricts}
             options={locationChoice.yerevanDistricts}
-            max={
-              state.yerevanDistricts.length +
-              remainingResearchLeaves(state, state.yerevanDistricts.length)
-            }
+            max={LOCATION_CHOICE_MAX}
             getLabel={(value) => getOptionLabel('yerevanDistricts', value, locale)}
             onChange={(values) => onUpdate('yerevanDistricts', values)}
             disabled={disabled}
@@ -135,15 +111,17 @@ export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpd
         </QuestionField>
       ) : null}
 
-      {!undecided && state.researchScopes.includes('marz') ? (
-        <QuestionField legend={getQuestionLabel('marzRegions', locale)} error={errors.marzRegions}>
+      {selectedScope === 'marz' ? (
+        <QuestionField
+          legend={getQuestionLabel('marzRegions', locale)}
+          hint={leafHint}
+          error={errors.marzRegions}
+        >
           <OptionCheckboxGroup
             name="researchMarzRegions"
             values={state.marzRegions}
             options={locationChoice.marzRegions}
-            max={
-              state.marzRegions.length + remainingResearchLeaves(state, state.marzRegions.length)
-            }
+            max={LOCATION_CHOICE_MAX}
             getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
             onChange={(values) => onUpdate('marzRegions', values)}
             disabled={disabled}
@@ -152,7 +130,7 @@ export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpd
         </QuestionField>
       ) : null}
 
-      {!undecided && state.researchScopes.includes('abroad') ? (
+      {selectedScope === 'abroad' ? (
         <FormField
           id="researchAbroadCountry"
           label={getQuestionLabel('interestedWhereOther', locale)}
