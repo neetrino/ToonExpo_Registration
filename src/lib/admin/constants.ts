@@ -1,6 +1,9 @@
 /** Default page size for the admin registration table. */
 export const ADMIN_PAGE_SIZE = 20;
 
+/** Operator-facing timezone for admin UI and CSV export (Armenia, UTC+4, no DST). */
+export const ADMIN_DISPLAY_TIMEZONE = 'Asia/Yerevan';
+
 /** Maximum search query length accepted by admin list/export filters. */
 export const ADMIN_SEARCH_MAX_LENGTH = 100;
 
@@ -22,7 +25,7 @@ export type CsvColumnDef = {
 
 /** Identity / meta columns for admin CSV export (human-readable headers). */
 export const CSV_IDENTITY_COLUMNS = [
-  { key: 'registeredAt', header: 'Registered at' },
+  { key: 'registeredAt', header: 'Registered at (Yerevan)' },
   { key: 'firstName', header: 'First name' },
   { key: 'lastName', header: 'Last name' },
   { key: 'email', header: 'Email' },

@@ -67,3 +67,5 @@ The existing admin hard-delete remains an operator tool for obvious junk rows. T
 ## CSV export
 
 Exports may include approved registration/questionnaire/source/ticket/attendance fields. Exclude ticket-view tokens, provider secrets, auth fields, delivery locks and raw sync errors.
+
+`Registered at` is written in Armenia local time (`Asia/Yerevan`, UTC+4), matching the admin list/detail. Partner/API payloads remain UTC ISO-8601.

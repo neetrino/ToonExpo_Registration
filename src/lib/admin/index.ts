@@ -1,12 +1,14 @@
 import { buildCsv } from '@/lib/admin/csv';
 import { CSV_EXPORT_COLUMNS } from '@/lib/admin/constants';
 import { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
+import { formatAdminDateTimeForCsv } from '@/lib/admin/format-datetime';
 import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
 
 /**
  * Build a formula-safe, human-readable CSV for the active event (optional search filter).
  * Questionnaire answer values are localized to each registration's locale;
  * column headers stay English for operator consistency.
+ * `Registered at` uses Armenia local time (`Asia/Yerevan`), matching the admin UI.
  */
 export async function buildRegistrationsCsv(search?: string): Promise<{
   filename: string;
@@ -22,7 +24,7 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
   const filename = `${event.slug}-registrations-${dateStamp}.csv`;
 
   const csvRows = rows.map((row) => ({
-    registeredAt: row.createdAt.toISOString(),
+    registeredAt: formatAdminDateTimeForCsv(row.createdAt),
     firstName: row.firstName,
     lastName: row.lastName,
     email: row.email,
@@ -51,10 +53,16 @@ export { listAdminRegistrations, listRegistrationsForExport } from '@/lib/admin/
 export { getAdminRegistration } from '@/lib/admin/get-registration';
 export { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers';
 export { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
+export {
+  formatAdminDateTime,
+  formatAdminDateTimeForCsv,
+  formatAdminDateTimeShort,
+} from '@/lib/admin/format-datetime';
 export { deleteRegistration } from '@/lib/admin/delete-registration';
 export { resendRegistrationTicket } from '@/lib/admin/resend-ticket';
 export { listAdminSyncRuns } from '@/lib/admin/list-sync-runs';
 export {
+  ADMIN_DISPLAY_TIMEZONE,
   ADMIN_PAGE_SIZE,
   ADMIN_SEARCH_MAX_LENGTH,
   ADMIN_NO_STORE_HEADERS,
