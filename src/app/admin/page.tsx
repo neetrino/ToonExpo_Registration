@@ -134,12 +134,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
           {query || channel ? (
             <p className="mt-3 text-sm text-muted-foreground">
               Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
-              {query ? (
-                <>
-                  {' '}
-                  for &ldquo;{query}&rdquo;
-                </>
-              ) : null}
+              {query ? <> for &ldquo;{query}&rdquo;</> : null}
               {channel ? ` in ${channel === 'SPYURK_RF' ? 'Spyurk RF' : 'General'}` : null}
             </p>
           ) : null}

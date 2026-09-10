@@ -264,7 +264,9 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
           {safeStep === 'own-followup' ? <SpyurkOwnFollowupStep {...stepProps} /> : null}
           {safeStep === 'investment-type' ? <SpyurkInvestmentTypeStep {...stepProps} /> : null}
           {safeStep === 'investment-goal' ? <SpyurkInvestmentGoalStep {...stepProps} /> : null}
-          {safeStep === 'investment-details' ? <SpyurkInvestmentDetailsStep {...stepProps} /> : null}
+          {safeStep === 'investment-details' ? (
+            <SpyurkInvestmentDetailsStep {...stepProps} />
+          ) : null}
           {safeStep === 'investment-followup' ? (
             <SpyurkInvestmentFollowupStep {...stepProps} />
           ) : null}

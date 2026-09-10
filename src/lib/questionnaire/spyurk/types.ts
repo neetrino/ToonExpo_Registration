@@ -36,9 +36,7 @@ export type SpyurkResidence = {
   region: string;
 };
 
-export type SpyurkPropertyCountry =
-  | { scope: 'armenia' }
-  | { scope: 'other'; country: string };
+export type SpyurkPropertyCountry = { scope: 'armenia' } | { scope: 'other'; country: string };
 
 type SpyurkSharedAnswers = {
   ageBand: AgeBand;
@@ -87,8 +85,6 @@ export type SpyurkMarketResearchAnswers = SpyurkSharedAnswers & {
 };
 
 export type SpyurkQuestionnaireAnswers =
-  | SpyurkOwnResidenceAnswers
-  | SpyurkInvestmentAnswers
-  | SpyurkMarketResearchAnswers;
+  SpyurkOwnResidenceAnswers | SpyurkInvestmentAnswers | SpyurkMarketResearchAnswers;
 
 export type { AgeBand, VisitPurpose };

@@ -14,10 +14,7 @@ import {
   PURCHASE_MOTIVES,
 } from '@/lib/questionnaire/spyurk/options';
 import { SPYURK_MULTI_SELECT_MAX } from '@/lib/questionnaire/spyurk/constants';
-import {
-  getSpyurkOptionLabel,
-  getSpyurkQuestionLabel,
-} from '@/lib/questionnaire/spyurk/i18n';
+import { getSpyurkOptionLabel, getSpyurkQuestionLabel } from '@/lib/questionnaire/spyurk/i18n';
 import type { SpyurkWizardFieldErrors, SpyurkWizardState } from './types';
 
 type StepProps = {
@@ -225,7 +222,10 @@ export function SpyurkVisitAndNewsletterFields({
           error={Boolean(errors.armeniaVisitTiming)}
         />
       </QuestionField>
-      <QuestionField legend={getSpyurkQuestionLabel('newsletter', locale)} error={errors.newsletter}>
+      <QuestionField
+        legend={getSpyurkQuestionLabel('newsletter', locale)}
+        error={errors.newsletter}
+      >
         <YesNoRadioGroup
           name="newsletter"
           value={state.newsletter}

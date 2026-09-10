@@ -1,5 +1,8 @@
 import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
-import type { SpyurkPropertyCountry, SpyurkQuestionnaireAnswers } from '@/lib/questionnaire/spyurk/types';
+import type {
+  SpyurkPropertyCountry,
+  SpyurkQuestionnaireAnswers,
+} from '@/lib/questionnaire/spyurk/types';
 import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import type { RegistrationSubmitPayload } from '@/components/registration/submit-registration';
 import type { SpyurkWizardState } from './types';

@@ -16,9 +16,6 @@ export function normalizeAdminSearchQuery(raw: string | undefined): string | und
 /**
  * Live-search URL: query only, always page 1 (page omitted).
  */
-export function buildAdminSearchHref(
-  rawQuery: string,
-  channel?: AdminFormChannelFilter,
-): string {
+export function buildAdminSearchHref(rawQuery: string, channel?: AdminFormChannelFilter): string {
   return buildAdminHref({ q: normalizeAdminSearchQuery(rawQuery), channel });
 }

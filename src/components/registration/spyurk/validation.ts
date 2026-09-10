@@ -149,7 +149,10 @@ const investmentTypeSchema = z
     ...propertyCountryFields,
   })
   .superRefine((data, ctx) => {
-    if (data.investmentPropertyTypes.includes('other') && !data.investmentPropertyTypeOther.trim()) {
+    if (
+      data.investmentPropertyTypes.includes('other') &&
+      !data.investmentPropertyTypeOther.trim()
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['investmentPropertyTypeOther'],

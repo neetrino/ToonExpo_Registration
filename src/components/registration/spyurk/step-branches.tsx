@@ -1,6 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { FormField, QuestionField } from '@/components/registration/wizard/form-field';
-import { OptionCheckboxGroup, OptionRadioGroup } from '@/components/registration/wizard/option-groups';
+import {
+  OptionCheckboxGroup,
+  OptionRadioGroup,
+} from '@/components/registration/wizard/option-groups';
 import {
   AREA_SQM_BANDS,
   DECISION_STAGES,
@@ -22,14 +25,8 @@ import {
   SPYURK_INVESTMENT_GOALS,
   SPYURK_RESEARCH_GOALS,
 } from '@/lib/questionnaire/spyurk/options';
-import {
-  getSpyurkOptionLabel,
-  getSpyurkQuestionLabel,
-} from '@/lib/questionnaire/spyurk/i18n';
-import {
-  SpyurkPropertyCountryFields,
-  SpyurkVisitAndNewsletterFields,
-} from './step-fields';
+import { getSpyurkOptionLabel, getSpyurkQuestionLabel } from '@/lib/questionnaire/spyurk/i18n';
+import { SpyurkPropertyCountryFields, SpyurkVisitAndNewsletterFields } from './step-fields';
 import type { SpyurkWizardFieldErrors, SpyurkWizardState } from './types';
 
 type StepProps = {

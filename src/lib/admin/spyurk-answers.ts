@@ -1,8 +1,5 @@
 import { isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
-import {
-  getSpyurkOptionLabel,
-  getSpyurkQuestionLabel,
-} from '@/lib/questionnaire/spyurk/i18n';
+import { getSpyurkOptionLabel, getSpyurkQuestionLabel } from '@/lib/questionnaire/spyurk/i18n';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 
 type AnswerDisplayRow = {
@@ -57,7 +54,10 @@ export function formatSpyurkAnswersForDisplay(
   };
 
   if (typeof answers.ageBand === 'string') {
-    push(getSpyurkQuestionLabel('ageBand', locale), getSpyurkOptionLabel('ageBand', answers.ageBand, locale));
+    push(
+      getSpyurkQuestionLabel('ageBand', locale),
+      getSpyurkOptionLabel('ageBand', answers.ageBand, locale),
+    );
   }
 
   if (isRecord(answers.residence)) {
@@ -122,7 +122,10 @@ export function formatSpyurkAnswersForDisplay(
   push(getSpyurkQuestionLabel('propertyCountryOther', locale), country.other);
 
   if (typeof answers.areaSqm === 'string') {
-    push(getSpyurkQuestionLabel('areaSqm', locale), getSpyurkOptionLabel('areaSqm', answers.areaSqm, locale));
+    push(
+      getSpyurkQuestionLabel('areaSqm', locale),
+      getSpyurkOptionLabel('areaSqm', answers.areaSqm, locale),
+    );
   }
   if (typeof answers.purchaseMethod === 'string') {
     push(
@@ -177,7 +180,9 @@ export function formatSpyurkAnswersForDisplay(
   if (marketInterests.length > 0) {
     push(
       getSpyurkQuestionLabel('marketInterests', locale),
-      marketInterests.map((item) => getSpyurkOptionLabel('marketInterest', item, locale)).join(', '),
+      marketInterests
+        .map((item) => getSpyurkOptionLabel('marketInterest', item, locale))
+        .join(', '),
     );
   }
   if (typeof answers.researchGoal === 'string') {
@@ -333,14 +338,19 @@ export function flattenSpyurkAnswersForExport(
   if (marketInterests.length > 0) {
     set(
       'marketInterests',
-      marketInterests.map((item) => getSpyurkOptionLabel('marketInterest', item, locale)).join(', '),
+      marketInterests
+        .map((item) => getSpyurkOptionLabel('marketInterest', item, locale))
+        .join(', '),
     );
   }
   if (typeof answers.researchGoal === 'string') {
     set('researchGoal', getSpyurkOptionLabel('researchGoal', answers.researchGoal, locale));
   }
   if (typeof answers.purchaseHorizon === 'string') {
-    set('purchaseHorizon', getSpyurkOptionLabel('purchaseHorizon', answers.purchaseHorizon, locale));
+    set(
+      'purchaseHorizon',
+      getSpyurkOptionLabel('purchaseHorizon', answers.purchaseHorizon, locale),
+    );
   }
   if (typeof answers.armeniaVisitTiming === 'string') {
     set(
@@ -349,6 +359,9 @@ export function flattenSpyurkAnswersForExport(
     );
   }
   if (typeof answers.newsletter === 'boolean') {
-    set('newsletter', getSpyurkOptionLabel('newsletter', answers.newsletter ? 'yes' : 'no', locale));
+    set(
+      'newsletter',
+      getSpyurkOptionLabel('newsletter', answers.newsletter ? 'yes' : 'no', locale),
+    );
   }
 }
