@@ -3,7 +3,19 @@ import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import type { Locale } from '@/types/locale';
 import { getOrCreateRegistrationIdempotencyKey } from './idempotency';
 import { loadPersistedUtmAttribution } from './utm-attribution';
-import type { RegistrationSubmitPayload } from './wizard/build-payload';
+import type { CountryCode } from 'libphonenumber-js';
+
+export type RegistrationSubmitPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  phoneCountry: CountryCode;
+  privacyConsent: true;
+  formVersion: string;
+  answers: unknown;
+  website: string;
+};
 import type {
   RegistrationApiErrorBody,
   RegistrationFieldErrors,

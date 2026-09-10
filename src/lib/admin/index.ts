@@ -1,18 +1,24 @@
 import { buildCsv } from '@/lib/admin/csv';
 import { CSV_EXPORT_COLUMNS } from '@/lib/admin/constants';
 import { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
+import { formatAdminDateTimeForCsv } from '@/lib/admin/format-datetime';
 import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
+import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
 
 /**
  * Build a formula-safe, human-readable CSV for the active event (optional search filter).
  * Questionnaire answer values are localized to each registration's locale;
  * column headers stay English for operator consistency.
+ * `Registered at` uses Armenia local time (`Asia/Yerevan`), matching the admin UI.
  */
-export async function buildRegistrationsCsv(search?: string): Promise<{
+export async function buildRegistrationsCsv(
+  search?: string,
+  channel?: AdminFormChannelFilter,
+): Promise<{
   filename: string;
   csv: string;
 } | null> {
-  const { event, rows } = await listRegistrationsForExport(search);
+  const { event, rows } = await listRegistrationsForExport(search, channel);
 
   if (!event) {
     return null;
@@ -22,7 +28,7 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
   const filename = `${event.slug}-registrations-${dateStamp}.csv`;
 
   const csvRows = rows.map((row) => ({
-    registeredAt: row.createdAt.toISOString(),
+    registeredAt: formatAdminDateTimeForCsv(row.createdAt),
     firstName: row.firstName,
     lastName: row.lastName,
     email: row.email,
@@ -37,7 +43,8 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
     attendanceStatus: row.attendanceStatus ?? '',
     emailDeliveryStatus: row.emailDeliveryStatus,
     formVersion: row.formVersion ?? '',
-    ...flattenRegistrationAnswersForExport(row.answers, row.locale),
+    formChannel: row.formChannel,
+    ...flattenRegistrationAnswersForExport(row.answers, row.locale, row.formVersion),
   }));
 
   return {
@@ -51,10 +58,16 @@ export { listAdminRegistrations, listRegistrationsForExport } from '@/lib/admin/
 export { getAdminRegistration } from '@/lib/admin/get-registration';
 export { formatRegistrationAnswersForDisplay } from '@/lib/admin/format-answers';
 export { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
+export {
+  formatAdminDateTime,
+  formatAdminDateTimeForCsv,
+  formatAdminDateTimeShort,
+} from '@/lib/admin/format-datetime';
 export { deleteRegistration } from '@/lib/admin/delete-registration';
 export { resendRegistrationTicket } from '@/lib/admin/resend-ticket';
 export { listAdminSyncRuns } from '@/lib/admin/list-sync-runs';
 export {
+  ADMIN_DISPLAY_TIMEZONE,
   ADMIN_PAGE_SIZE,
   ADMIN_SEARCH_MAX_LENGTH,
   ADMIN_NO_STORE_HEADERS,

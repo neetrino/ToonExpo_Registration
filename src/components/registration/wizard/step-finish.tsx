@@ -1,13 +1,17 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import type { WizardFieldErrors, WizardState } from './types';
+import type { WizardFieldErrors } from './types';
+
+export type FinishStepFields = {
+  privacyConsent: boolean;
+};
 
 type StepProps = {
-  state: WizardState;
+  state: FinishStepFields;
   errors: WizardFieldErrors;
   disabled: boolean;
-  onUpdate: <K extends keyof WizardState>(key: K, value: WizardState[K]) => void;
+  onUpdate: (key: 'privacyConsent', value: boolean) => void;
 };
 
 function ConsentDocumentLink({ href, children }: { href: '/privacy'; children: ReactNode }) {

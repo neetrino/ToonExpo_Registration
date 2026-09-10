@@ -17,4 +17,11 @@ describe('buildAdminHref', () => {
   it('builds a next-page href without a search query', () => {
     expect(buildAdminHref({ page: 2 })).toBe('/admin?page=2');
   });
+
+  it('keeps the form-channel filter across list and detail links', () => {
+    expect(buildAdminHref({ channel: 'SPYURK_RF' })).toBe('/admin?channel=SPYURK_RF');
+    expect(buildAdminHref({ q: 'sipan', page: 2, channel: 'GENERAL' })).toBe(
+      '/admin?q=sipan&channel=GENERAL&page=2',
+    );
+  });
 });

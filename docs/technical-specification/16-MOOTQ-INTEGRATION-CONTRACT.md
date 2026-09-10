@@ -22,7 +22,7 @@ Toon Expo reviewed the Mootq draft and records the following.
 | TE → Mootq timing | Immediate after Toon Expo commit; visitor does not wait for Mootq |
 | MQ → Toon Expo timing | Accept nightly batched POST |
 | Ticket delivery | Each party delivers tickets only for registrations created on its own form |
-| `answers` | Toon Expo catalog for form `2026-vis-reg-v2`, flattened keys (Appendix A) |
+| `answers` | Toon Expo catalog for `2026-vis-reg-v2` or `2026-vis-reg-spyurk-v1`, flattened keys (Appendix A) |
 | UTM | Optional top-level `utmSource` / `utmMedium` / `utmCampaign` on TE → Mootq only |
 | Rate limit | Accept maximum 5 POST/s Toon Expo → Mootq per credential |
 | Transport | HTTPS POST only; no WebSocket; no continuous polling |
@@ -154,6 +154,7 @@ Example:
   "locale": "hy",
   "answers": {
     "form_version": "2026-vis-reg-v2",
+    "form_channel": "GENERAL",
     "age_band": "25-34",
     "residence_scope": "yerevan",
     "residence_district": "kentron",
@@ -303,7 +304,7 @@ The key is a stable technical code:
 
 The key is not the displayed question text. It does not change when a translation changes. UI translations live in each system. The receiver uses the registration `locale` to pick labels.
 
-Toon Expo → Mootq uses the catalog in Appendix A (`form_version`: `2026-vis-reg-v2`).
+Toon Expo → Mootq uses the catalog in Appendix A. General registrations send `form_version`: `2026-vis-reg-v2` and `form_channel`: `GENERAL`. Spyurk RF registrations send `form_version`: `2026-vis-reg-spyurk-v1` and `form_channel`: `SPYURK_RF`. Unknown keys may be ignored.
 
 Mootq → Toon Expo may use Mootq's own keys. Toon Expo will store unknown keys for later mapping and will still accept the ticket.
 
@@ -457,23 +458,24 @@ Attendance endpoint is not required for v1.
 
 ---
 
-## Appendix A — Toon Expo `answers` catalog (`2026-vis-reg-v2`)
+## Appendix A — Toon Expo `answers` catalog (`2026-vis-reg-v2` and `2026-vis-reg-spyurk-v1`)
 
 Wire keys are snake_case. Branch-specific keys are omitted when that branch was not used. Absent optional keys are omitted (not sent as `null`) unless the visitor entered a value.
 
-`form_version` is always sent when `answers` is present:
+`form_version` and `form_channel` are always sent when `answers` is present:
 
 ```json
-{ "form_version": "2026-vis-reg-v2" }
+{ "form_version": "2026-vis-reg-v2", "form_channel": "GENERAL" }
 ```
 
-Older stored rows may still use `2026-vis-reg-v1`. New public submissions use v2 only.
+Older stored rows may still use `2026-vis-reg-v1`. The Armenia landing still submits `2026-vis-reg-v2`. The separate Spyurk RF form (`/rf`) submits `2026-vis-reg-spyurk-v1` (section A.3).
 
 ### A.1 Keys
 
 | Key | Type | When present | Question (en / hy / ru) |
 | --- | --- | --- | --- |
 | `form_version` | string | whenever `answers` is sent | Catalog version (not shown to the visitor) |
+| `form_channel` | string | whenever `answers` is sent | `GENERAL` or `SPYURK_RF` (not shown to the visitor) |
 | `age_band` | string | all branches | Age / Տարիք / Возраст |
 | `residence_scope` | string | all branches | Place of residence |
 | `residence_district` | string | `residence_scope=yerevan` | Yerevan district |
@@ -539,6 +541,56 @@ Values are codes, not localized labels.
 Free-text keys have no code list: `residence_country`, `abroad_countries_other`, `location_seek_abroad_other`, `investment_property_type_other`, `prior_investment_experience_other`, `research_abroad_country`.
 
 Option display translations live in Toon Expo. Mootq may ignore them for scanning and store codes as-is.
+
+### A.3 Spyurk RF catalog (`2026-vis-reg-spyurk-v1`)
+
+Used only for Toon Expo registrations from `/rf`. Same `visit_purpose` branches. Residence is free-text city/region in the Russian Federation, not Yerevan/marz. Shared codes from A.2 are reused where they match.
+
+| Key | Type | When present | Notes |
+| --- | --- | --- | --- |
+| `form_version` | string | whenever `answers` is sent | `2026-vis-reg-spyurk-v1` |
+| `form_channel` | string | whenever `answers` is sent | `SPYURK_RF` |
+| `age_band` | string | all branches | Same codes as A.2 |
+| `residence_city` | string | all branches | Free text |
+| `residence_region` | string | all branches | Free text (RF oblast / region) |
+| `armenia_connection` | string | all branches | Single select |
+| `armenia_connection_other` | string | when connection is `other` | Free text |
+| `purchase_motives` | string[] | all branches | Max 3 |
+| `purchase_motives_other` | string | when motives include `other` | Free text |
+| `visit_purpose` | string | all branches | Same codes as A.2 |
+| `newsletter` | boolean | all branches | Opt-in |
+| `interest_types` | string[] | `own_residence` | Max 3; not the general single `interest_type` |
+| `interest_types_other` | string | when types include `other` | Free text |
+| `property_country_scope` | string | all branches | `armenia` or `other` |
+| `property_country_other` | string | when scope is `other` | Free text |
+| `area_sqm` | string | `own_residence`; `investment` when type needs area | Same codes as A.2 |
+| `purchase_method` | string | `own_residence` and `investment` | Same codes as A.2 |
+| `purchase_budget_usd` | string | `own_residence` | Purchase budget in USD (not monthly AMD) |
+| `decision_stage` | string | `own_residence` | Same codes as A.2 |
+| `armenia_visit_timing` | string | all branches | Planned trip to Armenia |
+| `investment_property_types` | string[] | `investment` | Max 3; same type codes as A.2 |
+| `investment_property_type_other` | string | when types include `other` | Free text |
+| `investment_goal` | string | `investment` | A.2 codes plus `capital_preservation` |
+| `investment_timeline` | string | `investment` | Same codes as A.2 |
+| `investment_budget_usd` | string | `investment` | Same codes as A.2 |
+| `prior_investment_experience` | string | `investment` | Same codes as A.2 |
+| `prior_investment_experience_other` | string | when experience is `yes_abroad` or `yes_both` | Country (free text) |
+| `market_interests` | string[] | `market_research` | Same codes as A.2 |
+| `research_goal` | string | `market_research` | Spyurk codes below |
+| `purchase_horizon` | string | `market_research` | Same codes as A.2 (includes `no_plans`) |
+
+| Key | Codes |
+| --- | --- |
+| `armenia_connection` | `born_in_armenia`, `ra_citizenship`, `family_from_armenia`, `previously_lived`, `regular_visits`, `other` |
+| `purchase_motives` | `permanent_relocation`, `own_stays`, `family_housing`, `children_education`, `retirement_plan`, `rental_when_away`, `investment_income`, `capital_preservation_growth`, `other` |
+| `interest_types` | `apartment_new`, `apartments`, `house_villa_townhouse`, `land_for_house`, `other` |
+| `property_country_scope` | `armenia`, `other` |
+| `purchase_budget_usd` | `up_to_100k`, `100k-150k`, `150k-250k`, `250k-500k`, `500k_plus` |
+| `armenia_visit_timing` | `within_1_month`, `within_3_months`, `within_6_months`, `within_1_year`, `not_planning` |
+| `investment_goal` | `rental_income`, `appreciation`, `capital_preservation`, `diversification`, `citizenship_residency`, `multiple` |
+| `research_goal` | `future_purchase_armenia`, `possible_relocation`, `future_investment`, `professional`, `browse_offers` |
+
+`area_sqm` for investment is sent only when selected types include `apartment`, `apart_hotel`, `commercial`, or `office`.
 
 ## Appendix B — Out of v1 (not required from Mootq)
 

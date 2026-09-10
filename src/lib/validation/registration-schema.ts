@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import type { CountryCode } from 'libphonenumber-js';
 import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
+import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
+import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import {
   DEFAULT_PHONE_COUNTRY,
   EMAIL_MAX_LENGTH,
@@ -45,29 +47,40 @@ const optionalUtmFieldSchema = z.preprocess((value) => {
  * Raw registration body schema (pre-normalization transforms applied via Zod).
  * Identity fields are top-level; questionnaire fields live in `answers`.
  */
+const identityFields = {
+  firstName: z
+    .string()
+    .transform(normalizeName)
+    .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
+  lastName: z
+    .string()
+    .transform(normalizeName)
+    .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
+  email: z.string().transform(trimEmail).pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
+  phone: z.string().min(1).max(64),
+  phoneCountry: phoneCountrySchema,
+  locale: localeSchema,
+  privacyConsent: z.literal(true),
+  privacyPolicyVersion: z.literal(PRIVACY_POLICY_VERSION),
+  website: z.string().max(200).optional().default(''),
+  utmSource: optionalUtmFieldSchema,
+  utmMedium: optionalUtmFieldSchema,
+  utmCampaign: optionalUtmFieldSchema,
+} as const;
+
 export const registrationBodySchema = z
-  .object({
-    firstName: z
-      .string()
-      .transform(normalizeName)
-      .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
-    lastName: z
-      .string()
-      .transform(normalizeName)
-      .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
-    email: z.string().transform(trimEmail).pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
-    phone: z.string().min(1).max(64),
-    phoneCountry: phoneCountrySchema,
-    locale: localeSchema,
-    privacyConsent: z.literal(true),
-    privacyPolicyVersion: z.literal(PRIVACY_POLICY_VERSION),
-    website: z.string().max(200).optional().default(''),
-    formVersion: z.literal(FORM_VERSION),
-    answers: questionnaireAnswersSchema,
-    utmSource: optionalUtmFieldSchema,
-    utmMedium: optionalUtmFieldSchema,
-    utmCampaign: optionalUtmFieldSchema,
-  })
+  .discriminatedUnion('formVersion', [
+    z.object({
+      ...identityFields,
+      formVersion: z.literal(FORM_VERSION),
+      answers: questionnaireAnswersSchema,
+    }),
+    z.object({
+      ...identityFields,
+      formVersion: z.literal(SPYURK_FORM_VERSION),
+      answers: spyurkQuestionnaireAnswersSchema,
+    }),
+  ])
   .superRefine((data, ctx) => {
     const phone = normalizePhone(data.phone, data.phoneCountry);
     if (!phone) {

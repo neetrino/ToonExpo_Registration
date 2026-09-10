@@ -1,6 +1,7 @@
 import { getQuestionnaireLabel, questionnaireI18n } from '@/lib/questionnaire/i18n';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { CSV_ANSWER_COLUMNS } from '@/lib/admin/constants';
+import { flattenSpyurkAnswersForExport, isSpyurkAnswers } from '@/lib/admin/spyurk-answers';
 
 type Localized = Record<QuestionnaireLocale, string>;
 
@@ -305,6 +306,7 @@ function flattenMarketResearch(
 export function flattenRegistrationAnswersForExport(
   answers: unknown,
   locale: QuestionnaireLocale,
+  formVersion?: string | null,
 ): FlattenedAnswerColumns {
   const columns = emptyAnswerColumns();
   const labels = createLabelHelpers(locale);
@@ -314,6 +316,12 @@ export function flattenRegistrationAnswersForExport(
   }
 
   const record = answers as Record<string, unknown>;
+
+  if (isSpyurkAnswers(record, formVersion)) {
+    flattenSpyurkAnswersForExport(columns, record, locale);
+    return columns;
+  }
+
   const visitPurpose = record.visitPurpose;
 
   if (typeof visitPurpose === 'string') {

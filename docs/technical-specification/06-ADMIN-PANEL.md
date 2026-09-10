@@ -16,6 +16,7 @@ Extend the existing single-admin interface only where operations require it. Do 
 Show:
 
 - source `TOON_EXPO`/`MOOTQ`;
+- form channel `GENERAL` / `SPYURK_RF` (badge, `channel=` filter, CSV column);
 - ticket code in a copy-safe/read-only form;
 - email delivery status;
 - SMS delivery status;
@@ -25,7 +26,7 @@ Show:
 
 Never display the hosted-ticket token, partner credentials, provider keys or raw provider responses.
 
-Source filters, counts and exports use the stored `sourceSystem`. The admin never infers origin from `ticketCode`.
+Source filters, counts and exports use the stored `sourceSystem`. The admin never infers origin from `ticketCode`. Form-channel filters use stored `formChannel` and do not treat UTM as the audience marker.
 
 ## Delivery operations
 
@@ -67,3 +68,5 @@ The existing admin hard-delete remains an operator tool for obvious junk rows. T
 ## CSV export
 
 Exports may include approved registration/questionnaire/source/ticket/attendance fields. Exclude ticket-view tokens, provider secrets, auth fields, delivery locks and raw sync errors.
+
+`Registered at` is written in Armenia local time (`Asia/Yerevan`, UTC+4), matching the admin list/detail. Partner/API payloads remain UTC ISO-8601.

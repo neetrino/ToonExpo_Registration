@@ -1,5 +1,6 @@
 import { getQuestionnaireLabel, questionnaireI18n } from '@/lib/questionnaire/i18n';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { formatSpyurkAnswersForDisplay, isSpyurkAnswers } from '@/lib/admin/spyurk-answers';
 
 const ADMIN_DISPLAY_LOCALE: QuestionnaireLocale = 'en';
 
@@ -320,6 +321,7 @@ function formatMarketResearchAnswers(a: Record<string, unknown>, rows: AnswerDis
  */
 export function formatRegistrationAnswersForDisplay(
   answers: unknown,
+  formVersion?: string | null,
 ): FormattedRegistrationAnswers {
   if (!answers || typeof answers !== 'object') {
     return { visitPurposeLabel: null, rows: [] };
@@ -333,6 +335,11 @@ export function formatRegistrationAnswersForDisplay(
   }
 
   const visitPurposeLabel = optionLabel('visitPurpose', visitPurpose);
+
+  if (isSpyurkAnswers(record, formVersion)) {
+    return { visitPurposeLabel, rows: formatSpyurkAnswersForDisplay(record, ADMIN_DISPLAY_LOCALE) };
+  }
+
   const rows: AnswerDisplayRow[] = [];
 
   if (typeof record.ageBand === 'string') {

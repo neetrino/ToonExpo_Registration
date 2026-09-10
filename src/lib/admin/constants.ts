@@ -1,6 +1,9 @@
 /** Default page size for the admin registration table. */
 export const ADMIN_PAGE_SIZE = 20;
 
+/** Operator-facing timezone for admin UI and CSV export (Armenia, UTC+4, no DST). */
+export const ADMIN_DISPLAY_TIMEZONE = 'Asia/Yerevan';
+
 /** Maximum search query length accepted by admin list/export filters. */
 export const ADMIN_SEARCH_MAX_LENGTH = 100;
 
@@ -22,7 +25,7 @@ export type CsvColumnDef = {
 
 /** Identity / meta columns for admin CSV export (human-readable headers). */
 export const CSV_IDENTITY_COLUMNS = [
-  { key: 'registeredAt', header: 'Registered at' },
+  { key: 'registeredAt', header: 'Registered at (Yerevan)' },
   { key: 'firstName', header: 'First name' },
   { key: 'lastName', header: 'Last name' },
   { key: 'email', header: 'Email' },
@@ -37,6 +40,7 @@ export const CSV_IDENTITY_COLUMNS = [
   { key: 'attendanceStatus', header: 'Attendance' },
   { key: 'emailDeliveryStatus', header: 'Email delivery' },
   { key: 'formVersion', header: 'Form version' },
+  { key: 'formChannel', header: 'Form channel' },
 ] as const satisfies readonly CsvColumnDef[];
 
 /**
@@ -75,6 +79,18 @@ export const CSV_ANSWER_COLUMNS = [
   { key: 'interestedWhereOther', header: 'Interested where (other)' },
   { key: 'purchaseHorizon', header: 'Purchase horizon' },
   { key: 'newsletter', header: 'Newsletter' },
+  { key: 'residenceCity', header: 'RF city' },
+  { key: 'residenceRegionRf', header: 'RF region' },
+  { key: 'armeniaConnection', header: 'Connection to Armenia' },
+  { key: 'armeniaConnectionOther', header: 'Connection to Armenia (other)' },
+  { key: 'purchaseMotives', header: 'Purchase motives' },
+  { key: 'purchaseMotivesOther', header: 'Purchase motives (other)' },
+  { key: 'spyurkInterestTypes', header: 'Spyurk interest types' },
+  { key: 'spyurkInterestTypesOther', header: 'Spyurk interest types (other)' },
+  { key: 'propertyCountry', header: 'Property country' },
+  { key: 'propertyCountryOther', header: 'Property country (other)' },
+  { key: 'purchaseBudgetUsd', header: 'Purchase budget (USD)' },
+  { key: 'armeniaVisitTiming', header: 'Visit to Armenia' },
 ] as const satisfies readonly CsvColumnDef[];
 
 export const CSV_EXPORT_COLUMNS = [

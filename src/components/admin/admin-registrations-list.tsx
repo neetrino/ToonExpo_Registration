@@ -3,30 +3,13 @@
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
 import { AdminListColumnHeader } from '@/components/admin/admin-list-column-header';
 import { SendQrButton } from '@/components/admin/send-qr-button';
+import { formatAdminDateTime, formatAdminDateTimeShort } from '@/lib/admin/format-datetime';
 import { cn } from '@/lib/utils';
 
 type AdminRegistrationsListProps = {
   rows: AdminRegistrationRow[];
   onOpen: (row: AdminRegistrationRow) => void;
 };
-
-function formatRegisteredAt(date: Date | string): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Yerevan',
-  }).format(new Date(date));
-}
-
-function formatRegisteredAtShort(date: Date | string): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'Asia/Yerevan',
-  }).format(new Date(date));
-}
 
 function emailStatusClass(status: string): string {
   switch (status) {
@@ -66,6 +49,18 @@ function SourceBadge({ sourceSystem }: { sourceSystem: string | null }) {
   return (
     <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground">
       {sourceLabel(sourceSystem)}
+    </span>
+  );
+}
+
+function ChannelBadge({ formChannel }: { formChannel: string }) {
+  if (formChannel !== 'SPYURK_RF') {
+    return null;
+  }
+
+  return (
+    <span className="inline-flex rounded-md bg-highlight/15 px-2 py-0.5 text-[11px] font-medium tracking-wide text-primary">
+      Spyurk RF
     </span>
   );
 }
@@ -141,7 +136,7 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 className="group cursor-pointer transition-colors hover:bg-accent/[0.07] focus-visible:bg-accent/[0.07] focus-visible:outline-none"
               >
                 <td className="whitespace-nowrap px-5 py-4 text-muted-foreground">
-                  {formatRegisteredAt(row.createdAt)}
+                  {formatAdminDateTime(row.createdAt)}
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
@@ -157,7 +152,10 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                   </div>
                 </td>
                 <td className="px-5 py-4">
-                  <SourceBadge sourceSystem={row.sourceSystem} />
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <SourceBadge sourceSystem={row.sourceSystem} />
+                    <ChannelBadge formChannel={row.formChannel} />
+                  </div>
                   <UtmSourceLabel utmSource={row.utmSource} />
                 </td>
                 <td className="px-5 py-4 font-mono text-xs tracking-wide text-foreground">
@@ -205,6 +203,7 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 </span>
                 <span className="mt-1 flex flex-wrap items-center gap-2">
                   <SourceBadge sourceSystem={row.sourceSystem} />
+                  <ChannelBadge formChannel={row.formChannel} />
                   {row.utmSource ? (
                     <span
                       className="max-w-[8rem] truncate text-[11px] text-muted-foreground"
@@ -223,7 +222,7 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                   <span>{row.phone}</span>
                   <span aria-hidden="true">·</span>
-                  <span>{formatRegisteredAtShort(row.createdAt)}</span>
+                  <span>{formatAdminDateTimeShort(row.createdAt)}</span>
                 </span>
               </span>
               <ChevronIcon />

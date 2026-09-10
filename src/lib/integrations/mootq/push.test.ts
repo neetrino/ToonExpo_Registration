@@ -69,6 +69,7 @@ describe('buildMootqPushPayload', () => {
       locale: 'hy',
       answers: {
         form_version: FORM_VERSION,
+        form_channel: 'GENERAL',
         age_band: '25-34',
         visit_purpose: 'investment',
         newsletter: false,

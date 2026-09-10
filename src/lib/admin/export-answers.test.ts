@@ -76,4 +76,40 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(result.ageBand).toBe('');
     expect(Object.values(result).every((value) => value === '')).toBe(true);
   });
+
+  it('flattens Spyurk answers into RF and purchase-budget columns', () => {
+    const result = flattenRegistrationAnswersForExport(
+      {
+        ageBand: '35-44',
+        residence: { city: 'Moscow', region: 'Moscow Oblast' },
+        armeniaConnection: 'family_from_armenia',
+        purchaseMotives: ['own_stays', 'investment_income'],
+        visitPurpose: 'own_residence',
+        interestTypes: ['apartment_new', 'apartments'],
+        propertyCountry: { scope: 'armenia' },
+        areaSqm: '70-90',
+        purchaseMethod: 'cash',
+        purchaseBudgetUsd: '150k-250k',
+        decisionStage: 'searching_6_months',
+        armeniaVisitTiming: 'within_3_months',
+        newsletter: true,
+      },
+      'en',
+      '2026-vis-reg-spyurk-v1',
+    );
+
+    expect(result.visitPurpose).toBe('Purchasing real estate for personal residence');
+    expect(result.residenceCity).toBe('Moscow');
+    expect(result.residenceRegionRf).toBe('Moscow Oblast');
+    expect(result.armeniaConnection).toBe('My parents / relatives are from Armenia');
+    expect(result.purchaseMotives).toBe(
+      'My own stays when visiting Armenia, Investment and income',
+    );
+    expect(result.spyurkInterestTypes).toBe('New-build apartment, Apartments');
+    expect(result.propertyCountry).toBe('Armenia');
+    expect(result.purchaseBudgetUsd).toBe('USD 150,000–250,000');
+    expect(result.armeniaVisitTiming).toBe('Within 3 months');
+    expect(result.monthlyBudget).toBe('');
+    expect(Object.keys(result)).toHaveLength(CSV_ANSWER_COLUMNS.length);
+  });
 });

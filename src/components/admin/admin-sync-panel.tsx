@@ -3,19 +3,12 @@
 import { useState, useTransition } from 'react';
 import { importFullDataFromMootqAction } from '@/app/admin/actions';
 import { Button } from '@/components/ui/button';
+import { formatAdminDateTime } from '@/lib/admin/format-datetime';
 import type { AdminSyncRunRow } from '@/lib/admin/list-sync-runs';
 
 type AdminSyncPanelProps = {
   runs: AdminSyncRunRow[];
 };
-
-function formatWhen(date: Date | string): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Yerevan',
-  }).format(new Date(date));
-}
 
 /**
  * Full-sync operations: import trigger + recent run history.
@@ -114,7 +107,7 @@ export function AdminSyncPanel({ runs }: AdminSyncPanelProps) {
                 {runs.map((run) => (
                   <tr key={run.id}>
                     <td className="whitespace-nowrap px-3 py-3 text-muted-foreground">
-                      {formatWhen(run.startedAt)}
+                      {formatAdminDateTime(run.startedAt)}
                     </td>
                     <td className="px-3 py-3 font-medium text-foreground">{run.direction}</td>
                     <td className="px-3 py-3 text-foreground">{run.status}</td>

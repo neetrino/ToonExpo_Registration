@@ -4,7 +4,7 @@
 
 **Architecture:** Small Next.js modular monolith with Neon PostgreSQL
 
-**Updated:** 2026-08-18
+**Updated:** 2026-09-10
 
 ## Purpose
 
@@ -15,7 +15,8 @@ The application registers Toon Expo visitors, stores QR ticket codes from two is
 ```text
 Toon Expo visitor
     │
-    └── Toon Expo form
+    ├── General form (/hy /en /ru)
+    └── Spyurk RF form (/rf → /ru/rf)
             │
             └── create TE ticket code ──┬── show QR
                                         ├── queue email/SMS
@@ -65,12 +66,13 @@ All Toon Expo pages, APIs, admin functions and delivery processing remain in one
 ### Source ID
 
 - `sourceSystem`: `TOON_EXPO` or `MOOTQ`; this is the canonical origin field.
+- `formChannel`: `GENERAL` or `SPYURK_RF`; audience of the Toon Expo form, not a ticket issuer.
 - `sourceRegistrationId`: stable source-owned registration identifier.
 - Required for Mootq transport idempotency and useful for diagnostics.
 - `ticketCode` remains the primary reconciliation identifier.
-- Public registration assigns `TOON_EXPO` server-side.
-- The authenticated Mootq inbound route assigns `MOOTQ` server-side.
-- Request bodies cannot select or override `sourceSystem`.
+- Public registration assigns `TOON_EXPO` server-side and `formChannel` from `formVersion`.
+- The authenticated Mootq inbound route assigns `MOOTQ` server-side (`formChannel=GENERAL`).
+- Request bodies cannot select or override `sourceSystem` or `formChannel`.
 
 ## Registration and delivery transactions
 
