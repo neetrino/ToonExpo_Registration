@@ -3,6 +3,7 @@ import { CSV_EXPORT_COLUMNS } from '@/lib/admin/constants';
 import { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
 import { formatAdminDateTimeForCsv } from '@/lib/admin/format-datetime';
 import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
+import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
 
 /**
  * Build a formula-safe, human-readable CSV for the active event (optional search filter).
@@ -10,11 +11,14 @@ import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
  * column headers stay English for operator consistency.
  * `Registered at` uses Armenia local time (`Asia/Yerevan`), matching the admin UI.
  */
-export async function buildRegistrationsCsv(search?: string): Promise<{
+export async function buildRegistrationsCsv(
+  search?: string,
+  channel?: AdminFormChannelFilter,
+): Promise<{
   filename: string;
   csv: string;
 } | null> {
-  const { event, rows } = await listRegistrationsForExport(search);
+  const { event, rows } = await listRegistrationsForExport(search, channel);
 
   if (!event) {
     return null;
@@ -39,7 +43,8 @@ export async function buildRegistrationsCsv(search?: string): Promise<{
     attendanceStatus: row.attendanceStatus ?? '',
     emailDeliveryStatus: row.emailDeliveryStatus,
     formVersion: row.formVersion ?? '',
-    ...flattenRegistrationAnswersForExport(row.answers, row.locale),
+    formChannel: row.formChannel,
+    ...flattenRegistrationAnswersForExport(row.answers, row.locale, row.formVersion),
   }));
 
   return {

@@ -1,9 +1,7 @@
 import { useTranslations } from 'next-intl';
-import type { WizardStepId } from './types';
-
 type WizardProgressProps = {
-  currentStep: WizardStepId;
-  steps: WizardStepId[];
+  currentStep: string;
+  steps: readonly string[];
 };
 
 export function WizardProgress({ currentStep, steps }: WizardProgressProps) {

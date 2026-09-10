@@ -24,7 +24,7 @@ Successful response adds the Toon Expo ticket result needed by the browser:
 }
 ```
 
-The route sets `sourceSystem=TOON_EXPO` server-side. The strict request schema rejects any client-supplied source field. The raw private token must not be logged.
+The route sets `sourceSystem=TOON_EXPO` server-side. `formVersion` is a discriminated union: `2026-vis-reg-v2` (general answers) or `2026-vis-reg-spyurk-v1` (Spyurk answers). The server assigns `formChannel` from that version. The strict request schema rejects any client-supplied source or channel field. The raw private token must not be logged.
 
 ## Mootq inbound
 

@@ -3,10 +3,11 @@ import { ToonExpoLogo } from '@/components/brand/toon-expo-logo';
 import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
 import { AdminRegistrationsPanel } from '@/components/admin/admin-registrations-panel';
 import { AdminSyncPanel } from '@/components/admin/admin-sync-panel';
+import { AdminChannelFilter } from '@/components/admin/admin-channel-filter';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
 import { AdminListPagination } from '@/components/admin/admin-list-pagination';
 import { Button } from '@/components/ui/button';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import { buildAdminHref, parseAdminFormChannel } from '@/lib/admin/admin-url';
 import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
@@ -16,7 +17,7 @@ import { requireAdminSession } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 type AdminDashboardPageProps = {
-  searchParams: Promise<{ q?: string; page?: string; view?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; view?: string; channel?: string }>;
 };
 
 export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
@@ -28,20 +29,29 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   const query = params.q?.trim() ?? '';
   const page = Math.max(1, Number.parseInt(params.page ?? '1', 10) || 1);
   const viewId = params.view?.trim() || undefined;
+  const channel = parseAdminFormChannel(params.channel);
 
   const [data, viewRegistration, syncRuns] = await Promise.all([
-    listAdminRegistrations({ page, search: query || undefined }),
+    listAdminRegistrations({ page, search: query || undefined, channel }),
     viewId ? getAdminRegistration(viewId) : Promise.resolve(null),
     listAdminSyncRuns(20),
   ]);
 
   const totalPages = getAdminPageCount(data.filteredCount, data.pageSize);
   const pageRange = getAdminPageRange(data.page, data.filteredCount, data.pageSize);
-  const exportHref = query
-    ? `/api/admin/registrations/export?q=${encodeURIComponent(query)}`
+  const exportParams = new URLSearchParams();
+  if (query) {
+    exportParams.set('q', query);
+  }
+  if (channel) {
+    exportParams.set('channel', channel);
+  }
+  const exportQuery = exportParams.toString();
+  const exportHref = exportQuery
+    ? `/api/admin/registrations/export?${exportQuery}`
     : '/api/admin/registrations/export';
   const listHref = (targetPage: number) =>
-    buildAdminHref({ q: query || undefined, page: targetPage });
+    buildAdminHref({ q: query || undefined, page: targetPage, channel });
 
   return (
     <div className="min-h-dvh bg-muted">
@@ -86,7 +96,12 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
 
             <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5 sm:flex-row sm:items-center lg:max-w-3xl lg:justify-end">
-              <AdminSearchForm initialQuery={query} variant="toolbar" className="min-w-0 flex-1" />
+              <AdminSearchForm
+                initialQuery={query}
+                channel={channel}
+                variant="toolbar"
+                className="min-w-0 flex-1"
+              />
               <Button
                 asChild
                 variant="default"
@@ -113,10 +128,19 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           </div>
 
-          {query ? (
+          <div className="mt-4">
+            <AdminChannelFilter current={channel} query={query || undefined} />
+          </div>
+          {query || channel ? (
             <p className="mt-3 text-sm text-muted-foreground">
-              Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'} for &ldquo;
-              {query}&rdquo;
+              Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
+              {query ? (
+                <>
+                  {' '}
+                  for &ldquo;{query}&rdquo;
+                </>
+              ) : null}
+              {channel ? ` in ${channel === 'SPYURK_RF' ? 'Spyurk RF' : 'General'}` : null}
             </p>
           ) : null}
         </section>
@@ -153,6 +177,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               event={data.event}
               query={query}
               page={page}
+              channel={channel}
               initialView={viewRegistration}
             />
           )}

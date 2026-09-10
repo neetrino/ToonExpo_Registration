@@ -67,7 +67,10 @@ export function RegistrationDetailCard({
   fullName: fullNameProp,
 }: RegistrationDetailCardProps) {
   const fullName = fullNameProp ?? `${registration.firstName} ${registration.lastName}`;
-  const questionnaire = formatRegistrationAnswersForDisplay(registration.answers);
+  const questionnaire = formatRegistrationAnswersForDisplay(
+    registration.answers,
+    registration.formVersion,
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -210,6 +213,10 @@ export function RegistrationDetailCard({
           </h2>
           <dl className="mt-4 grid gap-4 sm:grid-cols-2">
             <DetailField label="Form version" value={registration.formVersion ?? '—'} />
+            <DetailField
+              label="Form channel"
+              value={registration.formChannel === 'SPYURK_RF' ? 'Spyurk RF' : 'General'}
+            />
             <DetailField
               label="Email delivery"
               value={

@@ -71,4 +71,41 @@ describe('formatRegistrationAnswersForDisplay', () => {
       rows: [],
     });
   });
+
+  it('formats Spyurk answers with RF residence and Armenia connection', () => {
+    const result = formatRegistrationAnswersForDisplay(
+      {
+        ageBand: '35-44',
+        residence: { city: 'Moscow', region: 'Moscow Oblast' },
+        armeniaConnection: 'family_from_armenia',
+        purchaseMotives: ['own_stays'],
+        visitPurpose: 'own_residence',
+        interestTypes: ['apartment_new'],
+        propertyCountry: { scope: 'armenia' },
+        areaSqm: '70-90',
+        purchaseMethod: 'cash',
+        purchaseBudgetUsd: '150k-250k',
+        decisionStage: 'searching_6_months',
+        armeniaVisitTiming: 'within_3_months',
+        newsletter: true,
+      },
+      '2026-vis-reg-spyurk-v1',
+    );
+
+    expect(result.visitPurposeLabel).toBe('Purchasing real estate for personal residence');
+    expect(result.rows).toEqual(
+      expect.arrayContaining([
+        { label: 'City of residence in the Russian Federation', value: 'Moscow' },
+        { label: 'Region of residence in the Russian Federation', value: 'Moscow Oblast' },
+        {
+          label: 'Do you have a connection to Armenia?',
+          value: 'My parents / relatives are from Armenia',
+        },
+        {
+          label: 'What property purchase budget are you considering?',
+          value: 'USD 150,000–250,000',
+        },
+      ]),
+    );
+  });
 });

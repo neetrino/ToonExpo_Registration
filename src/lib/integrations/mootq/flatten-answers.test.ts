@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
+import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import { flattenQuestionnaireAnswers } from '@/lib/integrations/mootq/flatten-answers';
 
 const residence = { scope: 'yerevan' as const, district: 'kentron' as const };
@@ -49,6 +50,7 @@ describe('flattenQuestionnaireAnswers', () => {
       }),
     ).toEqual({
       form_version: FORM_VERSION,
+      form_channel: 'GENERAL',
       age_band: '35-44',
       visit_purpose: 'own_residence',
       newsletter: true,
@@ -71,6 +73,7 @@ describe('flattenQuestionnaireAnswers', () => {
       }),
     ).toEqual({
       form_version: FORM_VERSION,
+      form_channel: 'GENERAL',
       age_band: '25-34',
       visit_purpose: 'investment',
       newsletter: false,
@@ -84,6 +87,46 @@ describe('flattenQuestionnaireAnswers', () => {
       investment_budget_usd: '150k-300k',
       prior_investment_experience: 'no_first',
       location_seek_districts: ['kentron'],
+    });
+  });
+
+  it('flattens Spyurk answers with form_channel and RF residence keys', () => {
+    expect(
+      flattenQuestionnaireAnswers({
+        formVersion: SPYURK_FORM_VERSION,
+        answers: {
+          ageBand: '35-44',
+          residence: { city: 'Moscow', region: 'Moscow Oblast' },
+          armeniaConnection: 'family_from_armenia',
+          purchaseMotives: ['own_stays', 'investment_income'],
+          visitPurpose: 'own_residence',
+          interestTypes: ['apartment_new', 'apartments'],
+          propertyCountry: { scope: 'armenia' },
+          areaSqm: '70-90',
+          purchaseMethod: 'cash',
+          purchaseBudgetUsd: '150k-250k',
+          decisionStage: 'searching_6_months',
+          armeniaVisitTiming: 'within_3_months',
+          newsletter: true,
+        },
+      }),
+    ).toEqual({
+      form_version: SPYURK_FORM_VERSION,
+      form_channel: 'SPYURK_RF',
+      age_band: '35-44',
+      visit_purpose: 'own_residence',
+      newsletter: true,
+      armenia_connection: 'family_from_armenia',
+      purchase_motives: ['own_stays', 'investment_income'],
+      residence_city: 'Moscow',
+      residence_region: 'Moscow Oblast',
+      interest_types: ['apartment_new', 'apartments'],
+      area_sqm: '70-90',
+      purchase_method: 'cash',
+      purchase_budget_usd: '150k-250k',
+      decision_stage: 'searching_6_months',
+      armenia_visit_timing: 'within_3_months',
+      property_country_scope: 'armenia',
     });
   });
 

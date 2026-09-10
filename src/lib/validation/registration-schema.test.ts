@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FORM_VERSION } from '@/lib/questionnaire';
+import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import { normalizeEmail, normalizeName } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
 import { PRIVACY_POLICY_VERSION } from '@/lib/validation/constants';
@@ -182,6 +183,61 @@ describe('registrationBodySchema', () => {
     const parsed = registrationBodySchema.safeParse({
       ...valid,
       utmSource: 'face book',
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it('accepts Spyurk formVersion with Spyurk answers and a Russian phone', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      phone: '9123456789',
+      phoneCountry: 'RU',
+      locale: 'ru',
+      formVersion: SPYURK_FORM_VERSION,
+      answers: {
+        ageBand: '35-44',
+        residence: { city: 'Moscow', region: 'Moscow Oblast' },
+        armeniaConnection: 'family_from_armenia',
+        purchaseMotives: ['own_stays'],
+        visitPurpose: 'own_residence',
+        interestTypes: ['apartment_new'],
+        propertyCountry: { scope: 'armenia' },
+        areaSqm: '70-90',
+        purchaseMethod: 'cash',
+        purchaseBudgetUsd: '150k-250k',
+        decisionStage: 'searching_6_months',
+        armeniaVisitTiming: 'within_3_months',
+        newsletter: true,
+      },
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.formVersion).toBe(SPYURK_FORM_VERSION);
+    expect(parsed.data.phoneNormalized).toBe('+79123456789');
+    expect(parsed.data.answers.visitPurpose).toBe('own_residence');
+  });
+
+  it('rejects mixing general formVersion with Spyurk answers', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '35-44',
+        residence: { city: 'Moscow', region: 'Moscow Oblast' },
+        armeniaConnection: 'family_from_armenia',
+        purchaseMotives: ['own_stays'],
+        visitPurpose: 'own_residence',
+        interestTypes: ['apartment_new'],
+        propertyCountry: { scope: 'armenia' },
+        areaSqm: '70-90',
+        purchaseMethod: 'cash',
+        purchaseBudgetUsd: '150k-250k',
+        decisionStage: 'searching_6_months',
+        armeniaVisitTiming: 'within_3_months',
+        newsletter: true,
+      },
     });
     expect(parsed.success).toBe(false);
   });

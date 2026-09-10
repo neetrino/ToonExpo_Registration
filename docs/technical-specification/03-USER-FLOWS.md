@@ -2,7 +2,7 @@
 
 ## Toon Expo visitor
 
-1. Visitor completes the existing localized form.
+1. Visitor completes the general localized form (`/hy` `/en` `/ru`) or the Spyurk RF form (`/rf` → `/ru/rf`).
 2. Server validates and normalizes the payload.
 3. A database transaction assigns `sourceSystem=TOON_EXPO` and stores the registration, `TE…` ticket code (`^(TE|MQ)[A-Z0-9]{11}$`), ticket token, two delivery jobs and one fast-feed event.
 4. Browser receives the code and opens the success/ticket state.

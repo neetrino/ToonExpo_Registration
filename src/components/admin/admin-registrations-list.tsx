@@ -53,6 +53,18 @@ function SourceBadge({ sourceSystem }: { sourceSystem: string | null }) {
   );
 }
 
+function ChannelBadge({ formChannel }: { formChannel: string }) {
+  if (formChannel !== 'SPYURK_RF') {
+    return null;
+  }
+
+  return (
+    <span className="inline-flex rounded-md bg-highlight/15 px-2 py-0.5 text-[11px] font-medium tracking-wide text-primary">
+      Spyurk RF
+    </span>
+  );
+}
+
 function UtmSourceLabel({ utmSource }: { utmSource: string | null }) {
   if (!utmSource) {
     return null;
@@ -140,7 +152,10 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                   </div>
                 </td>
                 <td className="px-5 py-4">
-                  <SourceBadge sourceSystem={row.sourceSystem} />
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <SourceBadge sourceSystem={row.sourceSystem} />
+                    <ChannelBadge formChannel={row.formChannel} />
+                  </div>
                   <UtmSourceLabel utmSource={row.utmSource} />
                 </td>
                 <td className="px-5 py-4 font-mono text-xs tracking-wide text-foreground">
@@ -188,6 +203,7 @@ export function AdminRegistrationsList({ rows, onOpen }: AdminRegistrationsListP
                 </span>
                 <span className="mt-1 flex flex-wrap items-center gap-2">
                   <SourceBadge sourceSystem={row.sourceSystem} />
+                  <ChannelBadge formChannel={row.formChannel} />
                   {row.utmSource ? (
                     <span
                       className="max-w-[8rem] truncate text-[11px] text-muted-foreground"

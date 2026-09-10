@@ -30,6 +30,7 @@ export type AdminRegistrationDetail = {
   ticketViewToken: string | null;
   attendanceStatus: string | null;
   formVersion: string | null;
+  formChannel: string;
   answers: unknown;
   consentAcceptedAt: Date;
   privacyPolicyVersion: string;
@@ -77,6 +78,7 @@ export async function getAdminRegistration(
       ticketViewToken: true,
       attendanceStatus: true,
       formVersion: true,
+      formChannel: true,
       answers: true,
       consentAcceptedAt: true,
       privacyPolicyVersion: true,

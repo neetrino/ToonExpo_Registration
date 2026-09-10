@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AdminRegistrationsList } from '@/components/admin/admin-registrations-list';
 import { RegistrationDetailSheet } from '@/components/admin/registration-detail-sheet';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import { buildAdminHref, type AdminFormChannelFilter } from '@/lib/admin/admin-url';
 import type { AdminRegistrationDetail } from '@/lib/admin/get-registration';
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
 
@@ -14,6 +14,7 @@ type AdminRegistrationsPanelProps = {
   event: EventSummary;
   query: string;
   page: number;
+  channel?: AdminFormChannelFilter;
   initialView: AdminRegistrationDetail | null;
 };
 
@@ -42,6 +43,7 @@ function toDetail(row: AdminRegistrationRow, event: EventSummary): AdminRegistra
     ticketViewToken: row.ticketViewToken,
     attendanceStatus: row.attendanceStatus,
     formVersion: row.formVersion,
+    formChannel: row.formChannel,
     answers: row.answers,
     consentAcceptedAt: asDate(row.consentAcceptedAt),
     privacyPolicyVersion: row.privacyPolicyVersion,
@@ -67,11 +69,12 @@ export function AdminRegistrationsPanel({
   event,
   query,
   page,
+  channel,
   initialView,
 }: AdminRegistrationsPanelProps) {
   const [view, setView] = useState<AdminRegistrationDetail | null>(initialView);
   const [prevInitialView, setPrevInitialView] = useState(initialView);
-  const closeHref = buildAdminHref({ q: query || undefined, page });
+  const closeHref = buildAdminHref({ q: query || undefined, page, channel });
 
   if (initialView !== prevInitialView) {
     setPrevInitialView(initialView);
@@ -85,10 +88,10 @@ export function AdminRegistrationsPanel({
       window.history.pushState(
         { view: row.id },
         '',
-        buildAdminHref({ q: query || undefined, page, view: row.id }),
+        buildAdminHref({ q: query || undefined, page, view: row.id, channel }),
       );
     },
-    [event, page, query],
+    [channel, event, page, query],
   );
 
   const closeRegistration = useCallback(() => {

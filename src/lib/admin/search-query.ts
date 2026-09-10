@@ -1,5 +1,5 @@
 import { ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import { buildAdminHref, type AdminFormChannelFilter } from '@/lib/admin/admin-url';
 
 /**
  * Trim and bound an admin list search string. Empty input becomes undefined.
@@ -16,6 +16,9 @@ export function normalizeAdminSearchQuery(raw: string | undefined): string | und
 /**
  * Live-search URL: query only, always page 1 (page omitted).
  */
-export function buildAdminSearchHref(rawQuery: string): string {
-  return buildAdminHref({ q: normalizeAdminSearchQuery(rawQuery) });
+export function buildAdminSearchHref(
+  rawQuery: string,
+  channel?: AdminFormChannelFilter,
+): string {
+  return buildAdminHref({ q: normalizeAdminSearchQuery(rawQuery), channel });
 }

@@ -1,4 +1,15 @@
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
+import { formChannelFromVersion, isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
+import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
+import type {
+  SpyurkInvestmentAnswers,
+  SpyurkMarketResearchAnswers,
+  SpyurkOwnResidenceAnswers,
+  SpyurkPropertyCountry,
+  SpyurkQuestionnaireAnswers,
+  SpyurkResidence,
+} from '@/lib/questionnaire/spyurk/types';
+import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import type {
   InvestmentAnswers,
   LocationChoice,
@@ -26,6 +37,17 @@ export function flattenQuestionnaireAnswers(input: {
     return undefined;
   }
 
+  if (isSpyurkFormVersion(input.formVersion) || looksLikeSpyurkAnswers(input.answers)) {
+    const parsed = spyurkQuestionnaireAnswersSchema.safeParse(input.answers);
+    if (!parsed.success) {
+      return undefined;
+    }
+    const flattened = flattenSpyurkAnswers(parsed.data);
+    flattened.form_version = input.formVersion ?? SPYURK_FORM_VERSION;
+    flattened.form_channel = formChannelFromVersion(input.formVersion ?? SPYURK_FORM_VERSION);
+    return flattened;
+  }
+
   const parsed = questionnaireAnswersSchema.safeParse(input.answers);
   if (!parsed.success) {
     return undefined;
@@ -33,7 +55,17 @@ export function flattenQuestionnaireAnswers(input: {
 
   const flattened = flattenParsedAnswers(parsed.data);
   flattened.form_version = input.formVersion ?? FORM_VERSION;
+  flattened.form_channel = formChannelFromVersion(input.formVersion ?? FORM_VERSION);
   return flattened;
+}
+
+function looksLikeSpyurkAnswers(answers: unknown): boolean {
+  if (!answers || typeof answers !== 'object' || !('residence' in answers)) {
+    return false;
+  }
+
+  const residence = answers.residence;
+  return residence !== null && typeof residence === 'object' && 'city' in residence;
 }
 
 function flattenParsedAnswers(answers: QuestionnaireAnswers): MootqAnswers {
@@ -138,6 +170,89 @@ function assignResearchLocation(target: MootqAnswers, location: ResearchLocation
     target.research_regions = location.marzRegions;
   }
   assignOptional(target, 'research_abroad_country', location.abroadCountry);
+}
+
+function flattenSpyurkAnswers(answers: SpyurkQuestionnaireAnswers): MootqAnswers {
+  const flat: MootqAnswers = {
+    age_band: answers.ageBand,
+    visit_purpose: answers.visitPurpose,
+    newsletter: answers.newsletter,
+    armenia_connection: answers.armeniaConnection,
+    purchase_motives: answers.purchaseMotives,
+  };
+  assignSpyurkResidence(flat, answers.residence);
+  assignOptional(flat, 'armenia_connection_other', answers.armeniaConnectionOther);
+  assignOptional(flat, 'purchase_motives_other', answers.purchaseMotivesOther);
+
+  switch (answers.visitPurpose) {
+    case 'own_residence':
+      return flattenSpyurkOwnResidence(flat, answers);
+    case 'investment':
+      return flattenSpyurkInvestment(flat, answers);
+    case 'market_research':
+      return flattenSpyurkMarketResearch(flat, answers);
+    default: {
+      const exhaustive: never = answers;
+      return exhaustive;
+    }
+  }
+}
+
+function flattenSpyurkOwnResidence(
+  flat: MootqAnswers,
+  answers: SpyurkOwnResidenceAnswers,
+): MootqAnswers {
+  flat.interest_types = answers.interestTypes;
+  flat.area_sqm = answers.areaSqm;
+  flat.purchase_method = answers.purchaseMethod;
+  flat.purchase_budget_usd = answers.purchaseBudgetUsd;
+  flat.decision_stage = answers.decisionStage;
+  flat.armenia_visit_timing = answers.armeniaVisitTiming;
+  assignOptional(flat, 'interest_types_other', answers.interestTypesOther);
+  assignSpyurkPropertyCountry(flat, answers.propertyCountry);
+  return flat;
+}
+
+function flattenSpyurkInvestment(
+  flat: MootqAnswers,
+  answers: SpyurkInvestmentAnswers,
+): MootqAnswers {
+  flat.investment_property_types = answers.investmentPropertyTypes;
+  flat.investment_goal = answers.investmentGoal;
+  flat.purchase_method = answers.purchaseMethod;
+  flat.investment_timeline = answers.investmentTimeline;
+  flat.investment_budget_usd = answers.investmentBudgetUsd;
+  flat.prior_investment_experience = answers.priorInvestmentExperience;
+  flat.armenia_visit_timing = answers.armeniaVisitTiming;
+  assignOptional(flat, 'investment_property_type_other', answers.investmentPropertyTypeOther);
+  assignOptional(flat, 'area_sqm', answers.areaSqm);
+  assignOptional(flat, 'prior_investment_experience_other', answers.priorInvestmentExperienceOther);
+  assignSpyurkPropertyCountry(flat, answers.propertyCountry);
+  return flat;
+}
+
+function flattenSpyurkMarketResearch(
+  flat: MootqAnswers,
+  answers: SpyurkMarketResearchAnswers,
+): MootqAnswers {
+  flat.market_interests = answers.marketInterests;
+  flat.research_goal = answers.researchGoal;
+  flat.purchase_horizon = answers.purchaseHorizon;
+  flat.armenia_visit_timing = answers.armeniaVisitTiming;
+  assignSpyurkPropertyCountry(flat, answers.propertyCountry);
+  return flat;
+}
+
+function assignSpyurkResidence(target: MootqAnswers, residence: SpyurkResidence): void {
+  target.residence_city = residence.city;
+  target.residence_region = residence.region;
+}
+
+function assignSpyurkPropertyCountry(target: MootqAnswers, country: SpyurkPropertyCountry): void {
+  target.property_country_scope = country.scope;
+  if (country.scope === 'other') {
+    target.property_country_other = country.country;
+  }
 }
 
 function assignOptional(

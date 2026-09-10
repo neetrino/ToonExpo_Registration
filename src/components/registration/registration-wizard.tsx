@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import type { Locale } from '@/types/locale';
+import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
 import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
@@ -236,6 +237,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
       clearWizardDraft();
       clearRegistrationIdempotencyKey();
       clearPersistedUtmAttribution();
+      rememberAnalyticsFormChannel('general');
       storeTicketHandoff({
         ticketCode: result.ticketCode,
         ticketViewToken: result.ticketViewToken,
@@ -308,7 +310,16 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
       <WizardStepPanel stepKey={safeStep}>
         <div className="space-y-6">
-          {safeStep === 'identity' ? <IdentityStep {...stepProps} /> : null}
+          {safeStep === 'identity' ? (
+            <IdentityStep
+              state={state}
+              errors={stepProps.errors}
+              disabled={stepProps.disabled}
+              onUpdate={(key, value) => {
+                updateField(key, value as never);
+              }}
+            />
+          ) : null}
           {safeStep === 'profile' ? <ProfileStep {...stepProps} /> : null}
           {safeStep === 'own-residence-interest' ? (
             <OwnResidenceInterestStep {...stepProps} />

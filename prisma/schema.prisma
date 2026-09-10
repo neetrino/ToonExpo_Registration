@@ -35,6 +35,11 @@ enum SourceSystem {
   MOOTQ
 }
 
+enum FormChannel {
+  GENERAL
+  SPYURK_RF
+}
+
 enum AttendanceStatus {
   NOT_VISITED
   VISITED
@@ -100,6 +105,8 @@ model Registration {
   privacyPolicyVersion   String
   /// Questionnaire form version (e.g. 2026-vis-reg-v1). Null for pre-questionnaire rows.
   formVersion            String?
+  /// Public form channel. Server-assigned from formVersion; clients cannot set it.
+  formChannel            FormChannel         @default(GENERAL)
   /// Structured questionnaire answers validated against the typed definition for formVersion.
   answers                Json?
   emailDeliveryStatus    EmailDeliveryStatus @default(PENDING)
@@ -136,6 +143,7 @@ model Registration {
   /// Search: phoneNormalized scoped by event (phone is intentionally not unique).
   @@index([eventId, phoneNormalized])
   @@index([eventId, sourceSystem])
+  @@index([eventId, formChannel])
   @@unique([ticketCode])
   @@unique([ticketViewToken])
   @@unique([eventId, idempotencyKey])

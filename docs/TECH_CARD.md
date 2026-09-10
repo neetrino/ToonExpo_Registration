@@ -28,7 +28,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Hosting             | Vercel Pro                                                           | Required for production |
 | Styling             | Tailwind CSS 4 and existing components                               | Approved                |
 | Localization        | `next-intl`; `hy`, `en`, `ru`; first visit defaults to `hy` (browser language ignored); later visits use the locale cookie | Approved                |
-| Public registration | Existing wizard and Zod validation                                   | Approved                |
+| Public registration | Two wizards, one API: general (`/hy` `/en` `/ru`, `2026-vis-reg-v2`) and Spyurk RF (`/rf` → `/ru/rf`, `2026-vis-reg-spyurk-v1`) | Approved                |
 | Success page        | Immediate QR, readable code and PNG download                         | Required                |
 | Public analytics    | Vercel Analytics + GTM `GTM-NJZV2NL3` on `[locale]` routes only; `registration_complete` on success | Client request 2026-09-03 |
 | Hosted ticket       | Private bearer-link page used by email/SMS                           | Required                |
@@ -57,6 +57,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | ORM                 | Prisma 7                                                  | Approved      |
 | Runtime connection  | Neon pooled TLS connection                                | Approved      |
 | Ticket source       | Separate enum: `TOON_EXPO`, `MOOTQ`                       | Approved      |
+| Form channel        | `GENERAL` or `SPYURK_RF`; server-assigned from `formVersion`; not a third ticket source | Approved      |
 | Source assignment   | Trusted server route; never accepted from a public client | Approved      |
 | Code format         | `TE` or `MQ` + 11 uppercase alphanumeric (`A-Z0-9`)       | Approved      |
 | Code regex          | `^(TE\|MQ)[A-Z0-9]{11}$` (case-sensitive, uppercase)     | Approved      |

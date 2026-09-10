@@ -41,9 +41,15 @@ export const proxy = auth((request) => {
     return response;
   }
 
+  if (pathname === '/rf' || pathname.startsWith('/rf/')) {
+    const target = new URL('/ru/rf', request.nextUrl.origin);
+    target.search = request.nextUrl.search;
+    return NextResponse.redirect(target);
+  }
+
   return handleIntlRouting(request);
 });
 
 export const config = {
-  matcher: ['/', '/(hy|en|ru)/:path*', '/admin/:path*', '/ticket/:path*'],
+  matcher: ['/', '/rf', '/rf/:path*', '/(hy|en|ru)/:path*', '/admin/:path*', '/ticket/:path*'],
 };

@@ -40,6 +40,7 @@ export const CSV_IDENTITY_COLUMNS = [
   { key: 'attendanceStatus', header: 'Attendance' },
   { key: 'emailDeliveryStatus', header: 'Email delivery' },
   { key: 'formVersion', header: 'Form version' },
+  { key: 'formChannel', header: 'Form channel' },
 ] as const satisfies readonly CsvColumnDef[];
 
 /**
@@ -78,6 +79,18 @@ export const CSV_ANSWER_COLUMNS = [
   { key: 'interestedWhereOther', header: 'Interested where (other)' },
   { key: 'purchaseHorizon', header: 'Purchase horizon' },
   { key: 'newsletter', header: 'Newsletter' },
+  { key: 'residenceCity', header: 'RF city' },
+  { key: 'residenceRegionRf', header: 'RF region' },
+  { key: 'armeniaConnection', header: 'Connection to Armenia' },
+  { key: 'armeniaConnectionOther', header: 'Connection to Armenia (other)' },
+  { key: 'purchaseMotives', header: 'Purchase motives' },
+  { key: 'purchaseMotivesOther', header: 'Purchase motives (other)' },
+  { key: 'spyurkInterestTypes', header: 'Spyurk interest types' },
+  { key: 'spyurkInterestTypesOther', header: 'Spyurk interest types (other)' },
+  { key: 'propertyCountry', header: 'Property country' },
+  { key: 'propertyCountryOther', header: 'Property country (other)' },
+  { key: 'purchaseBudgetUsd', header: 'Purchase budget (USD)' },
+  { key: 'armeniaVisitTiming', header: 'Visit to Armenia' },
 ] as const satisfies readonly CsvColumnDef[];
 
 export const CSV_EXPORT_COLUMNS = [

@@ -31,7 +31,7 @@ export function resolveGtmContainerId(
   return parseGtmContainerId(envValue);
 }
 
-export function pushRegistrationCompleteEvent(): void {
+export function pushRegistrationCompleteEvent(formChannel?: string): void {
   if (typeof window === 'undefined') {
     return;
   }
@@ -40,5 +40,6 @@ export function pushRegistrationCompleteEvent(): void {
   window.dataLayer.push({
     event: REGISTRATION_COMPLETE_EVENT,
     page_path: window.location.pathname,
+    ...(formChannel ? { form_channel: formChannel } : {}),
   });
 }

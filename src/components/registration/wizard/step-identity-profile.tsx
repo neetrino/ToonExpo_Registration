@@ -7,7 +7,28 @@ import { getOptionLabel, getQuestionLabel } from './labels';
 import { OptionRadioGroup } from './option-groups';
 import { PhoneCountryField } from './phone-country-field';
 import { ResidenceFields } from './residence-fields';
+import type { CountryCode } from 'libphonenumber-js';
 import type { WizardFieldErrors, WizardState } from './types';
+
+export type IdentityStepFields = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  phoneCountry: CountryCode;
+};
+
+type IdentityUpdater = (
+  key: keyof IdentityStepFields,
+  value: IdentityStepFields[keyof IdentityStepFields],
+) => void;
+
+type IdentityStepProps = {
+  state: IdentityStepFields;
+  errors: WizardFieldErrors;
+  disabled: boolean;
+  onUpdate: IdentityUpdater;
+};
 
 type StepProps = {
   state: WizardState;
@@ -16,7 +37,7 @@ type StepProps = {
   onUpdate: <K extends keyof WizardState>(key: K, value: WizardState[K]) => void;
 };
 
-export function IdentityStep({ state, errors, disabled, onUpdate }: StepProps) {
+export function IdentityStep({ state, errors, disabled, onUpdate }: IdentityStepProps) {
   const tForm = useTranslations('form');
 
   return (

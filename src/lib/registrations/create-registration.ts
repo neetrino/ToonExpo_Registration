@@ -1,4 +1,5 @@
 import { getPrisma } from '@/lib/db/prisma';
+import { formChannelFromVersion } from '@/lib/questionnaire/form-channel';
 import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
 import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
@@ -129,6 +130,7 @@ async function createWithTicketRetry(
             consentAcceptedAt: new Date(),
             privacyPolicyVersion: input.privacyPolicyVersion,
             formVersion: input.formVersion,
+            formChannel: formChannelFromVersion(input.formVersion),
             answers: input.answers,
             emailDeliveryStatus: 'PENDING',
             sourceSystem: 'TOON_EXPO',

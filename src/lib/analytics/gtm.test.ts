@@ -48,4 +48,19 @@ describe('pushRegistrationCompleteEvent', () => {
       { event: REGISTRATION_COMPLETE_EVENT, page_path: '/hy/success' },
     ]);
   });
+
+  it('includes form_channel when provided', () => {
+    window.dataLayer = [];
+    vi.stubGlobal('location', { pathname: '/ru/success' });
+
+    pushRegistrationCompleteEvent('spyurk_rf');
+
+    expect(window.dataLayer).toEqual([
+      {
+        event: REGISTRATION_COMPLETE_EVENT,
+        page_path: '/ru/success',
+        form_channel: 'spyurk_rf',
+      },
+    ]);
+  });
 });

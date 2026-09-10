@@ -6,6 +6,13 @@ export {
   type FormVersion,
 } from '@/lib/questionnaire/constants';
 export {
+  FORM_CHANNELS,
+  formChannelFromVersion,
+  isGeneralFormVersion,
+  isSpyurkFormVersion,
+  type FormChannel,
+} from '@/lib/questionnaire/form-channel';
+export {
   countLocationChoiceLeaves,
   locationChoiceSchema,
   researchLocationSchema,

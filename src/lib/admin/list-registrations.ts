@@ -1,6 +1,7 @@
 import type { Prisma } from '@/generated/prisma';
 import { getPrisma } from '@/lib/db';
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/constants';
+import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
 import { normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import type { Locale } from '@/types/locale';
 
@@ -24,6 +25,7 @@ export type AdminRegistrationRow = {
   ticketViewToken: string | null;
   attendanceStatus: string | null;
   formVersion: string | null;
+  formChannel: string;
   answers: unknown;
   consentAcceptedAt: Date;
   privacyPolicyVersion: string;
@@ -45,15 +47,19 @@ function normalizeSearch(raw: string | undefined): string | undefined {
 function buildSearchWhere(
   eventId: string,
   search: string | undefined,
+  channel?: AdminFormChannelFilter,
 ): Prisma.RegistrationWhereInput {
+  const channelFilter = channel ? { formChannel: channel } : {};
+
   if (!search) {
-    return { eventId };
+    return { eventId, ...channelFilter };
   }
 
   const lowered = search.toLowerCase();
 
   return {
     eventId,
+    ...channelFilter,
     OR: [
       { firstName: { contains: search, mode: 'insensitive' } },
       { lastName: { contains: search, mode: 'insensitive' } },
@@ -74,11 +80,13 @@ export async function listAdminRegistrations(options: {
   page?: number;
   search?: string;
   pageSize?: number;
+  channel?: AdminFormChannelFilter;
 }): Promise<AdminListResult> {
   const prisma = getPrisma();
   const pageSize = options.pageSize ?? ADMIN_PAGE_SIZE;
   const page = Math.max(1, options.page ?? 1);
   const search = normalizeSearch(options.search);
+  const channel = options.channel;
 
   const event = await prisma.event.findFirst({
     where: { isActive: true },
@@ -96,7 +104,7 @@ export async function listAdminRegistrations(options: {
     };
   }
 
-  const where = buildSearchWhere(event.id, search);
+  const where = buildSearchWhere(event.id, search, channel);
 
   const [totalCount, filteredCount, rows] = await Promise.all([
     prisma.registration.count({ where: { eventId: event.id } }),
@@ -126,6 +134,7 @@ export async function listAdminRegistrations(options: {
         emailLastAttemptAt: true,
         updatedAt: true,
         formVersion: true,
+        formChannel: true,
         answers: true,
         consentAcceptedAt: true,
         privacyPolicyVersion: true,
@@ -146,7 +155,10 @@ export async function listAdminRegistrations(options: {
 /**
  * Fetch all matching registrations for CSV export (bounded by active event + search).
  */
-export async function listRegistrationsForExport(search?: string): Promise<{
+export async function listRegistrationsForExport(
+  search?: string,
+  channel?: AdminFormChannelFilter,
+): Promise<{
   event: { id: string; name: string; slug: string } | null;
   rows: AdminRegistrationRow[];
 }> {
@@ -163,7 +175,7 @@ export async function listRegistrationsForExport(search?: string): Promise<{
   }
 
   const rows = await prisma.registration.findMany({
-    where: buildSearchWhere(event.id, normalizedSearch),
+    where: buildSearchWhere(event.id, normalizedSearch, channel),
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: {
       id: true,
@@ -185,6 +197,7 @@ export async function listRegistrationsForExport(search?: string): Promise<{
       emailLastAttemptAt: true,
       updatedAt: true,
       formVersion: true,
+      formChannel: true,
       answers: true,
       consentAcceptedAt: true,
       privacyPolicyVersion: true,
