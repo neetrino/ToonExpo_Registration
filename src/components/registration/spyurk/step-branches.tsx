@@ -26,7 +26,7 @@ import {
   SPYURK_RESEARCH_GOALS,
 } from '@/lib/questionnaire/spyurk/options';
 import { getSpyurkOptionLabel, getSpyurkQuestionLabel } from '@/lib/questionnaire/spyurk/i18n';
-import { SpyurkPropertyCountryFields, SpyurkVisitAndNewsletterFields } from './step-fields';
+import { SpyurkPropertyCountryFields, SpyurkVisitTimingFields } from './step-fields';
 import type { SpyurkWizardFieldErrors, SpyurkWizardState } from './types';
 
 type StepProps = {
@@ -145,7 +145,7 @@ export function SpyurkOwnDetailsStep({ state, errors, disabled, locale, onUpdate
 export function SpyurkOwnFollowupStep(props: StepProps) {
   return (
     <div className="space-y-8">
-      <SpyurkVisitAndNewsletterFields {...props} />
+      <SpyurkVisitTimingFields {...props} />
     </div>
   );
 }
@@ -313,7 +313,7 @@ export function SpyurkInvestmentFollowupStep(props: StepProps) {
           }
         />
       ) : null}
-      <SpyurkVisitAndNewsletterFields {...props} />
+      <SpyurkVisitTimingFields {...props} />
     </div>
   );
 }
@@ -373,7 +373,7 @@ export function SpyurkResearchFollowupStep(props: StepProps) {
           error={Boolean(errors.purchaseHorizon)}
         />
       </QuestionField>
-      <SpyurkVisitAndNewsletterFields {...props} />
+      <SpyurkVisitTimingFields {...props} />
     </div>
   );
 }

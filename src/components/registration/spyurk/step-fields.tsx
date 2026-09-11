@@ -3,7 +3,6 @@ import { FormField, QuestionField } from '@/components/registration/wizard/form-
 import {
   OptionCheckboxGroup,
   OptionRadioGroup,
-  YesNoRadioGroup,
 } from '@/components/registration/wizard/option-groups';
 import { AGE_BANDS, VISIT_PURPOSES } from '@/lib/questionnaire/options';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
@@ -199,7 +198,7 @@ export function SpyurkPropertyCountryFields({
   );
 }
 
-export function SpyurkVisitAndNewsletterFields({
+export function SpyurkVisitTimingFields({
   state,
   errors,
   disabled,
@@ -207,35 +206,19 @@ export function SpyurkVisitAndNewsletterFields({
   onUpdate,
 }: StepProps) {
   return (
-    <>
-      <QuestionField
-        legend={getSpyurkQuestionLabel('armeniaVisitTiming', locale)}
-        error={errors.armeniaVisitTiming}
-      >
-        <OptionRadioGroup
-          name="armeniaVisitTiming"
-          value={state.armeniaVisitTiming}
-          options={ARMENIA_VISIT_TIMINGS}
-          getLabel={(value) => getSpyurkOptionLabel('armeniaVisitTiming', value, locale)}
-          onChange={(value) => onUpdate('armeniaVisitTiming', value)}
-          disabled={disabled}
-          error={Boolean(errors.armeniaVisitTiming)}
-        />
-      </QuestionField>
-      <QuestionField
-        legend={getSpyurkQuestionLabel('newsletter', locale)}
-        error={errors.newsletter}
-      >
-        <YesNoRadioGroup
-          name="newsletter"
-          value={state.newsletter}
-          yesLabel={getSpyurkOptionLabel('newsletter', 'yes', locale)}
-          noLabel={getSpyurkOptionLabel('newsletter', 'no', locale)}
-          onChange={(value) => onUpdate('newsletter', value)}
-          disabled={disabled}
-          error={Boolean(errors.newsletter)}
-        />
-      </QuestionField>
-    </>
+    <QuestionField
+      legend={getSpyurkQuestionLabel('armeniaVisitTiming', locale)}
+      error={errors.armeniaVisitTiming}
+    >
+      <OptionRadioGroup
+        name="armeniaVisitTiming"
+        value={state.armeniaVisitTiming}
+        options={ARMENIA_VISIT_TIMINGS}
+        getLabel={(value) => getSpyurkOptionLabel('armeniaVisitTiming', value, locale)}
+        onChange={(value) => onUpdate('armeniaVisitTiming', value)}
+        disabled={disabled}
+        error={Boolean(errors.armeniaVisitTiming)}
+      />
+    </QuestionField>
   );
 }

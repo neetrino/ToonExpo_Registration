@@ -18,12 +18,7 @@ function buildPropertyCountry(state: SpyurkWizardState): SpyurkPropertyCountry |
 }
 
 function buildShared(state: SpyurkWizardState) {
-  if (
-    !state.ageBand ||
-    !state.armeniaConnection ||
-    state.purchaseMotives.length === 0 ||
-    state.newsletter === null
-  ) {
+  if (!state.ageBand || !state.armeniaConnection || state.purchaseMotives.length === 0) {
     return null;
   }
 
@@ -37,7 +32,7 @@ function buildShared(state: SpyurkWizardState) {
     armeniaConnectionOther: state.armeniaConnectionOther.trim() || undefined,
     purchaseMotives: state.purchaseMotives,
     purchaseMotivesOther: state.purchaseMotivesOther.trim() || undefined,
-    newsletter: state.newsletter,
+    newsletter: false,
   };
 }
 
