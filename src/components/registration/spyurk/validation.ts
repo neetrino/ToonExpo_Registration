@@ -136,7 +136,6 @@ const ownDetailsSchema = z.object({
 
 const followupSchema = z.object({
   armeniaVisitTiming: z.enum(ARMENIA_VISIT_TIMINGS),
-  newsletter: z.boolean(),
 });
 
 const investmentTypeSchema = z
@@ -188,7 +187,6 @@ const investmentFollowupSchema = z
     priorInvestmentExperience: z.enum(PRIOR_INVESTMENT_EXPERIENCES),
     priorInvestmentExperienceOther: z.string(),
     armeniaVisitTiming: z.enum(ARMENIA_VISIT_TIMINGS),
-    newsletter: z.boolean(),
   })
   .superRefine((data, ctx) => {
     const needsCountry =
@@ -213,7 +211,6 @@ const researchFollowupSchema = z
     ...propertyCountryFields,
     purchaseHorizon: z.enum(PURCHASE_HORIZONS),
     armeniaVisitTiming: z.enum(ARMENIA_VISIT_TIMINGS),
-    newsletter: z.boolean(),
   })
   .superRefine(refinePropertyCountry);
 
@@ -262,7 +259,6 @@ function pickState(stepId: SpyurkWizardStepId, state: SpyurkWizardState): Record
     case 'own-followup':
       return {
         armeniaVisitTiming: state.armeniaVisitTiming || undefined,
-        newsletter: state.newsletter,
       };
     case 'investment-type':
       return {
@@ -286,7 +282,6 @@ function pickState(stepId: SpyurkWizardStepId, state: SpyurkWizardState): Record
         priorInvestmentExperience: state.priorInvestmentExperience || undefined,
         priorInvestmentExperienceOther: state.priorInvestmentExperienceOther,
         armeniaVisitTiming: state.armeniaVisitTiming || undefined,
-        newsletter: state.newsletter,
       };
     case 'research-focus':
       return {
@@ -299,7 +294,6 @@ function pickState(stepId: SpyurkWizardStepId, state: SpyurkWizardState): Record
         propertyCountryOther: state.propertyCountryOther,
         purchaseHorizon: state.purchaseHorizon || undefined,
         armeniaVisitTiming: state.armeniaVisitTiming || undefined,
-        newsletter: state.newsletter,
       };
     case 'finish':
       return { privacyConsent: state.privacyConsent || undefined };
