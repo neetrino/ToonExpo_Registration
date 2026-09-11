@@ -198,13 +198,7 @@ export function SpyurkPropertyCountryFields({
   );
 }
 
-export function SpyurkVisitTimingFields({
-  state,
-  errors,
-  disabled,
-  locale,
-  onUpdate,
-}: StepProps) {
+export function SpyurkVisitTimingFields({ state, errors, disabled, locale, onUpdate }: StepProps) {
   return (
     <QuestionField
       legend={getSpyurkQuestionLabel('armeniaVisitTiming', locale)}
