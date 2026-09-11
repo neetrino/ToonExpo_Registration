@@ -1,8 +1,6 @@
 import { getPrisma } from '@/lib/db/prisma';
 import { formChannelFromVersion } from '@/lib/questionnaire/form-channel';
-import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
 import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
-import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError, type RegistrationAppError } from '@/lib/registrations/errors';
 import { generateTicketCode, generateTicketViewToken } from '@/lib/tickets/codes';
@@ -55,24 +53,7 @@ export async function createRegistration(
     return existing;
   }
 
-  const created = await createWithTicketRetry(activeEvent.id, input);
-  if (!created.ok) {
-    return created;
-  }
-
-  try {
-    await processDueDeliveryJobs({
-      registrationId: created.registrationId,
-      limit: DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE,
-    });
-  } catch (error: unknown) {
-    logger.error('Delivery processing after registration failed', {
-      registrationId: created.registrationId,
-      code: mapRegistrationError(error).code,
-    });
-  }
-
-  return created;
+  return createWithTicketRetry(activeEvent.id, input);
 }
 
 async function findByIdempotencyKey(

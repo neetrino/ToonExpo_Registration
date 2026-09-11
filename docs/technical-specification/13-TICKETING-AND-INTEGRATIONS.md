@@ -70,7 +70,7 @@ In one short PostgreSQL transaction:
 6. append one outbox row for Mootq push;
 7. optionally record an internal fast-feed event (recovery only; not a partner obligation).
 
-Commit before provider calls and before outbound push. Return the stored code to the Toon Expo browser for immediate display.
+Commit before provider calls and before outbound push. Return the stored code to the Toon Expo browser for immediate display. Email and SMS first send use `after()`; hourly cron retries when `DELIVERY_CRON_ENABLED=true`.
 
 After the HTTP response, Toon Expo sends one full-body push per outbox row to Mootq, at most five requests per second. A cron retries unsent or failed outbox rows when `MOOTQ_PUSH_*` is configured (not scheduled until Mootq provides the endpoint).
 
