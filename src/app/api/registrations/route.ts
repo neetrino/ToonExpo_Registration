@@ -1,4 +1,6 @@
 import { after, NextResponse } from 'next/server';
+import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
+import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { processDuePartnerPushes } from '@/lib/integrations/mootq/process-partner-pushes';
 import { createRegistration } from '@/lib/registrations';
 import { logger } from '@/lib/logger';
@@ -131,6 +133,18 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const registrationId = result.registrationId;
     after(async () => {
+      try {
+        await processDueDeliveryJobs({
+          registrationId,
+          limit: DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE,
+        });
+      } catch {
+        logger.error('Delivery processing after registration failed', {
+          registrationId,
+          requestId,
+        });
+      }
+
       try {
         await processDuePartnerPushes({ registrationId, limit: 1 });
       } catch {

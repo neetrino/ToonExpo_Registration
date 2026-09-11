@@ -87,7 +87,7 @@ One short database transaction:
 5. Append one outbox row for Mootq push.
 6. Commit and return the ticket to the browser.
 
-Provider calls and outbound push happen after commit. Push uses `after()`; a cron retries failed outbox rows when `MOOTQ_PUSH_*` is configured and `MOOTQ_PUSH_CRON_ENABLED=true`. Delivery email/SMS use the same pattern with an hourly retry cron gated by `DELIVERY_CRON_ENABLED=true`.
+Provider calls and outbound push happen after commit. Push uses `after()`; a cron retries failed outbox rows when `MOOTQ_PUSH_*` is configured and `MOOTQ_PUSH_CRON_ENABLED=true`. Delivery email/SMS use `after()` for the first send; hourly cron retries when `DELIVERY_CRON_ENABLED=true`.
 
 ### Mootq registration
 
