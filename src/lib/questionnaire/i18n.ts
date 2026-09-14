@@ -19,9 +19,9 @@ export const questionnaireI18n = {
       'За рубежом (укажите страну)',
     ),
     visitPurpose: L(
-      'Ձեր այցի հիմնական նպատակը TOON EXPO-ին',
-      'What is the main purpose of your visit to TOON EXPO?',
-      'Основная цель посещения TOON EXPO',
+      'Ձեր այցի հիմնական նպատակը TOON EXPO Invest 2026 Vol. 2-ին',
+      'What is the main purpose of your visit to TOON EXPO Invest 2026 Vol. 2?',
+      'Основная цель посещения TOON EXPO Invest 2026 Vol. 2',
     ),
     interestType: L(
       'Ձեզ հետաքրքրում է',
