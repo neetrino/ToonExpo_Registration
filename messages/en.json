@@ -6,13 +6,13 @@
   },
   "landing": {
     "eyebrow": "Real estate and investment exhibition",
-    "title": "TOON EXPO. Invest 2026 Vol. 2",
+    "title": "TOON EXPO Invest 2026 Vol. 2",
     "description": "Hello, dear visitor.",
     "paragraphs": [
       "Hello, dear visitor.",
-      "From November 13 to 15, Armenia will host one of the largest international real estate and investment exhibitions — TOON EXPO. Invest 2026 Vol. 2.",
+      "From November 13 to 15, Armenia will host one of the largest international real estate and investment exhibitions — TOON EXPO Invest 2026 Vol. 2.",
       "The exhibition will bring together leading companies in real estate and construction on one platform — developers, real estate agencies, financial organizations, and other companies related to the industry.",
-      "During TOON EXPO. Invest 2026 Vol. 2, visitors will have the opportunity to explore new projects, special offers, investment opportunities, and the latest offerings on the real estate market."
+      "During TOON EXPO Invest 2026 Vol. 2, visitors will have the opportunity to explore new projects, special offers, investment opportunities, and the latest offerings on the real estate market."
     ],
     "eventDetailsTitle": "Event details",
     "dateLabel": "Dates",
@@ -36,7 +36,7 @@
     "registerCta": "Register now",
     "privacyLink": "Privacy policy",
     "aboutToggle": "About the exhibition",
-    "titleBrand": "TOON EXPO.",
+    "titleBrand": "TOON EXPO",
     "titleEvent": "Invest 2026 Vol. 2"
   },
   "privacy": {
@@ -102,7 +102,7 @@
   },
   "success": {
     "title": "Registration received",
-    "description": "Thank you for registering for TOON EXPO. We have saved your details successfully.",
+    "description": "Thank you for registering for TOON EXPO Invest 2026 Vol. 2. We have saved your details successfully.",
     "ticketTitle": "You're registered",
     "ticketDescription": "Show this QR code at the entrance. You can also open or download your ticket anytime.",
     "qrAlt": "Your TOON EXPO ticket QR code",
