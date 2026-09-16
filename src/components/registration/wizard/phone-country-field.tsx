@@ -195,7 +195,7 @@ export function PhoneCountryField({
         pattern="[0-9]*"
         maxLength={digitLimit}
         className="min-w-0 flex-1"
-        placeholder={tForm('phonePlaceholder')}
+        placeholder={'X'.repeat(digitLimit)}
         value={localNumber}
         disabled={disabled}
         aria-invalid={invalid}
