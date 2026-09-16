@@ -21,8 +21,8 @@ const CONTENT_SECURITY_POLICY = [
   "img-src 'self' data: blob: https://*.google-analytics.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.am",
   "font-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ''}`,
-  "connect-src 'self' https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.am https://pagead2.googlesyndication.com",
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com${isDev ? " 'unsafe-eval'" : ''}`,
+  "connect-src 'self' https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.am https://pagead2.googlesyndication.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
   'frame-src https://www.googletagmanager.com',
   ...(isDev ? [] : ['upgrade-insecure-requests']),
 ].join('; ');
