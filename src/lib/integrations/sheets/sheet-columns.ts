@@ -95,6 +95,9 @@ export const SHEET_SPYURK_ANSWER_COLUMNS = [
   { key: 'investmentBudgetUsd', header: 'Ներդրումային բյուջե (USD)' },
   { key: 'priorInvestmentExperience', header: 'Նախորդ ներդրումային փորձ' },
   { key: 'priorInvestmentExperienceOther', header: 'Նախորդ փորձ (այլ)' },
+  { key: 'marketInterests', header: 'Շուկայական հետաքրքրություններ' },
+  { key: 'researchGoal', header: 'Հետազոտության նպատակ' },
+  { key: 'purchaseHorizon', header: 'Գնման հորիզոն' },
   { key: 'newsletter', header: 'Տեղեկագիր' },
 ] as const satisfies readonly SheetColumnDef[];
 
