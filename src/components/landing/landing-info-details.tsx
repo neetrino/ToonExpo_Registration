@@ -10,56 +10,75 @@ type LandingInfoDetailsProps = {
 
 const EXPAND_MS = 420;
 
+/** Scroll until the site footer sits fully at the bottom of the viewport. */
+function scrollFooterIntoView(): void {
+  const footer = document.querySelector('footer');
+  if (!footer) {
+    return;
+  }
+
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const footerBottom = footer.getBoundingClientRect().bottom;
+  const delta = footerBottom - viewportHeight;
+  if (delta > 1) {
+    window.scrollBy({ top: delta, behavior: 'auto' });
+  }
+}
+
 /**
- * Collapsible “about the exhibition” panel with height/opacity animation
- * and a smooth scroll so the opened copy lands fully in view.
+ * Collapsible “about the exhibition” panel with height/opacity animation.
+ * Opening follows the growing content and lands so the page footer is visible.
  */
 export function LandingInfoDetails({ aboutToggle, paragraphs }: LandingInfoDetailsProps) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (scrollTimerRef.current) {
-        clearTimeout(scrollTimerRef.current);
+  const cancelScrollFollow = () => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  };
+
+  useEffect(() => cancelScrollFollow, []);
+
+  const followOpenScroll = (reduceMotion: boolean) => {
+    cancelScrollFollow();
+
+    if (reduceMotion) {
+      requestAnimationFrame(scrollFooterIntoView);
+      return;
+    }
+
+    const startedAt = performance.now();
+    const loop = (now: number) => {
+      scrollFooterIntoView();
+      if (now - startedAt < EXPAND_MS + 80) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
       }
+      scrollFooterIntoView();
+      rafRef.current = null;
     };
-  }, []);
+    rafRef.current = requestAnimationFrame(loop);
+  };
 
   const toggle = () => {
     const next = !open;
     setOpen(next);
-
-    if (scrollTimerRef.current) {
-      clearTimeout(scrollTimerRef.current);
-      scrollTimerRef.current = null;
-    }
+    cancelScrollFollow();
 
     if (!next) {
       return;
     }
 
-    const reduceMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    scrollTimerRef.current = setTimeout(
-      () => {
-        // Prefer showing the full opened block; if it is tall, keep the end in view.
-        sectionRef.current?.scrollIntoView({
-          behavior: reduceMotion ? 'auto' : 'smooth',
-          block: 'end',
-        });
-        scrollTimerRef.current = null;
-      },
-      reduceMotion ? 0 : EXPAND_MS,
-    );
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    followOpenScroll(reduceMotion);
   };
 
   return (
-    <div ref={sectionRef} className="w-full min-w-0 max-w-xl space-y-3 text-center sm:text-left">
+    <div className="w-full min-w-0 max-w-xl space-y-3 text-center sm:text-left">
       <div className="border-t border-white/15 pt-3">
         <button
           type="button"
