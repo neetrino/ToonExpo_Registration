@@ -6,6 +6,11 @@ export type NormalizedPhone = {
   phoneNormalized: string;
 };
 
+/** Keep only ASCII digits so the local number field cannot accept letters or symbols. */
+export function digitsOnlyPhone(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
 /**
  * Parse a phone number to E.164.
  * Uses `defaultCountry` when the input has no international prefix (e.g. local Armenian digits).

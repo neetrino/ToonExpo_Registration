@@ -5,6 +5,7 @@ import { getCountryCallingCode, type CountryCode } from 'libphonenumber-js';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { digitsOnlyPhone } from '@/lib/validation/phone';
 import {
   filterPhoneCountries,
   listPhoneCountries,
@@ -181,13 +182,14 @@ export function PhoneCountryField({
         name="phone"
         type="tel"
         autoComplete="tel-national"
-        inputMode="tel"
+        inputMode="numeric"
+        pattern="[0-9]*"
         className="min-w-0 flex-1"
         placeholder={tForm('phonePlaceholder')}
-        value={phone}
+        value={digitsOnlyPhone(phone)}
         disabled={disabled}
         aria-invalid={invalid}
-        onChange={(event) => onPhoneChange(event.target.value)}
+        onChange={(event) => onPhoneChange(digitsOnlyPhone(event.target.value))}
       />
     </div>
   );
