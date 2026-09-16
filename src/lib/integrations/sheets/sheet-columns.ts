@@ -147,13 +147,3 @@ export function sheetEmailDeliveryLabel(status: string): string {
       return status;
   }
 }
-
-export function sheetNewsletterLabel(value: string): string {
-  if (value === 'true' || value === 'Yes' || value === 'Այո') {
-    return 'Այո';
-  }
-  if (value === 'false' || value === 'No' || value === 'Ոչ') {
-    return 'Ոչ';
-  }
-  return value;
-}

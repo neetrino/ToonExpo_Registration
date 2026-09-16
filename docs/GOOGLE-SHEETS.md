@@ -60,7 +60,7 @@ Set `SHEETS_PUSH_CRON_ENABLED=true` in production when the webhook is live.
 5. Only `sourceSystem = TOON_EXPO` rows are synced. Channel selects the tab:
    - `GENERAL` → `Ընդհանուր`
    - `SPYURK_RF` → `Սփյուռք ՌԴ`
-6. Cells use Armenian operator labels; raw codes stay in Neon.
+6. Column headers and status fields use Armenian operator labels; questionnaire answers use the visitor's registration locale. Raw codes stay in Neon.
 
 Success from Apps Script is **body** `{ "ok": true }` (HTTP is often always 200).
 
@@ -73,7 +73,7 @@ Armenian short headers for operators. Each tab only includes relevant questionna
 - `Ընդհանուր` — general form
 - `Սփյուռք ՌԴ` — Spyurk RF form
 
-Answers are always written in Armenian labels (even if the visitor used EN/RU). Status fields use human labels (`Այցելել է`, `Ուղարկված`, …).
+Questionnaire answers are written in the visitor's registration locale (`hy` / `en` / `ru`), matching the public form and CSV export. Status fields stay Armenian for operators (`Այցելել է`, `Ուղարկված`, …).
 
 Legacy English tab names `General` / `Spyurk RF` are renamed on the first successful write after updating Apps Script.
 

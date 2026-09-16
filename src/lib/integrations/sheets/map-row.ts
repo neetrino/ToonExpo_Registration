@@ -10,7 +10,6 @@ import {
   sheetAttendanceLabel,
   sheetEmailDeliveryLabel,
   sheetLocaleLabel,
-  sheetNewsletterLabel,
   type SheetColumnDef,
 } from '@/lib/integrations/sheets/sheet-columns';
 import type { FormChannel, Locale } from '@/generated/prisma';
@@ -68,14 +67,15 @@ function columnsForChannel(channel: SheetsChannel): readonly SheetColumnDef[] {
 
 /**
  * Build one Apps Script append payload.
- * Answers are always localized to Armenian so the Sheet stays operator-friendly.
+ * Questionnaire answers use the registration locale (same as CSV export);
+ * column headers and operator status labels stay Armenian.
  */
 export function toSheetsRow(registration: RegistrationForSheetRow): SheetsRow {
   const channel = channelFromFormChannel(registration.formChannel);
   const columns = columnsForChannel(channel);
   const answers = flattenRegistrationAnswersForExport(
     registration.answers,
-    'hy',
+    registration.locale,
     registration.formVersion,
   );
 
@@ -94,7 +94,6 @@ export function toSheetsRow(registration: RegistrationForSheetRow): SheetsRow {
     attendanceStatus: sheetAttendanceLabel(registration.attendanceStatus),
     emailDelivery: sheetEmailDeliveryLabel(registration.emailDeliveryStatus),
     ...answers,
-    newsletter: sheetNewsletterLabel(answers.newsletter ?? ''),
   };
 
   const headers = columns.map((column) => column.header);
