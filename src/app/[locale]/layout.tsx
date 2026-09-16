@@ -1,10 +1,9 @@
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { GoogleTagManager } from '@/components/analytics/google-tag-manager';
+import { PublicAnalytics } from '@/components/analytics/public-analytics';
 import { SiteHeader } from '@/components/layout/site-header';
 import { routing } from '@/i18n/routing';
-import { resolveGtmContainerId } from '@/lib/analytics/gtm';
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -24,11 +23,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   setRequestLocale(locale);
   const messages = await getMessages();
-  const gtmContainerId = resolveGtmContainerId();
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      {gtmContainerId ? <GoogleTagManager containerId={gtmContainerId} /> : null}
+      <PublicAnalytics />
       <div className="flex min-h-dvh flex-col bg-primary">
         <SiteHeader />
         <main className="flex flex-1 flex-col bg-primary">{children}</main>
