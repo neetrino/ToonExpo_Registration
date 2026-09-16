@@ -5,7 +5,7 @@ import { getCountryCallingCode, type CountryCode } from 'libphonenumber-js';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { digitsOnlyPhone } from '@/lib/validation/phone';
+import { nationalPhoneDigitLimit, nationalPhoneInput } from '@/lib/validation/phone';
 import {
   filterPhoneCountries,
   listPhoneCountries,
@@ -56,6 +56,8 @@ export function PhoneCountryField({
   const selectedCountry = resolvePhoneCountry(phoneCountry);
   const selectedCallingCode = getCountryCallingCode(selectedCountry);
   const selectedFlag = countryFlagEmoji(selectedCountry);
+  const digitLimit = nationalPhoneDigitLimit(selectedCountry);
+  const localNumber = nationalPhoneInput(phone, selectedCountry);
   const filtered = open ? filterPhoneCountries(listPhoneCountries(locale), query) : [];
 
   useEffect(() => {
@@ -87,8 +89,15 @@ export function PhoneCountryField({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (localNumber !== phone) {
+      onPhoneChange(localNumber);
+    }
+  }, [localNumber, onPhoneChange, phone]);
+
   const selectCountry = (code: CountryCode) => {
     onCountryChange(code);
+    onPhoneChange(nationalPhoneInput(phone, code));
     setOpen(false);
     setQuery('');
   };
@@ -184,12 +193,13 @@ export function PhoneCountryField({
         autoComplete="tel-national"
         inputMode="numeric"
         pattern="[0-9]*"
+        maxLength={digitLimit}
         className="min-w-0 flex-1"
         placeholder={tForm('phonePlaceholder')}
-        value={digitsOnlyPhone(phone)}
+        value={localNumber}
         disabled={disabled}
         aria-invalid={invalid}
-        onChange={(event) => onPhoneChange(digitsOnlyPhone(event.target.value))}
+        onChange={(event) => onPhoneChange(nationalPhoneInput(event.target.value, selectedCountry))}
       />
     </div>
   );
