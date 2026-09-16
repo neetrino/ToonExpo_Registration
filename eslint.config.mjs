@@ -23,6 +23,7 @@ const eslintConfig = [
       'coverage/**',
       'playwright-report/**',
       'src/generated/**',
+      'docs/apps-script/**',
     ],
   },
 ];
