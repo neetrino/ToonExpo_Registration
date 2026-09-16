@@ -8,15 +8,16 @@ import {
 } from '@/lib/integrations/sheets/map-row';
 import type { Locale } from '@/generated/prisma';
 
-function cellByHeader(row: { headers: readonly string[]; values: string[] }, header: string): string {
+function cellByHeader(
+  row: { headers: readonly string[]; values: string[] },
+  header: string,
+): string {
   const index = row.headers.indexOf(header);
   expect(index).toBeGreaterThanOrEqual(0);
   return row.values[index] ?? '';
 }
 
-function generalRegistration(
-  locale: Locale,
-): RegistrationForSheetRow {
+function generalRegistration(locale: Locale): RegistrationForSheetRow {
   return {
     id: 'reg_1',
     createdAt: new Date('2026-09-16T12:00:00.000Z'),
@@ -45,9 +46,7 @@ function generalRegistration(
 
 describe('isAllowedSheetsWebhookUrl', () => {
   it('allows script.google.com https URLs', () => {
-    expect(
-      isAllowedSheetsWebhookUrl('https://script.google.com/macros/s/abc/exec'),
-    ).toBe(true);
+    expect(isAllowedSheetsWebhookUrl('https://script.google.com/macros/s/abc/exec')).toBe(true);
   });
 
   it('rejects non-https and foreign hosts', () => {
@@ -96,21 +95,15 @@ describe('toSheetsRow', () => {
     const en = toSheetsRow(generalRegistration('en'));
     const ru = toSheetsRow(generalRegistration('ru'));
 
-    expect(cellByHeader(hy, 'Այցի նպատակ')).toBe(
-      'Անշարժ գույքի գնում սեփական բնակության համար',
-    );
+    expect(cellByHeader(hy, 'Այցի նպատակ')).toBe('Անշարժ գույքի գնում սեփական բնակության համար');
     expect(cellByHeader(hy, 'Տեղեկագիր')).toBe('Այո');
 
-    expect(cellByHeader(en, 'Այցի նպատակ')).toBe(
-      'Purchasing real estate for personal residence',
-    );
+    expect(cellByHeader(en, 'Այցի նպատակ')).toBe('Purchasing real estate for personal residence');
     expect(cellByHeader(en, 'Տեղեկագիր')).toBe('Yes');
     expect(cellByHeader(en, 'Լեզու')).toBe('English');
     expect(cellByHeader(en, 'Այցելություն')).toBe('Չի այցելել');
 
-    expect(cellByHeader(ru, 'Այցի նպատակ')).toBe(
-      'Покупка недвижимости для себя или семьи',
-    );
+    expect(cellByHeader(ru, 'Այցի նպատակ')).toBe('Покупка недвижимости для себя или семьи');
     expect(cellByHeader(ru, 'Տեղեկագիր')).toBe('Да');
   });
 });

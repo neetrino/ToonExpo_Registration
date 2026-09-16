@@ -3,9 +3,7 @@ import { SHEETS_PUSH_TIMEOUT_MS } from '@/lib/integrations/sheets/constants';
 import type { SheetsRow } from '@/lib/integrations/sheets/map-row';
 import { logger } from '@/lib/logger';
 
-export type AppendSheetRowResult =
-  | { ok: true }
-  | { ok: false; reason: string; retryable: boolean };
+export type AppendSheetRowResult = { ok: true } | { ok: false; reason: string; retryable: boolean };
 
 /** Apps Script often returns HTTP 200; success is `{ ok: true }` in the body. */
 export function assertSheetsWebhookOk(body: unknown, status: number): void {

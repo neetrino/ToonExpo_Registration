@@ -4,8 +4,7 @@ import {
 } from '@/lib/integrations/sheets/constants';
 
 export type SheetsPushRetryDecision =
-  | { action: 'retry'; delaySeconds: number }
-  | { action: 'fail' };
+  { action: 'retry'; delaySeconds: number } | { action: 'fail' };
 
 /**
  * Decide whether a failed Sheets append should be retried or marked FAILED.
