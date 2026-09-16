@@ -1,10 +1,18 @@
 import { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
 import { formatAdminDateTimeForCsv } from '@/lib/admin/format-datetime';
-import { CSV_EXPORT_COLUMNS } from '@/lib/admin/constants';
 import {
   SHEETS_PUSH_MAX_CELL_CHARS,
   SHEETS_PUSH_MAX_VALUES,
 } from '@/lib/integrations/sheets/constants';
+import {
+  SHEET_GENERAL_COLUMNS,
+  SHEET_SPYURK_COLUMNS,
+  sheetAttendanceLabel,
+  sheetEmailDeliveryLabel,
+  sheetLocaleLabel,
+  sheetNewsletterLabel,
+  type SheetColumnDef,
+} from '@/lib/integrations/sheets/sheet-columns';
 import type { FormChannel, Locale } from '@/generated/prisma';
 
 export type SheetsChannel = 'GENERAL' | 'SPYURK_RF';
@@ -17,15 +25,9 @@ export type SheetsRow = {
 };
 
 export const SHEET_TAB_NAMES = {
-  GENERAL: 'General',
-  SPYURK_RF: 'Spyurk RF',
+  GENERAL: 'Ընդհանուր',
+  SPYURK_RF: 'Սփյուռք ՌԴ',
 } as const;
-
-/** Headers match admin CSV (English) plus Registration ID for tracing. */
-export const SHEET_HEADERS = [
-  'Registration ID',
-  ...CSV_EXPORT_COLUMNS.map((column) => column.header),
-] as const;
 
 export type RegistrationForSheetRow = {
   id: string;
@@ -60,41 +62,43 @@ function channelFromFormChannel(formChannel: FormChannel): SheetsChannel {
   return formChannel === 'SPYURK_RF' ? 'SPYURK_RF' : 'GENERAL';
 }
 
+function columnsForChannel(channel: SheetsChannel): readonly SheetColumnDef[] {
+  return channel === 'SPYURK_RF' ? SHEET_SPYURK_COLUMNS : SHEET_GENERAL_COLUMNS;
+}
+
 /**
- * Build one Apps Script append payload from a registration (human-readable answers).
+ * Build one Apps Script append payload.
+ * Answers are always localized to Armenian so the Sheet stays operator-friendly.
  */
 export function toSheetsRow(registration: RegistrationForSheetRow): SheetsRow {
   const channel = channelFromFormChannel(registration.formChannel);
+  const columns = columnsForChannel(channel);
   const answers = flattenRegistrationAnswersForExport(
     registration.answers,
-    registration.locale,
+    'hy',
     registration.formVersion,
   );
 
   const byKey: Record<string, string> = {
+    registrationId: registration.id,
     registeredAt: formatAdminDateTimeForCsv(registration.createdAt),
     firstName: registration.firstName,
     lastName: registration.lastName,
     email: registration.email,
     phone: registration.phone,
-    locale: registration.locale,
-    sourceSystem: registration.sourceSystem ?? '',
-    sourceRegistrationId: registration.sourceRegistrationId ?? '',
+    locale: sheetLocaleLabel(registration.locale),
     utmSource: registration.utmSource ?? '',
     utmMedium: registration.utmMedium ?? '',
     utmCampaign: registration.utmCampaign ?? '',
     ticketCode: registration.ticketCode ?? '',
-    attendanceStatus: registration.attendanceStatus ?? '',
-    emailDeliveryStatus: registration.emailDeliveryStatus,
-    formVersion: registration.formVersion ?? '',
-    formChannel: registration.formChannel,
+    attendanceStatus: sheetAttendanceLabel(registration.attendanceStatus),
+    emailDelivery: sheetEmailDeliveryLabel(registration.emailDeliveryStatus),
     ...answers,
+    newsletter: sheetNewsletterLabel(answers.newsletter ?? ''),
   };
 
-  const values = [
-    registration.id,
-    ...CSV_EXPORT_COLUMNS.map((column) => byKey[column.key] ?? ''),
-  ].map(sanitizeSheetCell);
+  const headers = columns.map((column) => column.header);
+  const values = columns.map((column) => sanitizeSheetCell(byKey[column.key] ?? ''));
 
   if (values.length > SHEETS_PUSH_MAX_VALUES) {
     throw new Error('SHEETS_ROW_TOO_WIDE');
@@ -103,7 +107,7 @@ export function toSheetsRow(registration: RegistrationForSheetRow): SheetsRow {
   return {
     channel,
     tab: channel === 'SPYURK_RF' ? SHEET_TAB_NAMES.SPYURK_RF : SHEET_TAB_NAMES.GENERAL,
-    headers: SHEET_HEADERS,
+    headers,
     values,
   };
 }

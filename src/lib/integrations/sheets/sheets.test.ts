@@ -35,7 +35,7 @@ describe('sanitizeSheetCell', () => {
 });
 
 describe('toSheetsRow', () => {
-  it('maps a general registration onto the General tab', () => {
+  it('maps a general registration with Armenian operator headers', () => {
     const row = toSheetsRow({
       id: 'reg_1',
       createdAt: new Date('2026-09-16T12:00:00.000Z'),
@@ -61,10 +61,15 @@ describe('toSheetsRow', () => {
     });
 
     expect(row.channel).toBe('GENERAL');
-    expect(row.tab).toBe('General');
-    expect(row.headers[0]).toBe('Registration ID');
+    expect(row.tab).toBe('Ընդհանուր');
+    expect(row.headers[0]).toBe('Գրանցման ID');
+    expect(row.headers).toContain('Անուն');
+    expect(row.headers).toContain('Տարիք');
+    expect(row.headers).not.toContain('Քաղաք (ՌԴ)');
     expect(row.values[0]).toBe('reg_1');
     expect(row.values[2]).toBe('Ani');
+    expect(row.values).toContain('Հայերեն');
+    expect(row.values).toContain('Չի այցելել');
     expect(row.values.length).toBe(row.headers.length);
   });
 });

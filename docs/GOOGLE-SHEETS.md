@@ -23,7 +23,7 @@ Registration API  →  INSERT Neon + SheetsPushDelivery(pending)
 ## One-time Sheet setup
 
 1. Create a Google Spreadsheet for registrations.
-2. Create two tabs named exactly: `General` and `Spyurk RF` (or leave empty — the script can create them).
+2. Tabs `Ընդհանուր` and `Սփյուռք ՌԴ` are created (or renamed from `General` / `Spyurk RF`) on the first write.
 3. Extensions → Apps Script.
 4. Paste [`docs/apps-script/Code.gs`](./apps-script/Code.gs).
 5. Set `WEBHOOK_SECRET` to a long random string (same value as `SHEETS_WEBHOOK_SECRET`).
@@ -31,6 +31,7 @@ Registration API  →  INSERT Neon + SheetsPushDelivery(pending)
    - Execute as: **Me**
    - Who has access: **Anyone** (so Vercel can call it)
 7. Copy the `/exec` URL into env as `SHEETS_WEBHOOK_URL`.
+8. After any script edit: Deploy → Manage deployments → pencil → **New version**.
 
 Do **not** enable “Anyone with the link can edit” on the spreadsheet itself. Editors get normal Google sharing.
 
@@ -57,9 +58,9 @@ Set `SHEETS_PUSH_CRON_ENABLED=true` in production when the webhook is live.
 3. `after()` tries one append (when webhook env is set).
 4. Hourly cron retries `PENDING` / backoff failures when `SHEETS_PUSH_CRON_ENABLED=true`.
 5. Only `sourceSystem = TOON_EXPO` rows are synced. Channel selects the tab:
-   - `GENERAL` → `General`
-   - `SPYURK_RF` → `Spyurk RF`
-6. Cells are human-readable (same localization approach as admin CSV). Codes stay in Neon.
+   - `GENERAL` → `Ընդհանուր`
+   - `SPYURK_RF` → `Սփյուռք ՌԴ`
+6. Cells use Armenian operator labels; raw codes stay in Neon.
 
 Success from Apps Script is **body** `{ "ok": true }` (HTTP is often always 200).
 
@@ -67,7 +68,14 @@ Success from Apps Script is **body** `{ "ok": true }` (HTTP is often always 200)
 
 ## Columns
 
-First column: `Registration ID`. Remaining headers match admin CSV export (`Registered at (Yerevan)`, name, email, phone, UTM, ticket, questionnaire answers, …). See `CSV_EXPORT_COLUMNS` in `src/lib/admin/constants.ts`.
+Armenian short headers for operators. Each tab only includes relevant questionnaire columns:
+
+- `Ընդհանուր` — general form
+- `Սփյուռք ՌԴ` — Spyurk RF form
+
+Answers are always written in Armenian labels (even if the visitor used EN/RU). Status fields use human labels (`Այցելել է`, `Ուղարկված`, …).
+
+Legacy English tab names `General` / `Spyurk RF` are renamed on the first successful write after updating Apps Script.
 
 ---
 

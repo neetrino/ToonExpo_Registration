@@ -2,7 +2,8 @@ export const SHEETS_PUSH_MAX_ATTEMPTS = 5;
 
 export const SHEETS_PUSH_CLAIM_BATCH_SIZE = 25;
 
-export const SHEETS_PUSH_TIMEOUT_MS = 8_000;
+/** Apps Script header/filter resize can exceed 8s on wide Armenian rows. */
+export const SHEETS_PUSH_TIMEOUT_MS = 25_000;
 
 export const SHEETS_PUSH_MIN_INTERVAL_MS = 200;
 
