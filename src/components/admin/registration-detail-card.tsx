@@ -296,8 +296,8 @@ export function RegistrationDetailCard({
 
               {questionnaire.rows.length > 0 ? (
                 <dl className="overflow-hidden rounded-xl border border-border divide-y divide-border">
-                  {questionnaire.rows.map((row) => (
-                    <div key={row.label} className="grid gap-1 px-4 py-3.5">
+                  {questionnaire.rows.map((row, index) => (
+                    <div key={`${row.label}-${index}`} className="grid gap-1 px-4 py-3.5">
                       <dt className="text-sm font-medium text-foreground">{row.label}</dt>
                       <dd className="text-sm leading-relaxed text-muted-foreground">{row.value}</dd>
                     </div>

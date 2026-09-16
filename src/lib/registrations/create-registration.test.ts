@@ -67,6 +67,7 @@ function createPrismaMock(options: {
     partnerFeedEvent: { create: vi.fn() },
     deliveryJob: { create: deliveryJobCreate },
     partnerPushDelivery: { create: vi.fn() },
+    sheetsPushDelivery: { create: vi.fn() },
   };
 
   const prisma = {
@@ -97,7 +98,7 @@ describe('createRegistration', () => {
   });
 
   it('returns the ticket without processing delivery jobs', async () => {
-    const { deliveryJobCreate, prisma } = createPrismaMock({ event: { id: EVENT_ID } });
+    const { deliveryJobCreate, prisma, tx } = createPrismaMock({ event: { id: EVENT_ID } });
 
     const result = await createRegistration(input);
 
@@ -111,17 +112,9 @@ describe('createRegistration', () => {
     expect(result.ticketViewToken.length).toBeGreaterThan(0);
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(deliveryJobCreate).toHaveBeenCalledTimes(2);
-    expect(deliveryJobCreate).toHaveBeenCalledWith({
+    expect(tx.sheetsPushDelivery.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         registrationId: REGISTRATION_ID,
-        channel: 'EMAIL',
-        status: 'PENDING',
-      }),
-    });
-    expect(deliveryJobCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        registrationId: REGISTRATION_ID,
-        channel: 'SMS',
         status: 'PENDING',
       }),
     });

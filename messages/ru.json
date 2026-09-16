@@ -127,7 +127,6 @@
     "phoneCountrySearch": "Поиск по стране или коду",
     "phoneCountryEmpty": "Страны не найдены",
     "phoneHint": "Выберите страну, затем введите локальный номер без кода страны.",
-    "phonePlaceholder": "XX XXX XXX",
     "consent": "Я ознакомился и согласен с <terms>Условиями использования</terms> и <privacy>Политикой конфиденциальности</privacy>",
     "submit": "Отправить регистрацию",
     "submitting": "Отправка…"

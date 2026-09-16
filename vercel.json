@@ -3,6 +3,10 @@
     {
       "path": "/api/internal/delivery/process",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/internal/sheets-push/process",
+      "schedule": "0 * * * *"
     }
   ]
 }

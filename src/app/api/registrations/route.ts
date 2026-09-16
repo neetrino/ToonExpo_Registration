@@ -2,6 +2,7 @@ import { after, NextResponse } from 'next/server';
 import { DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE } from '@/lib/delivery/constants';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
 import { processDuePartnerPushes } from '@/lib/integrations/mootq/process-partner-pushes';
+import { processDueSheetsPushes } from '@/lib/integrations/sheets/process-sheets-pushes';
 import { createRegistration } from '@/lib/registrations';
 import { logger } from '@/lib/logger';
 import {
@@ -149,6 +150,12 @@ export async function POST(request: Request): Promise<NextResponse> {
         await processDuePartnerPushes({ registrationId, limit: 1 });
       } catch {
         logger.error('Mootq push after registration failed', { registrationId, requestId });
+      }
+
+      try {
+        await processDueSheetsPushes({ registrationId, limit: 1 });
+      } catch {
+        logger.error('Sheets push after registration failed', { registrationId, requestId });
       }
     });
 

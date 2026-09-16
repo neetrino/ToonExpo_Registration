@@ -127,7 +127,6 @@
     "phoneCountrySearch": "Search by country or code",
     "phoneCountryEmpty": "No countries found",
     "phoneHint": "Select your country, then enter the local number without the country code.",
-    "phonePlaceholder": "XX XXX XXX",
     "consent": "I have read and agree to the <terms>Terms of Use</terms> and the <privacy>Privacy Policy</privacy>",
     "submit": "Submit registration",
     "submitting": "Submitting…"
