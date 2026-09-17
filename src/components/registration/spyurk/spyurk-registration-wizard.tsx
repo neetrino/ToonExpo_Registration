@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
+import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import type { Locale } from '@/types/locale';
 import { submitRegistration } from '@/components/registration/submit-registration';
@@ -142,6 +143,13 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
   const isLastStep = safeStep === 'finish';
   const stepIsValid = isSpyurkWizardStepValid(safeStep, state, errorTranslator);
   const showErrors = attemptedNext || isLastStep;
+  const { trackQuestionComplete } = useQuestionnaireStepTracking({
+    ready: draftReady,
+    questionId: safeStep,
+    questionIndex: safeStepIndex,
+    questionTotal: steps.length,
+    formChannel: 'spyurk_rf',
+  });
 
   const updateField = <K extends keyof SpyurkWizardState>(key: K, value: SpyurkWizardState[K]) => {
     setState((current) => {
@@ -180,6 +188,8 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
     }
 
     setFieldErrors({});
+    trackQuestionComplete();
+
     if (!isLastStep) {
       setAttemptedNext(false);
       setCurrentStep(steps[safeStepIndex + 1] ?? 'finish');

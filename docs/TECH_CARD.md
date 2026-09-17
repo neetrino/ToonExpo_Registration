@@ -30,7 +30,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Localization        | `next-intl`; `hy`, `en`, `ru`; first visit defaults to `hy` (browser language ignored); later visits use the locale cookie | Approved                |
 | Public registration | Two wizards, one API: general (`/hy` `/en` `/ru`, `2026-vis-reg-v2`) and Spyurk RF (`/rf` → `/ru/rf`, `2026-vis-reg-spyurk-v1`) | Approved                |
 | Success page        | Immediate QR, readable code and PNG download                         | Required                |
-| Public analytics    | Vercel Analytics + GTM `GTM-NJZV2NL3` on `[locale]` routes; Meta Pixel `1774204670579132` on the general form (`/hy` `/en` `/ru`); Yandex Metrika `112495551` on Spyurk RF (`/rf`); conversions on success by form channel | Client request 2026-09-17 |
+| Public analytics    | Vercel Analytics + GTM `GTM-NJZV2NL3` on `[locale]` routes; Meta Pixel `1774204670579132` on the general form (`/hy` `/en` `/ru`); Yandex Metrika `112495551` on Spyurk RF (`/rf`); questionnaire step funnel via GTM `question_view` / `question_complete` (`question_id`, `question_index`, `question_total`, `form_channel`); conversions on success by form channel | Client request 2026-09-17 |
 | Hosted ticket       | Private bearer-link page used by email/SMS                           | Required                |
 | Admin               | Existing single-admin application plus delivery/full-sync visibility | Approved                |
 

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import type { Locale } from '@/types/locale';
 import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
+import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
@@ -127,6 +128,13 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const isLastStep = safeStep === 'finish';
   const stepIsValid = isWizardStepValid(safeStep, state, errorTranslator);
   const showErrors = attemptedNext || isLastStep;
+  const { trackQuestionComplete } = useQuestionnaireStepTracking({
+    ready: draftReady,
+    questionId: safeStep,
+    questionIndex: safeStepIndex,
+    questionTotal: steps.length,
+    formChannel: 'general',
+  });
 
   const updateField = <K extends keyof WizardState>(key: K, value: WizardState[K]) => {
     setState((current) => {
@@ -199,6 +207,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     }
 
     setFieldErrors({});
+    trackQuestionComplete();
 
     if (!isLastStep) {
       setAttemptedNext(false);
