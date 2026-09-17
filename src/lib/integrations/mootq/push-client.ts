@@ -14,7 +14,10 @@ import { logger } from '@/lib/logger';
 export type MootqPushClientResult =
   { ok: true } | { ok: false; reason: string; retryable: boolean };
 
-export type MootqPushClientInput = BuildMootqPushPayloadInput & {
+export type MootqPushClientInput = Omit<
+  BuildMootqPushPayloadInput,
+  'eventKey' | 'sourceRegistrationId'
+> & {
   registrationId: string;
 };
 
@@ -38,7 +41,22 @@ export async function pushRegistrationToMootq(
     return { ok: false, reason: 'NOT_CONFIGURED', retryable: true };
   }
 
-  const payload = buildMootqPushPayload(input);
+  const payload = buildMootqPushPayload({
+    eventKey: config.eventKey,
+    sourceRegistrationId: input.registrationId,
+    ticketCode: input.ticketCode,
+    registeredAt: input.registeredAt,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    email: input.email,
+    phone: input.phone,
+    locale: input.locale,
+    answers: input.answers,
+    formVersion: input.formVersion,
+    utmSource: input.utmSource,
+    utmMedium: input.utmMedium,
+    utmCampaign: input.utmCampaign,
+  });
   return executeMootqPushRequest({
     url: config.url,
     key: config.key,

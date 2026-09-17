@@ -1,5 +1,6 @@
 export type MootqPushConfig =
-  { ok: true; url: string; key: string } | { ok: false; code: 'NOT_CONFIGURED' };
+  | { ok: true; url: string; key: string; eventKey: string }
+  | { ok: false; code: 'NOT_CONFIGURED' };
 
 /**
  * Read optional Mootq fast-push credentials at call time.
@@ -8,8 +9,9 @@ export type MootqPushConfig =
 export function getMootqPushConfig(): MootqPushConfig {
   const url = process.env.MOOTQ_PUSH_URL?.trim();
   const key = process.env.MOOTQ_PUSH_KEY?.trim();
+  const eventKey = process.env.MOOTQ_EVENT_KEY?.trim();
 
-  if (!url || !key || key.length < 32) {
+  if (!url || !key || key.length < 32 || !eventKey) {
     return { ok: false, code: 'NOT_CONFIGURED' };
   }
 
@@ -19,5 +21,5 @@ export function getMootqPushConfig(): MootqPushConfig {
     return { ok: false, code: 'NOT_CONFIGURED' };
   }
 
-  return { ok: true, url, key };
+  return { ok: true, url, key, eventKey };
 }
