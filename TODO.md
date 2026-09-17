@@ -5,7 +5,8 @@ Updated: 2026-08-31
 ## Перед событием (ops)
 
 - [ ] Vercel: `DELIVERY_CRON_ENABLED=true` (+ redeploy)
-- [ ] Когда есть `MOOTQ_PUSH_URL`/`MOOTQ_PUSH_KEY`: вернуть mootq-push в `vercel.json`, `MOOTQ_PUSH_CRON_ENABLED=true`
+- [x] Когда есть `MOOTQ_PUSH_URL`/`MOOTQ_PUSH_KEY`: вернуть mootq-push в `vercel.json`, `MOOTQ_PUSH_CRON_ENABLED=true` (local done; set same on Vercel Production + redeploy)
+
 - [ ] После события: оба cron-флага снова `false` (см. [`README.md`](README.md))
 
 ## Решения (зафиксировано 2026-08-18)
@@ -22,7 +23,8 @@ Updated: 2026-08-31
 [x] Отправить `15` + `16` Mootq
 [x] Получить sign-off
 [ ] Выдать write-ключ (один на событие) + non-prod URL
-[ ] Получить `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY`
+[x] Получить `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY` (local `.env`; mirror to Vercel Production)
+
 [x] После sign-off: адаптировать код push/inbound под `16`
 [ ] Smoke: наш полный push, их nightly POST, сканер `TE…` / `MQ…`
 

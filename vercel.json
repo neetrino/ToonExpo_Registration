@@ -5,6 +5,10 @@
       "schedule": "0 * * * *"
     },
     {
+      "path": "/api/internal/mootq-push/process",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/internal/sheets-push/process",
       "schedule": "0 * * * *"
     }
