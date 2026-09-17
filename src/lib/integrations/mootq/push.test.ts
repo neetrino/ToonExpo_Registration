@@ -76,6 +76,84 @@ describe('buildMootqPushPayload', () => {
     expect(payload.utmCampaign).toBe('tey26');
     expect(payload).not.toHaveProperty('utmMedium');
   });
+
+  it('maps investment answers to Mootq field_* labels', () => {
+    const payload = buildMootqPushPayload({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '25-34',
+        residence: { scope: 'abroad', country: 'Georgia' },
+        visitPurpose: 'investment',
+        investmentPropertyType: 'apartment',
+        locationSeek: {
+          yerevanDistricts: ['kentron'],
+          marzRegions: [],
+          abroadCountries: [],
+        },
+        investmentGoal: 'rental_income',
+        areaSqm: '50-70',
+        purchaseMethod: 'cash',
+        investmentTimeline: 'up_to_3_months',
+        investmentBudgetUsd: 'up_to_150k',
+        priorInvestmentExperience: 'no_first',
+        newsletter: false,
+      },
+    });
+
+    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
+    expect(payload.answers[MOOTQ_FIELD.investmentPropertyType]).toBe('Բնակարան');
+    expect(payload.answers[MOOTQ_FIELD.investmentLocationScope]).toBe('Երևան');
+    expect(payload.answers[MOOTQ_FIELD.investmentLocationDetails]).toEqual(['Կենտրոն']);
+    expect(payload.answers[MOOTQ_FIELD.investmentGoal]).toBe(
+      'Վարձակալությունից պասիվ եկամուտ ստանալու համար',
+    );
+    expect(payload.answers[MOOTQ_FIELD.investmentAreaSqm]).toBe('50 - 70 քմ');
+    expect(payload.answers[MOOTQ_FIELD.investmentPurchaseMethod]).toBe('Կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.investmentTimeline]).toBe('Մինչև 3 ամսվա ընթացքում');
+    expect(payload.answers[MOOTQ_FIELD.investmentBudgetUsd]).toBe('Մինչև 150․000 ԱՄՆ դոլար');
+    expect(payload.answers[MOOTQ_FIELD.priorInvestmentExperience]).toBe(
+      'Ոչ. սա կլինի առաջին ներդրումս',
+    );
+  });
+
+  it('maps own_residence answers to Mootq field_* labels', () => {
+    const payload = buildMootqPushPayload({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '25-34',
+        residence: { scope: 'abroad', country: 'Georgia' },
+        visitPurpose: 'own_residence',
+        interestType: 'apartment_new',
+        locationSeek: {
+          yerevanDistricts: ['kentron'],
+          marzRegions: [],
+          abroadCountries: [],
+        },
+        areaSqm: '50-70',
+        purchaseMethod: 'cash',
+        monthlyBudget: 'paying_cash',
+        decisionStage: 'ready_1_month',
+        newsletter: false,
+      },
+    });
+
+    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
+      'Անշարժ գույքի գնում սեփական բնակության համար',
+    );
+    expect(payload.answers[MOOTQ_FIELD.interestType]).toBe(
+      'Բնակարան կառուցապատողից (նորակառույց)',
+    );
+    expect(payload.answers[MOOTQ_FIELD.residenceLocationScope]).toBe('Երևան');
+    expect(payload.answers[MOOTQ_FIELD.residenceLocationDetails]).toEqual(['Կենտրոն']);
+    expect(payload.answers[MOOTQ_FIELD.residenceAreaSqm]).toBe('50 - 70 քմ');
+    expect(payload.answers[MOOTQ_FIELD.residencePurchaseMethod]).toBe('Կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.monthlyBudget]).toBe('Ձեռք եմ բերելու կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.decisionStage]).toBe(
+      'Պատրաստ եմ գործարք իրականացնել մոտ ժամանակում',
+    );
+  });
 });
 
 describe('classifyMootqPushHttpStatus', () => {
