@@ -142,9 +142,7 @@ describe('buildMootqPushPayload', () => {
     expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
       'Անշարժ գույքի գնում սեփական բնակության համար',
     );
-    expect(payload.answers[MOOTQ_FIELD.interestType]).toBe(
-      'Բնակարան կառուցապատողից (նորակառույց)',
-    );
+    expect(payload.answers[MOOTQ_FIELD.interestType]).toBe('Բնակարան կառուցապատողից (նորակառույց)');
     expect(payload.answers[MOOTQ_FIELD.residenceLocationScope]).toBe('Երևան');
     expect(payload.answers[MOOTQ_FIELD.residenceLocationDetails]).toEqual(['Կենտրոն']);
     expect(payload.answers[MOOTQ_FIELD.residenceAreaSqm]).toBe('50 - 70 քմ');
