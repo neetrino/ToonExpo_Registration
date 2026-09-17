@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { trackMetaPageView } from '@/lib/analytics/meta-pixel';
+import { isSpyurkFormPath } from '@/lib/analytics/route-scope';
 import { hitYandexMetrika } from '@/lib/analytics/yandex-metrika';
 
 /** Sends virtual pageviews on App Router navigations after the first load. */
@@ -16,7 +17,11 @@ export function AnalyticsRouteHits() {
       return;
     }
 
-    hitYandexMetrika(window.location.href);
+    if (isSpyurkFormPath(pathname)) {
+      hitYandexMetrika(window.location.href);
+      return;
+    }
+
     trackMetaPageView();
   }, [pathname]);
 

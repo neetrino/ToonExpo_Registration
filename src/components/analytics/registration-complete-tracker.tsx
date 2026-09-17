@@ -9,9 +9,17 @@ import { trackYandexRegistrationComplete } from '@/lib/analytics/yandex-metrika'
 /** Pushes conversion events when the success page mounts. */
 export function RegistrationCompleteTracker() {
   useEffect(() => {
-    pushRegistrationCompleteEvent(consumeAnalyticsFormChannel());
-    trackYandexRegistrationComplete();
-    trackMetaRegistrationComplete();
+    const channel = consumeAnalyticsFormChannel();
+    pushRegistrationCompleteEvent(channel);
+
+    if (channel === 'spyurk_rf') {
+      trackYandexRegistrationComplete();
+      return;
+    }
+
+    if (channel === 'general') {
+      trackMetaRegistrationComplete();
+    }
   }, []);
 
   return null;
