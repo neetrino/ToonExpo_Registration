@@ -38,6 +38,9 @@ describe('buildMetaPixelSnippet', () => {
 
     expect(snippet).toContain(`fbq('init', '${DEFAULT_META_PIXEL_ID}')`);
     expect(snippet).toContain(`fbq('track', 'PageView')`);
+    expect(snippet).toContain("p.indexOf('/admin')===0");
+    expect(snippet).toContain("p.indexOf('/ticket')===0");
+    expect(snippet).toContain("p==='/rf'");
     expect(buildMetaPixelSnippet('not-an-id')).toBe('');
   });
 });

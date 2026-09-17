@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 import { Geist } from 'next/font/google';
+import { buildMetaPixelSnippet, resolveMetaPixelId } from '@/lib/analytics/meta-pixel';
 import { getMetadataBase, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from '@/lib/brand/site';
 import './fonts.css';
 import './globals.css';
@@ -39,8 +40,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const metaPixelId = resolveMetaPixelId();
+  const metaPixelSnippet = metaPixelId ? buildMetaPixelSnippet(metaPixelId) : '';
+
   return (
     <html lang="hy" suppressHydrationWarning>
+      <head>
+        {metaPixelSnippet ? (
+          <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: metaPixelSnippet }} />
+        ) : null}
+      </head>
       <body className={`${geistSans.variable} min-h-dvh bg-primary antialiased`}>
         {children}
         <Analytics />
