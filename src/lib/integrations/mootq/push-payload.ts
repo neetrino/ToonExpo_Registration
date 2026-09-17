@@ -1,11 +1,12 @@
-import {
-  flattenQuestionnaireAnswers,
-  type MootqAnswers,
-} from '@/lib/integrations/mootq/flatten-answers';
+import { buildMootqPartnerAnswers } from '@/lib/integrations/mootq/build-mootq-partner-answers';
+import type { MootqAnswers } from '@/lib/integrations/mootq/flatten-answers';
+import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 
-export type MootqPushLocale = 'hy' | 'en' | 'ru';
+export type MootqPushLocale = QuestionnaireLocale;
 
 export type MootqPushPayload = {
+  eventKey: string;
+  sourceRegistrationId: string;
   ticketCode: string;
   registeredAt: string;
   firstName: string;
@@ -13,13 +14,15 @@ export type MootqPushPayload = {
   email: string;
   phone: string;
   locale: MootqPushLocale;
-  answers?: MootqAnswers;
+  answers: MootqAnswers;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
 };
 
 export type BuildMootqPushPayloadInput = {
+  eventKey: string;
+  sourceRegistrationId: string;
   ticketCode: string;
   registeredAt: Date;
   firstName: string;
@@ -35,11 +38,13 @@ export type BuildMootqPushPayloadInput = {
 };
 
 /**
- * Toon Expo → Mootq registration body (contract 16).
- * sourceRegistrationId is the Idempotency-Key header only, not a JSON field.
+ * Toon Expo → Mootq registration body (partner live schema, 2026-09).
+ * Includes eventKey + sourceRegistrationId and CRM field_* answers.
  */
 export function buildMootqPushPayload(input: BuildMootqPushPayloadInput): MootqPushPayload {
   const payload: MootqPushPayload = {
+    eventKey: input.eventKey,
+    sourceRegistrationId: input.sourceRegistrationId,
     ticketCode: input.ticketCode,
     registeredAt: input.registeredAt.toISOString(),
     firstName: input.firstName,
@@ -47,15 +52,16 @@ export function buildMootqPushPayload(input: BuildMootqPushPayloadInput): MootqP
     email: input.email,
     phone: input.phone,
     locale: input.locale,
+    answers: buildMootqPartnerAnswers({
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      phone: input.phone,
+      locale: input.locale,
+      formVersion: input.formVersion,
+      answers: input.answers,
+    }),
   };
-
-  const answers = flattenQuestionnaireAnswers({
-    formVersion: input.formVersion,
-    answers: input.answers,
-  });
-  if (answers) {
-    payload.answers = answers;
-  }
 
   assignOptionalUtm(payload, 'utmSource', input.utmSource);
   assignOptionalUtm(payload, 'utmMedium', input.utmMedium);

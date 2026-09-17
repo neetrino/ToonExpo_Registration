@@ -1,7 +1,8 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, afterEach, vi } from 'vitest';
 import { executeMootqPushRequest } from '@/lib/integrations/mootq/push-client';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
+import { MOOTQ_FIELD } from '@/lib/integrations/mootq/mootq-field-ids';
 import {
   classifyMootqPushHttpStatus,
   resolvePartnerPushRetryDecision,
@@ -10,6 +11,8 @@ import {
 const registeredAt = new Date('2026-07-27T12:00:00.000Z');
 
 const fullPushInput = {
+  eventKey: 'toon-expo-2026',
+  sourceRegistrationId: 'reg_abc',
   ticketCode: 'TEABCDEFGHIJK',
   registeredAt,
   firstName: 'Example',
@@ -20,73 +23,134 @@ const fullPushInput = {
 };
 
 describe('buildMootqPushPayload', () => {
-  it('builds the full Toon Expo push body without source ids', () => {
-    expect(buildMootqPushPayload(fullPushInput)).toEqual({
-      ticketCode: 'TEABCDEFGHIJK',
-      registeredAt: '2026-07-27T12:00:00.000Z',
-      firstName: 'Example',
-      lastName: 'Visitor',
+  it('includes eventKey, sourceRegistrationId and identity answers', () => {
+    const payload = buildMootqPushPayload(fullPushInput);
+    expect(payload.eventKey).toBe('toon-expo-2026');
+    expect(payload.sourceRegistrationId).toBe('reg_abc');
+    expect(payload.ticketCode).toBe('TEABCDEFGHIJK');
+    expect(payload.answers).toMatchObject({
+      first_name: 'Example',
+      last_name: 'Visitor',
       email: 'visitor@example.com',
       phone: '+37499123456',
-      locale: 'hy',
     });
   });
 
-  it('includes flattened answers and omits absent UTM keys', () => {
-    expect(
-      buildMootqPushPayload({
-        ...fullPushInput,
-        formVersion: FORM_VERSION,
-        answers: {
-          ageBand: '25-34',
-          residence: { scope: 'yerevan', district: 'kentron' },
-          visitPurpose: 'investment',
-          investmentPropertyType: 'apartment',
-          locationSeek: {
-            yerevanDistricts: ['kentron'],
-            marzRegions: [],
-            abroadCountries: [],
-          },
-          investmentGoal: 'rental_income',
-          areaSqm: '70-90',
-          purchaseMethod: 'cash',
-          investmentTimeline: '6-12_months',
-          investmentBudgetUsd: '150k-300k',
-          priorInvestmentExperience: 'no_first',
-          newsletter: false,
-        },
-        utmSource: 'facebook',
-        utmMedium: null,
-        utmCampaign: 'tey26',
-      }),
-    ).toEqual({
-      ticketCode: 'TEABCDEFGHIJK',
-      registeredAt: '2026-07-27T12:00:00.000Z',
-      firstName: 'Example',
-      lastName: 'Visitor',
-      email: 'visitor@example.com',
-      phone: '+37499123456',
-      locale: 'hy',
+  it('maps market_research answers to Mootq field_* labels', () => {
+    const payload = buildMootqPushPayload({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
       answers: {
-        form_version: FORM_VERSION,
-        form_channel: 'GENERAL',
-        age_band: '25-34',
-        visit_purpose: 'investment',
+        ageBand: '25-34',
+        residence: { scope: 'abroad', country: 'Georgia' },
+        visitPurpose: 'market_research',
+        marketInterests: ['new_apartments'],
+        researchGoal: 'browse_offers',
+        researchLocation: {
+          undecided: false,
+          yerevanDistricts: [],
+          marzRegions: [],
+          abroadCountry: 'Georgia',
+        },
+        purchaseHorizon: 'no_plans',
         newsletter: false,
-        residence_scope: 'yerevan',
-        residence_district: 'kentron',
-        investment_property_type: 'apartment',
-        investment_goal: 'rental_income',
-        area_sqm: '70-90',
-        purchase_method: 'cash',
-        investment_timeline: '6-12_months',
-        investment_budget_usd: '150k-300k',
-        prior_investment_experience: 'no_first',
-        location_seek_districts: ['kentron'],
       },
       utmSource: 'facebook',
+      utmMedium: null,
       utmCampaign: 'tey26',
     });
+
+    expect(payload.answers[MOOTQ_FIELD.ageBand]).toBe('25-34 տարեկան');
+    expect(payload.answers[MOOTQ_FIELD.residenceScope]).toBe('Արտերկիր');
+    expect(payload.answers[MOOTQ_FIELD.residenceDetail]).toBe('Georgia');
+    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
+      'Շուկայի ուսումնասիրություն և ծանոթացում',
+    );
+    expect(payload.answers[MOOTQ_FIELD.newsletter]).toBe('Ոչ');
+    expect(payload.answers[MOOTQ_FIELD.marketInterests]).toEqual(['Նորակառույց բնակարաններ']);
+    expect(payload.answers[MOOTQ_FIELD.researchGoal]).toBe(
+      'Պարզապես ցանկանում եմ ծանոթանալ առաջարկներին',
+    );
+    expect(payload.answers[MOOTQ_FIELD.purchaseHorizon]).toBe('Այս պահին նման պլան չունեմ');
+    expect(payload.utmSource).toBe('facebook');
+    expect(payload.utmCampaign).toBe('tey26');
+    expect(payload).not.toHaveProperty('utmMedium');
+  });
+
+  it('maps investment answers to Mootq field_* labels', () => {
+    const payload = buildMootqPushPayload({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '25-34',
+        residence: { scope: 'abroad', country: 'Georgia' },
+        visitPurpose: 'investment',
+        investmentPropertyType: 'apartment',
+        locationSeek: {
+          yerevanDistricts: ['kentron'],
+          marzRegions: [],
+          abroadCountries: [],
+        },
+        investmentGoal: 'rental_income',
+        areaSqm: '50-70',
+        purchaseMethod: 'cash',
+        investmentTimeline: 'up_to_3_months',
+        investmentBudgetUsd: 'up_to_150k',
+        priorInvestmentExperience: 'no_first',
+        newsletter: false,
+      },
+    });
+
+    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
+    expect(payload.answers[MOOTQ_FIELD.investmentPropertyType]).toBe('Բնակարան');
+    expect(payload.answers[MOOTQ_FIELD.investmentLocationScope]).toBe('Երևան');
+    expect(payload.answers[MOOTQ_FIELD.investmentLocationDetails]).toEqual(['Կենտրոն']);
+    expect(payload.answers[MOOTQ_FIELD.investmentGoal]).toBe(
+      'Վարձակալությունից պասիվ եկամուտ ստանալու համար',
+    );
+    expect(payload.answers[MOOTQ_FIELD.investmentAreaSqm]).toBe('50 - 70 քմ');
+    expect(payload.answers[MOOTQ_FIELD.investmentPurchaseMethod]).toBe('Կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.investmentTimeline]).toBe('Մինչև 3 ամսվա ընթացքում');
+    expect(payload.answers[MOOTQ_FIELD.investmentBudgetUsd]).toBe('Մինչև 150․000 ԱՄՆ դոլար');
+    expect(payload.answers[MOOTQ_FIELD.priorInvestmentExperience]).toBe(
+      'Ոչ. սա կլինի առաջին ներդրումս',
+    );
+  });
+
+  it('maps own_residence answers to Mootq field_* labels', () => {
+    const payload = buildMootqPushPayload({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '25-34',
+        residence: { scope: 'abroad', country: 'Georgia' },
+        visitPurpose: 'own_residence',
+        interestType: 'apartment_new',
+        locationSeek: {
+          yerevanDistricts: ['kentron'],
+          marzRegions: [],
+          abroadCountries: [],
+        },
+        areaSqm: '50-70',
+        purchaseMethod: 'cash',
+        monthlyBudget: 'paying_cash',
+        decisionStage: 'ready_1_month',
+        newsletter: false,
+      },
+    });
+
+    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
+      'Անշարժ գույքի գնում սեփական բնակության համար',
+    );
+    expect(payload.answers[MOOTQ_FIELD.interestType]).toBe('Բնակարան կառուցապատողից (նորակառույց)');
+    expect(payload.answers[MOOTQ_FIELD.residenceLocationScope]).toBe('Երևան');
+    expect(payload.answers[MOOTQ_FIELD.residenceLocationDetails]).toEqual(['Կենտրոն']);
+    expect(payload.answers[MOOTQ_FIELD.residenceAreaSqm]).toBe('50 - 70 քմ');
+    expect(payload.answers[MOOTQ_FIELD.residencePurchaseMethod]).toBe('Կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.monthlyBudget]).toBe('Ձեռք եմ բերելու կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.decisionStage]).toBe(
+      'Պատրաստ եմ գործարք իրականացնել մոտ ժամանակում',
+    );
   });
 });
 
@@ -145,7 +209,7 @@ describe('executeMootqPushRequest', () => {
     payload: buildMootqPushPayload(fullPushInput),
   };
 
-  it('sends Authorization, Idempotency-Key, and JSON body without source ids', async () => {
+  it('sends Authorization, Idempotency-Key, and partner body fields', async () => {
     const fetchImpl = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
       expect(init?.method).toBe('POST');
       expect(init?.headers).toMatchObject({
@@ -155,7 +219,8 @@ describe('executeMootqPushRequest', () => {
       });
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
       expect(body).toEqual(baseParams.payload);
-      expect(body).not.toHaveProperty('sourceRegistrationId');
+      expect(body.eventKey).toBe('toon-expo-2026');
+      expect(body.sourceRegistrationId).toBe('reg_abc');
       expect(body).not.toHaveProperty('sourceSystem');
       return new Response(null, { status: 201 });
     });
