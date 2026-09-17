@@ -13,20 +13,21 @@ Retry-cron’ы **opt-in**, чтобы Neon не держался awake без �
 | Env | Сейчас | Когда включить |
 |-----|--------|----------------|
 | `DELIVERY_CRON_ENABLED` | `false` | Перед событием / когда нужен retry email·SMS |
-| `MOOTQ_PUSH_CRON_ENABLED` | `false` | Когда Mootq даст `MOOTQ_PUSH_URL` + `MOOTQ_PUSH_KEY` |
+| `MOOTQ_PUSH_CRON_ENABLED` | `true` (local) | После получения `MOOTQ_PUSH_*`; mirror to Vercel Production |
 
 - `true` / `1` = **ON** (обрабатывает jobs)
 - unset / `false` = **OFF** (ответ `DISABLED`, Neon не трогает)
 
-Расписание Vercel: только delivery в [`vercel.json`](vercel.json) (`0 * * * *`). Mootq-push cron **убран** из расписания, пока нет их URL.
+Расписание Vercel: delivery + sheets (`0 * * * *`), mootq-push (`* * * * *`) в [`vercel.json`](vercel.json).
 
 Регистрация / email / SMS / push сразу после ответа (`after()`) от флагов **не зависят**. Флаги режут только периодический retry.
 
 ### Перед событием (чеклист)
 
-1. Vercel Production env: `DELIVERY_CRON_ENABLED=true`
-2. Когда Mootq даст push endpoint: добавить `MOOTQ_PUSH_URL` / `MOOTQ_PUSH_KEY`, вернуть cron в `vercel.json`, `MOOTQ_PUSH_CRON_ENABLED=true`
+1. Vercel Production env: `DELIVERY_CRON_ENABLED=true` (когда нужен email/SMS retry)
+2. Vercel Production: `MOOTQ_PUSH_URL` / `MOOTQ_PUSH_KEY` / `MOOTQ_PUSH_CRON_ENABLED=true` (+ `MOOTQ_WRITE_KEY` для inbound)
 3. Redeploy после смены env / `vercel.json`
-4. После события: снова `false` (или unset), чтобы Neon мог уснуть
+4. После события: cron-флаги снова `false` (или unset), чтобы Neon мог уснуть
+
 
 Подробнее: [`.env.example`](.env.example) · [`docs/technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md`](docs/technical-specification/11-VERCEL-PRODUCTION-CHECKLIST.md)
