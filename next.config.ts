@@ -1,42 +1,21 @@
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+import { DEFAULT_CONTENT_SECURITY_POLICY } from './src/lib/security/content-security-policy';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
-/**
- * Pragmatic CSP for Next.js App Router + Auth.js (server-side Resend only).
- * `unsafe-inline` is required for Next.js inline bootstrap scripts and CSS-in-JS /
- * Tailwind runtime style attributes. Revisit with nonces when hardening further.
- * `unsafe-eval` is allowed only in development — React DevTools / RSC reconstruction
- * need it; production never includes it.
- */
 const isDev = process.env.NODE_ENV === 'development';
 
-const CONTENT_SECURITY_POLICY = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "img-src 'self' data: blob: https://*.google-analytics.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.am https://mc.yandex.ru https://mc.yandex.com https://yandex.ru https://www.facebook.com",
-  "font-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com https://mc.yandex.ru https://mc.yandex.com https://connect.facebook.net${isDev ? " 'unsafe-eval'" : ''}`,
-  "connect-src 'self' https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://*.google.com https://*.google.am https://pagead2.googlesyndication.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru wss://mc.yandex.com https://www.facebook.com https://connect.facebook.net",
-  'frame-src https://www.googletagmanager.com blob: https://mc.yandex.ru https://mc.yandex.com',
-  "worker-src 'self' blob:",
-  ...(isDev ? [] : ['upgrade-insecure-requests']),
-].join('; ');
+const DENY_FRAMING_HEADER = { key: 'X-Frame-Options', value: 'DENY' } as const;
 
 const SECURITY_HEADERS = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   {
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   },
-  { key: 'Content-Security-Policy', value: CONTENT_SECURITY_POLICY },
+  { key: 'Content-Security-Policy', value: DEFAULT_CONTENT_SECURITY_POLICY },
   ...(isDev
     ? []
     : [
@@ -65,11 +44,23 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/api/:path*',
-        headers: [...NO_STORE_HEADERS],
+        headers: [...NO_STORE_HEADERS, DENY_FRAMING_HEADER],
       },
       {
         source: '/admin/:path*',
-        headers: [...NO_STORE_HEADERS],
+        headers: [...NO_STORE_HEADERS, DENY_FRAMING_HEADER],
+      },
+      {
+        source: '/ticket/:path*',
+        headers: [DENY_FRAMING_HEADER],
+      },
+      {
+        source: '/rf/:path*',
+        headers: [DENY_FRAMING_HEADER],
+      },
+      {
+        source: '/:locale(hy|en|ru)/rf/:path*',
+        headers: [DENY_FRAMING_HEADER],
       },
     ];
   },
