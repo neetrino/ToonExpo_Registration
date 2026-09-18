@@ -1,11 +1,18 @@
 import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
+import { isMetaEventSetupPath } from '@/lib/analytics/route-scope';
 import { authConfig } from '@/lib/auth/config';
+import { META_EVENT_SETUP_CONTENT_SECURITY_POLICY } from '@/lib/security/content-security-policy';
 import { handleIntlRouting } from './i18n/intl-middleware';
 
 const { auth } = NextAuth(authConfig);
 
 const ADMIN_NO_STORE = 'private, no-store, max-age=0, must-revalidate';
+
+function allowMetaEventSetup(response: NextResponse): NextResponse {
+  response.headers.set('Content-Security-Policy', META_EVENT_SETUP_CONTENT_SECURITY_POLICY);
+  return response;
+}
 
 export const proxy = auth((request) => {
   const { pathname } = request.nextUrl;
@@ -47,7 +54,8 @@ export const proxy = auth((request) => {
     return NextResponse.redirect(target);
   }
 
-  return handleIntlRouting(request);
+  const response = handleIntlRouting(request);
+  return isMetaEventSetupPath(pathname) ? allowMetaEventSetup(response) : response;
 });
 
 export const config = {
