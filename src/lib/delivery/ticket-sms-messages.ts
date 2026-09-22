@@ -6,14 +6,23 @@ export type TicketSmsMessageInput = {
 
 type MessageBuilder = (input: TicketSmsMessageInput) => string;
 
+/**
+ * One Latin GSM-7 body for every locale.
+ * Armenian or Cyrillic switches the SMS to UCS-2 (70 characters). The hosted-ticket
+ * URL is already longer than that, so any non-GSM character bills a second segment.
+ */
+function gsmTicketSms({ ticketUrl }: TicketSmsMessageInput): string {
+  return `TOON EXPO ticket: ${ticketUrl}`;
+}
+
 const messageBuilders: Record<Locale, MessageBuilder> = {
-  hy: ({ ticketUrl }) => `TOON EXPO տոմս՝ ${ticketUrl}`,
-  en: ({ ticketUrl }) => `TOON EXPO ticket: ${ticketUrl}`,
-  ru: ({ ticketUrl }) => `Билет TOON EXPO: ${ticketUrl}`,
+  hy: gsmTicketSms,
+  en: gsmTicketSms,
+  ru: gsmTicketSms,
 };
 
 /**
- * Build short localized SMS copy with the hosted-ticket link.
+ * Build GSM-7 SMS copy with the hosted-ticket link. Fits in one 160-character segment.
  */
 export function buildTicketSmsMessage(locale: Locale, input: TicketSmsMessageInput): string {
   return messageBuilders[locale](input);

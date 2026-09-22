@@ -127,7 +127,7 @@ The current Resend Pro plan provides 50,000 monthly emails. Production readiness
 
 ## 8. Dexatel SMS
 
-SMS contains a short localized message and the absolute hosted-ticket link.
+SMS contains one Latin GSM-7 message (`TOON EXPO ticket:` plus the absolute hosted-ticket link) for every locale. Armenian or Cyrillic would switch the message to UCS-2 and bill a second segment, because the ticket URL is already longer than 70 characters.
 
 Dexatel integration uses the existing Toon Expo account and alphanumeric sender `TOONEXPO`:
 
