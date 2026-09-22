@@ -121,7 +121,7 @@ Resend email contains:
 - inline CID QR generated from `ticketCode`;
 - readable ticket code;
 - absolute hosted-ticket link;
-- approved event/support information.
+- approved event details (INVEST 2026 Vol. 2, 13–15 November, 11:00–21:00, Meridian Expo Center) and a mailto unsubscribe footer.
 
 The current Resend Pro plan provides 50,000 monthly emails. Production readiness requires verified sender-domain authentication, confirmation of pay-as-you-go status and monitoring of quota/rate responses.
 
