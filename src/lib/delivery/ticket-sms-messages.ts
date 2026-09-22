@@ -4,17 +4,42 @@ export type TicketSmsMessageInput = {
   ticketUrl: string;
 };
 
-type MessageBuilder = (input: TicketSmsMessageInput) => string;
+/** One GSM-7 SMS holds 160 septets. Unicode switches the whole message to UCS-2. */
+const GSM_7_SINGLE_SEGMENT_MAX = 160;
+const UCS2_SINGLE_SEGMENT_MAX = 70;
 
-const messageBuilders: Record<Locale, MessageBuilder> = {
-  hy: ({ ticketUrl }) => `TOON EXPO տոմս՝ ${ticketUrl}`,
-  en: ({ ticketUrl }) => `TOON EXPO ticket: ${ticketUrl}`,
-  ru: ({ ticketUrl }) => `Билет TOON EXPO: ${ticketUrl}`,
+/** GSM 03.38 basic alphabet. One character outside this set forces UCS-2. */
+const GSM_7_BASIC = new Set(
+  '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà',
+);
+
+type MessageBuilder = (ticketUrl: string) => string;
+
+function latinTicketSms(ticketUrl: string): string {
+  return `TOON EXPO ticket: ${ticketUrl}`;
+}
+
+const localizedBuilders: Record<Locale, MessageBuilder> = {
+  hy: (ticketUrl) => `TOON EXPO տոմս՝ ${ticketUrl}`,
+  en: latinTicketSms,
+  ru: (ticketUrl) => `Билет: ${ticketUrl}`,
 };
 
+function fitsSingleSms(text: string): boolean {
+  const gsm7 = [...text].every((char) => GSM_7_BASIC.has(char));
+  const limit = gsm7 ? GSM_7_SINGLE_SEGMENT_MAX : UCS2_SINGLE_SEGMENT_MAX;
+  return [...text].length <= limit;
+}
+
 /**
- * Build short localized SMS copy with the hosted-ticket link.
+ * SMS body with the hosted-ticket link.
+ * Armenian and Russian copy is used when it fits in one 70-character UCS-2 segment.
+ * Longer legacy links fall back to Latin GSM-7 so the send still costs one SMS.
  */
 export function buildTicketSmsMessage(locale: Locale, input: TicketSmsMessageInput): string {
-  return messageBuilders[locale](input);
+  const localized = localizedBuilders[locale](input.ticketUrl);
+  if (fitsSingleSms(localized)) {
+    return localized;
+  }
+  return latinTicketSms(input.ticketUrl);
 }

@@ -71,7 +71,7 @@ Mootq operates a second registration form for roughly 10% of attendees and owns 
 - Email uses Resend Pro with pay-as-you-go included; production sender is `hi@mail.toonexpo.com` on verified domain `mail.toonexpo.com`.
 - Email contains an inline QR image, readable code and a link to the hosted ticket page.
 - Hosted ticket pages use production domain `reg.toonexpo.com` (planned).
-- Interim email copy may use a polished designed template until final marketing copy is approved; SMS copy is short and localized.
+- Interim email copy may use a polished designed template until final marketing copy is approved. SMS is one segment: Armenian or Russian when the 128-bit ticket link fits, otherwise Latin `TOON EXPO ticket:`.
 - SMS uses Dexatel (`TOONEXPO` sender) with the hosted-ticket link; API verified 2026-07-28.
 - Provider failures do not remove the registration or ticket.
 - A small PostgreSQL delivery-job table provides durable retry; no external queue is introduced.

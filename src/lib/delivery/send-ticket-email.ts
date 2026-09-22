@@ -2,6 +2,7 @@ import { getEnv } from '@/lib/env';
 import { buildTicketEmailMessage } from '@/lib/delivery/ticket-email-messages';
 import { DELIVERY_PROVIDER_TIMEOUT_MS, TICKET_QR_CONTENT_ID } from '@/lib/delivery/constants';
 import { logger } from '@/lib/logger';
+import { buildHostedTicketUrl } from '@/lib/tickets/hosted-ticket-url';
 import { renderTicketQrPng } from '@/lib/tickets/qr';
 import type { Locale } from '@/generated/prisma';
 
@@ -42,7 +43,7 @@ export async function sendTicketEmail(input: TicketEmailInput): Promise<TicketEm
     return { ok: false, reason: 'placeholder_key', retryable: false };
   }
 
-  const ticketUrl = `${siteUrl}/ticket/${encodeURIComponent(input.ticketViewToken)}`;
+  const ticketUrl = buildHostedTicketUrl(siteUrl, input.ticketViewToken);
   const message = buildTicketEmailMessage(input.locale, {
     firstName: input.firstName,
     ticketCode: input.ticketCode,

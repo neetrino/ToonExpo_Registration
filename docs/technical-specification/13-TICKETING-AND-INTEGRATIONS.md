@@ -56,7 +56,7 @@ Toon Expo generation is protected by a unique database constraint and bounded re
 - The hosted page renders the same code and supports PNG download.
 - QR image binaries are not stored in PostgreSQL.
 
-The hosted page uses an independent long random `ticketViewToken`. This token is not sent to Mootq and is not encoded in the scanner QR.
+The hosted page uses an independent 128-bit `ticketViewToken` (22-character base64url). Previously issued longer tokens stay valid. This token is not sent to Mootq and is not encoded in the scanner QR.
 
 ## 3. Toon Expo registration transaction
 
@@ -127,7 +127,7 @@ The current Resend Pro plan provides 50,000 monthly emails. Production readiness
 
 ## 8. Dexatel SMS
 
-SMS contains a short localized message and the absolute hosted-ticket link.
+New ticket links are short enough for one SMS with localized copy: Armenian `TOON EXPO տոմս՝` and Russian `Билет:` plus the absolute hosted-ticket link (UCS-2, 70 characters). English stays Latin GSM-7. A previously issued longer link falls back to `TOON EXPO ticket:` so a resend still costs one SMS.
 
 Dexatel integration uses the existing Toon Expo account and alphanumeric sender `TOONEXPO`:
 
