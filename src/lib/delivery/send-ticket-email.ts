@@ -1,5 +1,8 @@
 import { getEnv } from '@/lib/env';
-import { buildTicketEmailMessage } from '@/lib/delivery/ticket-email-messages';
+import {
+  buildTicketEmailMessage,
+  TICKET_EMAIL_LIST_UNSUBSCRIBE,
+} from '@/lib/delivery/ticket-email-messages';
 import { DELIVERY_PROVIDER_TIMEOUT_MS, TICKET_QR_CONTENT_ID } from '@/lib/delivery/constants';
 import { logger } from '@/lib/logger';
 import { buildHostedTicketUrl } from '@/lib/tickets/hosted-ticket-url';
@@ -10,6 +13,7 @@ export type TicketEmailInput = {
   registrationId: string;
   email: string;
   firstName: string;
+  lastName: string;
   locale: Locale;
   ticketCode: string;
   ticketViewToken: string;
@@ -46,6 +50,7 @@ export async function sendTicketEmail(input: TicketEmailInput): Promise<TicketEm
   const ticketUrl = buildHostedTicketUrl(siteUrl, input.ticketViewToken);
   const message = buildTicketEmailMessage(input.locale, {
     firstName: input.firstName,
+    lastName: input.lastName,
     ticketCode: input.ticketCode,
     ticketUrl,
     siteUrl,
@@ -76,6 +81,9 @@ export async function sendTicketEmail(input: TicketEmailInput): Promise<TicketEm
         subject: message.subject,
         text: message.text,
         html: message.html,
+        headers: {
+          'List-Unsubscribe': TICKET_EMAIL_LIST_UNSUBSCRIBE,
+        },
         attachments: [
           {
             filename: `toon-expo-ticket-${input.ticketCode}.png`,
