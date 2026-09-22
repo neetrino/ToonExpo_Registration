@@ -23,6 +23,7 @@ describe('buildTicketEmailMessage', () => {
     expect(message.html).toContain(sampleInput.ticketCode);
     expect(message.html).toContain('https://yandex.com/maps/-/CThIYFMT');
     expect(message.html).toContain('mailto:hi@mail.toonexpo.com');
+    expect(message.html).not.toContain('bgcolor="#00303d"');
     expect(message.text).toContain('11:00–21:00');
   });
 
@@ -33,6 +34,28 @@ describe('buildTicketEmailMessage', () => {
     expect(message.text).toContain('Հարգելի Ani Petrosyan,');
     expect(message.text).toContain('Նոյեմբերի 13 | 14 | 15');
     expect(message.html).toContain('ապաբաժանորդագրվել');
+  });
+
+  it('uses Russian copy when the visitor selected Russian', () => {
+    const message = buildTicketEmailMessage('ru', sampleInput);
+
+    expect(message.subject).toBe('TOON EXPO - Ваша регистрация подтверждена');
+    expect(message.text).toContain('Здравствуйте, Ani Petrosyan,');
+    expect(message.text).toContain('Ваша регистрация подтверждена.');
+    expect(message.html).toContain('Ваш QR-код для входа');
+    expect(message.text).not.toContain('Հարգելի');
+    expect(message.text).not.toContain('Ձեր գրանցումը հաստատված է');
+    expect(message.html).not.toContain('Հարգելի');
+    expect(message.html).not.toContain('ապաբաժանորդագրվել');
+  });
+
+  it('uses English copy when the visitor selected English', () => {
+    const message = buildTicketEmailMessage('en', sampleInput);
+
+    expect(message.subject).toBe('TOON EXPO - Your registration is confirmed');
+    expect(message.text).toContain('Dear Ani Petrosyan,');
+    expect(message.text).not.toContain('Հարգելի');
+    expect(message.html).not.toContain('Ձեր գրանցումը հաստատված է');
   });
 
   it('escapes HTML in firstName and URLs in attributes', () => {

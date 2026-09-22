@@ -159,13 +159,9 @@ function qrSection(copy: EmailCopy, ticketCode: string): string {
 }
 
 function eventSection(copy: EmailCopy, mapUrl: string): string {
-  return `<tr><td style="padding:20px 28px 0;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" bgcolor="#00303d" style="background:#00303d;border-radius:12px;">
-      <tr><td style="padding:20px 22px;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
-        <div style="font-size:16px;font-weight:800;">${escapeHtml(EVENT_TITLE)}</div>
-        <p style="margin:12px 0 0;font-size:14px;line-height:1.7;">📅 ${escapeHtml(copy.dates)}<br />🕚 ${escapeHtml(EVENT_HOURS)}<br />📍 <a href="${mapUrl}" style="color:#ffd700;text-decoration:underline;">${escapeHtml(copy.venue)}</a></p>
-      </td></tr>
-    </table>
+  return `<tr><td style="padding:20px 28px 0;font-family:Arial,Helvetica,sans-serif;color:#00303d;">
+    <p style="margin:0;font-size:16px;font-weight:700;line-height:1.5;">${escapeHtml(EVENT_TITLE)}</p>
+    <p style="margin:10px 0 0;font-size:15px;font-weight:700;line-height:1.7;">📅 ${escapeHtml(copy.dates)}<br />🕚 ${escapeHtml(EVENT_HOURS)}<br />📍 <a href="${mapUrl}" style="color:#00303d;font-weight:700;text-decoration:underline;">${escapeHtml(copy.venue)}</a></p>
   </td></tr>`;
 }
 
