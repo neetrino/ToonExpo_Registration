@@ -57,7 +57,7 @@
 | `TE`/`MQ` prefixed scanner format (`^(TE\|MQ)[A-Z0-9]{11}$`) | Confirmed by Mootq with Toon Expo                                     |
 | Dexatel SMS API                                   | Approved; existing Toon Expo account (`TOONEXPO`)                      |
 | Resend pay-as-you-go/domain                       | Pro includes pay-as-you-go; `mail.toonexpo.com` verified; from `hi@mail.toonexpo.com` |
-| Email/SMS copy and ticket domain                  | Interim designed email OK; SMS one Latin GSM-7 segment; domain `reg.toonexpo.com` |
+| Email/SMS copy and ticket domain                  | Interim designed email OK; SMS one segment (localized on new 128-bit links); domain `reg.toonexpo.com` |
 | Block/ban/deletion product features               | Out of scope — registration and ticket delivery only                       |
 | Mootq v1 contract (2026-08-18)                    | Accept Mootq draft as base: full immediate TE→MQ POST, nightly MQ→TE, own-form ticket delivery only, ≤5 req/s, no feed/full-sync/attendance/WebSocket in v1. Send [`16`](./16-MOOTQ-INTEGRATION-CONTRACT.md). |
 

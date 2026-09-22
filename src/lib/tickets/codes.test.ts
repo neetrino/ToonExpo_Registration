@@ -28,9 +28,10 @@ describe('ticket codes', () => {
     expect(isValidTicketCode(' abcdefghijklm')).toBe(false);
   });
 
-  it('generates a long ticket view token', () => {
+  it('generates a 128-bit base64url ticket view token', () => {
     const token = generateTicketViewToken();
-    expect(token.length).toBeGreaterThanOrEqual(40);
+    expect(token).toHaveLength(22);
+    expect(token.length).toBeGreaterThanOrEqual(20);
     expect(token).not.toMatch(/[+/=]/);
   });
 });

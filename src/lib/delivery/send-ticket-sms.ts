@@ -1,6 +1,7 @@
 import { getEnv } from '@/lib/env';
 import { DELIVERY_PROVIDER_TIMEOUT_MS } from '@/lib/delivery/constants';
 import { buildTicketSmsMessage } from '@/lib/delivery/ticket-sms-messages';
+import { buildHostedTicketUrl } from '@/lib/tickets/hosted-ticket-url';
 import { getDexatelSmsConfig } from '@/lib/integrations/dexatel/config';
 import { toDexatelPhoneDigits } from '@/lib/integrations/dexatel/phone';
 import { logger } from '@/lib/logger';
@@ -39,7 +40,7 @@ export async function sendTicketSms(input: TicketSmsInput): Promise<TicketSmsRes
     return { ok: false, reason: 'invalid_phone', retryable: false };
   }
 
-  const ticketUrl = `${siteUrl}/ticket/${encodeURIComponent(input.ticketViewToken)}`;
+  const ticketUrl = buildHostedTicketUrl(siteUrl, input.ticketViewToken);
   const text = buildTicketSmsMessage(input.locale, { ticketUrl });
 
   const controller = new AbortController();

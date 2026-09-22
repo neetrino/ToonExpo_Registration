@@ -5,8 +5,12 @@ import {
   TOON_EXPO_TICKET_PREFIX,
 } from '@/lib/tickets/ticket-code-format';
 
-/** Hosted-ticket bearer token length in bytes before base64url encoding. */
-export const TICKET_VIEW_TOKEN_BYTES = 32;
+/**
+ * 128-bit hosted-ticket bearer, before base64url encoding.
+ * Encodes to 22 characters, above the hosted-page minimum of 20.
+ * Previously issued 32-byte tokens stay valid; only new links use this length.
+ */
+export const TICKET_VIEW_TOKEN_BYTES = 16;
 
 /**
  * Generate a cryptographically secure Toon Expo ticket code: `TE` + 11 uppercase alphanumerics.
@@ -21,8 +25,8 @@ export function generateTicketCode(): string {
 }
 
 /**
- * Generate a long unguessable bearer token for hosted ticket links.
- * Server-only.
+ * Generate an unguessable bearer token for hosted ticket links.
+ * Server-only. 128 bits keeps the SMS link inside one UCS-2 segment.
  */
 export function generateTicketViewToken(): string {
   return randomBytes(TICKET_VIEW_TOKEN_BYTES).toString('base64url');
