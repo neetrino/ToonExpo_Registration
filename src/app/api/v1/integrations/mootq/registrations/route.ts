@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { ZodIssue } from 'zod';
 import { authenticateMootqRequest } from '@/lib/integrations/mootq/auth';
 import { MOOTQ_MAX_BODY_BYTES } from '@/lib/integrations/mootq/constants';
 import { getMootqToonExpoFeed } from '@/lib/integrations/mootq/feed';
@@ -40,11 +41,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const parsed = mootqInboundBodySchema.safeParse(rawBody);
   if (!parsed.success) {
+    const fields = inboundValidationFields(parsed.error.issues);
     logger.info('Mootq inbound validation failed', {
       requestId,
-      fields: parsed.error.issues.map((issue) => issue.path.join('.')).join(','),
+      fields: fields.join(','),
     });
-    return jsonError(400, 'VALIDATION_ERROR', requestId);
+    return jsonError(400, 'VALIDATION_ERROR', requestId, fields);
   }
 
   try {
@@ -95,9 +97,34 @@ export async function GET(request: Request): Promise<NextResponse> {
   });
 }
 
-function jsonError(status: number, code: string, requestId: string): NextResponse {
+function inboundValidationFields(issues: ZodIssue[]): string[] {
+  const names = new Set<string>();
+  for (const issue of issues) {
+    const path = issue.path.map(String).join('.');
+    if (path) {
+      names.add(path);
+    }
+  }
+  return [...names].slice(0, 12);
+}
+
+function jsonError(
+  status: number,
+  code: string,
+  requestId: string,
+  fields?: string[],
+): NextResponse {
+  const body: { ok: false; code: string; requestId: string; fields?: string[] } = {
+    ok: false,
+    code,
+    requestId,
+  };
+  if (fields && fields.length > 0) {
+    body.fields = fields;
+  }
+
   return NextResponse.json(
-    { ok: false, code, requestId },
+    body,
     {
       status,
       headers: {

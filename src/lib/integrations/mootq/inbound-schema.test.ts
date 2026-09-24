@@ -85,11 +85,18 @@ describe('mootqInboundBodySchema', () => {
     ).toBe(false);
   });
 
-  it('rejects sourceSystem overrides via strict schema', () => {
+  it('ignores partner extras such as eventKey and sourceSystem', () => {
     const parsed = mootqInboundBodySchema.safeParse({
       ...validBody,
+      eventKey: 'toon-expo-2026',
       sourceSystem: 'TOON_EXPO',
+      utmSource: 'partner-test',
     });
-    expect(parsed.success).toBe(false);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.ticketCode).toBe('MQ8D6N4T7C2X9');
+      expect(parsed.data).not.toHaveProperty('eventKey');
+      expect(parsed.data).not.toHaveProperty('sourceSystem');
+    }
   });
 });
