@@ -85,11 +85,48 @@ describe('mootqInboundBodySchema', () => {
     ).toBe(false);
   });
 
-  it('rejects sourceSystem overrides via strict schema', () => {
+  it('accepts a rehearsal payload with eventKey and partner answers', () => {
+    const parsed = mootqInboundBodySchema.safeParse({
+      eventKey: 'toon-expo-2026',
+      sourceRegistrationId: 'mq-rehearsal-1',
+      ticketCode: 'MQ7K4M2X9P3R8',
+      registeredAt: '2026-09-24T10:15:30.000000Z',
+      firstName: 'Փորձ',
+      lastName: 'Այցելու',
+      email: 'Visitor.Test@Example.com',
+      phone: '+374 99 123456',
+      locale: 'hy',
+      sourceSystem: 'MOOTQ',
+      answers: {
+        field_1788873742063: '25-34',
+        company: null,
+        nested: { ignored: true },
+      },
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.ticketCode).toBe('MQ7K4M2X9P3R8');
+      expect(parsed.data.emailNormalized).toBe('visitor.test@example.com');
+      expect(parsed.data.phoneNormalized).toBe('+37499123456');
+      expect(parsed.data.answers).toEqual({
+        field_1788873742063: '25-34',
+        company: null,
+      });
+    }
+  });
+
+  it('ignores partner extras such as eventKey and sourceSystem', () => {
     const parsed = mootqInboundBodySchema.safeParse({
       ...validBody,
+      eventKey: 'toon-expo-2026',
       sourceSystem: 'TOON_EXPO',
+      utmSource: 'partner-test',
     });
-    expect(parsed.success).toBe(false);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.ticketCode).toBe('MQ8D6N4T7C2X9');
+      expect(parsed.data).not.toHaveProperty('eventKey');
+      expect(parsed.data).not.toHaveProperty('sourceSystem');
+    }
   });
 });

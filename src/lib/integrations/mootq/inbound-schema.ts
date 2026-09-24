@@ -13,7 +13,9 @@ export type MootqInboundAnswers = Record<string, MootqInboundAnswerValue>;
 
 /**
  * Mootq → Toon Expo registration body (contract 16).
- * Rejects sourceSystem. Unknown answers keys are kept; nested objects are dropped.
+ * Unknown top-level keys (`eventKey`, `sourceSystem`, UTM) are ignored.
+ * Source is assigned from the credential, not the body.
+ * Unknown answers keys are kept; nested objects are dropped.
  */
 export const mootqInboundBodySchema = z
   .object({
@@ -42,7 +44,6 @@ export const mootqInboundBodySchema = z
     registeredAt: z.string().datetime({ offset: true }),
     answers: z.unknown().optional(),
   })
-  .strict()
   .superRefine((data, ctx) => {
     const phone = normalizePhone(data.phone);
     if (!phone) {
