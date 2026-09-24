@@ -1,6 +1,6 @@
 # Google Sheets — Apps Script webhook (no Google Cloud)
 
-Online copy of **TOON EXPO** registrations for the team. Neon remains the source of truth; the Sheet is a readable append-only mirror.
+Online copy of **TOON EXPO** registrations for the team. Neon remains the source of truth; the Sheet is a readable mirror. Append stays the normal path. One live-test phone (`+37495426165`) is removed from Neon and from the matching tab 30 minutes after registration.
 
 Admin CSV export stays available as a backup / offline dump.
 
@@ -82,3 +82,13 @@ Legacy English tab names `General` / `Spyurk RF` are renamed on the first succes
 ## Failure
 
 If the webhook is down, the registration is still saved. Fix the script / env, then cron (or a manual Bearer call to the internal process route) retries pending rows.
+
+---
+
+## Live-test phone
+
+`+37495426165` only. General and Spyurk registrations with that normalized number are deleted 30 minutes after `createdAt`.
+
+Set `EPHEMERAL_TEST_PHONE_PURGE_ENABLED=true`. Vercel Cron `* * * * *` calls `GET /api/internal/ephemeral-test-phone/purge` with `CRON_SECRET`. When the flag is off, the route returns `DISABLED` and does not open Neon. The job asks Apps Script `action: "deleteByRegistrationId"` on the registration's tab (`Ընդհանուր` or `Սփյուռք ՌԴ`), then deletes the Neon row. Other phones are not selected.
+
+After updating [`docs/apps-script/Code.gs`](./apps-script/Code.gs), deploy a **new Apps Script version**. Until that version is live, a failed sheet delete keeps the Neon row so the next minute can retry.

@@ -11,6 +11,10 @@
     {
       "path": "/api/internal/sheets-push/process",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/internal/ephemeral-test-phone/purge",
+      "schedule": "* * * * *"
     }
   ]
 }

@@ -57,6 +57,10 @@ function doPost(event) {
       return resetSheet(sheet, payload.headers, payload.rows);
     }
 
+    if (payload.action === 'deleteByRegistrationId') {
+      return deleteRowsByRegistrationId(sheet, payload.registrationId);
+    }
+
     const values = payload.values;
     if (!Array.isArray(values) || values.length === 0 || values.length > MAX_VALUES) {
       return jsonResponse({ error: 'invalid' });
@@ -234,6 +238,48 @@ function beautifyLastRow(sheet, columnCount) {
   var range = sheet.getRange(lastRow, 1, 1, columnCount);
   range.setWrap(true);
   range.setVerticalAlignment('top');
+}
+
+/**
+ * Delete data rows whose "Գրանցման ID" cell matches registrationId.
+ * Header text must stay in sync with SHEET_IDENTITY_COLUMNS.
+ */
+function deleteRowsByRegistrationId(sheet, registrationId) {
+  if (
+    typeof registrationId !== 'string' ||
+    !/^[A-Za-z0-9_-]{8,64}$/.test(registrationId)
+  ) {
+    return jsonResponse({ error: 'invalid' });
+  }
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+  if (lastRow < 2 || lastCol < 1) {
+    return jsonResponse({ ok: true, deleted: 0 });
+  }
+
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var idColumn = 0;
+  for (var i = 0; i < headers.length; i++) {
+    if (String(headers[i]) === 'Գրանցման ID') {
+      idColumn = i + 1;
+      break;
+    }
+  }
+  if (idColumn < 1) {
+    return jsonResponse({ error: 'id_column_missing' });
+  }
+
+  var idValues = sheet.getRange(2, idColumn, lastRow - 1, 1).getValues();
+  var deleted = 0;
+  for (var row = idValues.length - 1; row >= 0; row--) {
+    if (String(idValues[row][0]) === registrationId) {
+      sheet.deleteRow(row + 2);
+      deleted++;
+    }
+  }
+
+  return jsonResponse({ ok: true, deleted: deleted });
 }
 
 function sanitizeCell(value) {

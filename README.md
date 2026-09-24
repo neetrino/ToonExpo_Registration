@@ -14,11 +14,12 @@ Retry-cron’ы **opt-in**, чтобы Neon не держался awake без �
 |-----|--------|----------------|
 | `DELIVERY_CRON_ENABLED` | `false` | Перед событием / когда нужен retry email·SMS |
 | `MOOTQ_PUSH_CRON_ENABLED` | `true` (local) | После получения `MOOTQ_PUSH_*`; mirror to Vercel Production |
+| `EPHEMERAL_TEST_PHONE_PURGE_ENABLED` | `false` | Пока нужен авто-удаление `+37495426165` через 30 минут |
 
 - `true` / `1` = **ON** (обрабатывает jobs)
 - unset / `false` = **OFF** (ответ `DISABLED`, Neon не трогает)
 
-Расписание Vercel: delivery + sheets (`0 * * * *`), mootq-push (`* * * * *`) в [`vercel.json`](vercel.json).
+Расписание Vercel: delivery + sheets (`0 * * * *`), mootq-push и тестовый номер `+37495426165` (`* * * * *`) в [`vercel.json`](vercel.json). Тестовый номер удаляется из Neon и Google Sheets через 30 минут (general и Spyurk). После правки Apps Script нужен новый deployment.
 
 Регистрация / email / SMS / push сразу после ответа (`after()`) от флагов **не зависят**. Флаги режут только периодический retry.
 
