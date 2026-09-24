@@ -127,7 +127,7 @@ The current Resend Pro plan provides 50,000 monthly emails. Production readiness
 
 ## 8. Dexatel SMS
 
-New ticket links are short enough for one SMS with localized copy: Armenian `TOON EXPO տոմս՝` and Russian `Билет:` plus the absolute hosted-ticket link (UCS-2, 70 characters). English stays Latin GSM-7. A previously issued longer link falls back to `TOON EXPO ticket:` so a resend still costs one SMS.
+New ticket links are short enough for one SMS: Armenian and English use Latin `TOON EXPO ticket:` (GSM-7). Russian uses `Билет:` plus the absolute hosted-ticket link when it fits one UCS-2 segment (70 characters). A previously issued longer link falls back to `TOON EXPO ticket:` so a resend still costs one SMS.
 
 Dexatel integration uses the existing Toon Expo account and alphanumeric sender `TOONEXPO`:
 
