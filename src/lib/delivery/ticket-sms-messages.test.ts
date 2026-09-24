@@ -7,12 +7,13 @@ const PRODUCTION_ORIGIN = 'https://reg.toonexpo.com';
 const LEGACY_TOKEN = 'HGLiaUBpicse_hCY72ECMO_uoN0xiyq_kDcsZ1rUfFc';
 
 describe('buildTicketSmsMessage', () => {
-  it('uses Armenian copy in one UCS-2 segment for a new ticket link', () => {
+  it('uses Latin GSM-7 copy for Armenian locale', () => {
     const ticketUrl = buildHostedTicketUrl(PRODUCTION_ORIGIN, generateTicketViewToken());
     const text = buildTicketSmsMessage('hy', { ticketUrl });
 
-    expect(text).toBe(`TOON EXPO տոմս՝ ${ticketUrl}`);
-    expect(text.length).toBeLessThanOrEqual(70);
+    expect(text).toBe(`TOON EXPO ticket: ${ticketUrl}`);
+    expect(text).not.toMatch(/[Ա-ֆ]/);
+    expect(text.length).toBeLessThanOrEqual(160);
   });
 
   it('uses short Russian copy in one UCS-2 segment for a new ticket link', () => {

@@ -20,7 +20,7 @@ function latinTicketSms(ticketUrl: string): string {
 }
 
 const localizedBuilders: Record<Locale, MessageBuilder> = {
-  hy: (ticketUrl) => `TOON EXPO տոմս՝ ${ticketUrl}`,
+  hy: latinTicketSms,
   en: latinTicketSms,
   ru: (ticketUrl) => `Билет: ${ticketUrl}`,
 };
@@ -33,7 +33,8 @@ function fitsSingleSms(text: string): boolean {
 
 /**
  * SMS body with the hosted-ticket link.
- * Armenian and Russian copy is used when it fits in one 70-character UCS-2 segment.
+ * Armenian uses Latin GSM-7 (`TOON EXPO ticket:`) so Dexatel logs stay ASCII.
+ * Russian copy is used when it fits in one 70-character UCS-2 segment.
  * Longer legacy links fall back to Latin GSM-7 so the send still costs one SMS.
  */
 export function buildTicketSmsMessage(locale: Locale, input: TicketSmsMessageInput): string {
