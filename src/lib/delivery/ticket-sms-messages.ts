@@ -13,17 +13,19 @@ const GSM_7_BASIC = new Set(
   '@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&\'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà',
 );
 
-type MessageBuilder = (ticketUrl: string) => string;
-
-function latinTicketSms(ticketUrl: string): string {
-  return `TOON EXPO ticket: ${ticketUrl}`;
-}
-
-const localizedBuilders: Record<Locale, MessageBuilder> = {
-  hy: latinTicketSms,
-  en: latinTicketSms,
-  ru: (ticketUrl) => `Билет: ${ticketUrl}`,
+/**
+ * Latin ticket word per visitor locale.
+ * Armenian/Cyrillic scripts would switch the whole SMS to a 70-character UCS-2 segment.
+ */
+const TICKET_WORD_BY_LOCALE: Record<Locale, string> = {
+  hy: 'Toms',
+  en: 'Ticket',
+  ru: 'Bilet',
 };
+
+function buildTicketSmsBody(locale: Locale, ticketUrl: string): string {
+  return `TOON EXPO ${TICKET_WORD_BY_LOCALE[locale]}: ${ticketUrl}`;
+}
 
 function fitsSingleSms(text: string): boolean {
   const gsm7 = [...text].every((char) => GSM_7_BASIC.has(char));
@@ -33,14 +35,13 @@ function fitsSingleSms(text: string): boolean {
 
 /**
  * SMS body with the hosted-ticket link.
- * Armenian uses Latin GSM-7 (`TOON EXPO ticket:`) so Dexatel logs stay ASCII.
- * Russian copy is used when it fits in one 70-character UCS-2 segment.
- * Longer legacy links fall back to Latin GSM-7 so the send still costs one SMS.
+ * Copy stays Latin GSM-7: hy `Toms`, en `Ticket`, ru `Bilet`.
+ * A body that would exceed one segment falls back to English so a resend stays one SMS.
  */
 export function buildTicketSmsMessage(locale: Locale, input: TicketSmsMessageInput): string {
-  const localized = localizedBuilders[locale](input.ticketUrl);
+  const localized = buildTicketSmsBody(locale, input.ticketUrl);
   if (fitsSingleSms(localized)) {
     return localized;
   }
-  return latinTicketSms(input.ticketUrl);
+  return buildTicketSmsBody('en', input.ticketUrl);
 }
