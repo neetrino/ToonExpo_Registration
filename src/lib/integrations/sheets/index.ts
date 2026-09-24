@@ -10,6 +10,7 @@ export {
 export {
   appendSheetRow,
   assertSheetsWebhookOk,
+  deleteSheetRegistrationRow,
   sheetsSyncErrorCode,
 } from '@/lib/integrations/sheets/client';
 export { SHEET_TAB_NAMES, sanitizeSheetCell, toSheetsRow } from '@/lib/integrations/sheets/map-row';

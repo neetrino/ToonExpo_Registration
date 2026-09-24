@@ -1,6 +1,6 @@
 import { getSheetsWebhookConfig } from '@/lib/integrations/sheets/config';
 import { SHEETS_PUSH_TIMEOUT_MS } from '@/lib/integrations/sheets/constants';
-import type { SheetsRow } from '@/lib/integrations/sheets/map-row';
+import type { SheetsChannel, SheetsRow } from '@/lib/integrations/sheets/map-row';
 import { logger } from '@/lib/logger';
 
 export type AppendSheetRowResult = { ok: true } | { ok: false; reason: string; retryable: boolean };
@@ -30,6 +30,16 @@ export function sheetsSyncErrorCode(error: unknown): string {
     return error.message;
   }
   return 'SHEETS_UNKNOWN';
+}
+
+function classifySheetsWebhookFailure(error: unknown): AppendSheetRowResult {
+  const reason = sheetsSyncErrorCode(error);
+  const retryable =
+    reason === 'SHEETS_UNKNOWN' ||
+    reason === 'SHEETS_WEBHOOK_INVALID_JSON' ||
+    /^SHEETS_WEBHOOK_(429|5\d\d)$/.test(reason) ||
+    reason === 'SHEETS_WEBHOOK_failed';
+  return { ok: false, reason, retryable };
 }
 
 /**
@@ -74,12 +84,58 @@ export async function appendSheetRow(
     assertSheetsWebhookOk(body, response.status);
     return { ok: true };
   } catch (error: unknown) {
-    const reason = sheetsSyncErrorCode(error);
-    const retryable =
-      reason === 'SHEETS_UNKNOWN' ||
-      reason === 'SHEETS_WEBHOOK_INVALID_JSON' ||
-      /^SHEETS_WEBHOOK_(429|5\d\d)$/.test(reason) ||
-      reason === 'SHEETS_WEBHOOK_failed';
-    return { ok: false, reason, retryable };
+    return classifySheetsWebhookFailure(error);
+  }
+}
+
+export type DeleteSheetRegistrationRowInput = {
+  channel: SheetsChannel;
+  tab: string;
+  registrationId: string;
+};
+
+/**
+ * Ask Apps Script to remove one registration row from a single tab.
+ * Append behavior is unchanged; this is a separate webhook action.
+ */
+export async function deleteSheetRegistrationRow(
+  input: DeleteSheetRegistrationRowInput,
+  timeoutMs = SHEETS_PUSH_TIMEOUT_MS,
+): Promise<AppendSheetRowResult> {
+  const config = getSheetsWebhookConfig();
+  if (!config.ok) {
+    return {
+      ok: false,
+      reason: config.reason === 'URL_INVALID' ? 'SHEETS_WEBHOOK_URL_INVALID' : 'NOT_CONFIGURED',
+      retryable: config.reason === 'NOT_CONFIGURED',
+    };
+  }
+
+  try {
+    const response = await fetch(config.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret: config.secret,
+        channel: input.channel,
+        tab: input.tab,
+        action: 'deleteByRegistrationId',
+        registrationId: input.registrationId,
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+
+    let body: unknown;
+    try {
+      body = await response.json();
+    } catch {
+      logger.warn('sheets.webhook_invalid_json', { status: response.status });
+      return { ok: false, reason: 'SHEETS_WEBHOOK_INVALID_JSON', retryable: true };
+    }
+
+    assertSheetsWebhookOk(body, response.status);
+    return { ok: true };
+  } catch (error: unknown) {
+    return classifySheetsWebhookFailure(error);
   }
 }
