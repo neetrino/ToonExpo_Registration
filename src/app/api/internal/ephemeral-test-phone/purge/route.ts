@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import {
-  EPHEMERAL_TEST_PHONE_PURGE_ENABLED_ENV,
-  isCronFlagEnabled,
-} from '@/lib/ops/cron-flags';
+import { EPHEMERAL_TEST_PHONE_PURGE_ENABLED_ENV, isCronFlagEnabled } from '@/lib/ops/cron-flags';
 import { purgeExpiredEphemeralTestRegistrations } from '@/lib/registrations/purge-ephemeral-test-phone';
 import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
 import { secureSecretEqual } from '@/lib/security/secure-compare';
