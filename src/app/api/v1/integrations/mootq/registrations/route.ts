@@ -123,14 +123,11 @@ function jsonError(
     body.fields = fields;
   }
 
-  return NextResponse.json(
-    body,
-    {
-      status,
-      headers: {
-        ...NO_STORE,
-        ...requestIdHeaders(requestId),
-      },
+  return NextResponse.json(body, {
+    status,
+    headers: {
+      ...NO_STORE,
+      ...requestIdHeaders(requestId),
     },
-  );
+  });
 }
