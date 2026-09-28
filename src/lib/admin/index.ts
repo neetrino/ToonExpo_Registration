@@ -3,7 +3,7 @@ import { CSV_EXPORT_COLUMNS } from '@/lib/admin/constants';
 import { flattenRegistrationAnswersForExport } from '@/lib/admin/export-answers';
 import { formatAdminDateTimeForCsv } from '@/lib/admin/format-datetime';
 import { listRegistrationsForExport } from '@/lib/admin/list-registrations';
-import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import type { AdminListFilter } from '@/lib/admin/admin-url';
 
 /**
  * Build a formula-safe, human-readable CSV for the active event (optional search filter).
@@ -13,7 +13,7 @@ import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
  */
 export async function buildRegistrationsCsv(
   search?: string,
-  channel?: AdminFormChannelFilter,
+  channel?: AdminListFilter,
 ): Promise<{
   filename: string;
   csv: string;

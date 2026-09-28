@@ -7,7 +7,7 @@ import { AdminChannelFilter } from '@/components/admin/admin-channel-filter';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
 import { AdminListPagination } from '@/components/admin/admin-list-pagination';
 import { Button } from '@/components/ui/button';
-import { buildAdminHref, parseAdminFormChannel } from '@/lib/admin/admin-url';
+import { adminListFilterLabel, buildAdminHref, parseAdminListFilter } from '@/lib/admin/admin-url';
 import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
@@ -29,7 +29,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   const query = params.q?.trim() ?? '';
   const page = Math.max(1, Number.parseInt(params.page ?? '1', 10) || 1);
   const viewId = params.view?.trim() || undefined;
-  const channel = parseAdminFormChannel(params.channel);
+  const channel = parseAdminListFilter(params.channel);
 
   const [data, viewRegistration, syncRuns] = await Promise.all([
     listAdminRegistrations({ page, search: query || undefined, channel }),
@@ -135,7 +135,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             <p className="mt-3 text-sm text-muted-foreground">
               Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
               {query ? <> for &ldquo;{query}&rdquo;</> : null}
-              {channel ? ` in ${channel === 'SPYURK_RF' ? 'Spyurk RF' : 'General'}` : null}
+              {channel ? ` in ${adminListFilterLabel(channel)}` : null}
             </p>
           ) : null}
         </section>

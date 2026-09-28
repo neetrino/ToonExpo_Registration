@@ -1,22 +1,23 @@
 import Link from 'next/link';
-import { buildAdminHref, type AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import { buildAdminHref, type AdminListFilter } from '@/lib/admin/admin-url';
 import { cn } from '@/lib/utils';
 
-const CHANNELS: ReadonlyArray<{ id: AdminFormChannelFilter | undefined; label: string }> = [
+const FILTERS: ReadonlyArray<{ id: AdminListFilter | undefined; label: string }> = [
   { id: undefined, label: 'All' },
   { id: 'GENERAL', label: 'General' },
   { id: 'SPYURK_RF', label: 'Spyurk RF' },
+  { id: 'MOOTQ', label: 'Mootq' },
 ];
 
 type AdminChannelFilterProps = {
-  current?: AdminFormChannelFilter;
+  current?: AdminListFilter;
   query?: string;
 };
 
 export function AdminChannelFilter({ current, query }: AdminChannelFilterProps) {
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Form channel">
-      {CHANNELS.map((item) => {
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Registration filter">
+      {FILTERS.map((item) => {
         const active = current === item.id;
         return (
           <Link

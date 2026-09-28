@@ -1,7 +1,7 @@
 import type { Prisma } from '@/generated/prisma';
 import { getPrisma } from '@/lib/db';
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/constants';
-import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import type { AdminListFilter } from '@/lib/admin/admin-url';
 import { normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import type { Locale } from '@/types/locale';
 
@@ -44,12 +44,22 @@ function normalizeSearch(raw: string | undefined): string | undefined {
   return normalizeAdminSearchQuery(raw);
 }
 
+function listSourceFilter(filter?: AdminListFilter): Prisma.RegistrationWhereInput {
+  if (filter === 'MOOTQ') {
+    return { sourceSystem: 'MOOTQ' };
+  }
+  if (filter) {
+    return { formChannel: filter };
+  }
+  return {};
+}
+
 function buildSearchWhere(
   eventId: string,
   search: string | undefined,
-  channel?: AdminFormChannelFilter,
+  channel?: AdminListFilter,
 ): Prisma.RegistrationWhereInput {
-  const channelFilter = channel ? { formChannel: channel } : {};
+  const channelFilter = listSourceFilter(channel);
 
   if (!search) {
     return { eventId, ...channelFilter };
@@ -80,7 +90,7 @@ export async function listAdminRegistrations(options: {
   page?: number;
   search?: string;
   pageSize?: number;
-  channel?: AdminFormChannelFilter;
+  channel?: AdminListFilter;
 }): Promise<AdminListResult> {
   const prisma = getPrisma();
   const pageSize = options.pageSize ?? ADMIN_PAGE_SIZE;
@@ -157,7 +167,7 @@ export async function listAdminRegistrations(options: {
  */
 export async function listRegistrationsForExport(
   search?: string,
-  channel?: AdminFormChannelFilter,
+  channel?: AdminListFilter,
 ): Promise<{
   event: { id: string; name: string; slug: string } | null;
   rows: AdminRegistrationRow[];

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AdminRegistrationsList } from '@/components/admin/admin-registrations-list';
 import { RegistrationDetailSheet } from '@/components/admin/registration-detail-sheet';
-import { buildAdminHref, type AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import { buildAdminHref, type AdminListFilter } from '@/lib/admin/admin-url';
 import type { AdminRegistrationDetail } from '@/lib/admin/get-registration';
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
 
@@ -14,7 +14,7 @@ type AdminRegistrationsPanelProps = {
   event: EventSummary;
   query: string;
   page: number;
-  channel?: AdminFormChannelFilter;
+  channel?: AdminListFilter;
   initialView: AdminRegistrationDetail | null;
 };
 

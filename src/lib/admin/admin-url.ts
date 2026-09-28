@@ -1,19 +1,30 @@
 export type AdminFormChannelFilter = 'GENERAL' | 'SPYURK_RF';
 
+/** Admin list pill: a public form channel, or Mootq-origin registrations. */
+export type AdminListFilter = AdminFormChannelFilter | 'MOOTQ';
+
 type AdminUrlParams = {
   q?: string;
   page?: number;
   view?: string;
-  channel?: AdminFormChannelFilter;
+  channel?: AdminListFilter;
 };
 
-export function parseAdminFormChannel(
-  raw: string | undefined | null,
-): AdminFormChannelFilter | undefined {
-  if (raw === 'GENERAL' || raw === 'SPYURK_RF') {
+export function parseAdminListFilter(raw: string | undefined | null): AdminListFilter | undefined {
+  if (raw === 'GENERAL' || raw === 'SPYURK_RF' || raw === 'MOOTQ') {
     return raw;
   }
   return undefined;
+}
+
+export function adminListFilterLabel(filter: AdminListFilter): string {
+  if (filter === 'SPYURK_RF') {
+    return 'Spyurk RF';
+  }
+  if (filter === 'MOOTQ') {
+    return 'Mootq';
+  }
+  return 'General';
 }
 
 /**

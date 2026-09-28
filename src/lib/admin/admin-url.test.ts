@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import { adminListFilterLabel, buildAdminHref, parseAdminListFilter } from '@/lib/admin/admin-url';
 
 describe('buildAdminHref', () => {
   it('returns the dashboard root when filters are empty', () => {
@@ -23,5 +23,12 @@ describe('buildAdminHref', () => {
     expect(buildAdminHref({ q: 'sipan', page: 2, channel: 'GENERAL' })).toBe(
       '/admin?q=sipan&channel=GENERAL&page=2',
     );
+  });
+
+  it('keeps the Mootq source filter in the list URL', () => {
+    expect(buildAdminHref({ channel: 'MOOTQ' })).toBe('/admin?channel=MOOTQ');
+    expect(parseAdminListFilter('MOOTQ')).toBe('MOOTQ');
+    expect(parseAdminListFilter('OTHER')).toBeUndefined();
+    expect(adminListFilterLabel('MOOTQ')).toBe('Mootq');
   });
 });

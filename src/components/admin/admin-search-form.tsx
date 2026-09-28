@@ -6,13 +6,13 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ADMIN_SEARCH_DEBOUNCE_MS, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
-import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import type { AdminListFilter } from '@/lib/admin/admin-url';
 import { buildAdminSearchHref, normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import { cn } from '@/lib/utils';
 
 type AdminSearchFormProps = {
   initialQuery: string;
-  channel?: AdminFormChannelFilter;
+  channel?: AdminListFilter;
   variant?: 'default' | 'toolbar';
   className?: string;
 };
