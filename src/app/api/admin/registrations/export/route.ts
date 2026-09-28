@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { AdminSessionError, requireAdminSession } from '@/lib/auth';
-import { parseAdminListFilter } from '@/lib/admin/admin-url';
+import { parseAdminListFilters } from '@/lib/admin/admin-url';
 import { ADMIN_NO_STORE_HEADERS, buildRegistrationsCsv } from '@/lib/admin';
 import { logger } from '@/lib/logger';
 import { getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
@@ -31,9 +31,9 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('q') ?? undefined;
-  const channel = parseAdminListFilter(searchParams.get('channel'));
+  const channels = parseAdminListFilters(searchParams.getAll('channel'));
 
-  const result = await buildRegistrationsCsv(search, channel);
+  const result = await buildRegistrationsCsv(search, channels);
   if (!result) {
     return NextResponse.json(
       { ok: false, code: 'NO_ACTIVE_EVENT', requestId },

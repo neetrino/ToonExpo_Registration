@@ -13,12 +13,12 @@ import type { AdminListFilter } from '@/lib/admin/admin-url';
  */
 export async function buildRegistrationsCsv(
   search?: string,
-  channel?: AdminListFilter,
+  channels?: readonly AdminListFilter[],
 ): Promise<{
   filename: string;
   csv: string;
 } | null> {
-  const { event, rows } = await listRegistrationsForExport(search, channel);
+  const { event, rows } = await listRegistrationsForExport(search, channels ?? []);
 
   if (!event) {
     return null;

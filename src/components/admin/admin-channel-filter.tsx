@@ -1,28 +1,34 @@
 import Link from 'next/link';
-import { buildAdminHref, type AdminListFilter } from '@/lib/admin/admin-url';
+import {
+  adminListFilterLabel,
+  buildAdminHref,
+  toggleAdminListFilter,
+  ADMIN_LIST_FILTERS,
+  type AdminListFilter,
+} from '@/lib/admin/admin-url';
 import { cn } from '@/lib/utils';
 
 const FILTERS: ReadonlyArray<{ id: AdminListFilter | undefined; label: string }> = [
   { id: undefined, label: 'All' },
-  { id: 'GENERAL', label: 'General' },
-  { id: 'SPYURK_RF', label: 'Spyurk RF' },
-  { id: 'MOOTQ', label: 'Mootq' },
+  ...ADMIN_LIST_FILTERS.map((id) => ({ id, label: adminListFilterLabel(id) })),
 ];
 
 type AdminChannelFilterProps = {
-  current?: AdminListFilter;
+  selected: readonly AdminListFilter[];
   query?: string;
 };
 
-export function AdminChannelFilter({ current, query }: AdminChannelFilterProps) {
+export function AdminChannelFilter({ selected, query }: AdminChannelFilterProps) {
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="Registration filter">
       {FILTERS.map((item) => {
-        const active = current === item.id;
+        const active = item.id ? selected.includes(item.id) : selected.length === 0;
+        const channels = item.id ? toggleAdminListFilter(selected, item.id) : [];
         return (
           <Link
             key={item.label}
-            href={buildAdminHref({ q: query, channel: item.id })}
+            href={buildAdminHref({ q: query, channels })}
+            aria-pressed={active}
             className={cn(
               'inline-flex rounded-full px-3 py-1.5 text-xs font-medium tracking-wide',
               active

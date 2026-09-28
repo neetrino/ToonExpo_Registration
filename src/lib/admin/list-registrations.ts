@@ -44,32 +44,25 @@ function normalizeSearch(raw: string | undefined): string | undefined {
   return normalizeAdminSearchQuery(raw);
 }
 
-function listSourceFilter(filter?: AdminListFilter): Prisma.RegistrationWhereInput {
-  if (filter === 'MOOTQ') {
-    return { sourceSystem: 'MOOTQ' };
+function listFiltersWhere(filters: readonly AdminListFilter[]): Prisma.RegistrationWhereInput {
+  if (filters.length === 0) {
+    return {};
   }
-  if (filter) {
-    return { formChannel: filter };
-  }
-  return {};
+
+  return {
+    OR: filters.map((filter) =>
+      filter === 'MOOTQ' ? { sourceSystem: 'MOOTQ' } : { formChannel: filter },
+    ),
+  };
 }
 
-function buildSearchWhere(
-  eventId: string,
-  search: string | undefined,
-  channel?: AdminListFilter,
-): Prisma.RegistrationWhereInput {
-  const channelFilter = listSourceFilter(channel);
-
+function searchWhere(search: string | undefined): Prisma.RegistrationWhereInput {
   if (!search) {
-    return { eventId, ...channelFilter };
+    return {};
   }
 
   const lowered = search.toLowerCase();
-
   return {
-    eventId,
-    ...channelFilter,
     OR: [
       { firstName: { contains: search, mode: 'insensitive' } },
       { lastName: { contains: search, mode: 'insensitive' } },
@@ -83,6 +76,20 @@ function buildSearchWhere(
   };
 }
 
+function buildSearchWhere(
+  eventId: string,
+  search: string | undefined,
+  channels: readonly AdminListFilter[],
+): Prisma.RegistrationWhereInput {
+  const parts = [listFiltersWhere(channels), searchWhere(search)].filter(
+    (part) => Object.keys(part).length > 0,
+  );
+  if (parts.length === 0) {
+    return { eventId };
+  }
+  return { eventId, AND: parts };
+}
+
 /**
  * Load active-event registration summary and a paginated page (newest first).
  */
@@ -90,13 +97,13 @@ export async function listAdminRegistrations(options: {
   page?: number;
   search?: string;
   pageSize?: number;
-  channel?: AdminListFilter;
+  channels?: readonly AdminListFilter[];
 }): Promise<AdminListResult> {
   const prisma = getPrisma();
   const pageSize = options.pageSize ?? ADMIN_PAGE_SIZE;
   const page = Math.max(1, options.page ?? 1);
   const search = normalizeSearch(options.search);
-  const channel = options.channel;
+  const channels = options.channels ?? [];
 
   const event = await prisma.event.findFirst({
     where: { isActive: true },
@@ -114,7 +121,7 @@ export async function listAdminRegistrations(options: {
     };
   }
 
-  const where = buildSearchWhere(event.id, search, channel);
+  const where = buildSearchWhere(event.id, search, channels);
 
   const [totalCount, filteredCount, rows] = await Promise.all([
     prisma.registration.count({ where: { eventId: event.id } }),
@@ -167,7 +174,7 @@ export async function listAdminRegistrations(options: {
  */
 export async function listRegistrationsForExport(
   search?: string,
-  channel?: AdminListFilter,
+  channels: readonly AdminListFilter[] = [],
 ): Promise<{
   event: { id: string; name: string; slug: string } | null;
   rows: AdminRegistrationRow[];
@@ -185,7 +192,7 @@ export async function listRegistrationsForExport(
   }
 
   const rows = await prisma.registration.findMany({
-    where: buildSearchWhere(event.id, normalizedSearch, channel),
+    where: buildSearchWhere(event.id, normalizedSearch, channels),
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: {
       id: true,
