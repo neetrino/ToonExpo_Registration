@@ -4,8 +4,9 @@ import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from '@/lib/valida
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
 import { MOOTQ_SOURCE_REGISTRATION_ID_MAX } from '@/lib/integrations/mootq/constants';
+import { normalizeRegistrationLocale } from '@/lib/validation/locale';
 
-const localeSchema = z.enum(['hy', 'en', 'ru']);
+const localeSchema = z.preprocess(coerceInboundLocale, z.enum(['hy', 'en', 'ru']));
 
 export type MootqInboundAnswerValue = string | number | boolean | null | Array<string | number>;
 
@@ -100,6 +101,13 @@ export function sanitizeInboundAnswers(value: unknown): MootqInboundAnswers | un
     }
   }
   return sanitized;
+}
+
+function coerceInboundLocale(value: unknown): unknown {
+  if (typeof value !== 'string') {
+    return value;
+  }
+  return normalizeRegistrationLocale(value) ?? value;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

@@ -26,6 +26,22 @@ describe('mootqInboundBodySchema', () => {
     }
   });
 
+  it.each(['HY', 'hy-AM', 'am', 'հայերեն'])('stores canonical hy for locale %j', (locale) => {
+    const parsed = mootqInboundBodySchema.safeParse({ ...validBody, locale });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.locale).toBe('hy');
+    }
+  });
+
+  it('rejects an unsupported locale', () => {
+    const parsed = mootqInboundBodySchema.safeParse({ ...validBody, locale: 'fr' });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues.some((issue) => issue.path.join('.') === 'locale')).toBe(true);
+    }
+  });
+
   it('requires locale and registeredAt', () => {
     expect(mootqInboundBodySchema.safeParse({ ...validBody, locale: undefined }).success).toBe(
       false,

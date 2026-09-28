@@ -40,7 +40,7 @@ Validate:
 - `sourceRegistrationId` format/length;
 - `ticketCode` matching `^MQ[A-Z0-9]{11}$`;
 - name, email, phone;
-- required `locale` (`hy` | `en` | `ru`);
+- required `locale`, stored as `hy` | `en` | `ru` (case, BCP 47 tags such as `hy-AM`, and the aliases in contract §9 are normalized);
 - required `registeredAt`;
 - optional `answers` object (unknown keys kept; nested object values dropped).
 

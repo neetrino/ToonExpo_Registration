@@ -7,6 +7,7 @@ import { importMootqRegistration } from '@/lib/integrations/mootq/import-registr
 import { mootqInboundBodySchema } from '@/lib/integrations/mootq/inbound-schema';
 import { logger } from '@/lib/logger';
 import { createRequestId, getOrCreateRequestId, requestIdHeaders } from '@/lib/security';
+import { describeRejectedLocale } from '@/lib/validation/locale';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     logger.info('Mootq inbound validation failed', {
       requestId,
       fields: fields.join(','),
+      ...localeFailureLog(rawBody, fields),
     });
     return jsonError(400, 'VALIDATION_ERROR', requestId, fields);
   }
@@ -95,6 +97,26 @@ export async function GET(request: Request): Promise<NextResponse> {
       ...requestIdHeaders(requestId),
     },
   });
+}
+
+function localeFailureLog(
+  rawBody: unknown,
+  fields: string[],
+): { locale: string } | Record<string, never> {
+  if (!fields.includes('locale')) {
+    return {};
+  }
+  return { locale: describeRejectedLocale(readLocaleField(rawBody)) };
+}
+
+function readLocaleField(rawBody: unknown): unknown {
+  if (typeof rawBody !== 'object' || rawBody === null || Array.isArray(rawBody)) {
+    return undefined;
+  }
+  if (!Object.prototype.hasOwnProperty.call(rawBody, 'locale')) {
+    return undefined;
+  }
+  return Reflect.get(rawBody, 'locale');
 }
 
 function inboundValidationFields(issues: ZodIssue[]): string[] {
