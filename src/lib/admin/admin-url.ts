@@ -33,7 +33,7 @@ export function parseAdminListFilters(
   return ADMIN_LIST_FILTERS.filter((filter) => selected.has(filter));
 }
 
-/** Add a pill, or remove it when it is already selected. */
+/** Add a filter, or remove it when it is already selected. Empty means All. */
 export function toggleAdminListFilter(
   current: readonly AdminListFilter[],
   filter: AdminListFilter,

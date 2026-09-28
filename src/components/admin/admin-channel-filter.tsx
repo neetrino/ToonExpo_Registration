@@ -38,8 +38,10 @@ export function AdminChannelFilter({ selected, query }: AdminChannelFilterProps)
             key={item.label}
             type="button"
             aria-pressed={active}
-            onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
+              if (!item.id && selected.length === 0) {
+                return;
+              }
               router.push(href, { scroll: false });
             }}
             className={cn(

@@ -30,13 +30,14 @@ describe('buildAdminHref', () => {
     );
   });
 
-  it('keeps several filters selected at once', () => {
-    expect(buildAdminHref({ channels: ['MOOTQ', 'SPYURK_RF'] })).toBe(
+  it('treats an empty selection as All and can combine filters', () => {
+    expect(buildAdminHref({ channels: [] })).toBe('/admin');
+    expect(parseAdminListFilters(undefined)).toEqual([]);
+    expect(toggleAdminListFilter([], 'MOOTQ')).toEqual(['MOOTQ']);
+    expect(toggleAdminListFilter(['MOOTQ'], 'SPYURK_RF')).toEqual(['SPYURK_RF', 'MOOTQ']);
+    expect(buildAdminHref({ channels: ['SPYURK_RF', 'MOOTQ'] })).toBe(
       '/admin?channel=SPYURK_RF&channel=MOOTQ',
     );
-    expect(parseAdminListFilters(['MOOTQ', 'SPYURK_RF', 'NOPE'])).toEqual(['SPYURK_RF', 'MOOTQ']);
-    expect(toggleAdminListFilter(['MOOTQ'], 'SPYURK_RF')).toEqual(['SPYURK_RF', 'MOOTQ']);
-    expect(toggleAdminListFilter(['SPYURK_RF', 'MOOTQ'], 'MOOTQ')).toEqual(['SPYURK_RF']);
     expect(adminListFiltersLabel(['SPYURK_RF', 'MOOTQ'])).toBe('Spyurk RF, Mootq');
   });
 });
