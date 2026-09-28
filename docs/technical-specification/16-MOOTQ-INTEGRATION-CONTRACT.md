@@ -356,9 +356,11 @@ The `locale` field is required in every registration body:
 }
 ```
 
-Allowed values: `hy` | `en` | `ru`.
+Stored values: `hy` | `en` | `ru`.
 
-A missing or unsupported `locale` is a validation error (`400` or `422`).
+The receiver normalizes equivalent tokens before storage: any letter case, surrounding whitespace, `_` or `-`, and a BCP 47 tag whose primary language is one of the three (`hy-AM`, `en-US`, `ru-RU`). These aliases are also stored as the canonical code: `am`, `arm`, `hye`, `armenian`, `հայ`, `հայերեն` → `hy`; `eng`, `english`, `անգլերեն`, `английский` → `en`; `rus`, `russian`, `ռուսերեն`, `русский` → `ru`. `am` is accepted because partners send the Armenia country code in place of ISO 639-1 `hy`.
+
+A missing locale, or a value that does not map to `hy`, `en`, or `ru`, is a validation error (`400` or `422`). The `fields` array then contains `locale`.
 
 ```http
 Accept-Language: ru
