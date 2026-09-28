@@ -6,20 +6,20 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ADMIN_SEARCH_DEBOUNCE_MS, ADMIN_SEARCH_MAX_LENGTH } from '@/lib/admin/constants';
-import type { AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import type { AdminListFilter } from '@/lib/admin/admin-url';
 import { buildAdminSearchHref, normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import { cn } from '@/lib/utils';
 
 type AdminSearchFormProps = {
   initialQuery: string;
-  channel?: AdminFormChannelFilter;
+  channels?: readonly AdminListFilter[];
   variant?: 'default' | 'toolbar';
   className?: string;
 };
 
 export function AdminSearchForm({
   initialQuery,
-  channel,
+  channels,
   variant = 'default',
   className,
 }: AdminSearchFormProps) {
@@ -38,7 +38,7 @@ export function AdminSearchForm({
 
     committedQuery.current = nextQuery;
     startTransition(() => {
-      router.replace(buildAdminSearchHref(rawValue, channel));
+      router.replace(buildAdminSearchHref(rawValue, channels));
     });
   };
 
@@ -100,7 +100,7 @@ export function AdminSearchForm({
   const clearControl =
     value || initialQuery ? (
       <Button type="button" variant="ghost" size="sm" asChild className="min-h-10 shrink-0">
-        <Link href={buildAdminSearchHref('', channel)}>Clear</Link>
+        <Link href={buildAdminSearchHref('', channels)}>Clear</Link>
       </Button>
     ) : null;
 

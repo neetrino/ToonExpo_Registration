@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AdminRegistrationsList } from '@/components/admin/admin-registrations-list';
 import { RegistrationDetailSheet } from '@/components/admin/registration-detail-sheet';
-import { buildAdminHref, type AdminFormChannelFilter } from '@/lib/admin/admin-url';
+import { buildAdminHref, type AdminListFilter } from '@/lib/admin/admin-url';
 import type { AdminRegistrationDetail } from '@/lib/admin/get-registration';
 import type { AdminRegistrationRow } from '@/lib/admin/list-registrations';
 
@@ -14,7 +14,7 @@ type AdminRegistrationsPanelProps = {
   event: EventSummary;
   query: string;
   page: number;
-  channel?: AdminFormChannelFilter;
+  channels?: readonly AdminListFilter[];
   initialView: AdminRegistrationDetail | null;
 };
 
@@ -69,12 +69,12 @@ export function AdminRegistrationsPanel({
   event,
   query,
   page,
-  channel,
+  channels,
   initialView,
 }: AdminRegistrationsPanelProps) {
   const [view, setView] = useState<AdminRegistrationDetail | null>(initialView);
   const [prevInitialView, setPrevInitialView] = useState(initialView);
-  const closeHref = buildAdminHref({ q: query || undefined, page, channel });
+  const closeHref = buildAdminHref({ q: query || undefined, page, channels });
 
   if (initialView !== prevInitialView) {
     setPrevInitialView(initialView);
@@ -88,10 +88,10 @@ export function AdminRegistrationsPanel({
       window.history.pushState(
         { view: row.id },
         '',
-        buildAdminHref({ q: query || undefined, page, view: row.id, channel }),
+        buildAdminHref({ q: query || undefined, page, view: row.id, channels }),
       );
     },
-    [channel, event, page, query],
+    [channels, event, page, query],
   );
 
   const closeRegistration = useCallback(() => {

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildAdminHref } from '@/lib/admin/admin-url';
+import {
+  adminListFiltersLabel,
+  buildAdminHref,
+  parseAdminListFilters,
+  toggleAdminListFilter,
+} from '@/lib/admin/admin-url';
 
 describe('buildAdminHref', () => {
   it('returns the dashboard root when filters are empty', () => {
@@ -19,9 +24,20 @@ describe('buildAdminHref', () => {
   });
 
   it('keeps the form-channel filter across list and detail links', () => {
-    expect(buildAdminHref({ channel: 'SPYURK_RF' })).toBe('/admin?channel=SPYURK_RF');
-    expect(buildAdminHref({ q: 'sipan', page: 2, channel: 'GENERAL' })).toBe(
+    expect(buildAdminHref({ channels: ['SPYURK_RF'] })).toBe('/admin?channel=SPYURK_RF');
+    expect(buildAdminHref({ q: 'sipan', page: 2, channels: ['GENERAL'] })).toBe(
       '/admin?q=sipan&channel=GENERAL&page=2',
     );
+  });
+
+  it('treats an empty selection as All and can combine filters', () => {
+    expect(buildAdminHref({ channels: [] })).toBe('/admin');
+    expect(parseAdminListFilters(undefined)).toEqual([]);
+    expect(toggleAdminListFilter([], 'MOOTQ')).toEqual(['MOOTQ']);
+    expect(toggleAdminListFilter(['MOOTQ'], 'SPYURK_RF')).toEqual(['SPYURK_RF', 'MOOTQ']);
+    expect(buildAdminHref({ channels: ['SPYURK_RF', 'MOOTQ'] })).toBe(
+      '/admin?channel=SPYURK_RF&channel=MOOTQ',
+    );
+    expect(adminListFiltersLabel(['SPYURK_RF', 'MOOTQ'])).toBe('Spyurk RF, Mootq');
   });
 });

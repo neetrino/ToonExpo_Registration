@@ -7,7 +7,11 @@ import { AdminChannelFilter } from '@/components/admin/admin-channel-filter';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
 import { AdminListPagination } from '@/components/admin/admin-list-pagination';
 import { Button } from '@/components/ui/button';
-import { buildAdminHref, parseAdminFormChannel } from '@/lib/admin/admin-url';
+import {
+  adminListFiltersLabel,
+  buildAdminHref,
+  parseAdminListFilters,
+} from '@/lib/admin/admin-url';
 import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
@@ -17,7 +21,12 @@ import { requireAdminSession } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 type AdminDashboardPageProps = {
-  searchParams: Promise<{ q?: string; page?: string; view?: string; channel?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    page?: string;
+    view?: string;
+    channel?: string | string[];
+  }>;
 };
 
 export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
@@ -29,10 +38,10 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   const query = params.q?.trim() ?? '';
   const page = Math.max(1, Number.parseInt(params.page ?? '1', 10) || 1);
   const viewId = params.view?.trim() || undefined;
-  const channel = parseAdminFormChannel(params.channel);
+  const channels = parseAdminListFilters(params.channel);
 
   const [data, viewRegistration, syncRuns] = await Promise.all([
-    listAdminRegistrations({ page, search: query || undefined, channel }),
+    listAdminRegistrations({ page, search: query || undefined, channels }),
     viewId ? getAdminRegistration(viewId) : Promise.resolve(null),
     listAdminSyncRuns(20),
   ]);
@@ -43,15 +52,15 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   if (query) {
     exportParams.set('q', query);
   }
-  if (channel) {
-    exportParams.set('channel', channel);
+  for (const filter of channels) {
+    exportParams.append('channel', filter);
   }
   const exportQuery = exportParams.toString();
   const exportHref = exportQuery
     ? `/api/admin/registrations/export?${exportQuery}`
     : '/api/admin/registrations/export';
   const listHref = (targetPage: number) =>
-    buildAdminHref({ q: query || undefined, page: targetPage, channel });
+    buildAdminHref({ q: query || undefined, page: targetPage, channels });
 
   return (
     <div className="min-h-dvh bg-muted">
@@ -98,7 +107,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5 sm:flex-row sm:items-center lg:max-w-3xl lg:justify-end">
               <AdminSearchForm
                 initialQuery={query}
-                channel={channel}
+                channels={channels}
                 variant="toolbar"
                 className="min-w-0 flex-1"
               />
@@ -128,16 +137,20 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           </div>
 
-          <div className="mt-4">
-            <AdminChannelFilter current={channel} query={query || undefined} />
-          </div>
-          {query || channel ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
-              {query ? <> for &ldquo;{query}&rdquo;</> : null}
-              {channel ? ` in ${channel === 'SPYURK_RF' ? 'Spyurk RF' : 'General'}` : null}
+          <div className="mt-4 [overflow-anchor:none]">
+            <AdminChannelFilter selected={channels} query={query || undefined} />
+            <p className="mt-3 min-h-5 text-sm text-muted-foreground" aria-live="polite">
+              {query || channels.length > 0 ? (
+                <>
+                  Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
+                  {query ? <> for &ldquo;{query}&rdquo;</> : null}
+                  {channels.length > 0 ? ` in ${adminListFiltersLabel(channels)}` : null}
+                </>
+              ) : (
+                <span className="sr-only">Showing all registrations</span>
+              )}
             </p>
-          ) : null}
+          </div>
         </section>
 
         <AdminSyncPanel runs={syncRuns} />
@@ -172,7 +185,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               event={data.event}
               query={query}
               page={page}
-              channel={channel}
+              channels={channels}
               initialView={viewRegistration}
             />
           )}
