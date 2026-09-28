@@ -133,16 +133,20 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 [overflow-anchor:none]">
             <AdminChannelFilter selected={channels} query={query || undefined} />
-          </div>
-          {query || channels.length > 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
-              {query ? <> for &ldquo;{query}&rdquo;</> : null}
-              {channels.length > 0 ? ` in ${adminListFiltersLabel(channels)}` : null}
+            <p className="mt-3 min-h-5 text-sm text-muted-foreground" aria-live="polite">
+              {query || channels.length > 0 ? (
+                <>
+                  Showing {data.filteredCount} match{data.filteredCount === 1 ? '' : 'es'}
+                  {query ? <> for &ldquo;{query}&rdquo;</> : null}
+                  {channels.length > 0 ? ` in ${adminListFiltersLabel(channels)}` : null}
+                </>
+              ) : (
+                <span className="sr-only">Showing all registrations</span>
+              )}
             </p>
-          ) : null}
+          </div>
         </section>
 
         <AdminSyncPanel runs={syncRuns} />

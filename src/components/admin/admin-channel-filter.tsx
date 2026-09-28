@@ -1,4 +1,6 @@
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import {
   adminListFilterLabel,
   buildAdminHref,
@@ -19,25 +21,36 @@ type AdminChannelFilterProps = {
 };
 
 export function AdminChannelFilter({ selected, query }: AdminChannelFilterProps) {
+  const router = useRouter();
+
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Registration filter">
+    <div
+      className="flex scroll-mt-24 flex-wrap gap-2 [overflow-anchor:none]"
+      role="group"
+      aria-label="Registration filter"
+    >
       {FILTERS.map((item) => {
         const active = item.id ? selected.includes(item.id) : selected.length === 0;
         const channels = item.id ? toggleAdminListFilter(selected, item.id) : [];
+        const href = buildAdminHref({ q: query, channels });
         return (
-          <Link
+          <button
             key={item.label}
-            href={buildAdminHref({ q: query, channels })}
+            type="button"
             aria-pressed={active}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              router.push(href, { scroll: false });
+            }}
             className={cn(
-              'inline-flex rounded-full px-3 py-1.5 text-xs font-medium tracking-wide',
+              'inline-flex cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium tracking-wide',
               active
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground hover:bg-muted/80',
             )}
           >
             {item.label}
-          </Link>
+          </button>
         );
       })}
     </div>
