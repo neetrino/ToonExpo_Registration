@@ -7,7 +7,11 @@ import { AdminChannelFilter } from '@/components/admin/admin-channel-filter';
 import { AdminSearchForm } from '@/components/admin/admin-search-form';
 import { AdminListPagination } from '@/components/admin/admin-list-pagination';
 import { Button } from '@/components/ui/button';
-import { adminListFiltersLabel, buildAdminHref, parseAdminListFilters } from '@/lib/admin/admin-url';
+import {
+  adminListFiltersLabel,
+  buildAdminHref,
+  parseAdminListFilters,
+} from '@/lib/admin/admin-url';
 import { getAdminPageCount, getAdminPageRange } from '@/lib/admin/pagination';
 import { getAdminRegistration } from '@/lib/admin/get-registration';
 import { listAdminRegistrations } from '@/lib/admin';
