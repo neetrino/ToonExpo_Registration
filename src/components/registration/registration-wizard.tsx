@@ -268,13 +268,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
       if (localized.phone || localized.email || localized.firstName || localized.lastName) {
         setCurrentStep('identity');
-        setFormError(
-          localized.phone
-            ? tErrors('invalidPhone')
-            : localized.email
-              ? tErrors('invalidEmail')
-              : tErrors('validation'),
-        );
+        setFormError(localized.phone ?? (localized.email ? tErrors('invalidEmail') : tErrors('validation')));
         scrollWizardToTop(formTopRef.current);
         return;
       }
