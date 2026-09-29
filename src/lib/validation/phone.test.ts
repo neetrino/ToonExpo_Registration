@@ -3,6 +3,7 @@ import {
   digitsOnlyPhone,
   nationalPhoneDigitLimit,
   nationalPhoneInput,
+  normalizePhone,
 } from '@/lib/validation/phone';
 
 describe('digitsOnlyPhone', () => {
@@ -21,7 +22,7 @@ describe('nationalPhoneDigitLimit', () => {
     expect(nationalPhoneDigitLimit('AM')).toBe(8);
     expect(nationalPhoneDigitLimit('GE')).toBe(9);
     expect(nationalPhoneDigitLimit('US')).toBe(10);
-    expect(nationalPhoneDigitLimit('RU')).toBe(14);
+    expect(nationalPhoneDigitLimit('RU')).toBe(10);
   });
 });
 
@@ -29,5 +30,12 @@ describe('nationalPhoneInput', () => {
   it('keeps only digits up to the country maximum', () => {
     expect(nationalPhoneInput('99ab-123456789', 'AM')).toBe('99123456');
     expect(nationalPhoneInput('599123456789', 'GE')).toBe('599123456');
+  });
+
+  it('stores a pasted Russian mobile as 10 national digits', () => {
+    expect(nationalPhoneInput('+79993005512', 'RU')).toBe('9993005512');
+    expect(nationalPhoneInput('89993005512', 'RU')).toBe('9993005512');
+    expect(nationalPhoneInput('9993005512', 'RU')).toBe('9993005512');
+    expect(normalizePhone('9993005512', 'RU')?.phoneNormalized).toBe('+79993005512');
   });
 });
