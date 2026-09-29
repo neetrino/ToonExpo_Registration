@@ -387,13 +387,4 @@ export function validateWizardStep(
   return issuesToFieldErrors(result.error.issues, t);
 }
 
-/** Returns whether the current step passes validation. */
-export function isWizardStepValid(
-  stepId: WizardStepId,
-  state: WizardState,
-  t: ErrorTranslator,
-): boolean {
-  return Object.keys(validateWizardStep(stepId, state, t)).length === 0;
-}
-
 export type { QuestionnaireLocale };

@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { OptionRadioGroup } from './option-groups';
@@ -86,6 +87,7 @@ export function ResidenceFields({
           input={
             <Input
               id="residenceCountry"
+              placeholder={getTextFieldPlaceholder('residenceAbroad', locale)}
               value={state.residenceCountry}
               disabled={disabled}
               aria-invalid={Boolean(errors.residenceCountry)}

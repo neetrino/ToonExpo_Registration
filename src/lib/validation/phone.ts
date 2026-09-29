@@ -1,4 +1,9 @@
-import { Metadata, parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js';
+import {
+  getCountryCallingCode,
+  Metadata,
+  parsePhoneNumberFromString,
+  type CountryCode,
+} from 'libphonenumber-js';
 import { DEFAULT_PHONE_COUNTRY, PHONE_MAX_LENGTH } from '@/lib/validation/constants';
 
 export type NormalizedPhone = {
@@ -8,15 +13,28 @@ export type NormalizedPhone = {
 
 const NATIONAL_PHONE_DIGIT_LIMITS = new Map<CountryCode, number>();
 
+/**
+ * Digits typed after the country code.
+ * Russian metadata also lists 14; a visitor mobile is 10 (`+7` + `9993005512`).
+ */
+const VISITOR_NATIONAL_LENGTH: Partial<Record<CountryCode, number>> = {
+  RU: 10,
+};
+
 /** Keep only ASCII digits so the local number field cannot accept letters or symbols. */
 export function digitsOnlyPhone(value: string): string {
   return value.replace(/\D/g, '');
 }
 
 /**
- * Maximum national significant-number length for a country (libphonenumber metadata).
+ * National digit count the visitor types for this country.
  */
 export function nationalPhoneDigitLimit(country: CountryCode): number {
+  const visitorLength = VISITOR_NATIONAL_LENGTH[country];
+  if (visitorLength !== undefined) {
+    return visitorLength;
+  }
+
   const cached = NATIONAL_PHONE_DIGIT_LIMITS.get(country);
   if (cached !== undefined) {
     return cached;
@@ -30,9 +48,74 @@ export function nationalPhoneDigitLimit(country: CountryCode): number {
   return limit;
 }
 
-/** Digits-only local number, truncated to the selected country's maximum length. */
+/** Russian mobiles display as `(965) 300-55-12`. The stored value stays 10 digits. */
+export function formatNationalPhoneInput(digits: string, country: CountryCode): string {
+  if (country !== 'RU' || digits.length === 0) {
+    return digits;
+  }
+
+  const area = digits.slice(0, 3);
+  if (digits.length < 3) {
+    return `(${area}`;
+  }
+
+  const subscriber = digits.slice(3);
+  if (subscriber.length === 0) {
+    return `(${area})`;
+  }
+
+  const groups = [subscriber.slice(0, 3), subscriber.slice(3, 5), subscriber.slice(5, 7)].filter(
+    (group) => group.length > 0,
+  );
+  return `(${area}) ${groups.join('-')}`;
+}
+
+/** Placeholder that shows where the Russian area code sits in parentheses. */
+export function nationalPhonePlaceholder(country: CountryCode): string {
+  if (country === 'RU') {
+    return '(XXX) XXX-XX-XX';
+  }
+
+  return 'X'.repeat(nationalPhoneDigitLimit(country));
+}
+
+/**
+ * Next stored digits after a keystroke.
+ * Backspace on a parenthesis or dash still removes a digit.
+ */
+export function nextNationalPhoneDigits(
+  rawValue: string,
+  previousDigits: string,
+  country: CountryCode,
+): string {
+  const nextDigits = nationalPhoneInput(rawValue, country);
+  const formatted = formatNationalPhoneInput(previousDigits, country);
+  const deletedFormatting = nextDigits === previousDigits && rawValue.length < formatted.length;
+  if (deletedFormatting) {
+    return previousDigits.slice(0, -1);
+  }
+
+  return nextDigits;
+}
+
+/** Digits-only local number, without a pasted country code, capped at the national length. */
 export function nationalPhoneInput(value: string, country: CountryCode): string {
-  return digitsOnlyPhone(value).slice(0, nationalPhoneDigitLimit(country));
+  const limit = nationalPhoneDigitLimit(country);
+  const digits = stripCountryPrefix(digitsOnlyPhone(value), country, limit);
+  return digits.slice(0, limit);
+}
+
+function stripCountryPrefix(digits: string, country: CountryCode, limit: number): string {
+  const callingCode = String(getCountryCallingCode(country));
+  if (digits.startsWith(callingCode) && digits.length === callingCode.length + limit) {
+    return digits.slice(callingCode.length);
+  }
+
+  if (country === 'RU' && digits.startsWith('8') && digits.length === limit + 1) {
+    return digits.slice(1);
+  }
+
+  return digits;
 }
 
 /**

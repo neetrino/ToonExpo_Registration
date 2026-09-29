@@ -37,7 +37,7 @@ import {
   type WizardState,
   type WizardStepId,
 } from './wizard/types';
-import { isWizardStepValid, validateWizardStep } from './wizard/validation';
+import { validateWizardStep } from './wizard/validation';
 import { WizardProgress } from './wizard/wizard-progress';
 import { WizardStepPanel } from './wizard/wizard-step-panel';
 
@@ -126,7 +126,6 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   }
   const isFirstStep = safeStepIndex <= 0;
   const isLastStep = safeStep === 'finish';
-  const stepIsValid = isWizardStepValid(safeStep, state, errorTranslator);
   const showErrors = attemptedNext || isLastStep;
   const { trackQuestionComplete } = useQuestionnaireStepTracking({
     ready: draftReady,
@@ -398,7 +397,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           type="button"
           size="lg"
           onClick={() => void goNext()}
-          disabled={isSubmitting || !stepIsValid}
+          disabled={isSubmitting}
           className="w-full sm:w-auto"
         >
           {isLastStep ? (isSubmitting ? tForm('submitting') : tForm('submit')) : tWizard('next')}

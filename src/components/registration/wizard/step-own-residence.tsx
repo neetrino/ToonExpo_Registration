@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { LocationChoiceFields } from './location-choice-fields';
@@ -63,6 +64,7 @@ export function OwnResidenceInterestStep({ state, errors, disabled, locale, onUp
               input={
                 <Input
                   id="abroadCountriesOther"
+                  placeholder={getTextFieldPlaceholder('country', locale)}
                   value={state.abroadCountriesOther}
                   disabled={disabled}
                   aria-invalid={Boolean(errors.abroadCountriesOther)}

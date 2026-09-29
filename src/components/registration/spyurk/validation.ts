@@ -349,7 +349,12 @@ function mapIssueMessage(issue: z.ZodIssue, t: ErrorTranslator): string {
   if (issue.path[0] === 'privacyConsent') {
     return t.consentRequired;
   }
-  if (issue.message === 'required' || issue.code === z.ZodIssueCode.too_small) {
+  if (
+    issue.message === 'required' ||
+    issue.code === z.ZodIssueCode.too_small ||
+    issue.code === z.ZodIssueCode.invalid_type ||
+    issue.code === z.ZodIssueCode.invalid_enum_value
+  ) {
     return t.required;
   }
   return t.validation;
@@ -376,12 +381,4 @@ export function validateSpyurkWizardStep(
     return {};
   }
   return issuesToFieldErrors(parsed.error.issues, t);
-}
-
-export function isSpyurkWizardStepValid(
-  stepId: SpyurkWizardStepId,
-  state: SpyurkWizardState,
-  t: ErrorTranslator,
-): boolean {
-  return Object.keys(validateSpyurkWizardStep(stepId, state, t)).length === 0;
 }

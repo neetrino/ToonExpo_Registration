@@ -35,7 +35,7 @@ export function OptionRadioGroup<T extends string>({
                 ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
                 : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
               disabled && 'cursor-not-allowed opacity-50',
-              error && !checked && 'border-destructive/40',
+              error && !checked && 'border-destructive bg-destructive/5',
             )}
           >
             <input
@@ -111,7 +111,7 @@ export function OptionCheckboxGroup<T extends string>({
                 ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
                 : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
               (disabled || atMax) && 'cursor-not-allowed opacity-50',
-              error && !checked && 'border-destructive/40',
+              error && !checked && 'border-destructive bg-destructive/5',
             )}
           >
             <input

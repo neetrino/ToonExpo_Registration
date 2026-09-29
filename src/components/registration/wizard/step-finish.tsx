@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { cn } from '@/lib/utils';
 import type { WizardFieldErrors } from './types';
 
 export type FinishStepFields = {
@@ -32,7 +33,12 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-start gap-3">
+      <div
+        className={cn(
+          'flex items-start gap-3 rounded-xl border px-3 py-3',
+          errors.privacyConsent ? 'border-destructive bg-destructive/5' : 'border-transparent',
+        )}
+      >
         <input
           id="privacyConsent"
           name="privacyConsent"
