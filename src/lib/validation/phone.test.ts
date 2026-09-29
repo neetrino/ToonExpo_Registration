@@ -3,6 +3,7 @@ import {
   digitsOnlyPhone,
   formatNationalPhoneInput,
   nationalPhoneDigitLimit,
+  nationalPhoneExample,
   nationalPhoneInput,
   nextNationalPhoneDigits,
   normalizePhone,
@@ -40,6 +41,13 @@ describe('nationalPhoneInput', () => {
     expect(nationalPhoneInput('9993005512', 'RU')).toBe('9993005512');
     expect(normalizePhone('9993005512', 'RU')?.phoneNormalized).toBe('+79993005512');
     expect(nationalPhoneInput('(965) 300-55-12', 'RU')).toBe('9653005512');
+  });
+});
+
+describe('nationalPhoneExample', () => {
+  it('shows the Russian field format and a calling-code pattern for other countries', () => {
+    expect(nationalPhoneExample('RU')).toBe('+7 (965) 300-55-12');
+    expect(nationalPhoneExample('AM')).toBe('+374 XXXXXXXX');
   });
 });
 

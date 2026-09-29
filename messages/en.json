@@ -143,7 +143,7 @@
   "errors": {
     "required": "This field is required.",
     "invalidEmail": "Enter a valid email address.",
-    "invalidPhone": "Enter a valid phone number.",
+    "invalidPhone": "Enter a valid phone number. For example: {example}",
     "consentRequired": "You must agree to the Terms of Use and the Privacy Policy.",
     "validation": "Please check the highlighted fields and try again.",
     "duplicate": "This email is already registered for the event.",

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
 import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { nationalPhoneExample } from '@/lib/validation/phone';
 import type { Locale } from '@/types/locale';
 import { submitRegistration } from '@/components/registration/submit-registration';
 import { clearRegistrationIdempotencyKey } from '@/components/registration/idempotency';
@@ -89,18 +90,6 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
   const router = useRouter();
   const formTopRef = useRef<HTMLDivElement>(null);
   const questionnaireLocale = locale as QuestionnaireLocale;
-  const errorTranslator = useMemo(
-    () => ({
-      required: tErrors('required'),
-      invalidEmail: tErrors('invalidEmail'),
-      invalidPhone: tErrors('invalidPhone'),
-      consentRequired: tErrors('consentRequired'),
-      validation: tErrors('validation'),
-      maxSelections: (max: number) => tWizard('maxSelections', { max }),
-    }),
-    [tErrors, tWizard],
-  );
-
   const [state, setState] = useState<SpyurkWizardState>(initialSpyurkWizardState);
   const [currentStep, setCurrentStep] = useState<SpyurkWizardStepId>('identity');
   const [fieldErrors, setFieldErrors] = useState<SpyurkWizardFieldErrors>({});
@@ -108,6 +97,17 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attemptedNext, setAttemptedNext] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
+  const errorTranslator = useMemo(
+    () => ({
+      required: tErrors('required'),
+      invalidEmail: tErrors('invalidEmail'),
+      invalidPhone: tErrors('invalidPhone', { example: nationalPhoneExample(state.phoneCountry) }),
+      consentRequired: tErrors('consentRequired'),
+      validation: tErrors('validation'),
+      maxSelections: (max: number) => tWizard('maxSelections', { max }),
+    }),
+    [state.phoneCountry, tErrors, tWizard],
+  );
 
   useEffect(() => {
     captureAndPersistUtmFromLocation();
@@ -200,7 +200,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
     if (Object.keys(identityErrors).length > 0) {
       setFieldErrors(identityErrors);
       setCurrentStep('identity');
-      setFormError(identityErrors.phone ? tErrors('invalidPhone') : tErrors('validation'));
+      setFormError(identityErrors.phone ?? tErrors('validation'));
       scrollWizardToTop(formTopRef.current);
       return;
     }

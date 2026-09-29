@@ -70,6 +70,16 @@ export function formatNationalPhoneInput(digits: string, country: CountryCode): 
   return `(${area}) ${groups.join('-')}`;
 }
 
+/** Example shown beside an invalid-phone error. Russian numbers use the field format. */
+export function nationalPhoneExample(country: CountryCode): string {
+  const callingCode = getCountryCallingCode(country);
+  if (country === 'RU') {
+    return `+${callingCode} (965) 300-55-12`;
+  }
+
+  return `+${callingCode} ${nationalPhonePlaceholder(country)}`;
+}
+
 /** Placeholder that shows where the Russian area code sits in parentheses. */
 export function nationalPhonePlaceholder(country: CountryCode): string {
   if (country === 'RU') {
