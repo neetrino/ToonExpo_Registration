@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import type { AnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
-import { pushQuestionCompleteEvent, pushQuestionViewEvent } from '@/lib/analytics/gtm';
+import {
+  pushQuestionCompleteEvent,
+  pushQuestionViewEvent,
+  type QuestionnaireQuestionEventPayload,
+} from '@/lib/analytics/gtm';
 import {
   trackYandexQuestionDone,
   trackYandexQuestionView,
-  type QuestionnaireQuestionEventPayload,
 } from '@/lib/analytics/yandex-metrika';
 
 /** Metrika is installed only on the RF questionnaire route. */
