@@ -6,7 +6,7 @@ import { pushQuestionCompleteEvent, pushQuestionViewEvent } from '@/lib/analytic
 import {
   trackYandexQuestionDone,
   trackYandexQuestionView,
-  type YandexQuestionStepParams,
+  type QuestionnaireQuestionEventPayload,
 } from '@/lib/analytics/yandex-metrika';
 
 /** Metrika is installed only on the RF questionnaire route. */
@@ -67,7 +67,7 @@ export function useQuestionnaireStepTracking({
     }
     lastViewKeyRef.current = viewKey;
 
-    const step: YandexQuestionStepParams = {
+    const step: QuestionnaireQuestionEventPayload = {
       questionId,
       questionIndex: questionIndex + 1,
       questionTotal,
@@ -85,7 +85,7 @@ export function useQuestionnaireStepTracking({
       return;
     }
 
-    const step: YandexQuestionStepParams = {
+    const step: QuestionnaireQuestionEventPayload = {
       questionId: current.questionId,
       questionIndex: current.questionIndex + 1,
       questionTotal: current.questionTotal,

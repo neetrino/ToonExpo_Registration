@@ -1,5 +1,7 @@
-import type { AnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
-import { REGISTRATION_COMPLETE_EVENT } from '@/lib/analytics/gtm';
+import {
+  REGISTRATION_COMPLETE_EVENT,
+  type QuestionnaireQuestionEventPayload,
+} from '@/lib/analytics/gtm';
 
 export const DEFAULT_YANDEX_METRIKA_ID = '112495551';
 
@@ -52,14 +54,6 @@ ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer"
 export const YANDEX_QUESTION_VIEW_GOAL_PREFIX = 'rf_q_view_';
 export const YANDEX_QUESTION_DONE_GOAL_PREFIX = 'rf_q_done_';
 
-export type YandexQuestionStepParams = {
-  questionId: string;
-  /** 1-based index in the current wizard path. */
-  questionIndex: number;
-  questionTotal: number;
-  formChannel: AnalyticsFormChannel;
-};
-
 type YandexMetrikaCall = (...args: unknown[]) => void;
 
 function getYandexMetrikaCall(): YandexMetrikaCall | null {
@@ -80,7 +74,7 @@ export function trackYandexRegistrationComplete(): void {
   getYandexMetrikaCall()?.('reachGoal', REGISTRATION_COMPLETE_EVENT);
 }
 
-function reachYandexQuestionGoal(prefix: string, params: YandexQuestionStepParams): void {
+function reachYandexQuestionGoal(prefix: string, params: QuestionnaireQuestionEventPayload): void {
   getYandexMetrikaCall()?.('reachGoal', `${prefix}${params.questionId}`, {
     question_id: params.questionId,
     question_index: params.questionIndex,
@@ -90,11 +84,11 @@ function reachYandexQuestionGoal(prefix: string, params: YandexQuestionStepParam
 }
 
 /** Sends `rf_q_view_<questionId>` when a questionnaire step is shown. */
-export function trackYandexQuestionView(params: YandexQuestionStepParams): void {
+export function trackYandexQuestionView(params: QuestionnaireQuestionEventPayload): void {
   reachYandexQuestionGoal(YANDEX_QUESTION_VIEW_GOAL_PREFIX, params);
 }
 
 /** Sends `rf_q_done_<questionId>` when a step validates and the client lets the user advance. */
-export function trackYandexQuestionDone(params: YandexQuestionStepParams): void {
+export function trackYandexQuestionDone(params: QuestionnaireQuestionEventPayload): void {
   reachYandexQuestionGoal(YANDEX_QUESTION_DONE_GOAL_PREFIX, params);
 }
