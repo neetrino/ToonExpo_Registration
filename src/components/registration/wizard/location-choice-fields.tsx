@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { LOCATION_CHOICE_MAX, QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire';
 import type { AbroadCountry, LocationSeekScope } from '@/lib/questionnaire/types';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { OptionCheckboxGroup, OptionRadioGroup } from './option-groups';
@@ -130,6 +131,7 @@ export function LocationChoiceFields({
               input={
                 <Input
                   id="locationSeekAbroadOther"
+                  placeholder={getTextFieldPlaceholder('country', locale)}
                   value={state.locationSeekAbroadOther}
                   disabled={disabled}
                   aria-invalid={Boolean(errors.locationSeekAbroadOther)}

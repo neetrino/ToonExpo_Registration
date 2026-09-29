@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { LocationChoiceFields } from './location-choice-fields';
@@ -48,6 +49,7 @@ export function InvestmentTypeStep({ state, errors, disabled, locale, onUpdate }
           input={
             <Input
               id="investmentPropertyTypeOther"
+              placeholder={getTextFieldPlaceholder('propertyTypeOther', locale)}
               value={state.investmentPropertyTypeOther}
               disabled={disabled}
               aria-invalid={Boolean(errors.investmentPropertyTypeOther)}
@@ -188,6 +190,7 @@ export function InvestmentBudgetStep({ state, errors, disabled, locale, onUpdate
           input={
             <Input
               id="priorInvestmentExperienceOther"
+              placeholder={getTextFieldPlaceholder('investedCountry', locale)}
               value={state.priorInvestmentExperienceOther}
               disabled={disabled}
               aria-invalid={Boolean(errors.priorInvestmentExperienceOther)}

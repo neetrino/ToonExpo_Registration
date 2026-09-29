@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import { LOCATION_CHOICE_MAX, MARKET_INTERESTS_MAX } from '@/lib/questionnaire/constants';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import type { ResearchLocationScope } from '@/lib/questionnaire/types';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
@@ -138,6 +139,7 @@ export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpd
           input={
             <Input
               id="researchAbroadCountry"
+              placeholder={getTextFieldPlaceholder('country', locale)}
               value={state.researchAbroadCountry}
               disabled={disabled}
               aria-invalid={Boolean(errors.researchAbroadCountry)}

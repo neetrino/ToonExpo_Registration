@@ -25,6 +25,7 @@ import {
   SPYURK_INVESTMENT_GOALS,
   SPYURK_RESEARCH_GOALS,
 } from '@/lib/questionnaire/spyurk/options';
+import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { getSpyurkOptionLabel, getSpyurkQuestionLabel } from '@/lib/questionnaire/spyurk/i18n';
 import { SpyurkPropertyCountryFields, SpyurkVisitTimingFields } from './step-fields';
 import type { SpyurkWizardFieldErrors, SpyurkWizardState } from './types';
@@ -70,6 +71,7 @@ export function SpyurkOwnInterestStep(props: StepProps) {
           input={
             <Input
               id="interestTypesOther"
+              placeholder={getTextFieldPlaceholder('propertyTypeOther', locale)}
               value={state.interestTypesOther}
               disabled={disabled}
               onChange={(event) => onUpdate('interestTypesOther', event.target.value)}
@@ -177,6 +179,7 @@ export function SpyurkInvestmentTypeStep(props: StepProps) {
           input={
             <Input
               id="investmentPropertyTypeOther"
+              placeholder={getTextFieldPlaceholder('propertyTypeOther', locale)}
               value={state.investmentPropertyTypeOther}
               disabled={disabled}
               onChange={(event) => onUpdate('investmentPropertyTypeOther', event.target.value)}
@@ -306,6 +309,7 @@ export function SpyurkInvestmentFollowupStep(props: StepProps) {
           input={
             <Input
               id="priorInvestmentExperienceOther"
+              placeholder={getTextFieldPlaceholder('investedCountry', locale)}
               value={state.priorInvestmentExperienceOther}
               disabled={disabled}
               onChange={(event) => onUpdate('priorInvestmentExperienceOther', event.target.value)}
