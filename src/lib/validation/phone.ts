@@ -48,6 +48,56 @@ export function nationalPhoneDigitLimit(country: CountryCode): number {
   return limit;
 }
 
+/** Russian mobiles display as `(965) 300-55-12`. The stored value stays 10 digits. */
+export function formatNationalPhoneInput(digits: string, country: CountryCode): string {
+  if (country !== 'RU' || digits.length === 0) {
+    return digits;
+  }
+
+  const area = digits.slice(0, 3);
+  if (digits.length < 3) {
+    return `(${area}`;
+  }
+
+  const subscriber = digits.slice(3);
+  if (subscriber.length === 0) {
+    return `(${area})`;
+  }
+
+  const groups = [subscriber.slice(0, 3), subscriber.slice(3, 5), subscriber.slice(5, 7)].filter(
+    (group) => group.length > 0,
+  );
+  return `(${area}) ${groups.join('-')}`;
+}
+
+/** Placeholder that shows where the Russian area code sits in parentheses. */
+export function nationalPhonePlaceholder(country: CountryCode): string {
+  if (country === 'RU') {
+    return '(XXX) XXX-XX-XX';
+  }
+
+  return 'X'.repeat(nationalPhoneDigitLimit(country));
+}
+
+/**
+ * Next stored digits after a keystroke.
+ * Backspace on a parenthesis or dash still removes a digit.
+ */
+export function nextNationalPhoneDigits(
+  rawValue: string,
+  previousDigits: string,
+  country: CountryCode,
+): string {
+  const nextDigits = nationalPhoneInput(rawValue, country);
+  const formatted = formatNationalPhoneInput(previousDigits, country);
+  const deletedFormatting = nextDigits === previousDigits && rawValue.length < formatted.length;
+  if (deletedFormatting) {
+    return previousDigits.slice(0, -1);
+  }
+
+  return nextDigits;
+}
+
 /** Digits-only local number, without a pasted country code, capped at the national length. */
 export function nationalPhoneInput(value: string, country: CountryCode): string {
   const limit = nationalPhoneDigitLimit(country);

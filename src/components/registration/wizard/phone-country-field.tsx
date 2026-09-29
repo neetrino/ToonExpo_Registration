@@ -5,7 +5,13 @@ import { getCountryCallingCode, type CountryCode } from 'libphonenumber-js';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { nationalPhoneDigitLimit, nationalPhoneInput } from '@/lib/validation/phone';
+import {
+  formatNationalPhoneInput,
+  nationalPhoneDigitLimit,
+  nationalPhoneInput,
+  nationalPhonePlaceholder,
+  nextNationalPhoneDigits,
+} from '@/lib/validation/phone';
 import {
   filterPhoneCountries,
   listPhoneCountries,
@@ -192,14 +198,15 @@ export function PhoneCountryField({
         type="tel"
         autoComplete="tel-national"
         inputMode="numeric"
-        pattern="[0-9]*"
-        maxLength={digitLimit}
+        maxLength={selectedCountry === 'RU' ? 24 : digitLimit}
         className="min-w-0 flex-1"
-        placeholder={'X'.repeat(digitLimit)}
-        value={localNumber}
+        placeholder={nationalPhonePlaceholder(selectedCountry)}
+        value={formatNationalPhoneInput(localNumber, selectedCountry)}
         disabled={disabled}
         aria-invalid={invalid}
-        onChange={(event) => onPhoneChange(nationalPhoneInput(event.target.value, selectedCountry))}
+        onChange={(event) =>
+          onPhoneChange(nextNationalPhoneDigits(event.target.value, localNumber, selectedCountry))
+        }
       />
     </div>
   );
