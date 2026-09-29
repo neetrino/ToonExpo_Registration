@@ -38,6 +38,7 @@ import {
   type WizardState,
   type WizardStepId,
 } from './wizard/types';
+import { mergeIdentityFieldsFromDom } from './wizard/sync-identity-fields';
 import { validateWizardStep } from './wizard/validation';
 import { WizardProgress } from './wizard/wizard-progress';
 import { WizardStepPanel } from './wizard/wizard-step-panel';
@@ -197,7 +198,17 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
   const goNext = async () => {
     setAttemptedNext(true);
-    const errors = validateWizardStep(safeStep, state, errorTranslator);
+    const nextState = mergeIdentityFieldsFromDom(state, document);
+    if (nextState !== state) {
+      setState(nextState);
+    }
+    const stepTranslator = {
+      ...errorTranslator,
+      invalidPhone: tErrors('invalidPhone', {
+        example: nationalPhoneExample(nextState.phoneCountry),
+      }),
+    };
+    const errors = validateWizardStep(safeStep, nextState, stepTranslator);
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -216,7 +227,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     }
 
     // Re-check identity on final submit — draft/old sessions can carry an invalid phone.
-    const identityErrors = validateWizardStep('identity', state, errorTranslator);
+    const identityErrors = validateWizardStep('identity', nextState, stepTranslator);
     if (Object.keys(identityErrors).length > 0) {
       setFieldErrors(identityErrors);
       setCurrentStep('identity');
@@ -228,14 +239,14 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
       return;
     }
 
-    const payload = buildRegistrationPayload(state, locale);
+    const payload = buildRegistrationPayload(nextState, locale);
     if (!payload) {
       setFormError(tErrors('validation'));
       return;
     }
 
     setIsSubmitting(true);
-    const result = await submitRegistration(payload, locale, state.website);
+    const result = await submitRegistration(payload, locale, nextState.website);
     setIsSubmitting(false);
 
     if (result.ok) {
@@ -255,7 +266,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
       const localized: WizardFieldErrors = { ...result.fieldErrors };
       if (localized.phone) {
         localized.phone = tErrors('invalidPhone', {
-          example: nationalPhoneExample(state.phoneCountry),
+          example: nationalPhoneExample(nextState.phoneCountry),
         });
       }
       if (localized.email) {

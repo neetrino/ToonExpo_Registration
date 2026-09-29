@@ -16,6 +16,7 @@ import {
   captureAndPersistUtmFromLocation,
   clearPersistedUtmAttribution,
 } from '@/components/registration/utm-attribution';
+import { mergeIdentityFieldsFromDom } from '@/components/registration/wizard/sync-identity-fields';
 import { IdentityStep } from '@/components/registration/wizard/step-identity-profile';
 import { FinishStep } from '@/components/registration/wizard/step-finish';
 import { WizardProgress } from '@/components/registration/wizard/wizard-progress';
@@ -179,7 +180,17 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
 
   const goNext = async () => {
     setAttemptedNext(true);
-    const errors = validateSpyurkWizardStep(safeStep, state, errorTranslator);
+    const nextState = mergeIdentityFieldsFromDom(state, document);
+    if (nextState !== state) {
+      setState(nextState);
+    }
+    const stepTranslator = {
+      ...errorTranslator,
+      invalidPhone: tErrors('invalidPhone', {
+        example: nationalPhoneExample(nextState.phoneCountry),
+      }),
+    };
+    const errors = validateSpyurkWizardStep(safeStep, nextState, stepTranslator);
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       scrollWizardToTop(formTopRef.current);
@@ -196,7 +207,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
       return;
     }
 
-    const identityErrors = validateSpyurkWizardStep('identity', state, errorTranslator);
+    const identityErrors = validateSpyurkWizardStep('identity', nextState, stepTranslator);
     if (Object.keys(identityErrors).length > 0) {
       setFieldErrors(identityErrors);
       setCurrentStep('identity');
@@ -205,14 +216,14 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
       return;
     }
 
-    const payload = buildSpyurkRegistrationPayload(state);
+    const payload = buildSpyurkRegistrationPayload(nextState);
     if (!payload) {
       setFormError(tErrors('validation'));
       return;
     }
 
     setIsSubmitting(true);
-    const result = await submitRegistration(payload, locale, state.website);
+    const result = await submitRegistration(payload, locale, nextState.website);
     setIsSubmitting(false);
 
     if (result.ok) {
