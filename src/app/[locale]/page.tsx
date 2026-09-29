@@ -35,7 +35,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
 
         <LandingInfoDetails aboutToggle={t('aboutToggle')} paragraphs={paragraphs} />
       </div>
-      <SiteFooter privacyLabel={t('privacyLink')} />
+      <SiteFooter copyright={t('copyright')} privacyLabel={t('privacyLink')} />
     </div>
   );
 }
