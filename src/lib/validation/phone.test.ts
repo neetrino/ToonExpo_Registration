@@ -47,16 +47,19 @@ describe('nationalPhoneInput', () => {
 describe('nationalPhoneExample', () => {
   it('shows the Russian field format and a calling-code pattern for other countries', () => {
     expect(nationalPhoneExample('RU')).toBe('+7 (965) 300-55-12');
-    expect(nationalPhoneExample('AM')).toBe('+374 XXXXXXXX');
+    expect(nationalPhoneExample('AM')).toBe('+374 (XX) XX-XX-XX');
   });
 });
 
 describe('formatNationalPhoneInput', () => {
-  it('wraps the first three Russian digits in parentheses', () => {
+  it('wraps the leading code in parentheses and dashes the rest', () => {
     expect(formatNationalPhoneInput('9', 'RU')).toBe('(9');
     expect(formatNationalPhoneInput('965', 'RU')).toBe('(965)');
     expect(formatNationalPhoneInput('9653005512', 'RU')).toBe('(965) 300-55-12');
-    expect(formatNationalPhoneInput('99123456', 'AM')).toBe('99123456');
+    expect(formatNationalPhoneInput('91', 'AM')).toBe('(91)');
+    expect(formatNationalPhoneInput('99123456', 'AM')).toBe('(99) 12-34-56');
+    expect(formatNationalPhoneInput('555123456', 'GE')).toBe('(555) 12-34-56');
+    expect(formatNationalPhoneInput('2015550123', 'US')).toBe('(201) 555-0123');
   });
 
   it('removes a digit when backspace lands on a formatting character', () => {

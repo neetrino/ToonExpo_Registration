@@ -12,6 +12,7 @@ export type NormalizedPhone = {
 };
 
 const NATIONAL_PHONE_DIGIT_LIMITS = new Map<CountryCode, number>();
+const NATIONAL_DIGIT_GROUPS = new Map<CountryCode, readonly number[]>();
 
 /**
  * Digits typed after the country code.
@@ -48,29 +49,16 @@ export function nationalPhoneDigitLimit(country: CountryCode): number {
   return limit;
 }
 
-/** Russian mobiles display as `(965) 300-55-12`. The stored value stays 10 digits. */
+/** Local number with the area or operator code in parentheses and the rest dashed. */
 export function formatNationalPhoneInput(digits: string, country: CountryCode): string {
-  if (country !== 'RU' || digits.length === 0) {
-    return digits;
+  if (digits.length === 0) {
+    return '';
   }
 
-  const area = digits.slice(0, 3);
-  if (digits.length < 3) {
-    return `(${area}`;
-  }
-
-  const subscriber = digits.slice(3);
-  if (subscriber.length === 0) {
-    return `(${area})`;
-  }
-
-  const groups = [subscriber.slice(0, 3), subscriber.slice(3, 5), subscriber.slice(5, 7)].filter(
-    (group) => group.length > 0,
-  );
-  return `(${area}) ${groups.join('-')}`;
+  return applyDigitGroups(digits, nationalDigitGroups(country));
 }
 
-/** Example shown beside an invalid-phone error. Russian numbers use the field format. */
+/** Example shown beside an invalid-phone error. */
 export function nationalPhoneExample(country: CountryCode): string {
   const callingCode = getCountryCallingCode(country);
   if (country === 'RU') {
@@ -80,13 +68,120 @@ export function nationalPhoneExample(country: CountryCode): string {
   return `+${callingCode} ${nationalPhonePlaceholder(country)}`;
 }
 
-/** Placeholder that shows where the Russian area code sits in parentheses. */
+/** Placeholder mask: first group in parentheses, remaining groups separated by dashes. */
 export function nationalPhonePlaceholder(country: CountryCode): string {
-  if (country === 'RU') {
-    return '(XXX) XXX-XX-XX';
+  const groups = nationalDigitGroups(country);
+  return applyDigitGroups('X'.repeat(groups.reduce((sum, size) => sum + size, 0)), groups);
+}
+
+function nationalDigitGroups(country: CountryCode): readonly number[] {
+  const cached = NATIONAL_DIGIT_GROUPS.get(country);
+  if (cached) {
+    return cached;
   }
 
-  return 'X'.repeat(nationalPhoneDigitLimit(country));
+  const limit = nationalPhoneDigitLimit(country);
+  const metadata = new Metadata();
+  metadata.selectNumberingPlan(country);
+  const candidates = (metadata.numberingPlan?.formats() ?? [])
+    .map((format) => fixedDigitGroups(String(format.pattern())))
+    .filter((groups): groups is number[] => groups !== null && sum(groups) === limit)
+    .map((groups) => dashLongGroups(groups));
+
+  const groups = candidates.sort(compareDigitGroups)[0] ?? dashLongGroups(chunkDigits(limit, 3));
+  NATIONAL_DIGIT_GROUPS.set(country, groups);
+  return groups;
+}
+
+function fixedDigitGroups(pattern: string): number[] | null {
+  const sizes = [...pattern.matchAll(/\\d\{(\d+)\}/g)].map((match) => Number(match[1]));
+  if (sizes.length === 0 || sizes.some((size) => !Number.isInteger(size) || size < 1)) {
+    return null;
+  }
+
+  return sizes;
+}
+
+/** Keep area codes intact and split a long subscriber tail into pairs so dashes stay readable. */
+function dashLongGroups(groups: readonly number[]): number[] {
+  const [first, ...rest] = groups;
+  if (first === undefined) {
+    return [];
+  }
+
+  return [first, ...rest.flatMap(pairFromRight)];
+}
+
+function pairFromRight(size: number): number[] {
+  if (size <= 4) {
+    return [size];
+  }
+
+  const chunks: number[] = [];
+  let remaining = size;
+  while (remaining > 2) {
+    chunks.unshift(2);
+    remaining -= 2;
+  }
+  if (remaining > 0) {
+    chunks.unshift(remaining);
+  }
+  if (chunks[0] === 1 && chunks.length > 1) {
+    const next = chunks[1] ?? 0;
+    chunks.splice(0, 2, next + 1);
+  }
+
+  return chunks;
+}
+
+function chunkDigits(length: number, size: number): number[] {
+  const groups: number[] = [];
+  let remaining = length;
+  while (remaining > 0) {
+    const take = Math.min(size, remaining);
+    groups.push(take);
+    remaining -= take;
+  }
+
+  return groups.length > 0 ? groups : [length];
+}
+
+function compareDigitGroups(left: readonly number[], right: readonly number[]): number {
+  const groupScore = (groups: readonly number[]) => groups.length * 100 + areaCodeScore(groups[0] ?? 0);
+  return groupScore(right) - groupScore(left);
+}
+
+function areaCodeScore(size: number): number {
+  return size >= 2 && size <= 3 ? size : 0;
+}
+
+function sum(groups: readonly number[]): number {
+  return groups.reduce((total, size) => total + size, 0);
+}
+
+function applyDigitGroups(digits: string, groups: readonly number[]): string {
+  const parts: string[] = [];
+  let offset = 0;
+  for (const size of groups) {
+    if (offset >= digits.length) {
+      break;
+    }
+    parts.push(digits.slice(offset, offset + size));
+    offset += size;
+  }
+
+  const [area, ...rest] = parts;
+  if (!area) {
+    return '';
+  }
+  if (area.length < (groups[0] ?? area.length)) {
+    return `(${area}`;
+  }
+  if (rest.length === 0) {
+    return `(${area})`;
+  }
+
+  return `(${area}) ${rest.join('-')}`;
 }
 
 /**
