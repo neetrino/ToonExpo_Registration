@@ -74,6 +74,39 @@ export function nationalPhonePlaceholder(country: CountryCode): string {
   return applyDigitGroups('X'.repeat(groups.reduce((sum, size) => sum + size, 0)), groups);
 }
 
+/**
+ * libphonenumber-js exposes `formats()` at runtime, but the published `NumberingPlan` type omits it.
+ */
+type PhoneNumberFormat = {
+  pattern: () => unknown;
+};
+
+function readNumberingPlanFormats(plan: unknown): PhoneNumberFormat[] {
+  if (!hasNumberingPlanFormats(plan)) {
+    return [];
+  }
+
+  const formats: unknown = plan.formats();
+  return Array.isArray(formats) ? formats.filter(isPhoneNumberFormat) : [];
+}
+
+function hasNumberingPlanFormats(plan: unknown): plan is { formats: () => unknown } {
+  return (
+    typeof plan === 'object' &&
+    plan !== null &&
+    'formats' in plan &&
+    typeof plan.formats === 'function'
+  );
+}
+
+function isPhoneNumberFormat(value: unknown): value is PhoneNumberFormat {
+  if (typeof value !== 'object' || value === null || !('pattern' in value)) {
+    return false;
+  }
+
+  return typeof value.pattern === 'function';
+}
+
 function nationalDigitGroups(country: CountryCode): readonly number[] {
   const cached = NATIONAL_DIGIT_GROUPS.get(country);
   if (cached) {
@@ -83,7 +116,7 @@ function nationalDigitGroups(country: CountryCode): readonly number[] {
   const limit = nationalPhoneDigitLimit(country);
   const metadata = new Metadata();
   metadata.selectNumberingPlan(country);
-  const candidates = (metadata.numberingPlan?.formats() ?? [])
+  const candidates = readNumberingPlanFormats(metadata.numberingPlan)
     .map((format) => fixedDigitGroups(String(format.pattern())))
     .filter((groups): groups is number[] => groups !== null && sum(groups) === limit)
     .map((groups) => dashLongGroups(groups));

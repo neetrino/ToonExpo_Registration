@@ -1,3 +1,4 @@
+import type { AnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
 import { REGISTRATION_COMPLETE_EVENT } from '@/lib/analytics/gtm';
 
 export const DEFAULT_YANDEX_METRIKA_ID = '112495551';
@@ -48,20 +49,52 @@ export function buildYandexMetrikaSnippet(counterId: string): string {
 ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});`;
 }
 
-export function hitYandexMetrika(url: string): void {
+export const YANDEX_QUESTION_VIEW_GOAL_PREFIX = 'rf_q_view_';
+export const YANDEX_QUESTION_DONE_GOAL_PREFIX = 'rf_q_done_';
+
+export type YandexQuestionStepParams = {
+  questionId: string;
+  /** 1-based index in the current wizard path. */
+  questionIndex: number;
+  questionTotal: number;
+  formChannel: AnalyticsFormChannel;
+};
+
+type YandexMetrikaCall = (...args: unknown[]) => void;
+
+function getYandexMetrikaCall(): YandexMetrikaCall | null {
   const id = resolveYandexMetrikaId();
   if (typeof window === 'undefined' || typeof window.ym !== 'function' || !id) {
-    return;
+    return null;
   }
 
-  window.ym(Number(id), 'hit', url);
+  const ym = window.ym;
+  return (...args: unknown[]) => ym(Number(id), ...args);
+}
+
+export function hitYandexMetrika(url: string): void {
+  getYandexMetrikaCall()?.('hit', url);
 }
 
 export function trackYandexRegistrationComplete(): void {
-  const id = resolveYandexMetrikaId();
-  if (typeof window === 'undefined' || typeof window.ym !== 'function' || !id) {
-    return;
-  }
+  getYandexMetrikaCall()?.('reachGoal', REGISTRATION_COMPLETE_EVENT);
+}
 
-  window.ym(Number(id), 'reachGoal', REGISTRATION_COMPLETE_EVENT);
+function reachYandexQuestionGoal(prefix: string, params: YandexQuestionStepParams): void {
+  getYandexMetrikaCall()?.('reachGoal', `${prefix}${params.questionId}`, {
+    question_id: params.questionId,
+    question_index: params.questionIndex,
+    question_total: params.questionTotal,
+    form_channel: params.formChannel,
+  });
+}
+
+/** Sends `rf_q_view_<questionId>` when a questionnaire step is shown. */
+export function trackYandexQuestionView(params: YandexQuestionStepParams): void {
+  reachYandexQuestionGoal(YANDEX_QUESTION_VIEW_GOAL_PREFIX, params);
+}
+
+/** Sends `rf_q_done_<questionId>` when a step validates and the client lets the user advance. */
+export function trackYandexQuestionDone(params: YandexQuestionStepParams): void {
+  reachYandexQuestionGoal(YANDEX_QUESTION_DONE_GOAL_PREFIX, params);
 }
