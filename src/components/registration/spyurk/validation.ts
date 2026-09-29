@@ -377,11 +377,3 @@ export function validateSpyurkWizardStep(
   }
   return issuesToFieldErrors(parsed.error.issues, t);
 }
-
-export function isSpyurkWizardStepValid(
-  stepId: SpyurkWizardStepId,
-  state: SpyurkWizardState,
-  t: ErrorTranslator,
-): boolean {
-  return Object.keys(validateSpyurkWizardStep(stepId, state, t)).length === 0;
-}

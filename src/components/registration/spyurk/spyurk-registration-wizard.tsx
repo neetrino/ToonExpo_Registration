@@ -44,7 +44,7 @@ import {
   type SpyurkWizardState,
   type SpyurkWizardStepId,
 } from './types';
-import { isSpyurkWizardStepValid, validateSpyurkWizardStep } from './validation';
+import { validateSpyurkWizardStep } from './validation';
 
 type SpyurkRegistrationWizardProps = {
   locale: Locale;
@@ -141,7 +141,6 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
 
   const isFirstStep = safeStepIndex <= 0;
   const isLastStep = safeStep === 'finish';
-  const stepIsValid = isSpyurkWizardStepValid(safeStep, state, errorTranslator);
   const showErrors = attemptedNext || isLastStep;
   const { trackQuestionComplete } = useQuestionnaireStepTracking({
     ready: draftReady,
@@ -321,7 +320,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
           type="button"
           size="lg"
           onClick={() => void goNext()}
-          disabled={isSubmitting || !stepIsValid}
+          disabled={isSubmitting}
           className="w-full sm:w-auto"
         >
           {isLastStep ? (isSubmitting ? tForm('submitting') : tForm('submit')) : tWizard('next')}
