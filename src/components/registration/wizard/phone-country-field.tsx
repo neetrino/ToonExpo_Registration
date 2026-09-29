@@ -111,7 +111,7 @@ export function PhoneCountryField({
         <button
           id={`${id}-country`}
           type="button"
-          className={triggerClassName}
+          className={cn(triggerClassName, invalid && 'border-destructive bg-destructive/5')}
           disabled={disabled}
           aria-expanded={open}
           aria-controls={listId}

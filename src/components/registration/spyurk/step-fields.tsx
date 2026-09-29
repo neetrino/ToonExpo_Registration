@@ -104,6 +104,7 @@ export function SpyurkBackgroundStep({ state, errors, disabled, locale, onUpdate
               placeholder={getTextFieldPlaceholder('connectionOther', locale)}
               value={state.armeniaConnectionOther}
               disabled={disabled}
+              aria-invalid={Boolean(errors.armeniaConnectionOther)}
               onChange={(event) => onUpdate('armeniaConnectionOther', event.target.value)}
             />
           }
@@ -137,6 +138,7 @@ export function SpyurkBackgroundStep({ state, errors, disabled, locale, onUpdate
               placeholder={getTextFieldPlaceholder('motiveOther', locale)}
               value={state.purchaseMotivesOther}
               disabled={disabled}
+              aria-invalid={Boolean(errors.purchaseMotivesOther)}
               onChange={(event) => onUpdate('purchaseMotivesOther', event.target.value)}
             />
           }
@@ -195,6 +197,7 @@ export function SpyurkPropertyCountryFields({
               placeholder={getTextFieldPlaceholder('country', locale)}
               value={state.propertyCountryOther}
               disabled={disabled}
+              aria-invalid={Boolean(errors.propertyCountryOther)}
               onChange={(event) => onUpdate('propertyCountryOther', event.target.value)}
             />
           }

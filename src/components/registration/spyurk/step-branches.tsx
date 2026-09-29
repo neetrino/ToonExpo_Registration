@@ -74,6 +74,7 @@ export function SpyurkOwnInterestStep(props: StepProps) {
               placeholder={getTextFieldPlaceholder('propertyTypeOther', locale)}
               value={state.interestTypesOther}
               disabled={disabled}
+              aria-invalid={Boolean(errors.interestTypesOther)}
               onChange={(event) => onUpdate('interestTypesOther', event.target.value)}
             />
           }
@@ -182,6 +183,7 @@ export function SpyurkInvestmentTypeStep(props: StepProps) {
               placeholder={getTextFieldPlaceholder('propertyTypeOther', locale)}
               value={state.investmentPropertyTypeOther}
               disabled={disabled}
+              aria-invalid={Boolean(errors.investmentPropertyTypeOther)}
               onChange={(event) => onUpdate('investmentPropertyTypeOther', event.target.value)}
             />
           }
@@ -312,6 +314,7 @@ export function SpyurkInvestmentFollowupStep(props: StepProps) {
               placeholder={getTextFieldPlaceholder('investedCountry', locale)}
               value={state.priorInvestmentExperienceOther}
               disabled={disabled}
+              aria-invalid={Boolean(errors.priorInvestmentExperienceOther)}
               onChange={(event) => onUpdate('priorInvestmentExperienceOther', event.target.value)}
             />
           }
