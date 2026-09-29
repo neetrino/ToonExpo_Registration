@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
+import { localeSwitchHref } from '@/lib/i18n/location-query';
 import { locales, type Locale } from '@/types/locale';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +28,7 @@ export function LocaleSwitcher({ tone = 'default' }: LocaleSwitcherProps) {
       return;
     }
 
-    router.replace(pathname, { locale: nextLocale });
+    router.replace(localeSwitchHref(pathname, window.location.search), { locale: nextLocale });
   };
 
   return (
