@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import { nationalPhoneExample } from '@/lib/validation/phone';
 import type { Locale } from '@/types/locale';
 import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
 import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
@@ -37,6 +38,7 @@ import {
   type WizardState,
   type WizardStepId,
 } from './wizard/types';
+import { mergeIdentityFieldsFromDom } from './wizard/sync-identity-fields';
 import { validateWizardStep } from './wizard/validation';
 import { WizardProgress } from './wizard/wizard-progress';
 import { WizardStepPanel } from './wizard/wizard-step-panel';
@@ -61,18 +63,6 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const formTopRef = useRef<HTMLDivElement>(null);
 
   const questionnaireLocale = locale as QuestionnaireLocale;
-  const errorTranslator = useMemo(
-    () => ({
-      required: tErrors('required'),
-      invalidEmail: tErrors('invalidEmail'),
-      invalidPhone: tErrors('invalidPhone'),
-      consentRequired: tErrors('consentRequired'),
-      validation: tErrors('validation'),
-      maxSelections: (max: number) => tWizard('maxSelections', { max }),
-    }),
-    [tErrors, tWizard],
-  );
-
   const [state, setState] = useState<WizardState>(initialWizardState);
   const [currentStep, setCurrentStep] = useState<WizardStepId>('identity');
   const [fieldErrors, setFieldErrors] = useState<WizardFieldErrors>({});
@@ -80,6 +70,17 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attemptedNext, setAttemptedNext] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
+  const errorTranslator = useMemo(
+    () => ({
+      required: tErrors('required'),
+      invalidEmail: tErrors('invalidEmail'),
+      invalidPhone: tErrors('invalidPhone', { example: nationalPhoneExample(state.phoneCountry) }),
+      consentRequired: tErrors('consentRequired'),
+      validation: tErrors('validation'),
+      maxSelections: (max: number) => tWizard('maxSelections', { max }),
+    }),
+    [state.phoneCountry, tErrors, tWizard],
+  );
 
   useEffect(() => {
     // Capture landing UTM before/alongside draft hydrate so multi-step navigation keeps attribution.
@@ -197,7 +198,17 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
   const goNext = async () => {
     setAttemptedNext(true);
-    const errors = validateWizardStep(safeStep, state, errorTranslator);
+    const nextState = mergeIdentityFieldsFromDom(state, document);
+    if (nextState !== state) {
+      setState(nextState);
+    }
+    const stepTranslator = {
+      ...errorTranslator,
+      invalidPhone: tErrors('invalidPhone', {
+        example: nationalPhoneExample(nextState.phoneCountry),
+      }),
+    };
+    const errors = validateWizardStep(safeStep, nextState, stepTranslator);
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -216,29 +227,26 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     }
 
     // Re-check identity on final submit — draft/old sessions can carry an invalid phone.
-    const identityErrors = validateWizardStep('identity', state, errorTranslator);
+    const identityErrors = validateWizardStep('identity', nextState, stepTranslator);
     if (Object.keys(identityErrors).length > 0) {
       setFieldErrors(identityErrors);
       setCurrentStep('identity');
       setFormError(
-        identityErrors.phone
-          ? tErrors('invalidPhone')
-          : identityErrors.email
-            ? tErrors('invalidEmail')
-            : tErrors('validation'),
+        identityErrors.phone ??
+          (identityErrors.email ? tErrors('invalidEmail') : tErrors('validation')),
       );
       scrollWizardToTop(formTopRef.current);
       return;
     }
 
-    const payload = buildRegistrationPayload(state, locale);
+    const payload = buildRegistrationPayload(nextState, locale);
     if (!payload) {
       setFormError(tErrors('validation'));
       return;
     }
 
     setIsSubmitting(true);
-    const result = await submitRegistration(payload, locale, state.website);
+    const result = await submitRegistration(payload, locale, nextState.website);
     setIsSubmitting(false);
 
     if (result.ok) {
@@ -257,7 +265,9 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     if (result.fieldErrors) {
       const localized: WizardFieldErrors = { ...result.fieldErrors };
       if (localized.phone) {
-        localized.phone = tErrors('invalidPhone');
+        localized.phone = tErrors('invalidPhone', {
+          example: nationalPhoneExample(nextState.phoneCountry),
+        });
       }
       if (localized.email) {
         localized.email = tErrors('invalidEmail');
@@ -270,11 +280,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
       if (localized.phone || localized.email || localized.firstName || localized.lastName) {
         setCurrentStep('identity');
         setFormError(
-          localized.phone
-            ? tErrors('invalidPhone')
-            : localized.email
-              ? tErrors('invalidEmail')
-              : tErrors('validation'),
+          localized.phone ?? (localized.email ? tErrors('invalidEmail') : tErrors('validation')),
         );
         scrollWizardToTop(formTopRef.current);
         return;

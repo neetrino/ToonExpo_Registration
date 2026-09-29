@@ -2,7 +2,15 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import type { AnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
-import { pushQuestionCompleteEvent, pushQuestionViewEvent } from '@/lib/analytics/gtm';
+import {
+  pushQuestionCompleteEvent,
+  pushQuestionViewEvent,
+  type QuestionnaireQuestionEventPayload,
+} from '@/lib/analytics/gtm';
+import { trackYandexQuestionDone, trackYandexQuestionView } from '@/lib/analytics/yandex-metrika';
+
+/** Metrika is installed only on the RF questionnaire route. */
+const YANDEX_METRIKA_FORM_CHANNEL: AnalyticsFormChannel = 'spyurk_rf';
 
 type UseQuestionnaireStepTrackingArgs = {
   /** Wait until draft hydrate finishes so the first view matches the restored step. */
@@ -22,6 +30,7 @@ type UseQuestionnaireStepTrackingResult = {
 /**
  * Pushes GTM questionnaire funnel events: `question_view` on step display,
  * `question_complete` when the caller reports a successful advance.
+ * For `spyurk_rf`, also sends Yandex Metrika goals `rf_q_view_<id>` / `rf_q_done_<id>`.
  */
 export function useQuestionnaireStepTracking({
   ready,
@@ -58,12 +67,16 @@ export function useQuestionnaireStepTracking({
     }
     lastViewKeyRef.current = viewKey;
 
-    pushQuestionViewEvent({
+    const step: QuestionnaireQuestionEventPayload = {
       questionId,
       questionIndex: questionIndex + 1,
       questionTotal,
       formChannel,
-    });
+    };
+    pushQuestionViewEvent(step);
+    if (formChannel === YANDEX_METRIKA_FORM_CHANNEL) {
+      trackYandexQuestionView(step);
+    }
   }, [ready, questionId, questionIndex, questionTotal, formChannel]);
 
   const trackQuestionComplete = useCallback((): void => {
@@ -72,12 +85,16 @@ export function useQuestionnaireStepTracking({
       return;
     }
 
-    pushQuestionCompleteEvent({
+    const step: QuestionnaireQuestionEventPayload = {
       questionId: current.questionId,
       questionIndex: current.questionIndex + 1,
       questionTotal: current.questionTotal,
       formChannel: current.formChannel,
-    });
+    };
+    pushQuestionCompleteEvent(step);
+    if (current.formChannel === YANDEX_METRIKA_FORM_CHANNEL) {
+      trackYandexQuestionDone(step);
+    }
   }, []);
 
   return { trackQuestionComplete };

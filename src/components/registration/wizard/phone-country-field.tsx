@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import {
   formatNationalPhoneInput,
-  nationalPhoneDigitLimit,
   nationalPhoneInput,
   nationalPhonePlaceholder,
   nextNationalPhoneDigits,
@@ -62,7 +61,6 @@ export function PhoneCountryField({
   const selectedCountry = resolvePhoneCountry(phoneCountry);
   const selectedCallingCode = getCountryCallingCode(selectedCountry);
   const selectedFlag = countryFlagEmoji(selectedCountry);
-  const digitLimit = nationalPhoneDigitLimit(selectedCountry);
   const localNumber = nationalPhoneInput(phone, selectedCountry);
   const filtered = open ? filterPhoneCountries(listPhoneCountries(locale), query) : [];
 
@@ -198,7 +196,7 @@ export function PhoneCountryField({
         type="tel"
         autoComplete="tel-national"
         inputMode="numeric"
-        maxLength={selectedCountry === 'RU' ? 24 : digitLimit}
+        maxLength={32}
         className="min-w-0 flex-1"
         placeholder={nationalPhonePlaceholder(selectedCountry)}
         value={formatNationalPhoneInput(localNumber, selectedCountry)}
