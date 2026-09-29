@@ -7,10 +7,7 @@ import {
   pushQuestionViewEvent,
   type QuestionnaireQuestionEventPayload,
 } from '@/lib/analytics/gtm';
-import {
-  trackYandexQuestionDone,
-  trackYandexQuestionView,
-} from '@/lib/analytics/yandex-metrika';
+import { trackYandexQuestionDone, trackYandexQuestionView } from '@/lib/analytics/yandex-metrika';
 
 /** Metrika is installed only on the RF questionnaire route. */
 const YANDEX_METRIKA_FORM_CHANNEL: AnalyticsFormChannel = 'spyurk_rf';
