@@ -147,7 +147,8 @@ function chunkDigits(length: number, size: number): number[] {
 }
 
 function compareDigitGroups(left: readonly number[], right: readonly number[]): number {
-  const groupScore = (groups: readonly number[]) => groups.length * 100 + areaCodeScore(groups[0] ?? 0);
+  const groupScore = (groups: readonly number[]) =>
+    groups.length * 100 + areaCodeScore(groups[0] ?? 0);
   return groupScore(right) - groupScore(left);
 }
 
