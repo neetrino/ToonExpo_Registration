@@ -2,6 +2,7 @@ import type { Prisma } from '@/generated/prisma';
 import { getPrisma } from '@/lib/db';
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/constants';
 import type { AdminListFilter } from '@/lib/admin/admin-url';
+import { registrationSearchWhere } from '@/lib/admin/registration-search';
 import { normalizeAdminSearchQuery } from '@/lib/admin/search-query';
 import type { Locale } from '@/types/locale';
 
@@ -56,32 +57,12 @@ function listFiltersWhere(filters: readonly AdminListFilter[]): Prisma.Registrat
   };
 }
 
-function searchWhere(search: string | undefined): Prisma.RegistrationWhereInput {
-  if (!search) {
-    return {};
-  }
-
-  const lowered = search.toLowerCase();
-  return {
-    OR: [
-      { firstName: { contains: search, mode: 'insensitive' } },
-      { lastName: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
-      { emailNormalized: { contains: lowered } },
-      { phone: { contains: search } },
-      { phoneNormalized: { contains: search } },
-      { ticketCode: { contains: search } },
-      { sourceRegistrationId: { contains: search } },
-    ],
-  };
-}
-
 function buildSearchWhere(
   eventId: string,
   search: string | undefined,
   channels: readonly AdminListFilter[],
 ): Prisma.RegistrationWhereInput {
-  const parts = [listFiltersWhere(channels), searchWhere(search)].filter(
+  const parts = [listFiltersWhere(channels), registrationSearchWhere(search)].filter(
     (part) => Object.keys(part).length > 0,
   );
   if (parts.length === 0) {
