@@ -263,7 +263,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
   };
 
   return (
-    <div ref={formTopRef} className="scroll-mt-6" aria-busy={isSubmitting}>
+    <div ref={formTopRef} className="relative scroll-mt-6" aria-busy={isSubmitting}>
       <WizardProgress currentStep={safeStep} steps={steps} />
       <WizardStepPanel stepKey={safeStep}>
         <div className="space-y-6">
@@ -296,7 +296,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
         </div>
       </WizardStepPanel>
       <div
-        className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden opacity-0"
+        className="pointer-events-none absolute top-0 left-0 size-px overflow-clip opacity-0"
         aria-hidden="true"
       >
         <input
@@ -304,6 +304,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
           name="hp_leave_blank"
           type="text"
           tabIndex={-1}
+          className="size-px border-0 p-0"
           autoComplete="off"
           value={state.website}
           onChange={(event) => updateField('website', event.target.value)}
