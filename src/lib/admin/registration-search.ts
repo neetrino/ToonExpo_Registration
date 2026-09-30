@@ -2,45 +2,82 @@ import type { Prisma } from '@/generated/prisma';
 
 type RegistrationSearch = Prisma.RegistrationWhereInput;
 
-function nameTokenWhere(token: string): RegistrationSearch {
+/** Ignore 1-digit noise such as a stray "1" inside every phone number. */
+const MIN_PHONE_DIGITS = 2;
+
+/** Punctuation around a word. Dots stay in the middle so emails keep their domain. */
+const TOKEN_EDGE = /^[^\p{L}\p{N}+@]+|[^\p{L}\p{N}+@]+$/gu;
+
+type SearchToken = {
+  raw: string;
+  lowered: string;
+  digits: string;
+};
+
+function cleanToken(raw: string): string {
+  return raw.replace(TOKEN_EDGE, '');
+}
+
+function parseSearchTokens(search: string): SearchToken[] {
+  const tokens: SearchToken[] = [];
+
+  for (const part of search.split(/\s+/)) {
+    const raw = cleanToken(part);
+    if (!raw || raw === '+') {
+      continue;
+    }
+
+    tokens.push({
+      raw,
+      lowered: raw.toLowerCase(),
+      digits: raw.replace(/\D/g, ''),
+    });
+  }
+
+  return tokens;
+}
+
+function phoneMatches(token: SearchToken): RegistrationSearch[] {
+  if (token.digits.length < MIN_PHONE_DIGITS || /\p{L}/u.test(token.raw)) {
+    return [];
+  }
+
+  return [{ phone: { contains: token.raw } }, { phoneNormalized: { contains: token.digits } }];
+}
+
+function tokenMatches(token: SearchToken): RegistrationSearch {
   return {
     OR: [
-      { firstName: { contains: token, mode: 'insensitive' } },
-      { lastName: { contains: token, mode: 'insensitive' } },
+      { firstName: { contains: token.raw, mode: 'insensitive' } },
+      { lastName: { contains: token.raw, mode: 'insensitive' } },
+      { email: { contains: token.raw, mode: 'insensitive' } },
+      { emailNormalized: { contains: token.lowered } },
+      ...phoneMatches(token),
+      { ticketCode: { contains: token.raw, mode: 'insensitive' } },
+      { sourceRegistrationId: { contains: token.raw, mode: 'insensitive' } },
     ],
   };
 }
 
-function singleFieldMatches(search: string): RegistrationSearch[] {
-  const lowered = search.toLowerCase();
-  return [
-    { firstName: { contains: search, mode: 'insensitive' } },
-    { lastName: { contains: search, mode: 'insensitive' } },
-    { email: { contains: search, mode: 'insensitive' } },
-    { emailNormalized: { contains: lowered } },
-    { phone: { contains: search } },
-    { phoneNormalized: { contains: search } },
-    { ticketCode: { contains: search } },
-    { sourceRegistrationId: { contains: search } },
-  ];
-}
-
 /**
- * Admin list filter.
- * One token matches any identity field.
- * Several tokens also match when each appears in the first or last name,
- * so "Narek Karapetyan" finds that registration in either name order.
+ * Admin registration search.
+ * Every word must match a name, email, phone, ticket code, or source id.
+ * Phone formatting (spaces, dashes, parentheses) is ignored.
+ * Ticket codes and source ids are case-insensitive.
  */
 export function registrationSearchWhere(search: string | undefined): RegistrationSearch {
   if (!search) {
     return {};
   }
 
-  const matches = singleFieldMatches(search);
-  const tokens = search.split(/\s+/).filter((token) => token.length > 0);
-  if (tokens.length > 1) {
-    matches.push({ AND: tokens.map(nameTokenWhere) });
+  const tokens = parseSearchTokens(search);
+  if (tokens.length === 0) {
+    return {};
   }
 
-  return { OR: matches };
+  if (tokens.length === 1) {
+    return tokenMatches(tokens[0]);
+  }
+
+  return { AND: tokens.map(tokenMatches) };
 }
