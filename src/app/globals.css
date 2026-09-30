@@ -55,6 +55,20 @@ body {
   font-family: var(--font-sans);
 }
 
+/*
+ * iOS and Android zoom the page when a focused text field is under 16px,
+ * which also turns on horizontal panning. Touch devices keep 16px.
+ */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='hidden']):not([type='range']):not(
+      [type='button']
+    ):not([type='submit']):not([type='reset']),
+  textarea,
+  select {
+    font-size: 1rem;
+  }
+}
+
 @keyframes landing-card-enter {
   from {
     opacity: 0;
