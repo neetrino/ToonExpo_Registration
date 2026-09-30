@@ -84,8 +84,11 @@ export function AdminSearchForm({
       name="q"
       type="search"
       value={value}
-      placeholder="Name, email, or phone"
+      placeholder="Name, email, phone, or ticket"
       maxLength={ADMIN_SEARCH_MAX_LENGTH}
+      autoComplete="off"
+      autoCorrect="off"
+      spellCheck={false}
       aria-label="Search registrations"
       aria-busy={isPending || undefined}
       onChange={(event) => scheduleSearch(event.target.value)}
