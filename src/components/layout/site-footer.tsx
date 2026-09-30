@@ -3,13 +3,13 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
 const NEETRINO_URL = 'https://www.neetrino.com/';
+const FOOTER_LOCALE = 'en';
 
 const footerLinkClassName =
   'rounded-sm underline decoration-white/50 underline-offset-4 transition-colors hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none';
 
-type SiteFooterProps = {
-  privacyLabel: string;
-};
+const creatorLinkClassName =
+  'rounded-sm font-bold no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary';
 
 function CreatorLink({ children }: { children: ReactNode }) {
   return (
@@ -17,15 +17,15 @@ function CreatorLink({ children }: { children: ReactNode }) {
       href={NEETRINO_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className={footerLinkClassName}
+      className={creatorLinkClassName}
     >
       {children}
     </a>
   );
 }
 
-export async function SiteFooter({ privacyLabel }: SiteFooterProps) {
-  const t = await getTranslations('landing');
+export async function SiteFooter() {
+  const t = await getTranslations({ locale: FOOTER_LOCALE, namespace: 'landing' });
 
   return (
     <footer className="border-t border-white/10 bg-primary text-white">
@@ -36,7 +36,7 @@ export async function SiteFooter({ privacyLabel }: SiteFooterProps) {
           })}
         </p>
         <Link href="/privacy" className={footerLinkClassName}>
-          {privacyLabel}
+          {t('privacyLink')}
         </Link>
       </div>
     </footer>
