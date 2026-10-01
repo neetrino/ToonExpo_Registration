@@ -2,6 +2,7 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { PublicAnalytics } from '@/components/analytics/public-analytics';
+import { UtmLandingCapture } from '@/components/attribution/utm-landing-capture';
 import { SiteHeader } from '@/components/layout/site-header';
 import { routing } from '@/i18n/routing';
 
@@ -26,6 +27,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <UtmLandingCapture />
       <PublicAnalytics />
       <div className="flex min-h-dvh flex-col bg-primary">
         <SiteHeader />
