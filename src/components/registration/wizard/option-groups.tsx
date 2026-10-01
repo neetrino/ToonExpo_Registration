@@ -9,6 +9,8 @@ type OptionRadioGroupProps<T extends string> = {
   onChange: (value: T) => void;
   disabled?: boolean;
   error?: boolean;
+  /** Nested choices under a parent option — visually secondary. */
+  variant?: 'default' | 'nested';
   renderAfterOption?: (option: T, checked: boolean) => ReactNode;
 };
 
@@ -20,8 +22,11 @@ export function OptionRadioGroup<T extends string>({
   onChange,
   disabled = false,
   error = false,
+  variant = 'default',
   renderAfterOption,
 }: OptionRadioGroupProps<T>) {
+  const nested = variant === 'nested';
+
   return (
     <div className="space-y-2" role="radiogroup" aria-invalid={error || undefined}>
       {options.map((option) => {
@@ -33,10 +38,15 @@ export function OptionRadioGroup<T extends string>({
             <label
               htmlFor={id}
               className={cn(
-                'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+                'flex cursor-pointer items-start gap-3 border transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+                nested ? 'rounded-lg px-3 py-2.5' : 'rounded-xl px-4 py-3',
                 checked
-                  ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
-                  : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
+                  ? nested
+                    ? 'border-accent/80 bg-accent/90 text-accent-foreground shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_80%,transparent)]'
+                    : 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
+                  : nested
+                    ? 'border-border/80 bg-muted/40 hover:border-secondary/50 hover:bg-muted/70'
+                    : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
                 disabled && 'cursor-not-allowed opacity-50',
                 error && !checked && 'border-destructive bg-destructive/5',
               )}
@@ -52,7 +62,11 @@ export function OptionRadioGroup<T extends string>({
                 onChange={() => onChange(option)}
               />
               <span
-                className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+                className={cn(
+                  'leading-snug',
+                  nested ? 'text-[13px]' : 'text-sm',
+                  checked ? 'font-medium' : 'text-foreground',
+                )}
               >
                 {getLabel(option)}
               </span>

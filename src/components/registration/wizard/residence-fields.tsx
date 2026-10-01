@@ -92,11 +92,12 @@ export function ResidenceFields({
               }
 
               return (
-                <div className="space-y-2 pl-4">
+                <div className="ml-2 space-y-2.5 rounded-xl border border-dashed border-accent/35 bg-muted/30 p-3 pl-3.5">
                   <OptionRadioGroup
                     name="residenceAragatsotnLocality"
                     value={state.residenceAragatsotnLocality}
                     options={residence.aragatsotnLocalities}
+                    variant="nested"
                     getLabel={(value) =>
                       getOptionLabel('residenceAragatsotnLocality', value, locale)
                     }

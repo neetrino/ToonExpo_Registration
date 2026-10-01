@@ -20,7 +20,7 @@ export const questionnaireI18n = {
     ),
     residenceAragatsotnLocality: L('Արագածոտնի մարզ', 'Aragatsotn', 'Арагацотн'),
     residenceAragatsotnOther: L(
-      'Այլ (խնդրում ենք նշել)',
+      'Այլ (Խնդրում ենք նշել)',
       'Other (please specify)',
       'Другое (укажите)',
     ),
