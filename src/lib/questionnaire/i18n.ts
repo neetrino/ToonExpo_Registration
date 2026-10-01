@@ -18,6 +18,12 @@ export const questionnaireI18n = {
       'Abroad — please specify the country',
       'За рубежом (укажите страну)',
     ),
+    residenceAragatsotnLocality: L('Արագածոտնի մարզ', 'Aragatsotn', 'Арагацотн'),
+    residenceAragatsotnOther: L(
+      'Այլ (խնդրում ենք նշել)',
+      'Other (please specify)',
+      'Другое (укажите)',
+    ),
     visitPurpose: L(
       'Ձեր այցի հիմնական նպատակը TOON EXPO Invest 2026 Vol. 2-ին',
       'What is the main purpose of your visit to TOON EXPO Invest 2026 Vol. 2?',
@@ -227,6 +233,10 @@ export const questionnaireI18n = {
       syunik: L('Սյունիքի մարզ', 'Syunik', 'Сюник'),
       vayots_dzor: L('Վայոց ձորի մարզ', 'Vayots Dzor', 'Вайоцдзор'),
       tavush: L('Տավուշի մարզ', 'Tavush', 'Тавуш'),
+    },
+    aragatsotnLocality: {
+      ashtarak: L('Աշտարակ', 'Ashtarak', 'Аштарак'),
+      other: L('Այլ', 'Other', 'Другое'),
     },
     areaSqm: {
       up_to_50: L('Մինչև 50 քմ', 'Up to 50 sq. m', 'До 50 кв. м'),

@@ -63,6 +63,35 @@ describe('questionnaireAnswersSchema', () => {
     expect(parsed.success).toBe(true);
   });
 
+  it('accepts aragatsotn residence with ashtarak locality', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...validOwnResidence,
+      residence: { scope: 'marz', region: 'aragatsotn', locality: 'ashtarak' },
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('accepts aragatsotn residence with other locality text', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...validOwnResidence,
+      residence: {
+        scope: 'marz',
+        region: 'aragatsotn',
+        locality: 'other',
+        localityOther: 'Aparan',
+      },
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('rejects aragatsotn residence without locality', () => {
+    const parsed = questionnaireAnswersSchema.safeParse({
+      ...validOwnResidence,
+      residence: { scope: 'marz', region: 'aragatsotn' },
+    });
+    expect(parsed.success).toBe(false);
+  });
+
   it('accepts own_residence abroad interest with locationSeek', () => {
     const parsed = questionnaireAnswersSchema.safeParse({
       ...sharedOwnResidence,

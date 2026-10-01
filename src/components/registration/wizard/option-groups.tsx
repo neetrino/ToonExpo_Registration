@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 type OptionRadioGroupProps<T extends string> = {
@@ -8,6 +9,7 @@ type OptionRadioGroupProps<T extends string> = {
   onChange: (value: T) => void;
   disabled?: boolean;
   error?: boolean;
+  renderAfterOption?: (option: T, checked: boolean) => ReactNode;
 };
 
 export function OptionRadioGroup<T extends string>({
@@ -18,6 +20,7 @@ export function OptionRadioGroup<T extends string>({
   onChange,
   disabled = false,
   error = false,
+  renderAfterOption,
 }: OptionRadioGroupProps<T>) {
   return (
     <div className="space-y-2" role="radiogroup" aria-invalid={error || undefined}>
@@ -26,34 +29,36 @@ export function OptionRadioGroup<T extends string>({
         const checked = value === option;
 
         return (
-          <label
-            key={option}
-            htmlFor={id}
-            className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
-              checked
-                ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
-                : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
-              disabled && 'cursor-not-allowed opacity-50',
-              error && !checked && 'border-destructive bg-destructive/5',
-            )}
-          >
-            <input
-              id={id}
-              type="radio"
-              name={name}
-              value={option}
-              checked={checked}
-              disabled={disabled}
-              className="mt-0.5 size-4 shrink-0 accent-highlight"
-              onChange={() => onChange(option)}
-            />
-            <span
-              className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+          <div key={option} className="space-y-2">
+            <label
+              htmlFor={id}
+              className={cn(
+                'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+                checked
+                  ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
+                  : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
+                disabled && 'cursor-not-allowed opacity-50',
+                error && !checked && 'border-destructive bg-destructive/5',
+              )}
             >
-              {getLabel(option)}
-            </span>
-          </label>
+              <input
+                id={id}
+                type="radio"
+                name={name}
+                value={option}
+                checked={checked}
+                disabled={disabled}
+                className="mt-0.5 size-4 shrink-0 accent-highlight"
+                onChange={() => onChange(option)}
+              />
+              <span
+                className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+              >
+                {getLabel(option)}
+              </span>
+            </label>
+            {renderAfterOption?.(option, checked)}
+          </div>
         );
       })}
     </div>

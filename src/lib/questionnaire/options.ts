@@ -43,6 +43,9 @@ export const MARZ_REGIONS = [
   'tavush',
 ] as const;
 
+/** Nested residence choices under Aragatsotn marz. */
+export const ARAGATSOTN_LOCALITIES = ['ashtarak', 'other'] as const;
+
 export const LOCATION_SEEK_SCOPES = ['yerevan', 'marz', 'abroad'] as const;
 
 export const RESEARCH_LOCATION_SCOPES = ['yerevan', 'marz', 'abroad', 'undecided'] as const;

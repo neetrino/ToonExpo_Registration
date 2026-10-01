@@ -6,6 +6,7 @@ import {
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,
+  ARAGATSOTN_LOCALITIES,
   AREA_SQM_BANDS,
   DECISION_STAGES,
   INTEREST_TYPES,
@@ -38,6 +39,7 @@ export const QUESTIONNAIRE_DEFINITION = {
       scopes: LOCATION_SEEK_SCOPES,
       yerevanDistricts: YEREVAN_DISTRICTS,
       marzRegions: MARZ_REGIONS,
+      aragatsotnLocalities: ARAGATSOTN_LOCALITIES,
     },
     visitPurpose: { options: VISIT_PURPOSES },
   },

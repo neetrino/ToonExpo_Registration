@@ -17,6 +17,11 @@ type ResidenceFieldsProps = {
 
 const { residence } = QUESTIONNAIRE_DEFINITION.shared;
 
+function clearAragatsotnFields(onUpdate: ResidenceFieldsProps['onUpdate']): void {
+  onUpdate('residenceAragatsotnLocality', '');
+  onUpdate('residenceAragatsotnOther', '');
+}
+
 export function ResidenceFields({
   state,
   errors,
@@ -36,6 +41,7 @@ export function ResidenceFields({
             onUpdate('residenceScope', value);
             onUpdate('residenceDistrict', '');
             onUpdate('residenceRegion', '');
+            clearAragatsotnFields(onUpdate);
             if (value !== 'abroad') {
               onUpdate('residenceCountry', '');
             }
@@ -65,16 +71,67 @@ export function ResidenceFields({
       {state.residenceScope === 'marz' ? (
         <QuestionField
           legend={getQuestionLabel('residenceRegion', locale)}
-          error={errors.residenceRegion}
+          error={errors.residenceRegion ?? errors.residenceAragatsotnLocality}
         >
           <OptionRadioGroup
             name="residenceRegion"
             value={state.residenceRegion}
             options={residence.marzRegions}
             getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
-            onChange={(value) => onUpdate('residenceRegion', value)}
+            onChange={(value) => {
+              onUpdate('residenceRegion', value);
+              if (value !== 'aragatsotn') {
+                clearAragatsotnFields(onUpdate);
+              }
+            }}
             disabled={disabled}
             error={Boolean(errors.residenceRegion)}
+            renderAfterOption={(option, checked) => {
+              if (option !== 'aragatsotn' || !checked) {
+                return null;
+              }
+
+              return (
+                <div className="space-y-2 pl-4">
+                  <OptionRadioGroup
+                    name="residenceAragatsotnLocality"
+                    value={state.residenceAragatsotnLocality}
+                    options={residence.aragatsotnLocalities}
+                    getLabel={(value) =>
+                      getOptionLabel('residenceAragatsotnLocality', value, locale)
+                    }
+                    onChange={(value) => {
+                      onUpdate('residenceAragatsotnLocality', value);
+                      if (value !== 'other') {
+                        onUpdate('residenceAragatsotnOther', '');
+                      }
+                    }}
+                    disabled={disabled}
+                    error={Boolean(errors.residenceAragatsotnLocality)}
+                  />
+
+                  {state.residenceAragatsotnLocality === 'other' ? (
+                    <FormField
+                      id="residenceAragatsotnOther"
+                      label={getQuestionLabel('residenceAragatsotnOther', locale)}
+                      error={errors.residenceAragatsotnOther}
+                      input={
+                        <Input
+                          id="residenceAragatsotnOther"
+                          placeholder={getTextFieldPlaceholder('aragatsotnLocalityOther', locale)}
+                          value={state.residenceAragatsotnOther}
+                          disabled={disabled}
+                          aria-invalid={Boolean(errors.residenceAragatsotnOther)}
+                          onChange={(event) =>
+                            onUpdate('residenceAragatsotnOther', event.target.value)
+                          }
+                        />
+                      }
+                    />
+                  ) : null}
+                </div>
+              );
+            }}
           />
         </QuestionField>
       ) : null}
