@@ -30,7 +30,6 @@ const OPTION_GROUP_BY_FIELD = {
   residenceScope: 'locationSeekScope',
   residenceDistrict: 'yerevanDistrict',
   residenceRegion: 'marzRegion',
-  residenceAragatsotnLocality: 'aragatsotnLocality',
   yerevanDistricts: 'yerevanDistrict',
   marzRegions: 'marzRegion',
   newsletter: 'newsletter',

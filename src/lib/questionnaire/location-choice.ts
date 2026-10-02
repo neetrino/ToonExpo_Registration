@@ -1,11 +1,6 @@
 import { z } from 'zod';
 import { LOCATION_CHOICE_MAX, OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
-import {
-  ABROAD_COUNTRIES,
-  ARAGATSOTN_LOCALITIES,
-  MARZ_REGIONS,
-  YEREVAN_DISTRICTS,
-} from '@/lib/questionnaire/options';
+import { ABROAD_COUNTRIES, MARZ_REGIONS, YEREVAN_DISTRICTS } from '@/lib/questionnaire/options';
 import type { ResidencePlace } from '@/lib/questionnaire/types';
 
 const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
@@ -41,7 +36,7 @@ function countActiveLocationGroups(
   return Number(hasYerevan) + Number(hasMarz) + Number(hasAbroad);
 }
 
-const residencePlaceBaseSchema = z.discriminatedUnion('scope', [
+export const residencePlaceSchema: z.ZodType<ResidencePlace> = z.discriminatedUnion('scope', [
   z.object({
     scope: z.literal('yerevan'),
     district: z.enum(YEREVAN_DISTRICTS),
@@ -49,69 +44,12 @@ const residencePlaceBaseSchema = z.discriminatedUnion('scope', [
   z.object({
     scope: z.literal('marz'),
     region: z.enum(MARZ_REGIONS),
-    locality: z.enum(ARAGATSOTN_LOCALITIES).optional(),
-    localityOther: z.string().optional(),
   }),
   z.object({
     scope: z.literal('abroad'),
     country: otherTextSchema,
   }),
 ]);
-
-export const residencePlaceSchema: z.ZodType<ResidencePlace> = residencePlaceBaseSchema.superRefine(
-  (data, ctx) => {
-    if (data.scope !== 'marz') {
-      return;
-    }
-
-    if (data.region !== 'aragatsotn') {
-      if (data.locality !== undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['locality'],
-          message: 'locality is only allowed for aragatsotn',
-        });
-      }
-      if (data.localityOther !== undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['localityOther'],
-          message: 'localityOther is only allowed for aragatsotn',
-        });
-      }
-      return;
-    }
-
-    if (!data.locality) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['locality'],
-        message: 'Required when region is aragatsotn',
-      });
-      return;
-    }
-
-    if (data.locality === 'other') {
-      const other = otherTextSchema.safeParse(data.localityOther ?? '');
-      if (!other.success) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['localityOther'],
-          message: 'Required when locality is other',
-        });
-      }
-      return;
-    }
-
-    if (data.localityOther !== undefined) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['localityOther'],
-        message: 'localityOther is only allowed when locality is other',
-      });
-    }
-  },
-);
 
 export const locationChoiceSchema = z
   .object({

@@ -8,10 +8,12 @@ const getPrisma = vi.hoisted(() => vi.fn());
 const createTicketDeliveryJobs = vi.hoisted(() => vi.fn());
 const processDueDeliveryJobs = vi.hoisted(() => vi.fn());
 const getDexatelSmsConfig = vi.hoisted(() => vi.fn());
+const isTicketSmsDeliveryEnabled = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/db', () => ({ getPrisma }));
 vi.mock('@/lib/delivery/create-ticket-delivery-jobs', () => ({ createTicketDeliveryJobs }));
 vi.mock('@/lib/delivery/process-delivery-jobs', () => ({ processDueDeliveryJobs }));
+vi.mock('@/lib/delivery/ticket-sms-policy', () => ({ isTicketSmsDeliveryEnabled }));
 vi.mock('@/lib/integrations/dexatel/config', () => ({ getDexatelSmsConfig }));
 
 import { resendRegistrationTicket } from '@/lib/admin/resend-ticket';
@@ -59,9 +61,11 @@ describe('resendRegistrationTicket', () => {
     createTicketDeliveryJobs.mockReset();
     processDueDeliveryJobs.mockReset();
     getDexatelSmsConfig.mockReset();
+    isTicketSmsDeliveryEnabled.mockReset();
     getPrisma.mockReset();
-    processDueDeliveryJobs.mockResolvedValue({ claimed: 2, sent: 2, failed: 0, retried: 0 });
+    processDueDeliveryJobs.mockResolvedValue({ claimed: 1, sent: 1, failed: 0, retried: 0 });
     getDexatelSmsConfig.mockReturnValue({ ok: true, apiKey: 'test-key', from: 'TOONEXPO' });
+    isTicketSmsDeliveryEnabled.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -97,7 +101,7 @@ describe('resendRegistrationTicket', () => {
     expect(processDueDeliveryJobs).not.toHaveBeenCalled();
   });
 
-  it('requeues the existing email and SMS jobs without changing the ticket code', async () => {
+  it('requeues the existing email and leaves SMS untouched while SMS is paused', async () => {
     const { deliveryJobUpdate, deliveryJobCreate, registrationUpdate, prisma } = createPrismaMock({
       event: { id: EVENT_ID },
       registration: {
@@ -125,7 +129,7 @@ describe('resendRegistrationTicket', () => {
     await expect(resendRegistrationTicket(REGISTRATION_ID)).resolves.toEqual({
       ok: true,
       emailQueued: true,
-      smsQueued: true,
+      smsQueued: false,
     });
 
     expect(prisma.registration.findFirst).toHaveBeenCalledWith(
@@ -133,14 +137,14 @@ describe('resendRegistrationTicket', () => {
         where: { id: REGISTRATION_ID, eventId: EVENT_ID },
       }),
     );
-    expect(deliveryJobUpdate).toHaveBeenCalledTimes(2);
+    expect(deliveryJobUpdate).toHaveBeenCalledTimes(1);
     expect(deliveryJobUpdate).toHaveBeenCalledWith({
       where: { id: EMAIL_JOB_ID },
       data: expect.objectContaining({ status: 'PENDING', attemptCount: 0 }),
     });
-    expect(deliveryJobUpdate).toHaveBeenCalledWith({
+    expect(deliveryJobUpdate).not.toHaveBeenCalledWith({
       where: { id: SMS_JOB_ID },
-      data: expect.objectContaining({ status: 'PENDING', attemptCount: 0 }),
+      data: expect.anything(),
     });
     expect(deliveryJobCreate).not.toHaveBeenCalled();
     expect(createTicketDeliveryJobs).not.toHaveBeenCalled();
@@ -174,12 +178,51 @@ describe('resendRegistrationTicket', () => {
     await expect(resendRegistrationTicket(REGISTRATION_ID)).resolves.toEqual({
       ok: true,
       emailQueued: true,
-      smsQueued: true,
+      smsQueued: false,
     });
     expect(createTicketDeliveryJobs).toHaveBeenCalledWith(expect.anything(), REGISTRATION_ID);
   });
 
+  it('requeues email and SMS when ticket SMS is enabled', async () => {
+    isTicketSmsDeliveryEnabled.mockReturnValue(true);
+    const { deliveryJobUpdate } = createPrismaMock({
+      event: { id: EVENT_ID },
+      registration: {
+        id: REGISTRATION_ID,
+        ticketCode: ORIGINAL_TICKET,
+        ticketViewToken: ORIGINAL_TOKEN,
+        emailLastAttemptAt: new Date('2026-08-14T09:00:00.000Z'),
+        deliveryJobs: [
+          {
+            id: EMAIL_JOB_ID,
+            channel: 'EMAIL',
+            status: 'SENT',
+            templateVersion: TICKET_EMAIL_TEMPLATE_VERSION,
+          },
+          {
+            id: SMS_JOB_ID,
+            channel: 'SMS',
+            status: 'SENT',
+            templateVersion: TICKET_SMS_TEMPLATE_VERSION,
+          },
+        ],
+      },
+    });
+
+    await expect(resendRegistrationTicket(REGISTRATION_ID)).resolves.toEqual({
+      ok: true,
+      emailQueued: true,
+      smsQueued: true,
+    });
+    expect(deliveryJobUpdate).toHaveBeenCalledTimes(2);
+    expect(deliveryJobUpdate).toHaveBeenCalledWith({
+      where: { id: SMS_JOB_ID },
+      data: expect.objectContaining({ status: 'PENDING', attemptCount: 0 }),
+    });
+  });
+
   it('skips SMS when Dexatel is not configured', async () => {
+    isTicketSmsDeliveryEnabled.mockReturnValue(true);
     getDexatelSmsConfig.mockReturnValue({ ok: false, code: 'NOT_CONFIGURED' });
     const { deliveryJobUpdate } = createPrismaMock({
       event: { id: EVENT_ID },

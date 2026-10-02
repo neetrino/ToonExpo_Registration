@@ -32,40 +32,4 @@ describe('buildQuestionnaireAnswers', () => {
     expect(answers).not.toBeNull();
     expect(answers?.newsletter).toBe(false);
   });
-
-  it('builds aragatsotn residence with ashtarak locality', () => {
-    const answers = buildQuestionnaireAnswers(
-      ownResidenceState({
-        residenceScope: 'marz',
-        residenceDistrict: '',
-        residenceRegion: 'aragatsotn',
-        residenceAragatsotnLocality: 'ashtarak',
-      }),
-    );
-
-    expect(answers?.residence).toEqual({
-      scope: 'marz',
-      region: 'aragatsotn',
-      locality: 'ashtarak',
-    });
-  });
-
-  it('builds aragatsotn residence with other locality text', () => {
-    const answers = buildQuestionnaireAnswers(
-      ownResidenceState({
-        residenceScope: 'marz',
-        residenceDistrict: '',
-        residenceRegion: 'aragatsotn',
-        residenceAragatsotnLocality: 'other',
-        residenceAragatsotnOther: 'Aparan',
-      }),
-    );
-
-    expect(answers?.residence).toEqual({
-      scope: 'marz',
-      region: 'aragatsotn',
-      locality: 'other',
-      localityOther: 'Aparan',
-    });
-  });
 });
