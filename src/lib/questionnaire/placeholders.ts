@@ -11,7 +11,6 @@ export const textFieldPlaceholders = {
   residenceCity: example('Մոսկվա', 'Moscow', 'Москва'),
   residenceRegion: example('Մոսկվայի մարզ', 'Moscow Oblast', 'Московская область'),
   residenceAbroad: example('Ռուսաստան', 'Russia', 'Россия'),
-  aragatsotnLocalityOther: example('Ապարան', 'Aparan', 'Апаран'),
   country: example('Վրաստան', 'Georgia', 'Грузия'),
   investedCountry: example('ԱՄԷ', 'UAE', 'ОАЭ'),
   connectionOther: example('Բիզնես գործընկեր', 'Business partner', 'Бизнес-партнёр'),

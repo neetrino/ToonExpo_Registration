@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,
-  ARAGATSOTN_LOCALITIES,
   AREA_SQM_BANDS,
   DECISION_STAGES,
   INVESTMENT_BUDGETS_USD,
@@ -64,8 +63,6 @@ const profileStepSchema = z
     residenceScope: z.enum(LOCATION_SEEK_SCOPES),
     residenceDistrict: z.enum(YEREVAN_DISTRICTS).or(z.literal('')),
     residenceRegion: z.enum(MARZ_REGIONS).or(z.literal('')),
-    residenceAragatsotnLocality: z.enum(ARAGATSOTN_LOCALITIES).or(z.literal('')),
-    residenceAragatsotnOther: z.string(),
     residenceCountry: z.string(),
   })
   .superRefine((data, ctx) => {
@@ -77,31 +74,8 @@ const profileStepSchema = z
       });
     }
 
-    if (data.residenceScope === 'marz') {
-      if (!data.residenceRegion) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['residenceRegion'],
-          message: 'required',
-        });
-      } else if (data.residenceRegion === 'aragatsotn') {
-        if (!data.residenceAragatsotnLocality) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['residenceAragatsotnLocality'],
-            message: 'required',
-          });
-        } else if (data.residenceAragatsotnLocality === 'other') {
-          const other = otherTextSchema.safeParse(data.residenceAragatsotnOther);
-          if (!other.success) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: ['residenceAragatsotnOther'],
-              message: 'required',
-            });
-          }
-        }
-      }
+    if (data.residenceScope === 'marz' && !data.residenceRegion) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['residenceRegion'], message: 'required' });
     }
 
     if (data.residenceScope === 'abroad') {
@@ -279,8 +253,6 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
         residenceScope: state.residenceScope || undefined,
         residenceDistrict: state.residenceDistrict,
         residenceRegion: state.residenceRegion,
-        residenceAragatsotnLocality: state.residenceAragatsotnLocality,
-        residenceAragatsotnOther: state.residenceAragatsotnOther,
         residenceCountry: state.residenceCountry,
       };
     case 'own-residence-interest':

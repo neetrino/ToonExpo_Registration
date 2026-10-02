@@ -15,32 +15,6 @@ function buildResidence(state: WizardState): ResidencePlace | null {
   }
 
   if (state.residenceScope === 'marz' && state.residenceRegion) {
-    if (state.residenceRegion === 'aragatsotn') {
-      if (!state.residenceAragatsotnLocality) {
-        return null;
-      }
-
-      if (state.residenceAragatsotnLocality === 'other') {
-        const localityOther = state.residenceAragatsotnOther.trim();
-        if (!localityOther) {
-          return null;
-        }
-
-        return {
-          scope: 'marz',
-          region: 'aragatsotn',
-          locality: 'other',
-          localityOther,
-        };
-      }
-
-      return {
-        scope: 'marz',
-        region: 'aragatsotn',
-        locality: state.residenceAragatsotnLocality,
-      };
-    }
-
     return { scope: 'marz', region: state.residenceRegion };
   }
 

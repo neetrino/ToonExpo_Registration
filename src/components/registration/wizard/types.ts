@@ -2,7 +2,6 @@ import type { CountryCode } from 'libphonenumber-js';
 import type {
   AbroadCountry,
   AgeBand,
-  AragatsotnLocality,
   AreaSqmBand,
   DecisionStage,
   InterestType,
@@ -50,8 +49,6 @@ export type WizardState = {
   residenceScope: LocationSeekScope | '';
   residenceDistrict: YerevanDistrict | '';
   residenceRegion: MarzRegion | '';
-  residenceAragatsotnLocality: AragatsotnLocality | '';
-  residenceAragatsotnOther: string;
   residenceCountry: string;
   visitPurpose: VisitPurpose | '';
   interestType: InterestType | '';
@@ -95,8 +92,6 @@ export const initialWizardState: WizardState = {
   residenceScope: '',
   residenceDistrict: '',
   residenceRegion: '',
-  residenceAragatsotnLocality: '',
-  residenceAragatsotnOther: '',
   residenceCountry: '',
   visitPurpose: '',
   interestType: '',

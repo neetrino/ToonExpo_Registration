@@ -139,12 +139,6 @@ function assignResidence(target: MootqAnswers, residence: ResidencePlace): void 
   }
   if (residence.scope === 'marz') {
     target.residence_region = residence.region;
-    if (residence.locality) {
-      target.residence_locality = residence.locality;
-    }
-    if (residence.localityOther) {
-      target.residence_locality_other = residence.localityOther;
-    }
     return;
   }
   target.residence_country = residence.country;
