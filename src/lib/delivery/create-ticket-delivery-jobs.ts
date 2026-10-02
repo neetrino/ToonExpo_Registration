@@ -2,6 +2,7 @@ import {
   TICKET_EMAIL_TEMPLATE_VERSION,
   TICKET_SMS_TEMPLATE_VERSION,
 } from '@/lib/delivery/constants';
+import { isTicketSmsDeliveryEnabled } from '@/lib/delivery/ticket-sms-policy';
 import { getDexatelSmsConfig } from '@/lib/integrations/dexatel/config';
 
 type DeliveryJobWriter = {
@@ -19,7 +20,8 @@ type DeliveryJobWriter = {
 };
 
 /**
- * Persist EMAIL delivery job and, when Dexatel is configured, SMS delivery job.
+ * Persist the EMAIL delivery job.
+ * SMS is queued only when ticket SMS is enabled and Dexatel is configured.
  */
 export async function createTicketDeliveryJobs(
   tx: DeliveryJobWriter,
@@ -37,7 +39,7 @@ export async function createTicketDeliveryJobs(
     },
   });
 
-  if (!getDexatelSmsConfig().ok) {
+  if (!isTicketSmsDeliveryEnabled() || !getDexatelSmsConfig().ok) {
     return;
   }
 

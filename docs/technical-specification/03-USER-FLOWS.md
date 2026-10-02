@@ -4,10 +4,10 @@
 
 1. Visitor completes the general localized form (`/hy` `/en` `/ru`) or the Spyurk RF form (`/rf` → `/ru/rf`).
 2. Server validates and normalizes the payload.
-3. A database transaction assigns `sourceSystem=TOON_EXPO` and stores the registration, `TE…` ticket code (`^(TE|MQ)[A-Z0-9]{11}$`), ticket token, two delivery jobs and one fast-feed event.
+3. A database transaction assigns `sourceSystem=TOON_EXPO` and stores the registration, `TE…` ticket code (`^(TE|MQ)[A-Z0-9]{11}$`), ticket token, an email delivery job and one fast-feed event. An SMS job is stored only when ticket SMS delivery is enabled.
 4. Browser receives the code and opens the success/ticket state.
 5. QR and readable code appear immediately.
-6. Delivery processing sends email and SMS asynchronously.
+6. Delivery processing sends the QR by email asynchronously. SMS is not sent while ticket SMS delivery is paused.
 7. Mootq later pulls the Toon Expo-origin fast-feed item with explicit source.
 
 ## Mootq visitor

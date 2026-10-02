@@ -82,7 +82,7 @@ export async function deleteRegistrationAction(
 export type ResendTicketActionResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Re-send the existing ticket QR (email) and ticket link (SMS) to the participant.
+ * Re-send the existing ticket QR by email. SMS is included only when ticket SMS is enabled.
  */
 export async function resendTicketAction(
   registrationId: string,

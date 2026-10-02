@@ -111,7 +111,14 @@ describe('createRegistration', () => {
     expect(result.ticketCode).toMatch(/^TE[A-Z0-9]{11}$/);
     expect(result.ticketViewToken.length).toBeGreaterThan(0);
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
-    expect(deliveryJobCreate).toHaveBeenCalledTimes(2);
+    expect(deliveryJobCreate).toHaveBeenCalledTimes(1);
+    expect(deliveryJobCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        registrationId: REGISTRATION_ID,
+        channel: 'EMAIL',
+        status: 'PENDING',
+      }),
+    });
     expect(tx.sheetsPushDelivery.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         registrationId: REGISTRATION_ID,

@@ -19,7 +19,7 @@ Toon Expo visitor
     └── Spyurk RF form (/rf → /ru/rf)
             │
             └── create TE ticket code ──┬── show QR
-                                        ├── queue email/SMS
+                                        ├── queue email (SMS when enabled)
                                         └── outbox push (full body, ≤5 req/s) ──> Mootq scanner DB
 
 Mootq visitor
@@ -83,7 +83,7 @@ One short database transaction:
 1. Validate and normalize the form.
 2. Assign `sourceSystem=TOON_EXPO` and create a unique `TE…` ticket code.
 3. Generate the hosted-ticket token.
-4. Create EMAIL and SMS delivery jobs.
+4. Create an EMAIL delivery job. An SMS job is created only when ticket SMS delivery is enabled.
 5. Append one outbox row for Mootq push.
 6. Commit and return the ticket to the browser.
 
@@ -111,7 +111,7 @@ Applies only to Toon Expo-origin registrations.
 
 - Generate the QR image in memory from `ticketCode`.
 - Email through Resend includes inline QR, readable code and hosted-ticket link.
-- SMS through Dexatel includes the hosted-ticket link.
+- SMS through Dexatel includes the hosted-ticket link. Ticket SMS is paused (`TICKET_SMS_DELIVERY_ENABLED` in `src/lib/delivery/ticket-sms-policy.ts`): QR goes out by email only, and pending SMS jobs are not dispatched. Turn the flag on for the pre-expo SMS send.
 - The hosted page shows the same QR and provides PNG download.
 - Registration/import success does not wait for provider delivery.
 - A `DeliveryJob` record tracks pending, processing, sent and failed work.
