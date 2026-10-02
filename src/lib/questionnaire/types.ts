@@ -1,6 +1,7 @@
 import type {
   ABROAD_COUNTRIES,
   AGE_BANDS,
+  ARAGATSOTN_LOCALITIES,
   AREA_SQM_BANDS,
   DECISION_STAGES,
   INTEREST_TYPES,
@@ -27,6 +28,7 @@ export type InterestType = (typeof INTEREST_TYPES)[number];
 export type AbroadCountry = (typeof ABROAD_COUNTRIES)[number];
 export type YerevanDistrict = (typeof YEREVAN_DISTRICTS)[number];
 export type MarzRegion = (typeof MARZ_REGIONS)[number];
+export type AragatsotnLocality = (typeof ARAGATSOTN_LOCALITIES)[number];
 export type LocationSeekScope = (typeof LOCATION_SEEK_SCOPES)[number];
 export type ResearchLocationScope = (typeof RESEARCH_LOCATION_SCOPES)[number];
 export type AreaSqmBand = (typeof AREA_SQM_BANDS)[number];
@@ -44,7 +46,12 @@ export type PurchaseHorizon = (typeof PURCHASE_HORIZONS)[number];
 
 export type ResidencePlace =
   | { scope: 'yerevan'; district: YerevanDistrict }
-  | { scope: 'marz'; region: MarzRegion }
+  | {
+      scope: 'marz';
+      region: MarzRegion;
+      locality?: AragatsotnLocality;
+      localityOther?: string;
+    }
   | { scope: 'abroad'; country: string };
 
 export type LocationChoice = {

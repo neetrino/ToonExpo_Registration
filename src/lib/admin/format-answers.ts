@@ -55,6 +55,23 @@ function stringArray(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === 'string');
 }
 
+function formatMarzResidenceDetail(
+  region: string,
+  locality: unknown,
+  localityOther: unknown,
+): string {
+  const regionLabel = optionLabel('marzRegion', region);
+  if (region !== 'aragatsotn' || typeof locality !== 'string') {
+    return regionLabel;
+  }
+
+  if (locality === 'other' && typeof localityOther === 'string' && localityOther.trim()) {
+    return `${regionLabel} — ${localityOther.trim()}`;
+  }
+
+  return `${regionLabel} — ${optionLabel('aragatsotnLocality', locality)}`;
+}
+
 function formatResidence(residence: Record<string, unknown>): AnswerDisplayRow[] {
   const rows: AnswerDisplayRow[] = [];
   const scope = residence.scope;
@@ -74,7 +91,11 @@ function formatResidence(residence: Record<string, unknown>): AnswerDisplayRow[]
   }
 
   if (scope === 'marz' && typeof residence.region === 'string') {
-    pushRow(rows, questionLabel('residenceRegion'), optionLabel('marzRegion', residence.region));
+    pushRow(
+      rows,
+      questionLabel('residenceRegion'),
+      formatMarzResidenceDetail(residence.region, residence.locality, residence.localityOther),
+    );
   }
 
   if (scope === 'abroad' && typeof residence.country === 'string') {

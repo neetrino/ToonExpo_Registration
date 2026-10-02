@@ -212,7 +212,17 @@ function assignResidenceDetail(out: MootqAnswers, residence: ResidencePlace): vo
     out[MOOTQ_FIELD.residenceDetail] = optionLabel('yerevanDistrict', residence.district);
     return;
   }
-  out[MOOTQ_FIELD.residenceDetail] = optionLabel('marzRegion', residence.region);
+  const regionLabel = optionLabel('marzRegion', residence.region);
+  if (residence.region === 'aragatsotn' && residence.locality) {
+    if (residence.locality === 'other' && residence.localityOther) {
+      out[MOOTQ_FIELD.residenceDetail] = `${regionLabel} — ${residence.localityOther}`;
+      return;
+    }
+    out[MOOTQ_FIELD.residenceDetail] =
+      `${regionLabel} — ${optionLabel('aragatsotnLocality', residence.locality)}`;
+    return;
+  }
+  out[MOOTQ_FIELD.residenceDetail] = regionLabel;
 }
 
 function newsletterLabel(value: boolean): string {
