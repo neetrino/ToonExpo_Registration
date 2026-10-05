@@ -10,7 +10,8 @@ type WizardUpdater = <K extends keyof WizardState>(key: K, value: WizardState[K]
 export type MarzCityDraft = {
   aragatsotn: '' | 'ashtarak' | 'other';
   ararat: '' | 'artashat' | 'masis' | 'other';
-  kotayk: '' | 'abovyan' | 'kanakeravan' | 'other';
+  kotayk: '' | 'abovyan' | 'tsaghkadzor' | 'yeghvard' | 'other';
+  tavush: '' | 'dilijan' | 'other';
 };
 
 export type MarzCityOtherDraft = Record<MarzCityRegion, string>;
@@ -20,21 +21,59 @@ const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 export const marzCityDraftSchema = z.object({
   aragatsotn: z.enum(['', 'ashtarak', 'other']),
   ararat: z.enum(['', 'artashat', 'masis', 'other']),
-  kotayk: z.enum(['', 'abovyan', 'kanakeravan', 'other']),
+  kotayk: z.enum(['', 'abovyan', 'tsaghkadzor', 'yeghvard', 'other']),
+  tavush: z.enum(['', 'dilijan', 'other']),
 });
 
 export const marzCityOtherDraftSchema = z.object({
   aragatsotn: z.string(),
   ararat: z.string(),
   kotayk: z.string(),
+  tavush: z.string(),
 });
 
 export function emptyMarzCityDraft(): MarzCityDraft {
-  return { aragatsotn: '', ararat: '', kotayk: '' };
+  return { aragatsotn: '', ararat: '', kotayk: '', tavush: '' };
 }
 
 export function emptyMarzCityOtherDraft(): MarzCityOtherDraft {
-  return { aragatsotn: '', ararat: '', kotayk: '' };
+  return { aragatsotn: '', ararat: '', kotayk: '', tavush: '' };
+}
+
+/** Fills missing region keys and drops city codes that are no longer allowed. */
+export function coerceMarzCityDraft(value: unknown): MarzCityDraft {
+  const draft = emptyMarzCityDraft();
+  if (!value || typeof value !== 'object') {
+    return draft;
+  }
+
+  const record = value as Record<string, unknown>;
+  for (const region of MARZ_CITY_REGIONS) {
+    const selected = record[region];
+    if (typeof selected === 'string') {
+      writeMarzCity(draft, region, selected);
+    }
+  }
+
+  return draft;
+}
+
+/** Keeps free-text only for known city regions. */
+export function coerceMarzCityOtherDraft(value: unknown): MarzCityOtherDraft {
+  const other = emptyMarzCityOtherDraft();
+  if (!value || typeof value !== 'object') {
+    return other;
+  }
+
+  const record = value as Record<string, unknown>;
+  for (const region of MARZ_CITY_REGIONS) {
+    const text = record[region];
+    if (typeof text === 'string') {
+      other[region] = text;
+    }
+  }
+
+  return other;
 }
 
 /** Maps the single residence city onto the shared draft so validation stays in one place. */
@@ -49,9 +88,11 @@ export function residenceCityDraft(
 
   const draft = emptyMarzCityDraft();
   const other = emptyMarzCityOtherDraft();
-  other[region] = otherText;
-  writeMarzCity(draft, region, city);
+  if (city !== '' && !writeMarzCity(draft, region, city)) {
+    return null;
+  }
 
+  other[region] = otherText;
   return { regions: [region], city: draft, other };
 }
 
@@ -85,8 +126,19 @@ function writeMarzCity(draft: MarzCityDraft, region: MarzCityRegion, value: stri
       }
       return false;
     case 'kotayk':
-      if (value === 'abovyan' || value === 'kanakeravan' || value === 'other') {
+      if (
+        value === 'abovyan' ||
+        value === 'tsaghkadzor' ||
+        value === 'yeghvard' ||
+        value === 'other'
+      ) {
         draft.kotayk = value;
+        return true;
+      }
+      return false;
+    case 'tavush':
+      if (value === 'dilijan' || value === 'other') {
+        draft.tavush = value;
         return true;
       }
       return false;

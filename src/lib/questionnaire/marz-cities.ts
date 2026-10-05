@@ -5,17 +5,20 @@ import { OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
 export const MARZ_CITY_OPTIONS = {
   aragatsotn: ['ashtarak', 'other'],
   ararat: ['artashat', 'masis', 'other'],
-  kotayk: ['abovyan', 'kanakeravan', 'other'],
+  kotayk: ['abovyan', 'tsaghkadzor', 'yeghvard', 'other'],
+  tavush: ['dilijan', 'other'],
 } as const;
 
-export const MARZ_CITY_REGIONS = ['aragatsotn', 'ararat', 'kotayk'] as const;
+export const MARZ_CITY_REGIONS = ['aragatsotn', 'ararat', 'kotayk', 'tavush'] as const;
 
 export const ALL_MARZ_CITY_CODES = [
   'ashtarak',
   'artashat',
   'masis',
   'abovyan',
-  'kanakeravan',
+  'tsaghkadzor',
+  'yeghvard',
+  'dilijan',
   'other',
 ] as const;
 
@@ -25,6 +28,7 @@ export type MarzCityCode = (typeof ALL_MARZ_CITY_CODES)[number];
 export type AragatsotnCity = (typeof MARZ_CITY_OPTIONS.aragatsotn)[number];
 export type AraratCity = (typeof MARZ_CITY_OPTIONS.ararat)[number];
 export type KotaykCity = (typeof MARZ_CITY_OPTIONS.kotayk)[number];
+export type TavushCity = (typeof MARZ_CITY_OPTIONS.tavush)[number];
 
 export type MarzCityEntry<TCity extends string> = {
   city: TCity;
@@ -36,6 +40,7 @@ export type MarzCities = {
   aragatsotn?: MarzCityEntry<AragatsotnCity>;
   ararat?: MarzCityEntry<AraratCity>;
   kotayk?: MarzCityEntry<KotaykCity>;
+  tavush?: MarzCityEntry<TavushCity>;
 };
 
 const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
@@ -89,6 +94,7 @@ export const marzCitiesSchema = z
     aragatsotn: citySchema(MARZ_CITY_OPTIONS.aragatsotn).optional(),
     ararat: citySchema(MARZ_CITY_OPTIONS.ararat).optional(),
     kotayk: citySchema(MARZ_CITY_OPTIONS.kotayk).optional(),
+    tavush: citySchema(MARZ_CITY_OPTIONS.tavush).optional(),
   })
   .strict();
 
@@ -127,7 +133,7 @@ type ResidenceMarzInput = {
   cityOther?: string;
 };
 
-/** Checks a single residence marz: city required only for Aragatsotn, Ararat, and Kotayk. */
+/** Checks a single residence marz: city required only for regions that open a city choice. */
 export function assertResidenceMarzCity(data: ResidenceMarzInput, ctx: z.RefinementCtx): void {
   if (!isMarzCityRegion(data.region)) {
     if (data.city || data.cityOther) {
@@ -229,11 +235,7 @@ export function formatResidenceMarzLabel(
   );
 }
 
-type CityDraft = {
-  aragatsotn: string;
-  ararat: string;
-  kotayk: string;
-};
+type CityDraft = Record<MarzCityRegion, string>;
 
 function storedEntry<TCity extends string>(
   city: string,
@@ -270,10 +272,13 @@ export function toStoredMarzCities(
   if (regions.includes('kotayk')) {
     stored.kotayk = storedEntry(city.kotayk, MARZ_CITY_OPTIONS.kotayk, other.kotayk);
   }
+  if (regions.includes('tavush')) {
+    stored.tavush = storedEntry(city.tavush, MARZ_CITY_OPTIONS.tavush, other.tavush);
+  }
 
   return stored;
 }
 
 export function hasStoredMarzCities(cities: MarzCities): boolean {
-  return Boolean(cities.aragatsotn || cities.ararat || cities.kotayk);
+  return MARZ_CITY_REGIONS.some((region) => Boolean(cities[region]));
 }

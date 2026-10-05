@@ -22,7 +22,7 @@ type MarzCityFollowUpProps = {
   onOtherChange: (region: MarzCityRegion, value: string) => void;
 };
 
-/** City radios shown directly under a selected Aragatsotn, Ararat, or Kotayk row. */
+/** City radios shown directly under a selected region that has a city choice. */
 export function MarzCityFollowUp({
   region,
   namePrefix,

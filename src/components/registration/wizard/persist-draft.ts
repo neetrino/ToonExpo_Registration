@@ -1,6 +1,8 @@
 import { isMarzCityRegion } from '@/lib/questionnaire/marz-cities';
 import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
 import {
+  coerceMarzCityDraft,
+  coerceMarzCityOtherDraft,
   emptyMarzCityDraft,
   emptyMarzCityOtherDraft,
   pruneUnselectedMarzCities,
@@ -48,9 +50,11 @@ function normalizeSingleLocationScope(state: WizardState): WizardState {
   const activeScope =
     state.visitPurpose === 'market_research' ? researchScopes[0] : locationSeekScopes[0];
   const marzRegions = activeScope === 'marz' ? state.marzRegions : [];
+  const cityDraft = coerceMarzCityDraft(state.marzCity);
+  const otherDraft = coerceMarzCityOtherDraft(state.marzCityOther);
   const prunedCities =
     activeScope === 'marz'
-      ? pruneUnselectedMarzCities(marzRegions, state.marzCity, state.marzCityOther)
+      ? pruneUnselectedMarzCities(marzRegions, cityDraft, otherDraft)
       : { city: emptyMarzCityDraft(), other: emptyMarzCityOtherDraft() };
   const residenceCity = residenceCityDraft(
     state.residenceRegion,

@@ -235,7 +235,9 @@ export const questionnaireI18n = {
       artashat: L('Արտաշատ', 'Artashat', 'Арташат'),
       masis: L('Մասիս', 'Masis', 'Масис'),
       abovyan: L('Աբովյան', 'Abovyan', 'Абовян'),
-      kanakeravan: L('Քանաքեռավան', 'Kanakeravan', 'Канакераван'),
+      tsaghkadzor: L('Ծաղկաձոր', 'Tsaghkadzor', 'Цахкадзор'),
+      yeghvard: L('Եղվարդ', 'Yeghvard', 'Егвард'),
+      dilijan: L('Դիլիջան', 'Dilijan', 'Дилижан'),
       other: L('Այլ', 'Other', 'Другое'),
     },
     areaSqm: {

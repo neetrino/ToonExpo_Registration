@@ -49,6 +49,33 @@ describe('marz city choice', () => {
     expect(parsed.success).toBe(false);
   });
 
+  it('requires a city when Tavush is selected and accepts Dilijan', () => {
+    const missing = locationChoiceSchema.safeParse({
+      yerevanDistricts: [],
+      marzRegions: ['tavush'],
+      abroadCountries: [],
+    });
+    const selected = locationChoiceSchema.safeParse({
+      yerevanDistricts: [],
+      marzRegions: ['tavush'],
+      marzCities: { tavush: { city: 'dilijan' } },
+      abroadCountries: [],
+    });
+
+    expect(missing.success).toBe(false);
+    expect(selected.success).toBe(true);
+  });
+
+  it('accepts Tsaghkadzor for Kotayk', () => {
+    const parsed = residencePlaceSchema.safeParse({
+      scope: 'marz',
+      region: 'kotayk',
+      city: 'tsaghkadzor',
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
   it('accepts a named city and leaves regions without a city choice unchanged', () => {
     const parsed = locationChoiceSchema.safeParse({
       yerevanDistricts: [],

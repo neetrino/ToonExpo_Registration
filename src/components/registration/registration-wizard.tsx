@@ -11,6 +11,7 @@ import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event
 import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
+import { emptyMarzCityDraft, emptyMarzCityOtherDraft } from './wizard/marz-city-draft';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
 import { clearRegistrationIdempotencyKey } from './idempotency';
 import { storeTicketHandoff } from './ticket-handoff';
@@ -151,8 +152,8 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           locationSeekAbroadOther: '',
           yerevanDistricts: [],
           marzRegions: [],
-          marzCity: { aragatsotn: '', ararat: '', kotayk: '' },
-          marzCityOther: { aragatsotn: '', ararat: '', kotayk: '' },
+          marzCity: emptyMarzCityDraft(),
+          marzCityOther: emptyMarzCityOtherDraft(),
           areaSqm: '',
           purchaseMethod: '',
           monthlyBudget: '',
