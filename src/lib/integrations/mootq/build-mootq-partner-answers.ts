@@ -1,4 +1,7 @@
-import { formatMarzSelectionLabel, formatResidenceMarzLabel } from '@/lib/questionnaire/marz-cities';
+import {
+  formatMarzSelectionLabel,
+  formatResidenceMarzLabel,
+} from '@/lib/questionnaire/marz-cities';
 import { MOOTQ_FIELD } from '@/lib/integrations/mootq/mootq-field-ids';
 import type { MootqAnswers } from '@/lib/integrations/mootq/flatten-answers';
 import {

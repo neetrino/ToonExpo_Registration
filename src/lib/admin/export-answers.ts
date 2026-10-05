@@ -95,7 +95,12 @@ function flattenResidence(
     setColumn(
       columns,
       'residenceDetail',
-      formatResidenceMarzLabel(residence.region, residence.city, residence.cityOther, marzLabelers(labels)),
+      formatResidenceMarzLabel(
+        residence.region,
+        residence.city,
+        residence.cityOther,
+        marzLabelers(labels),
+      ),
     );
   }
 

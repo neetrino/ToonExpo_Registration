@@ -88,7 +88,12 @@ function formatResidence(residence: Record<string, unknown>): AnswerDisplayRow[]
     pushRow(
       rows,
       questionLabel('residenceRegion'),
-      formatResidenceMarzLabel(residence.region, residence.city, residence.cityOther, marzLabelers()),
+      formatResidenceMarzLabel(
+        residence.region,
+        residence.city,
+        residence.cityOther,
+        marzLabelers(),
+      ),
     );
   }
 

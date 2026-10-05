@@ -20,9 +20,7 @@ export function isSpyurkAnswers(answers: unknown, formVersion?: string | null): 
   }
   const residence = answers.residence;
   return (
-    isRecord(residence) &&
-    typeof residence.city === 'string' &&
-    typeof residence.scope !== 'string'
+    isRecord(residence) && typeof residence.city === 'string' && typeof residence.scope !== 'string'
   );
 }
 

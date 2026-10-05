@@ -160,7 +160,12 @@ function assignLocationChoice(target: MootqAnswers, locationSeek: LocationChoice
   if (locationSeek.marzRegions.length > 0) {
     target.location_seek_regions = locationSeek.marzRegions;
   }
-  assignMarzCityWire(target, 'location_seek_marz_cities', 'location_seek_marz_city_other', locationSeek.marzCities);
+  assignMarzCityWire(
+    target,
+    'location_seek_marz_cities',
+    'location_seek_marz_city_other',
+    locationSeek.marzCities,
+  );
   if (locationSeek.abroadCountries.length > 0) {
     target.location_seek_abroad_countries = locationSeek.abroadCountries;
   }
@@ -179,7 +184,12 @@ function assignResearchLocation(target: MootqAnswers, location: ResearchLocation
   if (location.marzRegions.length > 0) {
     target.research_regions = location.marzRegions;
   }
-  assignMarzCityWire(target, 'research_marz_cities', 'research_marz_city_other', location.marzCities);
+  assignMarzCityWire(
+    target,
+    'research_marz_cities',
+    'research_marz_city_other',
+    location.marzCities,
+  );
   assignOptional(target, 'research_abroad_country', location.abroadCountry);
 }
 

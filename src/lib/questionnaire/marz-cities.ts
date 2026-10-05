@@ -264,7 +264,11 @@ export function toStoredMarzCities(
   const stored: MarzCities = {};
 
   if (regions.includes('aragatsotn')) {
-    stored.aragatsotn = storedEntry(city.aragatsotn, MARZ_CITY_OPTIONS.aragatsotn, other.aragatsotn);
+    stored.aragatsotn = storedEntry(
+      city.aragatsotn,
+      MARZ_CITY_OPTIONS.aragatsotn,
+      other.aragatsotn,
+    );
   }
   if (regions.includes('ararat')) {
     stored.ararat = storedEntry(city.ararat, MARZ_CITY_OPTIONS.ararat, other.ararat);
