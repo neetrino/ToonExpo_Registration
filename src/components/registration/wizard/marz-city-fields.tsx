@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input';
 import { isMarzCityRegion, MARZ_CITY_OPTIONS } from '@/lib/questionnaire/marz-cities';
 import type { MarzCityRegion } from '@/lib/questionnaire/marz-cities';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
-import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
+import { getMarzCityPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import type { MarzCityDraft, MarzCityOtherDraft } from './marz-city-draft';
@@ -68,7 +68,7 @@ export function MarzCityFollowUp({
           input={
             <Input
               id={`${namePrefix}-${region}-other`}
-              placeholder={getTextFieldPlaceholder('marzCity', locale)}
+              placeholder={getMarzCityPlaceholder(region, locale)}
               value={other[region]}
               disabled={disabled}
               aria-invalid={Boolean(otherError)}

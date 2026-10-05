@@ -1,4 +1,5 @@
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
+import type { MarzCityRegion } from '@/lib/questionnaire/marz-cities';
 
 type Localized = Record<QuestionnaireLocale, string>;
 
@@ -16,8 +17,15 @@ export const textFieldPlaceholders = {
   connectionOther: example('Բիզնես գործընկեր', 'Business partner', 'Бизнес-партнёр'),
   motiveOther: example('Ամառանոց', 'Holiday home', 'Дача'),
   propertyTypeOther: example('Ավտոկայանատեղի', 'Parking space', 'Паркинг'),
-  marzCity: example('Ապարան', 'Aparan', 'Апаран'),
 } as const;
+
+/** Example city for the "Other" field. Each region uses one of its own towns. */
+const marzCityPlaceholders = {
+  aragatsotn: example('Ապարան', 'Aparan', 'Апаран'),
+  ararat: example('Վեդի', 'Vedi', 'Веди'),
+  kotayk: example('Հրազդան', 'Hrazdan', 'Раздан'),
+  tavush: example('Իջևան', 'Ijevan', 'Иджеван'),
+} as const satisfies Record<MarzCityRegion, Localized>;
 
 export type TextFieldPlaceholderKey = keyof typeof textFieldPlaceholders;
 
@@ -27,4 +35,12 @@ export function getTextFieldPlaceholder(
   locale: QuestionnaireLocale,
 ): string {
   return textFieldPlaceholders[key][locale];
+}
+
+/** Localized example for a marz "Other" city field. */
+export function getMarzCityPlaceholder(
+  region: MarzCityRegion,
+  locale: QuestionnaireLocale,
+): string {
+  return marzCityPlaceholders[region][locale];
 }
