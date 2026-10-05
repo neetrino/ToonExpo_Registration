@@ -67,7 +67,6 @@ export type ResearchLocation = {
 type SharedAnswers = {
   ageBand: AgeBand;
   residence: ResidencePlace;
-  newsletter: boolean;
 };
 
 export type OwnResidenceAnswers = SharedAnswers & {

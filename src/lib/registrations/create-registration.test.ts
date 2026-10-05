@@ -40,7 +40,6 @@ const input: CreateRegistrationInput = {
     purchaseMethod: 'mortgage',
     monthlyBudget: '300k-500k',
     decisionStage: 'searching_6_months',
-    newsletter: true,
   },
   utmSource: undefined,
   utmMedium: undefined,

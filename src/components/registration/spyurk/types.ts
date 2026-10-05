@@ -72,7 +72,6 @@ export type SpyurkWizardState = {
   marketInterests: MarketInterest[];
   researchGoal: SpyurkResearchGoal | '';
   purchaseHorizon: PurchaseHorizon | '';
-  newsletter: boolean | null;
   privacyConsent: boolean;
   website: string;
 };
@@ -112,7 +111,6 @@ export const initialSpyurkWizardState: SpyurkWizardState = {
   marketInterests: [],
   researchGoal: '',
   purchaseHorizon: '',
-  newsletter: null,
   privacyConsent: false,
   website: '',
 };

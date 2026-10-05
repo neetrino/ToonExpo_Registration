@@ -382,13 +382,5 @@ export function flattenRegistrationAnswersForExport(
       break;
   }
 
-  if (typeof record.newsletter === 'boolean') {
-    setColumn(
-      columns,
-      'newsletter',
-      labels.optionLabel('newsletter', record.newsletter ? 'yes' : 'no'),
-    );
-  }
-
   return columns;
 }

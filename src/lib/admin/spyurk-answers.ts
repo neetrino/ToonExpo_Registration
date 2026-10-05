@@ -206,12 +206,6 @@ export function formatSpyurkAnswersForDisplay(
       getSpyurkOptionLabel('armeniaVisitTiming', answers.armeniaVisitTiming, locale),
     );
   }
-  if (typeof answers.newsletter === 'boolean') {
-    push(
-      getSpyurkQuestionLabel('newsletter', locale),
-      getSpyurkOptionLabel('newsletter', answers.newsletter ? 'yes' : 'no', locale),
-    );
-  }
 
   return rows;
 }
@@ -359,12 +353,6 @@ export function flattenSpyurkAnswersForExport(
     set(
       'armeniaVisitTiming',
       getSpyurkOptionLabel('armeniaVisitTiming', answers.armeniaVisitTiming, locale),
-    );
-  }
-  if (typeof answers.newsletter === 'boolean') {
-    set(
-      'newsletter',
-      getSpyurkOptionLabel('newsletter', answers.newsletter ? 'yes' : 'no', locale),
     );
   }
 }

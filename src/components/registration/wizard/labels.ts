@@ -33,7 +33,6 @@ const OPTION_GROUP_BY_FIELD = {
   yerevanDistricts: 'yerevanDistrict',
   marzRegions: 'marzRegion',
   marzCity: 'marzCity',
-  newsletter: 'newsletter',
 } as const;
 
 type OptionGroupKey = (typeof OPTION_GROUP_BY_FIELD)[keyof typeof OPTION_GROUP_BY_FIELD];

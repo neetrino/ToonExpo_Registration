@@ -66,7 +66,7 @@ describe('buildMootqPushPayload', () => {
     expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
       'Շուկայի ուսումնասիրություն և ծանոթացում',
     );
-    expect(payload.answers[MOOTQ_FIELD.newsletter]).toBe('Ոչ');
+    expect(payload.answers).not.toHaveProperty(MOOTQ_FIELD.newsletter);
     expect(payload.answers[MOOTQ_FIELD.marketInterests]).toEqual(['Նորակառույց բնակարաններ']);
     expect(payload.answers[MOOTQ_FIELD.researchGoal]).toBe(
       'Պարզապես ցանկանում եմ ծանոթանալ առաջարկներին',

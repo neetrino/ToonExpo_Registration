@@ -81,7 +81,6 @@ export type WizardState = {
   researchScopes: ResearchLocationScope[];
   researchAbroadCountry: string;
   purchaseHorizon: PurchaseHorizon | '';
-  newsletter: boolean | null;
   privacyConsent: boolean;
   website: string;
 };
@@ -128,7 +127,6 @@ export const initialWizardState: WizardState = {
   researchScopes: [],
   researchAbroadCountry: '',
   purchaseHorizon: '',
-  newsletter: null,
   privacyConsent: false,
   website: '',
 };

@@ -396,13 +396,5 @@ export function formatRegistrationAnswersForDisplay(
       break;
   }
 
-  if (typeof record.newsletter === 'boolean') {
-    pushRow(
-      rows,
-      questionLabel('newsletter'),
-      optionLabel('newsletter', record.newsletter ? 'yes' : 'no'),
-    );
-  }
-
   return { visitPurposeLabel, rows };
 }

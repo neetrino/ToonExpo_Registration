@@ -88,6 +88,7 @@ describe('registrationBodySchema', () => {
     expect(parsed.data.phoneNormalized).toBe('+37499123456');
     expect(parsed.data.formVersion).toBe(FORM_VERSION);
     expect(parsed.data.answers.visitPurpose).toBe('own_residence');
+    expect(parsed.data.answers).not.toHaveProperty('newsletter');
   });
 
   it('normalizes local numbers with phoneCountry', () => {

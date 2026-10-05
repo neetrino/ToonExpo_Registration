@@ -170,7 +170,6 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           researchScopes: [],
           researchAbroadCountry: '',
           purchaseHorizon: '',
-          newsletter: null,
         };
       }
 
