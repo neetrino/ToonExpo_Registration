@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { LandingBrand } from '@/components/landing/landing-brand';
+import { LandingHero } from '@/components/landing/landing-hero';
+import { LandingHowItWorks } from '@/components/landing/landing-how-it-works';
 import { LandingInfoDetails } from '@/components/landing/landing-info-details';
 import { LandingRegistrationCard } from '@/components/landing/landing-registration-card';
 import { SiteFooter } from '@/components/layout/site-footer';
@@ -18,24 +19,16 @@ export default async function SpyurkLandingPage({ params }: SpyurkLandingPagePro
   const paragraphs = t.raw('paragraphs') as string[];
 
   return (
-    <div className="flex min-h-full flex-1 flex-col bg-primary">
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center gap-10 px-4 py-8 sm:gap-12 sm:py-10 md:py-14">
-        <LandingBrand
-          title={t('title')}
-          titleBrand={t('titleBrand')}
-          titleEvent={t('titleEvent')}
-          meta={[
-            { label: t('dateLabel'), value: t('dateValue') },
-            { label: t('hoursLabel'), value: t('hoursValue') },
-            { label: t('venueLabel'), value: t('venueValue') },
-          ]}
-        />
-
-        <LandingRegistrationCard locale={resolvedLocale} variant="spyurk" />
-
-        <LandingInfoDetails aboutToggle={t('aboutToggle')} paragraphs={paragraphs} />
+    <div className="flex min-h-full flex-1 flex-col">
+      <LandingHero />
+      <LandingHowItWorks />
+      <div className="bg-primary">
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-10 px-4 py-10 sm:gap-12 sm:py-14">
+          <LandingRegistrationCard locale={resolvedLocale} variant="spyurk" />
+          <LandingInfoDetails aboutToggle={t('aboutToggle')} paragraphs={paragraphs} />
+        </div>
+        <SiteFooter />
       </div>
-      <SiteFooter />
     </div>
   );
 }
