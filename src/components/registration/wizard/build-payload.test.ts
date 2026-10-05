@@ -20,16 +20,10 @@ function ownResidenceState(overrides: Partial<WizardState> = {}): WizardState {
 }
 
 describe('buildQuestionnaireAnswers', () => {
-  it('persists newsletter as false after the opt-in question was removed', () => {
-    const answers = buildQuestionnaireAnswers(ownResidenceState({ newsletter: true }));
-
-    expect(answers?.newsletter).toBe(false);
-  });
-
-  it('builds answers when newsletter was never chosen', () => {
-    const answers = buildQuestionnaireAnswers(ownResidenceState({ newsletter: null }));
+  it('does not persist a newsletter answer', () => {
+    const answers = buildQuestionnaireAnswers(ownResidenceState());
 
     expect(answers).not.toBeNull();
-    expect(answers?.newsletter).toBe(false);
+    expect(answers).not.toHaveProperty('newsletter');
   });
 });

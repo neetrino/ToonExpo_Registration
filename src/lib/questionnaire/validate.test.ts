@@ -58,9 +58,12 @@ const validMarketResearch = {
 };
 
 describe('questionnaireAnswersSchema', () => {
-  it('accepts own_residence happy path', () => {
+  it('accepts own_residence happy path and drops a leftover newsletter answer', () => {
     const parsed = questionnaireAnswersSchema.safeParse(validOwnResidence);
     expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data).not.toHaveProperty('newsletter');
+    }
   });
 
   it('accepts own_residence abroad interest with locationSeek', () => {

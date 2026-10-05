@@ -53,7 +53,6 @@ const sharedAnswers = {
   armeniaConnectionOther: otherTextSchema.optional(),
   purchaseMotives: uniqueEnumArray(PURCHASE_MOTIVES, SPYURK_MULTI_SELECT_MAX),
   purchaseMotivesOther: otherTextSchema.optional(),
-  newsletter: z.boolean(),
 } as const;
 
 function refineSharedOthers(

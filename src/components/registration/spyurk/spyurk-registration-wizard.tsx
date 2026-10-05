@@ -80,7 +80,6 @@ function emptyBranchState(): Partial<SpyurkWizardState> {
     marketInterests: [],
     researchGoal: '',
     purchaseHorizon: '',
-    newsletter: null,
   };
 }
 

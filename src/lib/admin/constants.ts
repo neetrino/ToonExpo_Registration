@@ -78,7 +78,6 @@ export const CSV_ANSWER_COLUMNS = [
   { key: 'interestedWhere', header: 'Interested where' },
   { key: 'interestedWhereOther', header: 'Interested where (other)' },
   { key: 'purchaseHorizon', header: 'Purchase horizon' },
-  { key: 'newsletter', header: 'Newsletter' },
   { key: 'residenceCity', header: 'RF city' },
   { key: 'residenceRegionRf', header: 'RF region' },
   { key: 'armeniaConnection', header: 'Connection to Armenia' },

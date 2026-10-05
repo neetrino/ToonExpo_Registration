@@ -23,7 +23,7 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(result.interestType).toBe('Private house / Townhouse');
     expect(result.locationSeek).toBe('Yerevan');
     expect(result.yerevanDistricts).toBe('Kentron, Arabkir');
-    expect(result.newsletter).toBe('Yes');
+    expect(result).not.toHaveProperty('newsletter');
     expect(result.investmentGoal).toBe('');
     expect(Object.keys(result)).toHaveLength(CSV_ANSWER_COLUMNS.length);
   });
@@ -35,7 +35,7 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(result.ageBand).toBe('25–34 года');
     expect(result.interestType).toBe('Частный дом / вилла / таунхаус');
     expect(result.locationSeek).toBe('Ереван');
-    expect(result.newsletter).toBe('Да');
+    expect(result).not.toHaveProperty('newsletter');
   });
 
   it('flattens own_residence answers into Armenian labels for hy locale', () => {
@@ -44,7 +44,7 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(result.visitPurpose).toBe('Անշարժ գույքի գնում սեփական բնակության համար');
     expect(result.interestType).toBe('Առանձնատուն / Թաունհաուս');
     expect(result.locationSeek).toBe('Երևան');
-    expect(result.newsletter).toBe('Այո');
+    expect(result).not.toHaveProperty('newsletter');
   });
 
   it('flattens investment answers and leaves residence columns empty', () => {
@@ -67,7 +67,7 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(result.investmentPropertyType).toBe('Apartment');
     expect(result.investmentMarket).toBe('Armenia');
     expect(result.interestType).toBe('');
-    expect(result.newsletter).toBe('No');
+    expect(result).not.toHaveProperty('newsletter');
   });
 
   it('writes the marz city beside the region for sheet and csv export', () => {

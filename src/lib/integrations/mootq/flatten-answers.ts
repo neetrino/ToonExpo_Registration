@@ -94,7 +94,6 @@ function flattenShared(answers: QuestionnaireAnswers): MootqAnswers {
   const flat: MootqAnswers = {
     age_band: answers.ageBand,
     visit_purpose: answers.visitPurpose,
-    newsletter: answers.newsletter,
   };
 
   assignResidence(flat, answers.residence);
@@ -197,7 +196,6 @@ function flattenSpyurkAnswers(answers: SpyurkQuestionnaireAnswers): MootqAnswers
   const flat: MootqAnswers = {
     age_band: answers.ageBand,
     visit_purpose: answers.visitPurpose,
-    newsletter: answers.newsletter,
     armenia_connection: answers.armeniaConnection,
     purchase_motives: answers.purchaseMotives,
   };

@@ -166,8 +166,7 @@ Example:
     "purchase_method": "cash",
     "investment_timeline": "6-12_months",
     "investment_budget_usd": "150k-300k",
-    "prior_investment_experience": "no_first",
-    "newsletter": true
+    "prior_investment_experience": "no_first"
   },
   "utmSource": "facebook",
   "utmMedium": "video",
@@ -484,7 +483,6 @@ Older stored rows may still use `2026-vis-reg-v1`. The Armenia landing still sub
 | `residence_region` | string | `residence_scope=marz` | Region (marz) |
 | `residence_country` | string | `residence_scope=abroad` | Country (free text) |
 | `visit_purpose` | string | all branches | Main purpose of visit |
-| `newsletter` | boolean | all branches | Post-exhibition newsletter opt-in |
 | `interest_type` | string | `visit_purpose=own_residence` | What type of property are you interested in? |
 | `abroad_countries` | string[] | own residence and `interest_type=abroad` | Property abroad — country |
 | `abroad_countries_other` | string | when `abroad` includes `other` | Other (please specify) |
@@ -560,7 +558,6 @@ Used only for Toon Expo registrations from `/rf`. Same `visit_purpose` branches.
 | `purchase_motives` | string[] | all branches | Max 3 |
 | `purchase_motives_other` | string | when motives include `other` | Free text |
 | `visit_purpose` | string | all branches | Same codes as A.2 |
-| `newsletter` | boolean | all branches | Opt-in |
 | `interest_types` | string[] | `own_residence` | Max 3; not the general single `interest_type` |
 | `interest_types_other` | string | when types include `other` | Free text |
 | `property_country_scope` | string | all branches | `armenia` or `other` |

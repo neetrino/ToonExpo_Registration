@@ -97,7 +97,6 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
     ageBand: state.ageBand,
     residence,
     visitPurpose: state.visitPurpose,
-    newsletter: false,
   };
 
   if (state.visitPurpose === 'own_residence') {

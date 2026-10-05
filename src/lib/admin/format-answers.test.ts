@@ -35,12 +35,10 @@ describe('formatRegistrationAnswersForDisplay', () => {
           label: 'What stage are you currently at?',
           value: 'I have selected several options and plan to make a decision within 3 months',
         },
-        {
-          label:
-            'Would you like to receive industry news, market analysis, and special offers after the exhibition?',
-          value: 'Yes',
-        },
       ]),
+    );
+    expect(result.rows.map((row) => row.label)).not.toContain(
+      'Would you like to receive industry news, market analysis, and special offers after the exhibition?',
     );
   });
 

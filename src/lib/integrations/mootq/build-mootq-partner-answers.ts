@@ -89,7 +89,6 @@ function assignGeneralMappedFields(out: MootqAnswers, answers: QuestionnaireAnsw
   out[MOOTQ_FIELD.residenceScope] = optionLabel('locationSeekScope', answers.residence.scope);
   assignResidenceDetail(out, answers.residence);
   out[MOOTQ_FIELD.visitPurpose] = optionLabel('visitPurpose', answers.visitPurpose);
-  out[MOOTQ_FIELD.newsletter] = newsletterLabel(answers.newsletter);
 
   switch (answers.visitPurpose) {
     case 'market_research':
@@ -113,7 +112,6 @@ function assignSpyurkMappedFields(out: MootqAnswers, answers: SpyurkQuestionnair
   out[MOOTQ_FIELD.residenceScope] = optionLabel('locationSeekScope', 'abroad');
   out[MOOTQ_FIELD.residenceDetail] = `${answers.residence.city}, ${answers.residence.region}`;
   out[MOOTQ_FIELD.visitPurpose] = optionLabel('visitPurpose', answers.visitPurpose);
-  out[MOOTQ_FIELD.newsletter] = newsletterLabel(answers.newsletter);
 
   if (answers.visitPurpose === 'market_research') {
     out[MOOTQ_FIELD.marketInterests] = answers.marketInterests.map((code) =>
@@ -234,13 +232,6 @@ function mootqMarzLabelers(): {
     region: (code) => optionLabel('marzRegion', code),
     city: (code) => optionLabel('marzCity', code),
   };
-}
-
-function newsletterLabel(value: boolean): string {
-  return getQuestionnaireLabel(
-    value ? questionnaireI18n.options.newsletter.yes : questionnaireI18n.options.newsletter.no,
-    MOOTQ_LABEL_LOCALE,
-  );
 }
 
 type OptionGroupKey = keyof typeof questionnaireI18n.options;

@@ -96,14 +96,15 @@ describe('toSheetsRow', () => {
     const ru = toSheetsRow(generalRegistration('ru'));
 
     expect(cellByHeader(hy, 'Այցի նպատակ')).toBe('Անշարժ գույքի գնում սեփական բնակության համար');
-    expect(cellByHeader(hy, 'Տեղեկագիր')).toBe('Այո');
+    expect(hy.headers).toContain('Տեղեկագիր');
+    expect(cellByHeader(hy, 'Տեղեկագիր')).toBe('');
 
     expect(cellByHeader(en, 'Այցի նպատակ')).toBe('Purchasing real estate for personal residence');
-    expect(cellByHeader(en, 'Տեղեկագիր')).toBe('Yes');
+    expect(cellByHeader(en, 'Տեղեկագիր')).toBe('');
     expect(cellByHeader(en, 'Լեզու')).toBe('English');
     expect(cellByHeader(en, 'Այցելություն')).toBe('Չի այցելել');
 
     expect(cellByHeader(ru, 'Այցի նպատակ')).toBe('Покупка недвижимости для себя или семьи');
-    expect(cellByHeader(ru, 'Տեղեկագիր')).toBe('Да');
+    expect(cellByHeader(ru, 'Տեղեկագիր')).toBe('');
   });
 });
