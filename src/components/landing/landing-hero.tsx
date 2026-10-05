@@ -43,7 +43,7 @@ export async function LandingHero() {
 
   return (
     <section className="overflow-x-clip bg-primary text-white" aria-labelledby="landing-hero-title">
-      <div className="mx-auto grid w-full max-w-6xl items-start gap-8 px-4 pt-8 pb-0 sm:gap-10 sm:pt-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-12 lg:pt-16">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-8 px-4 pt-8 pb-0 sm:gap-10 sm:pt-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:gap-14 lg:px-6 lg:pt-16 lg:pb-16">
         <div className="flex min-w-0 flex-col gap-6 sm:gap-7">
           <HeroIntro
             title={t('heroTitle')}
@@ -54,7 +54,7 @@ export async function LandingHero() {
           <HeroFacts facts={facts} />
           <HeroActions registerLabel={t('registerCta')} howItWorksLabel={t('howItWorksTitle')} />
         </div>
-        <HeroPoster alt={t('heroPosterAlt')} className="lg:self-end" />
+        <HeroPoster alt={t('heroPosterAlt')} />
       </div>
     </section>
   );
@@ -153,7 +153,7 @@ function HeroPoster({ alt, className }: { alt: string; className?: string }) {
   return (
     <div
       className={cn(
-        '-mx-4 flex w-[calc(100%+2rem)] min-w-0 justify-center lg:mx-0 lg:w-full lg:justify-end',
+        '-mx-4 flex w-[calc(100%+2rem)] min-w-0 justify-center lg:mx-0 lg:w-full',
         className,
       )}
     >
@@ -165,7 +165,7 @@ function HeroPoster({ alt, className }: { alt: string; className?: string }) {
         priority
         unoptimized
         sizes="(min-width: 1024px) 36rem, 100vw"
-        className="h-auto w-full object-contain lg:max-h-[calc(100dvh-5rem)] lg:w-auto lg:max-w-full"
+        className="h-auto w-full object-contain lg:max-h-[min(34rem,calc(100dvh-8rem))] lg:w-auto lg:max-w-full"
       />
     </div>
   );
