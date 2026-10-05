@@ -248,12 +248,12 @@ export const questionnaireI18n = {
       '120_plus': L('120 քմ +', '120+ sq. m', '120 кв. м +'),
     },
     purchaseMethod: {
-      cash: L('Կանխիկ', 'Cash', 'Наличными'),
+      cash: L('Կանխիկ (100% վճարում)', 'Cash (100% payment)', 'Наличными (100% оплата)'),
       mortgage: L('Բնակարանային հիփոթեք', 'Mortgage', 'Ипотечный кредит'),
       installment: L(
-        'Տարաժամկետ վճարում (Կառուցապատողի ապառիկ)',
-        'Installment payment plan offered by the developer',
-        'Рассрочка (рассрочка от застройщика)',
+        'Տարաժամկետ վճարում (Կառուցապատողին)',
+        'Installment payment (to the developer)',
+        'Рассрочка (застройщику)',
       ),
       mixed: L(
         'Կանխիկ + Հիփոթեքային վարկ (Խառը տարբերակ)',
