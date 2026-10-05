@@ -37,14 +37,13 @@ export function SiteHeader() {
 
 function HeaderRegistrationLink({ label }: { label: string }) {
   const pathname = usePathname();
-  const href =
-    pathname === '/rf'
-      ? ({ pathname: '/rf', hash: 'registration' } as const)
-      : ({ pathname: '/', hash: 'registration' } as const);
+  if (pathname !== '/rf') {
+    return null;
+  }
 
   return (
     <Link
-      href={href}
+      href={{ pathname: '/rf', hash: 'registration' }}
       onClick={(event) => scrollToSection(event, 'registration')}
       className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full bg-cta px-3 text-xs font-semibold text-white transition-[filter] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:px-4 sm:text-sm"
     >

@@ -25,14 +25,14 @@ export async function LandingHowItWorks() {
         >
           {t('howItWorksTitle')}
         </h2>
-        <ol className="mt-8 grid grid-cols-1 gap-8 sm:mt-10 lg:grid-cols-4 lg:gap-6">
+        <ol className="mt-8 grid grid-cols-1 gap-8 sm:mt-10 lg:grid-cols-4 lg:gap-8">
           {steps.map((step, index) => (
             <li key={step} className="min-w-0">
               <div className={cn('h-0.5 w-full', STEP_LINE[index] ?? 'bg-secondary')} />
               <p className="mt-4 font-display text-5xl font-extrabold leading-none text-secondary">
                 {index + 1}
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-primary sm:text-[15px]">{step}</p>
+              <p className="mt-3 text-pretty text-base leading-relaxed text-primary">{step}</p>
             </li>
           ))}
         </ol>

@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import { readHeroAdvantages, type HeroAdvantage } from '@/components/landing/landing-copy';
+import { cn } from '@/lib/utils';
 import {
   BellIcon,
   CalendarIcon,
@@ -42,7 +43,7 @@ export async function LandingHero() {
 
   return (
     <section className="overflow-x-clip bg-primary text-white" aria-labelledby="landing-hero-title">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-4 py-8 sm:gap-10 sm:py-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-12 lg:py-16">
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-8 px-4 pt-8 pb-0 sm:gap-10 sm:pt-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-12 lg:pt-16">
         <div className="flex min-w-0 flex-col gap-6 sm:gap-7">
           <HeroIntro
             title={t('heroTitle')}
@@ -53,7 +54,7 @@ export async function LandingHero() {
           <HeroFacts facts={facts} />
           <HeroActions registerLabel={t('registerCta')} howItWorksLabel={t('howItWorksTitle')} />
         </div>
-        <HeroPoster alt={t('heroPosterAlt')} />
+        <HeroPoster alt={t('heroPosterAlt')} className="lg:self-end" />
       </div>
     </section>
   );
@@ -88,14 +89,13 @@ function HeroAdvantages({ items }: { items: HeroAdvantage[] }) {
       {items.map((item, index) => {
         const Icon = ADVANTAGE_ICONS[index] ?? ProjectsIcon;
         return (
-          <li
-            key={item.text}
-            className="flex min-w-0 items-start gap-2.5 rounded-xl border border-white/15 bg-white/5 px-3 py-3"
-          >
-            <Icon className="mt-0.5 size-4 shrink-0 text-hero-cream" />
+          <li key={item.text} className="flex min-w-0 items-start gap-3">
+            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+              <Icon className="size-4 text-hero-cream" />
+            </span>
             <p className="min-w-0 text-sm leading-snug text-white/90">
               {item.lead ? (
-                <span className="mb-1 block font-display text-[1.65rem] font-extrabold leading-none tracking-tight text-highlight">
+                <span className="mb-1 block font-display text-[1.85rem] font-extrabold leading-none tracking-tight text-highlight tabular-nums">
                   {item.lead}
                 </span>
               ) : null}
@@ -149,17 +149,23 @@ function HeroActions({
   );
 }
 
-function HeroPoster({ alt }: { alt: string }) {
+function HeroPoster({ alt, className }: { alt: string; className?: string }) {
   return (
-    <div className="-mx-4 w-[calc(100%+2rem)] min-w-0 lg:mx-0 lg:w-full">
+    <div
+      className={cn(
+        '-mx-4 flex w-[calc(100%+2rem)] min-w-0 justify-center lg:mx-0 lg:w-full lg:justify-end',
+        className,
+      )}
+    >
       <Image
         src={POSTER_SRC}
         alt={alt}
         width={POSTER_WIDTH}
         height={POSTER_HEIGHT}
         priority
-        sizes="(min-width: 1024px) 34rem, 100vw"
-        className="h-auto w-full"
+        unoptimized
+        sizes="(min-width: 1024px) 36rem, 100vw"
+        className="h-auto w-full object-contain lg:max-h-[calc(100dvh-5rem)] lg:w-auto lg:max-w-full"
       />
     </div>
   );
