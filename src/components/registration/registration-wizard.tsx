@@ -11,6 +11,7 @@ import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event
 import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
+import { emptyMarzCityDraft, emptyMarzCityOtherDraft } from './wizard/marz-city-draft';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
 import { clearRegistrationIdempotencyKey } from './idempotency';
 import { storeTicketHandoff } from './ticket-handoff';
@@ -40,20 +41,13 @@ import {
 } from './wizard/types';
 import { mergeIdentityFieldsFromDom } from './wizard/sync-identity-fields';
 import { validateWizardStep } from './wizard/validation';
+import { scrollWizardToTop, useScrollToFieldError } from './scroll-wizard';
 import { WizardProgress } from './wizard/wizard-progress';
 import { WizardStepPanel } from './wizard/wizard-step-panel';
 
 type RegistrationWizardProps = {
   locale: Locale;
 };
-
-function scrollWizardToTop(element: HTMLElement | null): void {
-  if (!element) {
-    return;
-  }
-
-  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export function RegistrationWizard({ locale }: RegistrationWizardProps) {
   const tWizard = useTranslations('wizard');
@@ -135,6 +129,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
     questionTotal: steps.length,
     formChannel: 'general',
   });
+  const requestScrollToFieldError = useScrollToFieldError(formTopRef, fieldErrors, safeStep);
 
   const updateField = <K extends keyof WizardState>(key: K, value: WizardState[K]) => {
     setState((current) => {
@@ -151,6 +146,8 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           locationSeekAbroadOther: '',
           yerevanDistricts: [],
           marzRegions: [],
+          marzCity: emptyMarzCityDraft(),
+          marzCityOther: emptyMarzCityOtherDraft(),
           areaSqm: '',
           purchaseMethod: '',
           monthlyBudget: '',
@@ -167,7 +164,6 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           researchScopes: [],
           researchAbroadCountry: '',
           purchaseHorizon: '',
-          newsletter: null,
         };
       }
 
@@ -212,7 +208,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      scrollWizardToTop(formTopRef.current);
+      requestScrollToFieldError();
       return;
     }
 
@@ -235,7 +231,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
         identityErrors.phone ??
           (identityErrors.email ? tErrors('invalidEmail') : tErrors('validation')),
       );
-      scrollWizardToTop(formTopRef.current);
+      requestScrollToFieldError();
       return;
     }
 
@@ -282,7 +278,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
         setFormError(
           localized.phone ?? (localized.email ? tErrors('invalidEmail') : tErrors('validation')),
         );
-        scrollWizardToTop(formTopRef.current);
+        requestScrollToFieldError();
         return;
       }
     }

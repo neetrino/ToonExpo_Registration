@@ -2,6 +2,7 @@ import type { CsvExportColumnKey } from '@/lib/admin/constants';
 
 export type SheetColumnKey =
   | 'registrationId'
+  | 'newsletter'
   | Exclude<
       CsvExportColumnKey,
       | 'sourceSystem'
@@ -66,6 +67,7 @@ export const SHEET_GENERAL_ANSWER_COLUMNS = [
   { key: 'interestedWhere', header: 'Հետաքրքրող վայր' },
   { key: 'interestedWhereOther', header: 'Հետաքրքրող վայր (այլ)' },
   { key: 'purchaseHorizon', header: 'Գնման հորիզոն' },
+  // Kept so existing sheet columns do not shift. New cells stay empty.
   { key: 'newsletter', header: 'Տեղեկագիր' },
 ] as const satisfies readonly SheetColumnDef[];
 

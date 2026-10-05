@@ -40,7 +40,6 @@ const input: CreateRegistrationInput = {
     purchaseMethod: 'mortgage',
     monthlyBudget: '300k-500k',
     decisionStage: 'searching_6_months',
-    newsletter: true,
   },
   utmSource: undefined,
   utmMedium: undefined,
@@ -111,7 +110,14 @@ describe('createRegistration', () => {
     expect(result.ticketCode).toMatch(/^TE[A-Z0-9]{11}$/);
     expect(result.ticketViewToken.length).toBeGreaterThan(0);
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
-    expect(deliveryJobCreate).toHaveBeenCalledTimes(2);
+    expect(deliveryJobCreate).toHaveBeenCalledTimes(1);
+    expect(deliveryJobCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        registrationId: REGISTRATION_ID,
+        channel: 'EMAIL',
+        status: 'PENDING',
+      }),
+    });
     expect(tx.sheetsPushDelivery.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         registrationId: REGISTRATION_ID,

@@ -3,6 +3,7 @@ import {
   LOCATION_CHOICE_MAX,
   MARKET_INTERESTS_MAX,
 } from '@/lib/questionnaire/constants';
+import { MARZ_CITY_OPTIONS } from '@/lib/questionnaire/marz-cities';
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,
@@ -38,6 +39,7 @@ export const QUESTIONNAIRE_DEFINITION = {
       scopes: LOCATION_SEEK_SCOPES,
       yerevanDistricts: YEREVAN_DISTRICTS,
       marzRegions: MARZ_REGIONS,
+      marzCities: MARZ_CITY_OPTIONS,
     },
     visitPurpose: { options: VISIT_PURPOSES },
   },
@@ -46,6 +48,7 @@ export const QUESTIONNAIRE_DEFINITION = {
     scopes: LOCATION_SEEK_SCOPES,
     yerevanDistricts: YEREVAN_DISTRICTS,
     marzRegions: MARZ_REGIONS,
+    marzCities: MARZ_CITY_OPTIONS,
     abroadCountries: ABROAD_COUNTRIES,
   },
   branches: {

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 type OptionRadioGroupProps<T extends string> = {
@@ -8,6 +9,8 @@ type OptionRadioGroupProps<T extends string> = {
   onChange: (value: T) => void;
   disabled?: boolean;
   error?: boolean;
+  /** Extra controls shown directly under a selected option. */
+  renderBelow?: (option: T) => ReactNode;
 };
 
 export function OptionRadioGroup<T extends string>({
@@ -18,42 +21,50 @@ export function OptionRadioGroup<T extends string>({
   onChange,
   disabled = false,
   error = false,
+  renderBelow,
 }: OptionRadioGroupProps<T>) {
   return (
-    <div className="space-y-2" role="radiogroup" aria-invalid={error || undefined}>
+    <div
+      className="space-y-2"
+      role={renderBelow ? undefined : 'radiogroup'}
+      aria-invalid={error || undefined}
+    >
       {options.map((option) => {
         const id = `${name}-${option}`;
         const checked = value === option;
+        const below = checked ? renderBelow?.(option) : null;
 
         return (
-          <label
-            key={option}
-            htmlFor={id}
-            className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
-              checked
-                ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
-                : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
-              disabled && 'cursor-not-allowed opacity-50',
-              error && !checked && 'border-destructive bg-destructive/5',
-            )}
-          >
-            <input
-              id={id}
-              type="radio"
-              name={name}
-              value={option}
-              checked={checked}
-              disabled={disabled}
-              className="mt-0.5 size-4 shrink-0 accent-highlight"
-              onChange={() => onChange(option)}
-            />
-            <span
-              className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+          <div key={option} className={below ? 'space-y-2' : undefined}>
+            <label
+              htmlFor={id}
+              className={cn(
+                'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+                checked
+                  ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
+                  : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
+                disabled && 'cursor-not-allowed opacity-50',
+                error && !checked && 'border-destructive bg-destructive/5',
+              )}
             >
-              {getLabel(option)}
-            </span>
-          </label>
+              <input
+                id={id}
+                type="radio"
+                name={name}
+                value={option}
+                checked={checked}
+                disabled={disabled}
+                className="mt-0.5 size-4 shrink-0 accent-highlight"
+                onChange={() => onChange(option)}
+              />
+              <span
+                className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+              >
+                {getLabel(option)}
+              </span>
+            </label>
+            {below ? <div className="ml-4 border-l border-input pl-3">{below}</div> : null}
+          </div>
         );
       })}
     </div>
@@ -69,6 +80,8 @@ type OptionCheckboxGroupProps<T extends string> = {
   onChange: (values: T[]) => void;
   disabled?: boolean;
   error?: boolean;
+  /** Extra controls shown directly under a checked option. */
+  renderBelow?: (option: T) => ReactNode;
 };
 
 export function OptionCheckboxGroup<T extends string>({
@@ -80,6 +93,7 @@ export function OptionCheckboxGroup<T extends string>({
   onChange,
   disabled = false,
   error = false,
+  renderBelow,
 }: OptionCheckboxGroupProps<T>) {
   const toggle = (option: T) => {
     if (values.includes(option)) {
@@ -100,36 +114,39 @@ export function OptionCheckboxGroup<T extends string>({
         const id = `${name}-${option}`;
         const checked = values.includes(option);
         const atMax = max !== undefined && values.length >= max && !checked;
+        const below = checked ? renderBelow?.(option) : null;
 
         return (
-          <label
-            key={option}
-            htmlFor={id}
-            className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
-              checked
-                ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
-                : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
-              (disabled || atMax) && 'cursor-not-allowed opacity-50',
-              error && !checked && 'border-destructive bg-destructive/5',
-            )}
-          >
-            <input
-              id={id}
-              type="checkbox"
-              name={name}
-              value={option}
-              checked={checked}
-              disabled={disabled || atMax}
-              className="mt-0.5 size-4 shrink-0 rounded border border-input accent-highlight"
-              onChange={() => toggle(option)}
-            />
-            <span
-              className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+          <div key={option} className={below ? 'space-y-2' : undefined}>
+            <label
+              htmlFor={id}
+              className={cn(
+                'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 motion-reduce:transition-none',
+                checked
+                  ? 'border-accent bg-accent text-accent-foreground shadow-[inset_0_0_0_1px_var(--accent)]'
+                  : 'border-input bg-background hover:border-secondary/60 hover:bg-muted/60',
+                (disabled || atMax) && 'cursor-not-allowed opacity-50',
+                error && !checked && 'border-destructive bg-destructive/5',
+              )}
             >
-              {getLabel(option)}
-            </span>
-          </label>
+              <input
+                id={id}
+                type="checkbox"
+                name={name}
+                value={option}
+                checked={checked}
+                disabled={disabled || atMax}
+                className="mt-0.5 size-4 shrink-0 rounded border border-input accent-highlight"
+                onChange={() => toggle(option)}
+              />
+              <span
+                className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
+              >
+                {getLabel(option)}
+              </span>
+            </label>
+            {below ? <div className="ml-4 border-l border-input pl-3">{below}</div> : null}
+          </div>
         );
       })}
     </div>

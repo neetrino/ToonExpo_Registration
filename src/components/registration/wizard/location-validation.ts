@@ -9,6 +9,11 @@ import {
   YEREVAN_DISTRICTS,
 } from '@/lib/questionnaire';
 import { countLocationChoiceLeaves } from '@/lib/questionnaire/location-choice';
+import {
+  addMarzCityDraftIssues,
+  marzCityDraftSchema,
+  marzCityOtherDraftSchema,
+} from './marz-city-draft';
 
 const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 
@@ -19,6 +24,8 @@ export const locationChoiceStepSchema = z
     locationSeekAbroadOther: z.string(),
     yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
     marzRegions: z.array(z.enum(MARZ_REGIONS)),
+    marzCity: marzCityDraftSchema,
+    marzCityOther: marzCityOtherDraftSchema,
   })
   .superRefine((data, ctx) => {
     if (data.locationSeekScopes.includes('yerevan') && data.yerevanDistricts.length === 0) {
@@ -31,6 +38,17 @@ export const locationChoiceStepSchema = z
 
     if (data.locationSeekScopes.includes('marz') && data.marzRegions.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['marzRegions'], message: 'required' });
+    }
+
+    if (data.locationSeekScopes.includes('marz')) {
+      addMarzCityDraftIssues(
+        ctx,
+        data.marzRegions,
+        data.marzCity,
+        data.marzCityOther,
+        (region) => `marzCity_${region}`,
+        (region) => `marzCityOther_${region}`,
+      );
     }
 
     if (data.locationSeekScopes.includes('abroad')) {
@@ -74,6 +92,8 @@ export const researchLocationStepSchema = z
     researchScopes: z.array(z.enum(RESEARCH_LOCATION_SCOPES)).min(1).max(1),
     yerevanDistricts: z.array(z.enum(YEREVAN_DISTRICTS)),
     marzRegions: z.array(z.enum(MARZ_REGIONS)),
+    marzCity: marzCityDraftSchema,
+    marzCityOther: marzCityOtherDraftSchema,
     researchAbroadCountry: z.string(),
     purchaseHorizon: z.enum([
       'up_to_3_months',
@@ -94,6 +114,17 @@ export const researchLocationStepSchema = z
 
     if (data.researchScopes.includes('marz') && data.marzRegions.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['marzRegions'], message: 'required' });
+    }
+
+    if (data.researchScopes.includes('marz')) {
+      addMarzCityDraftIssues(
+        ctx,
+        data.marzRegions,
+        data.marzCity,
+        data.marzCityOther,
+        (region) => `marzCity_${region}`,
+        (region) => `marzCityOther_${region}`,
+      );
     }
 
     if (data.researchScopes.includes('abroad')) {

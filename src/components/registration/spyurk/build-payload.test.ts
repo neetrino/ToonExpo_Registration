@@ -36,21 +36,8 @@ describe('buildSpyurkQuestionnaireAnswers', () => {
       visitPurpose: 'own_residence',
       residence: { city: 'Moscow', region: 'Moscow Oblast' },
       purchaseBudgetUsd: '150k-250k',
-      newsletter: false,
     });
-  });
-
-  it('persists newsletter as false after the opt-in question was removed', () => {
-    const answers = buildSpyurkQuestionnaireAnswers(ownResidenceState({ newsletter: true }));
-
-    expect(answers?.newsletter).toBe(false);
-  });
-
-  it('builds answers when newsletter was never chosen', () => {
-    const answers = buildSpyurkQuestionnaireAnswers(ownResidenceState({ newsletter: null }));
-
-    expect(answers).not.toBeNull();
-    expect(answers?.newsletter).toBe(false);
+    expect(answers).not.toHaveProperty('newsletter');
   });
 
   it('returns null when required branch fields are missing', () => {

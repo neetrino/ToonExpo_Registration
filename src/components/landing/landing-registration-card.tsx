@@ -12,7 +12,7 @@ export function LandingRegistrationCard({
   variant = 'general',
 }: LandingRegistrationCardProps) {
   return (
-    <div className="landing-card-enter mx-auto w-full max-w-xl">
+    <div id="registration" className="landing-card-enter mx-auto w-full max-w-xl scroll-mt-6">
       <div className="rounded-2xl border border-border/80 bg-card p-7 shadow-[0_8px_32px_rgba(0,48,61,0.12)] md:p-10">
         {variant === 'spyurk' ? (
           <SpyurkRegistrationWizard locale={locale} />

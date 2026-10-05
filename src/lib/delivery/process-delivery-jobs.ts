@@ -8,6 +8,7 @@ import {
 } from '@/lib/delivery/constants';
 import { sendTicketEmail } from '@/lib/delivery/send-ticket-email';
 import { sendTicketSms } from '@/lib/delivery/send-ticket-sms';
+import { isTicketSmsDeliveryEnabled } from '@/lib/delivery/ticket-sms-policy';
 import { logger } from '@/lib/logger';
 import { mapRegistrationError } from '@/lib/registrations/errors';
 
@@ -19,7 +20,8 @@ export type ProcessDeliveryResult = {
 };
 
 /**
- * Process due EMAIL and SMS delivery jobs, optionally limited to one registration.
+ * Process due ticket delivery jobs, optionally limited to one registration.
+ * SMS jobs stay queued and are not claimed while ticket SMS is paused.
  */
 export async function processDueDeliveryJobs(options?: {
   registrationId?: string;
@@ -29,11 +31,15 @@ export async function processDueDeliveryJobs(options?: {
   const limit = options?.limit ?? DELIVERY_CLAIM_BATCH_SIZE;
   const now = new Date();
 
+  const channels = isTicketSmsDeliveryEnabled()
+    ? (['EMAIL', 'SMS'] as const)
+    : (['EMAIL'] as const);
+
   const candidates = await prisma.deliveryJob.findMany({
     where: {
       status: 'PENDING',
       nextAttemptAt: { lte: now },
-      channel: { in: ['EMAIL', 'SMS'] },
+      channel: { in: [...channels] },
       ...(options?.registrationId ? { registrationId: options.registrationId } : {}),
     },
     orderBy: { nextAttemptAt: 'asc' },

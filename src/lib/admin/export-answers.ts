@@ -1,3 +1,4 @@
+import { formatMarzSelectionList, formatResidenceMarzLabel } from '@/lib/questionnaire/marz-cities';
 import { getQuestionnaireLabel, questionnaireI18n } from '@/lib/questionnaire/i18n';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { CSV_ANSWER_COLUMNS } from '@/lib/admin/constants';
@@ -33,6 +34,16 @@ function createLabelHelpers(locale: QuestionnaireLocale): LabelHelpers {
   }
 
   return { optionLabel, joinOptionLabels };
+}
+
+function marzLabelers(labels: LabelHelpers): {
+  region: (code: string) => string;
+  city: (code: string) => string;
+} {
+  return {
+    region: (code) => labels.optionLabel('marzRegion', code),
+    city: (code) => labels.optionLabel('marzCity', code),
+  };
 }
 
 function emptyAnswerColumns(): FlattenedAnswerColumns {
@@ -81,7 +92,16 @@ function flattenResidence(
   }
 
   if (scope === 'marz' && typeof residence.region === 'string') {
-    setColumn(columns, 'residenceDetail', labels.optionLabel('marzRegion', residence.region));
+    setColumn(
+      columns,
+      'residenceDetail',
+      formatResidenceMarzLabel(
+        residence.region,
+        residence.city,
+        residence.cityOther,
+        marzLabelers(labels),
+      ),
+    );
   }
 
   if (scope === 'abroad' && typeof residence.country === 'string') {
@@ -104,7 +124,11 @@ function flattenLocationSeek(
 
     const regions = stringArray(locationSeek.regions);
     if (regions.length > 0) {
-      setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));
+      setColumn(
+        columns,
+        'marzRegions',
+        formatMarzSelectionList(regions, locationSeek.marzCities, marzLabelers(labels)),
+      );
     }
 
     if (typeof locationSeek.other === 'string' && locationSeek.other) {
@@ -130,7 +154,11 @@ function flattenLocationSeek(
     setColumn(columns, 'yerevanDistricts', labels.joinOptionLabels('yerevanDistrict', districts));
   }
   if (regions.length > 0) {
-    setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));
+    setColumn(
+      columns,
+      'marzRegions',
+      formatMarzSelectionList(regions, locationSeek.marzCities, marzLabelers(labels)),
+    );
   }
   if (countries.length > 0) {
     setColumn(
@@ -287,7 +315,11 @@ function flattenMarketResearch(
         );
       }
       if (regions.length > 0) {
-        setColumn(columns, 'marzRegions', labels.joinOptionLabels('marzRegion', regions));
+        setColumn(
+          columns,
+          'marzRegions',
+          formatMarzSelectionList(regions, location.marzCities, marzLabelers(labels)),
+        );
       }
       if (typeof location.abroadCountry === 'string') {
         setColumn(columns, 'interestedWhereOther', location.abroadCountry);
@@ -348,14 +380,6 @@ export function flattenRegistrationAnswersForExport(
       break;
     default:
       break;
-  }
-
-  if (typeof record.newsletter === 'boolean') {
-    setColumn(
-      columns,
-      'newsletter',
-      labels.optionLabel('newsletter', record.newsletter ? 'yes' : 'no'),
-    );
   }
 
   return columns;

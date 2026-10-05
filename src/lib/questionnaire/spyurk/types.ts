@@ -45,7 +45,6 @@ type SpyurkSharedAnswers = {
   armeniaConnectionOther?: string;
   purchaseMotives: PurchaseMotive[];
   purchaseMotivesOther?: string;
-  newsletter: boolean;
 };
 
 export type SpyurkOwnResidenceAnswers = SpyurkSharedAnswers & {

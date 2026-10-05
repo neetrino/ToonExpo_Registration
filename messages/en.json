@@ -2,7 +2,8 @@
   "common": {
     "siteName": "TOON EXPO",
     "privacy": "Privacy",
-    "languageSwitcher": "Language"
+    "languageSwitcher": "Language",
+    "registration": "Registration"
   },
   "landing": {
     "eyebrow": "Real estate and investment exhibition",
@@ -38,7 +39,27 @@
     "copyright": "Copyright © 2026 Toon Expo. All Rights Reserved. Created by <creator>Neetrino</creator>",
     "aboutToggle": "About the exhibition",
     "titleBrand": "TOON EXPO",
-    "titleEvent": "Invest 2026 Vol. 2"
+    "titleEvent": "Invest 2026 Vol. 2",
+    "heroTitle": "Want to buy a home in Armenia?",
+    "heroTitleAccent": "Choose it before the exhibition.",
+    "heroSubtitle": "Toon Expo is an exhibition of Armenia’s developers for Russian-speaking Armenians. Every project, price, and special offer — in one app before it starts.",
+    "heroPosterAlt": "TOON EXPO Real Estate Expo 2026, November 13, 14 and 15. Living in Russia and planning to buy an apartment in Armenia?",
+    "heroHoursValue": "11:00–21:00",
+    "heroVenueValue": "Yerevan, Meridian Expo Center",
+    "freeEntry": "Free entry",
+    "heroAdvantages": [
+      { "lead": "150+", "text": "projects in one place" },
+      { "lead": "", "text": "Prices and special offers before opening" },
+      { "lead": "", "text": "Armenia’s developers together" },
+      { "lead": "", "text": "Choose an apartment before the exhibition" }
+    ],
+    "howItWorksTitle": "How it works",
+    "howItWorksSteps": [
+      "Do you live in Russia and plan to buy an apartment in Armenia or abroad?",
+      "Come to TOON EXPO — developers and their projects in one place.",
+      "Register in advance and explore the projects on the site.",
+      "Get special offers and updates about the exhibition."
+    ]
   },
   "privacy": {
     "title": "Personal data privacy policy",

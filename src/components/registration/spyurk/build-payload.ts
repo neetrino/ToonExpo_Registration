@@ -32,7 +32,6 @@ function buildShared(state: SpyurkWizardState) {
     armeniaConnectionOther: state.armeniaConnectionOther.trim() || undefined,
     purchaseMotives: state.purchaseMotives,
     purchaseMotivesOther: state.purchaseMotivesOther.trim() || undefined,
-    newsletter: false,
   };
 }
 

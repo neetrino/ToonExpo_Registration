@@ -1,3 +1,7 @@
+import {
+  formatMarzSelectionLabel,
+  formatResidenceMarzLabel,
+} from '@/lib/questionnaire/marz-cities';
 import { MOOTQ_FIELD } from '@/lib/integrations/mootq/mootq-field-ids';
 import type { MootqAnswers } from '@/lib/integrations/mootq/flatten-answers';
 import {
@@ -85,7 +89,6 @@ function assignGeneralMappedFields(out: MootqAnswers, answers: QuestionnaireAnsw
   out[MOOTQ_FIELD.residenceScope] = optionLabel('locationSeekScope', answers.residence.scope);
   assignResidenceDetail(out, answers.residence);
   out[MOOTQ_FIELD.visitPurpose] = optionLabel('visitPurpose', answers.visitPurpose);
-  out[MOOTQ_FIELD.newsletter] = newsletterLabel(answers.newsletter);
 
   switch (answers.visitPurpose) {
     case 'market_research':
@@ -109,7 +112,6 @@ function assignSpyurkMappedFields(out: MootqAnswers, answers: SpyurkQuestionnair
   out[MOOTQ_FIELD.residenceScope] = optionLabel('locationSeekScope', 'abroad');
   out[MOOTQ_FIELD.residenceDetail] = `${answers.residence.city}, ${answers.residence.region}`;
   out[MOOTQ_FIELD.visitPurpose] = optionLabel('visitPurpose', answers.visitPurpose);
-  out[MOOTQ_FIELD.newsletter] = newsletterLabel(answers.newsletter);
 
   if (answers.visitPurpose === 'market_research') {
     out[MOOTQ_FIELD.marketInterests] = answers.marketInterests.map((code) =>
@@ -189,7 +191,9 @@ function assignLocationSeek(
   }
   if (location.marzRegions.length > 0) {
     out[scopeField] = optionLabel('locationSeekScope', 'marz');
-    out[detailsField] = location.marzRegions.map((code) => optionLabel('marzRegion', code));
+    out[detailsField] = location.marzRegions.map((code) =>
+      formatMarzSelectionLabel(code, location.marzCities, mootqMarzLabelers()),
+    );
     return;
   }
   if (location.abroadCountries.length > 0) {
@@ -212,14 +216,22 @@ function assignResidenceDetail(out: MootqAnswers, residence: ResidencePlace): vo
     out[MOOTQ_FIELD.residenceDetail] = optionLabel('yerevanDistrict', residence.district);
     return;
   }
-  out[MOOTQ_FIELD.residenceDetail] = optionLabel('marzRegion', residence.region);
+  out[MOOTQ_FIELD.residenceDetail] = formatResidenceMarzLabel(
+    residence.region,
+    residence.city,
+    residence.cityOther,
+    mootqMarzLabelers(),
+  );
 }
 
-function newsletterLabel(value: boolean): string {
-  return getQuestionnaireLabel(
-    value ? questionnaireI18n.options.newsletter.yes : questionnaireI18n.options.newsletter.no,
-    MOOTQ_LABEL_LOCALE,
-  );
+function mootqMarzLabelers(): {
+  region: (code: string) => string;
+  city: (code: string) => string;
+} {
+  return {
+    region: (code) => optionLabel('marzRegion', code),
+    city: (code) => optionLabel('marzCity', code),
+  };
 }
 
 type OptionGroupKey = keyof typeof questionnaireI18n.options;

@@ -20,6 +20,7 @@ import type {
   VISIT_PURPOSES,
   YEREVAN_DISTRICTS,
 } from '@/lib/questionnaire/options';
+import type { MarzCities, MarzCityCode } from '@/lib/questionnaire/marz-cities';
 
 export type AgeBand = (typeof AGE_BANDS)[number];
 export type VisitPurpose = (typeof VISIT_PURPOSES)[number];
@@ -44,12 +45,13 @@ export type PurchaseHorizon = (typeof PURCHASE_HORIZONS)[number];
 
 export type ResidencePlace =
   | { scope: 'yerevan'; district: YerevanDistrict }
-  | { scope: 'marz'; region: MarzRegion }
+  | { scope: 'marz'; region: MarzRegion; city?: MarzCityCode; cityOther?: string }
   | { scope: 'abroad'; country: string };
 
 export type LocationChoice = {
   yerevanDistricts: YerevanDistrict[];
   marzRegions: MarzRegion[];
+  marzCities?: MarzCities;
   abroadCountries: AbroadCountry[];
   abroadCountriesOther?: string;
 };
@@ -58,13 +60,13 @@ export type ResearchLocation = {
   undecided: boolean;
   yerevanDistricts: YerevanDistrict[];
   marzRegions: MarzRegion[];
+  marzCities?: MarzCities;
   abroadCountry?: string;
 };
 
 type SharedAnswers = {
   ageBand: AgeBand;
   residence: ResidencePlace;
-  newsletter: boolean;
 };
 
 export type OwnResidenceAnswers = SharedAnswers & {

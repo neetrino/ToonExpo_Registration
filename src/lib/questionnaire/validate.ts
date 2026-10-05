@@ -24,13 +24,11 @@ import {
 import type { QuestionnaireAnswers } from '@/lib/questionnaire/types';
 
 const ageBandSchema = z.enum(AGE_BANDS);
-const newsletterSchema = z.boolean();
 const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 
 const sharedAnswers = {
   ageBand: ageBandSchema,
   residence: residencePlaceSchema,
-  newsletter: newsletterSchema,
 } as const;
 
 const ownResidenceSchema = z

@@ -7,13 +7,15 @@ import {
 } from '@/lib/delivery/constants';
 import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
+import { isTicketSmsDeliveryEnabled } from '@/lib/delivery/ticket-sms-policy';
 import { getDexatelSmsConfig } from '@/lib/integrations/dexatel/config';
 
 export type ResendTicketResult =
   { ok: true; emailQueued: boolean; smsQueued: boolean } | { ok: false; error: string };
 
 /**
- * Re-queue the existing ticket email/SMS for one registration (same QR, same hosted link).
+ * Re-queue the existing ticket email for one registration (same QR, same hosted link).
+ * SMS is re-queued only when ticket SMS delivery is enabled.
  */
 export async function resendRegistrationTicket(
   registrationId: string,
@@ -59,7 +61,7 @@ export async function resendRegistrationTicket(
     return { ok: false, error: 'Registration not found.' };
   }
 
-  const smsEnabled = getDexatelSmsConfig().ok;
+  const smsEnabled = isTicketSmsDeliveryEnabled() && getDexatelSmsConfig().ok;
   const emailJob = registration.deliveryJobs.find((job) => job.channel === 'EMAIL');
   const smsJob = registration.deliveryJobs.find((job) => job.channel === 'SMS');
 

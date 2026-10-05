@@ -1,4 +1,9 @@
 import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
+import {
+  hasStoredMarzCities,
+  isMarzCityRegion,
+  toStoredMarzCities,
+} from '@/lib/questionnaire/marz-cities';
 import type {
   LocationChoice,
   QuestionnaireAnswers,
@@ -7,6 +12,7 @@ import type {
 } from '@/lib/questionnaire/types';
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 import type { Locale } from '@/types/locale';
+import { emptyMarzCityDraft, emptyMarzCityOtherDraft } from './marz-city-draft';
 import type { WizardState } from './types';
 
 function buildResidence(state: WizardState): ResidencePlace | null {
@@ -15,7 +21,7 @@ function buildResidence(state: WizardState): ResidencePlace | null {
   }
 
   if (state.residenceScope === 'marz' && state.residenceRegion) {
-    return { scope: 'marz', region: state.residenceRegion };
+    return buildMarzResidence(state);
   }
 
   if (state.residenceScope === 'abroad' && state.residenceCountry.trim()) {
@@ -25,10 +31,41 @@ function buildResidence(state: WizardState): ResidencePlace | null {
   return null;
 }
 
+function buildMarzResidence(state: WizardState): ResidencePlace | null {
+  const region = state.residenceRegion;
+  if (!region) {
+    return null;
+  }
+
+  if (!isMarzCityRegion(region)) {
+    return { scope: 'marz', region };
+  }
+
+  const stored = toStoredMarzCities(
+    [region],
+    { ...emptyMarzCityDraft(), [region]: state.residenceMarzCity },
+    { ...emptyMarzCityOtherDraft(), [region]: state.residenceMarzCityOther },
+  );
+  const entry = stored[region];
+  if (!entry) {
+    return { scope: 'marz', region };
+  }
+
+  return {
+    scope: 'marz',
+    region,
+    city: entry.city,
+    ...(entry.other ? { cityOther: entry.other } : {}),
+  };
+}
+
 function buildLocationChoice(state: WizardState): LocationChoice {
+  const marzCities = toStoredMarzCities(state.marzRegions, state.marzCity, state.marzCityOther);
+
   return {
     yerevanDistricts: state.yerevanDistricts,
     marzRegions: state.marzRegions,
+    ...(hasStoredMarzCities(marzCities) ? { marzCities } : {}),
     abroadCountries: state.locationSeekAbroadCountries,
     abroadCountriesOther: state.locationSeekAbroadOther.trim() || undefined,
   };
@@ -36,11 +73,14 @@ function buildLocationChoice(state: WizardState): LocationChoice {
 
 function buildResearchLocation(state: WizardState): ResearchLocation {
   const undecided = state.researchScopes.includes('undecided');
+  const marzRegions = undecided ? [] : state.marzRegions;
+  const marzCities = toStoredMarzCities(marzRegions, state.marzCity, state.marzCityOther);
 
   return {
     undecided,
     yerevanDistricts: undecided ? [] : state.yerevanDistricts,
-    marzRegions: undecided ? [] : state.marzRegions,
+    marzRegions,
+    ...(hasStoredMarzCities(marzCities) ? { marzCities } : {}),
     abroadCountry: undecided ? undefined : state.researchAbroadCountry.trim() || undefined,
   };
 }
@@ -57,7 +97,6 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
     ageBand: state.ageBand,
     residence,
     visitPurpose: state.visitPurpose,
-    newsletter: false,
   };
 
   if (state.visitPurpose === 'own_residence') {
