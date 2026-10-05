@@ -9,6 +9,7 @@ import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { nationalPhoneExample } from '@/lib/validation/phone';
 import type { Locale } from '@/types/locale';
+import { scrollWizardToTop, useScrollToFieldError } from '@/components/registration/scroll-wizard';
 import { submitRegistration } from '@/components/registration/submit-registration';
 import { clearRegistrationIdempotencyKey } from '@/components/registration/idempotency';
 import { storeTicketHandoff } from '@/components/registration/ticket-handoff';
@@ -51,13 +52,6 @@ import { validateSpyurkWizardStep } from './validation';
 type SpyurkRegistrationWizardProps = {
   locale: Locale;
 };
-
-function scrollWizardToTop(element: HTMLElement | null): void {
-  if (!element) {
-    return;
-  }
-  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 function emptyBranchState(): Partial<SpyurkWizardState> {
   return {
@@ -149,6 +143,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
     questionTotal: steps.length,
     formChannel: 'spyurk_rf',
   });
+  const requestScrollToFieldError = useScrollToFieldError(formTopRef, fieldErrors, safeStep);
 
   const updateField = <K extends keyof SpyurkWizardState>(key: K, value: SpyurkWizardState[K]) => {
     setState((current) => {
@@ -192,7 +187,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
     const errors = validateSpyurkWizardStep(safeStep, nextState, stepTranslator);
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      scrollWizardToTop(formTopRef.current);
+      requestScrollToFieldError();
       return;
     }
 
@@ -211,7 +206,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
       setFieldErrors(identityErrors);
       setCurrentStep('identity');
       setFormError(identityErrors.phone ?? tErrors('validation'));
-      scrollWizardToTop(formTopRef.current);
+      requestScrollToFieldError();
       return;
     }
 

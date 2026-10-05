@@ -11,7 +11,7 @@ type FormFieldProps = {
 
 export function FormField({ id, label, hint, error, input }: FormFieldProps) {
   return (
-    <div className="space-y-2">
+    <div className="scroll-mt-6 space-y-2" data-wizard-field={id}>
       <Label htmlFor={id}>{label}</Label>
       {input}
       {hint ? (
