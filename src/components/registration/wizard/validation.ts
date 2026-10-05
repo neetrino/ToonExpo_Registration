@@ -25,6 +25,7 @@ import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { normalizePhone } from '@/lib/validation/phone';
 import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
 import { locationChoiceStepSchema, researchLocationStepSchema } from './location-validation';
+import { addMarzCityDraftIssues, residenceCityDraft } from './marz-city-draft';
 import type { WizardFieldErrors, WizardState, WizardStepId } from './types';
 
 type ErrorTranslator = {
@@ -63,6 +64,8 @@ const profileStepSchema = z
     residenceScope: z.enum(LOCATION_SEEK_SCOPES),
     residenceDistrict: z.enum(YEREVAN_DISTRICTS).or(z.literal('')),
     residenceRegion: z.enum(MARZ_REGIONS).or(z.literal('')),
+    residenceMarzCity: z.string(),
+    residenceMarzCityOther: z.string(),
     residenceCountry: z.string(),
   })
   .superRefine((data, ctx) => {
@@ -76,6 +79,24 @@ const profileStepSchema = z
 
     if (data.residenceScope === 'marz' && !data.residenceRegion) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['residenceRegion'], message: 'required' });
+    }
+
+    if (data.residenceScope === 'marz' && data.residenceRegion) {
+      const residenceCity = residenceCityDraft(
+        data.residenceRegion,
+        data.residenceMarzCity,
+        data.residenceMarzCityOther,
+      );
+      if (residenceCity) {
+        addMarzCityDraftIssues(
+          ctx,
+          residenceCity.regions,
+          residenceCity.city,
+          residenceCity.other,
+          () => 'residenceMarzCity',
+          () => 'residenceMarzCityOther',
+        );
+      }
     }
 
     if (data.residenceScope === 'abroad') {
@@ -253,6 +274,8 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
         residenceScope: state.residenceScope || undefined,
         residenceDistrict: state.residenceDistrict,
         residenceRegion: state.residenceRegion,
+        residenceMarzCity: state.residenceMarzCity,
+        residenceMarzCityOther: state.residenceMarzCityOther,
         residenceCountry: state.residenceCountry,
       };
     case 'own-residence-interest':
@@ -269,6 +292,8 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
         locationSeekAbroadOther: state.locationSeekAbroadOther,
         yerevanDistricts: state.yerevanDistricts,
         marzRegions: state.marzRegions,
+        marzCity: state.marzCity,
+        marzCityOther: state.marzCityOther,
       };
     case 'own-residence-size':
       return {
@@ -311,6 +336,8 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
         researchScopes: state.researchScopes,
         yerevanDistricts: state.yerevanDistricts,
         marzRegions: state.marzRegions,
+        marzCity: state.marzCity,
+        marzCityOther: state.marzCityOther,
         researchAbroadCountry: state.researchAbroadCountry,
         purchaseHorizon: state.purchaseHorizon || undefined,
       };

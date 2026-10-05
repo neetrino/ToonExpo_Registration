@@ -1,3 +1,4 @@
+import { formatMarzSelectionLabel, formatResidenceMarzLabel } from '@/lib/questionnaire/marz-cities';
 import { MOOTQ_FIELD } from '@/lib/integrations/mootq/mootq-field-ids';
 import type { MootqAnswers } from '@/lib/integrations/mootq/flatten-answers';
 import {
@@ -189,7 +190,9 @@ function assignLocationSeek(
   }
   if (location.marzRegions.length > 0) {
     out[scopeField] = optionLabel('locationSeekScope', 'marz');
-    out[detailsField] = location.marzRegions.map((code) => optionLabel('marzRegion', code));
+    out[detailsField] = location.marzRegions.map((code) =>
+      formatMarzSelectionLabel(code, location.marzCities, mootqMarzLabelers()),
+    );
     return;
   }
   if (location.abroadCountries.length > 0) {
@@ -212,7 +215,22 @@ function assignResidenceDetail(out: MootqAnswers, residence: ResidencePlace): vo
     out[MOOTQ_FIELD.residenceDetail] = optionLabel('yerevanDistrict', residence.district);
     return;
   }
-  out[MOOTQ_FIELD.residenceDetail] = optionLabel('marzRegion', residence.region);
+  out[MOOTQ_FIELD.residenceDetail] = formatResidenceMarzLabel(
+    residence.region,
+    residence.city,
+    residence.cityOther,
+    mootqMarzLabelers(),
+  );
+}
+
+function mootqMarzLabelers(): {
+  region: (code: string) => string;
+  city: (code: string) => string;
+} {
+  return {
+    region: (code) => optionLabel('marzRegion', code),
+    city: (code) => optionLabel('marzCity', code),
+  };
 }
 
 function newsletterLabel(value: boolean): string {

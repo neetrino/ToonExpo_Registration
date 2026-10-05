@@ -1,4 +1,11 @@
+import { isMarzCityRegion } from '@/lib/questionnaire/marz-cities';
 import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
+import {
+  emptyMarzCityDraft,
+  emptyMarzCityOtherDraft,
+  pruneUnselectedMarzCities,
+  residenceCityDraft,
+} from './marz-city-draft';
 import type { WizardState, WizardStepId } from './types';
 import { initialWizardState } from './types';
 
@@ -40,13 +47,30 @@ function normalizeSingleLocationScope(state: WizardState): WizardState {
   const researchScopes = firstScope(state.researchScopes);
   const activeScope =
     state.visitPurpose === 'market_research' ? researchScopes[0] : locationSeekScopes[0];
+  const marzRegions = activeScope === 'marz' ? state.marzRegions : [];
+  const prunedCities =
+    activeScope === 'marz'
+      ? pruneUnselectedMarzCities(marzRegions, state.marzCity, state.marzCityOther)
+      : { city: emptyMarzCityDraft(), other: emptyMarzCityOtherDraft() };
+  const residenceCity = residenceCityDraft(
+    state.residenceRegion,
+    state.residenceMarzCity,
+    state.residenceMarzCityOther,
+  );
+  const keepResidenceCity =
+    state.residenceScope === 'marz' && isMarzCityRegion(state.residenceRegion) && residenceCity;
 
   return {
     ...state,
     locationSeekScopes,
     researchScopes,
     yerevanDistricts: activeScope === 'yerevan' ? state.yerevanDistricts : [],
-    marzRegions: activeScope === 'marz' ? state.marzRegions : [],
+    marzRegions,
+    marzCity: prunedCities.city,
+    marzCityOther: prunedCities.other,
+    residenceMarzCity: keepResidenceCity ? state.residenceMarzCity : '',
+    residenceMarzCityOther:
+      keepResidenceCity && state.residenceMarzCity === 'other' ? state.residenceMarzCityOther : '',
     locationSeekAbroadCountries: activeScope === 'abroad' ? state.locationSeekAbroadCountries : [],
     locationSeekAbroadOther: activeScope === 'abroad' ? state.locationSeekAbroadOther : '',
     researchAbroadCountry: activeScope === 'abroad' ? state.researchAbroadCountry : '',

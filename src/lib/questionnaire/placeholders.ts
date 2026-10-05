@@ -16,6 +16,7 @@ export const textFieldPlaceholders = {
   connectionOther: example('Բիզնես գործընկեր', 'Business partner', 'Бизнес-партнёр'),
   motiveOther: example('Ամառանոց', 'Holiday home', 'Дача'),
   propertyTypeOther: example('Ավտոկայանատեղի', 'Parking space', 'Паркинг'),
+  marzCity: example('Ապարան', 'Aparan', 'Апаран'),
 } as const;
 
 export type TextFieldPlaceholderKey = keyof typeof textFieldPlaceholders;

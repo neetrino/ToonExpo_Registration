@@ -7,6 +7,13 @@ import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import type { ResearchLocationScope } from '@/lib/questionnaire/types';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
+import { MarzCityFollowUp } from './marz-city-fields';
+import {
+  commitMarzCity,
+  commitMarzRegions,
+  emptyMarzCityDraft,
+  emptyMarzCityOtherDraft,
+} from './marz-city-draft';
 import { OptionCheckboxGroup, OptionRadioGroup } from './option-groups';
 import type { WizardFieldErrors, WizardState } from './types';
 
@@ -28,6 +35,8 @@ function applyResearchScope(onUpdate: StepProps['onUpdate'], scope: ResearchLoca
   }
   if (scope !== 'marz') {
     onUpdate('marzRegions', []);
+    onUpdate('marzCity', emptyMarzCityDraft());
+    onUpdate('marzCityOther', emptyMarzCityOtherDraft());
   }
   if (scope !== 'abroad') {
     onUpdate('researchAbroadCountry', '');
@@ -124,9 +133,28 @@ export function MarketResearchWhereStep({ state, errors, disabled, locale, onUpd
             options={locationChoice.marzRegions}
             max={LOCATION_CHOICE_MAX}
             getLabel={(value) => getOptionLabel('marzRegions', value, locale)}
-            onChange={(values) => onUpdate('marzRegions', values)}
+            onChange={(values) => commitMarzRegions(onUpdate, state, values)}
             disabled={disabled}
             error={Boolean(errors.marzRegions)}
+            renderBelow={(region) => (
+              <MarzCityFollowUp
+                region={region}
+                namePrefix="researchMarzCity"
+                city={state.marzCity}
+                other={state.marzCityOther}
+                errors={errors}
+                disabled={disabled}
+                locale={locale}
+                cityErrorKey={(cityRegion) => `marzCity_${cityRegion}`}
+                otherErrorKey={(cityRegion) => `marzCityOther_${cityRegion}`}
+                onCityChange={(cityRegion, value) =>
+                  commitMarzCity(onUpdate, state, cityRegion, value)
+                }
+                onOtherChange={(cityRegion, value) =>
+                  onUpdate('marzCityOther', { ...state.marzCityOther, [cityRegion]: value })
+                }
+              />
+            )}
           />
         </QuestionField>
       ) : null}

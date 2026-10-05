@@ -1,4 +1,5 @@
 import type { CountryCode } from 'libphonenumber-js';
+import type { MarzCityCode } from '@/lib/questionnaire/marz-cities';
 import type {
   AbroadCountry,
   AgeBand,
@@ -22,6 +23,7 @@ import type {
   YerevanDistrict,
 } from '@/lib/questionnaire/types';
 import { DEFAULT_PHONE_COUNTRY } from '@/lib/validation/constants';
+import type { MarzCityDraft, MarzCityOtherDraft } from './marz-city-draft';
 
 export type WizardStepId =
   | 'identity'
@@ -49,6 +51,8 @@ export type WizardState = {
   residenceScope: LocationSeekScope | '';
   residenceDistrict: YerevanDistrict | '';
   residenceRegion: MarzRegion | '';
+  residenceMarzCity: MarzCityCode | '';
+  residenceMarzCityOther: string;
   residenceCountry: string;
   visitPurpose: VisitPurpose | '';
   interestType: InterestType | '';
@@ -59,6 +63,8 @@ export type WizardState = {
   locationSeekAbroadOther: string;
   yerevanDistricts: YerevanDistrict[];
   marzRegions: MarzRegion[];
+  marzCity: MarzCityDraft;
+  marzCityOther: MarzCityOtherDraft;
   areaSqm: AreaSqmBand | '';
   purchaseMethod: PurchaseMethod | '';
   monthlyBudget: MonthlyBudget | '';
@@ -92,6 +98,8 @@ export const initialWizardState: WizardState = {
   residenceScope: '',
   residenceDistrict: '',
   residenceRegion: '',
+  residenceMarzCity: '',
+  residenceMarzCityOther: '',
   residenceCountry: '',
   visitPurpose: '',
   interestType: '',
@@ -102,6 +110,8 @@ export const initialWizardState: WizardState = {
   locationSeekAbroadOther: '',
   yerevanDistricts: [],
   marzRegions: [],
+  marzCity: { aragatsotn: '', ararat: '', kotayk: '' },
+  marzCityOther: { aragatsotn: '', ararat: '', kotayk: '' },
   areaSqm: '',
   purchaseMethod: '',
   monthlyBudget: '',

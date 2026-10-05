@@ -151,6 +151,8 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
           locationSeekAbroadOther: '',
           yerevanDistricts: [],
           marzRegions: [],
+          marzCity: { aragatsotn: '', ararat: '', kotayk: '' },
+          marzCityOther: { aragatsotn: '', ararat: '', kotayk: '' },
           areaSqm: '',
           purchaseMethod: '',
           monthlyBudget: '',

@@ -32,6 +32,7 @@ const OPTION_GROUP_BY_FIELD = {
   residenceRegion: 'marzRegion',
   yerevanDistricts: 'yerevanDistrict',
   marzRegions: 'marzRegion',
+  marzCity: 'marzCity',
   newsletter: 'newsletter',
 } as const;
 

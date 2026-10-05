@@ -1,3 +1,4 @@
+import { formatMarzSelectionList, formatResidenceMarzLabel } from '@/lib/questionnaire/marz-cities';
 import { getQuestionnaireLabel, questionnaireI18n } from '@/lib/questionnaire/i18n';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { formatSpyurkAnswersForDisplay, isSpyurkAnswers } from '@/lib/admin/spyurk-answers';
@@ -31,6 +32,16 @@ function optionLabel<G extends keyof typeof questionnaireI18n.options>(
   const groupMap = questionnaireI18n.options[group] as Record<string, Localized>;
   const entry = groupMap[key];
   return entry ? localizedLabel(entry) : key;
+}
+
+function marzLabelers(): {
+  region: (code: string) => string;
+  city: (code: string) => string;
+} {
+  return {
+    region: (code) => optionLabel('marzRegion', code),
+    city: (code) => optionLabel('marzCity', code),
+  };
 }
 
 function joinOptionLabels<G extends keyof typeof questionnaireI18n.options>(
@@ -74,7 +85,11 @@ function formatResidence(residence: Record<string, unknown>): AnswerDisplayRow[]
   }
 
   if (scope === 'marz' && typeof residence.region === 'string') {
-    pushRow(rows, questionLabel('residenceRegion'), optionLabel('marzRegion', residence.region));
+    pushRow(
+      rows,
+      questionLabel('residenceRegion'),
+      formatResidenceMarzLabel(residence.region, residence.city, residence.cityOther, marzLabelers()),
+    );
   }
 
   if (scope === 'abroad' && typeof residence.country === 'string') {
@@ -104,7 +119,11 @@ function formatLocationChoice(
 
     const regions = stringArray(locationSeek.regions);
     if (regions.length > 0) {
-      pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
+      pushRow(
+        rows,
+        questionLabel('marzRegions'),
+        formatMarzSelectionList(regions, locationSeek.marzCities, marzLabelers()),
+      );
     }
 
     if (typeof locationSeek.other === 'string' && locationSeek.other) {
@@ -134,7 +153,11 @@ function formatLocationChoice(
     );
   }
   if (regions.length > 0) {
-    pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
+    pushRow(
+      rows,
+      questionLabel('marzRegions'),
+      formatMarzSelectionList(regions, locationSeek.marzCities, marzLabelers()),
+    );
   }
   if (countries.length > 0) {
     pushRow(rows, questionLabel('abroadCountries'), joinOptionLabels('abroadCountry', countries));
@@ -299,7 +322,11 @@ function formatMarketResearchAnswers(a: Record<string, unknown>, rows: AnswerDis
         );
       }
       if (regions.length > 0) {
-        pushRow(rows, questionLabel('marzRegions'), joinOptionLabels('marzRegion', regions));
+        pushRow(
+          rows,
+          questionLabel('marzRegions'),
+          formatMarzSelectionList(regions, location.marzCities, marzLabelers()),
+        );
       }
       if (typeof location.abroadCountry === 'string') {
         pushRow(rows, questionLabel('interestedWhereOther'), location.abroadCountry);

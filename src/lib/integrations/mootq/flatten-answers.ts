@@ -1,4 +1,6 @@
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
+import { MARZ_CITY_REGIONS } from '@/lib/questionnaire/marz-cities';
+import type { MarzCities } from '@/lib/questionnaire/marz-cities';
 import { formChannelFromVersion, isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
 import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import type {
@@ -65,7 +67,12 @@ function looksLikeSpyurkAnswers(answers: unknown): boolean {
   }
 
   const residence = answers.residence;
-  return residence !== null && typeof residence === 'object' && 'city' in residence;
+  if (residence === null || typeof residence !== 'object') {
+    return false;
+  }
+
+  const record = residence as Record<string, unknown>;
+  return typeof record.city === 'string' && typeof record.scope !== 'string';
 }
 
 function flattenParsedAnswers(answers: QuestionnaireAnswers): MootqAnswers {
@@ -139,6 +146,8 @@ function assignResidence(target: MootqAnswers, residence: ResidencePlace): void 
   }
   if (residence.scope === 'marz') {
     target.residence_region = residence.region;
+    assignOptional(target, 'residence_marz_city', residence.city);
+    assignOptional(target, 'residence_marz_city_other', residence.cityOther);
     return;
   }
   target.residence_country = residence.country;
@@ -151,6 +160,7 @@ function assignLocationChoice(target: MootqAnswers, locationSeek: LocationChoice
   if (locationSeek.marzRegions.length > 0) {
     target.location_seek_regions = locationSeek.marzRegions;
   }
+  assignMarzCityWire(target, 'location_seek_marz_cities', 'location_seek_marz_city_other', locationSeek.marzCities);
   if (locationSeek.abroadCountries.length > 0) {
     target.location_seek_abroad_countries = locationSeek.abroadCountries;
   }
@@ -169,6 +179,7 @@ function assignResearchLocation(target: MootqAnswers, location: ResearchLocation
   if (location.marzRegions.length > 0) {
     target.research_regions = location.marzRegions;
   }
+  assignMarzCityWire(target, 'research_marz_cities', 'research_marz_city_other', location.marzCities);
   assignOptional(target, 'research_abroad_country', location.abroadCountry);
 }
 
@@ -241,6 +252,37 @@ function flattenSpyurkMarketResearch(
   flat.armenia_visit_timing = answers.armeniaVisitTiming;
   assignSpyurkPropertyCountry(flat, answers.propertyCountry);
   return flat;
+}
+
+function assignMarzCityWire(
+  target: MootqAnswers,
+  citiesKey: string,
+  otherKey: string,
+  cities: MarzCities | undefined,
+): void {
+  if (!cities) {
+    return;
+  }
+
+  const codes: string[] = [];
+  const others: string[] = [];
+  for (const region of MARZ_CITY_REGIONS) {
+    const entry = cities[region];
+    if (!entry) {
+      continue;
+    }
+    codes.push(`${region}:${entry.city}`);
+    if (entry.other) {
+      others.push(`${region}:${entry.other}`);
+    }
+  }
+
+  if (codes.length > 0) {
+    target[citiesKey] = codes;
+  }
+  if (others.length > 0) {
+    target[otherKey] = others;
+  }
 }
 
 function assignSpyurkResidence(target: MootqAnswers, residence: SpyurkResidence): void {
