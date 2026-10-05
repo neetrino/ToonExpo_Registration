@@ -70,6 +70,32 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(result.newsletter).toBe('No');
   });
 
+  it('writes the marz city beside the region for sheet and csv export', () => {
+    const result = flattenRegistrationAnswersForExport(
+      {
+        ageBand: '25-34',
+        residence: { scope: 'marz', region: 'aragatsotn', city: 'ashtarak' },
+        visitPurpose: 'own_residence',
+        interestType: 'apartment_new',
+        locationSeek: {
+          yerevanDistricts: [],
+          marzRegions: ['ararat', 'lori'],
+          marzCities: { ararat: { city: 'other', other: 'Վեդի' } },
+          abroadCountries: [],
+        },
+        areaSqm: '70-90',
+        purchaseMethod: 'cash',
+        monthlyBudget: 'paying_cash',
+        decisionStage: 'just_researching',
+        newsletter: false,
+      },
+      'hy',
+    );
+
+    expect(result.residenceDetail).toBe('Արագածոտնի մարզ — Աշտարակ');
+    expect(result.marzRegions).toBe('Արարատի մարզ — Վեդի, Լոռու մարզ');
+  });
+
   it('returns empty columns for missing answers', () => {
     const result = flattenRegistrationAnswersForExport(null, 'en');
     expect(result.visitPurpose).toBe('');

@@ -109,7 +109,7 @@ describe('buildMootqPushPayload', () => {
       'Վարձակալությունից պասիվ եկամուտ ստանալու համար',
     );
     expect(payload.answers[MOOTQ_FIELD.investmentAreaSqm]).toBe('50 - 70 քմ');
-    expect(payload.answers[MOOTQ_FIELD.investmentPurchaseMethod]).toBe('Կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.investmentPurchaseMethod]).toBe('Կանխիկ (100% վճարում)');
     expect(payload.answers[MOOTQ_FIELD.investmentTimeline]).toBe('Մինչև 3 ամսվա ընթացքում');
     expect(payload.answers[MOOTQ_FIELD.investmentBudgetUsd]).toBe('Մինչև 150․000 ԱՄՆ դոլար');
     expect(payload.answers[MOOTQ_FIELD.priorInvestmentExperience]).toBe(
@@ -146,7 +146,7 @@ describe('buildMootqPushPayload', () => {
     expect(payload.answers[MOOTQ_FIELD.residenceLocationScope]).toBe('Երևան');
     expect(payload.answers[MOOTQ_FIELD.residenceLocationDetails]).toEqual(['Կենտրոն']);
     expect(payload.answers[MOOTQ_FIELD.residenceAreaSqm]).toBe('50 - 70 քմ');
-    expect(payload.answers[MOOTQ_FIELD.residencePurchaseMethod]).toBe('Կանխիկ');
+    expect(payload.answers[MOOTQ_FIELD.residencePurchaseMethod]).toBe('Կանխիկ (100% վճարում)');
     expect(payload.answers[MOOTQ_FIELD.monthlyBudget]).toBe('Ձեռք եմ բերելու կանխիկ');
     expect(payload.answers[MOOTQ_FIELD.decisionStage]).toBe(
       'Պատրաստ եմ գործարք իրականացնել մոտ ժամանակում',

@@ -51,6 +51,8 @@ export const questionnaireI18n = {
     ),
     yerevanDistricts: L('Երևան', 'Yerevan', 'Ереван'),
     marzRegions: L('Մարզ', 'Region', 'Области Армении'),
+    marzCity: L('Քաղաք', 'City', 'Город'),
+    marzCityOther: L('Այլ (խնդրում ենք նշել)', 'Other (please specify)', 'Другое (укажите)'),
     areaSqm: L(
       'Քանի՞ քմ մակերեսով անշարժ գույք եք փնտրում',
       'What property size are you looking for?',
@@ -228,6 +230,16 @@ export const questionnaireI18n = {
       vayots_dzor: L('Վայոց ձորի մարզ', 'Vayots Dzor', 'Вайоцдзор'),
       tavush: L('Տավուշի մարզ', 'Tavush', 'Тавуш'),
     },
+    marzCity: {
+      ashtarak: L('Աշտարակ', 'Ashtarak', 'Аштарак'),
+      artashat: L('Արտաշատ', 'Artashat', 'Арташат'),
+      masis: L('Մասիս', 'Masis', 'Масис'),
+      abovyan: L('Աբովյան', 'Abovyan', 'Абовян'),
+      tsaghkadzor: L('Ծաղկաձոր', 'Tsaghkadzor', 'Цахкадзор'),
+      yeghvard: L('Եղվարդ', 'Yeghvard', 'Егвард'),
+      dilijan: L('Դիլիջան', 'Dilijan', 'Дилижан'),
+      other: L('Այլ', 'Other', 'Другое'),
+    },
     areaSqm: {
       up_to_50: L('Մինչև 50 քմ', 'Up to 50 sq. m', 'До 50 кв. м'),
       '50-70': L('50 - 70 քմ', '50–70 sq. m', '50–70 кв. м'),
@@ -236,12 +248,12 @@ export const questionnaireI18n = {
       '120_plus': L('120 քմ +', '120+ sq. m', '120 кв. м +'),
     },
     purchaseMethod: {
-      cash: L('Կանխիկ', 'Cash', 'Наличными'),
+      cash: L('Կանխիկ (100% վճարում)', 'Cash (100% payment)', 'Наличными (100% оплата)'),
       mortgage: L('Բնակարանային հիփոթեք', 'Mortgage', 'Ипотечный кредит'),
       installment: L(
-        'Տարաժամկետ վճարում (Կառուցապատողի ապառիկ)',
-        'Installment payment plan offered by the developer',
-        'Рассрочка (рассрочка от застройщика)',
+        'Տարաժամկետ վճարում (Կառուցապատողին)',
+        'Installment payment (to the developer)',
+        'Рассрочка (застройщику)',
       ),
       mixed: L(
         'Կանխիկ + Հիփոթեքային վարկ (Խառը տարբերակ)',

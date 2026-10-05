@@ -18,7 +18,10 @@ export function isSpyurkAnswers(answers: unknown, formVersion?: string | null): 
   if (!isRecord(answers)) {
     return false;
   }
-  return isRecord(answers.residence) && typeof answers.residence.city === 'string';
+  const residence = answers.residence;
+  return (
+    isRecord(residence) && typeof residence.city === 'string' && typeof residence.scope !== 'string'
+  );
 }
 
 function stringArray(value: unknown): string[] {
