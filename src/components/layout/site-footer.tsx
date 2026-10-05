@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
+import { neetrinoCreditHref } from '@/lib/brand/site';
 import { Link } from '@/i18n/navigation';
 
-const NEETRINO_URL = 'https://www.neetrino.com/';
+const NEETRINO_URL = neetrinoCreditHref();
 const FOOTER_LOCALE = 'en';
 
 const footerLinkClassName =

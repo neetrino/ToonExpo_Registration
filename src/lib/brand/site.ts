@@ -10,3 +10,14 @@ export const BRAND_HIGHLIGHT = '#FFD700';
 export function getMetadataBase(): URL {
   return new URL(process.env.SITE_URL ?? 'http://localhost:3000');
 }
+
+/** Public production host. Credit links must not follow SITE_URL, which is a local or preview host outside production. */
+const PRODUCTION_SITE_HOST = 'reg.toonexpo.com';
+const NEETRINO_ORIGIN = 'https://neetrino.com';
+
+/** Footer credit link. `utm_source` is always the production host. */
+export function neetrinoCreditHref(): string {
+  const url = new URL(NEETRINO_ORIGIN);
+  url.searchParams.set('utm_source', PRODUCTION_SITE_HOST);
+  return url.toString();
+}
