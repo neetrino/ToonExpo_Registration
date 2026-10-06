@@ -22,7 +22,7 @@ export function SiteHeader() {
             priority
             className="shrink-0 transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
-          <span className="truncate font-display text-base font-bold tracking-tight text-white sm:text-lg">
+          <span className="min-w-0 font-display text-xs font-bold leading-tight tracking-tight text-white sm:text-sm">
             {t('siteName')}
           </span>
         </Link>
