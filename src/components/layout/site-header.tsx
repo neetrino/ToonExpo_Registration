@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { ToonExpoLogo } from '@/components/brand/toon-expo-logo';
 import { LocaleSwitcher } from '@/components/layout/locale-switcher';
-import { scrollToSection } from '@/components/layout/scroll-to-section';
+import { SectionLink } from '@/components/layout/section-link';
 
 export function SiteHeader() {
   const t = useTranslations('common');
@@ -42,12 +42,11 @@ function HeaderRegistrationLink({ label }: { label: string }) {
   }
 
   return (
-    <Link
-      href={{ pathname: '/rf', hash: 'registration' }}
-      onClick={(event) => scrollToSection(event, 'registration')}
+    <SectionLink
+      sectionId="registration"
       className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full bg-cta px-3 text-xs font-semibold text-white transition-[filter] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:px-4 sm:text-sm"
     >
       {label}
-    </Link>
+    </SectionLink>
   );
 }

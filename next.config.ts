@@ -6,6 +6,18 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const isDev = process.env.NODE_ENV === 'development';
 
+/**
+ * Dev-only. Next.js allows `/_next` assets from localhost, not from a LAN IP.
+ * A phone opening the dev server by IP otherwise gets HTML without client JS,
+ * so the locale buttons never run. Production does not apply this check.
+ * https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ */
+const PRIVATE_LAN_DEV_ORIGINS = [
+  '10.*.*.*',
+  '192.168.*.*',
+  ...Array.from({ length: 16 }, (_, index) => `172.${16 + index}.*.*`),
+];
+
 const DENY_FRAMING_HEADER = { key: 'X-Frame-Options', value: 'DENY' } as const;
 
 const SECURITY_HEADERS = [
@@ -36,6 +48,7 @@ const NO_STORE_HEADERS = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  allowedDevOrigins: PRIVATE_LAN_DEV_ORIGINS,
   async headers() {
     return [
       {

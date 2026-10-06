@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import { readHeroAdvantages, type HeroAdvantage } from '@/components/landing/landing-copy';
+import { SectionLink } from '@/components/layout/section-link';
 import { cn } from '@/lib/utils';
 import {
   CalendarIcon,
@@ -126,15 +127,15 @@ function HeroActions({
 }) {
   return (
     <div className={cn('flex flex-wrap items-center gap-x-5 gap-y-3', className)}>
-      <a
-        href="#registration"
+      <SectionLink
+        sectionId="registration"
         className="inline-flex h-12 items-center justify-center rounded-lg bg-cta px-6 text-sm font-semibold text-white transition-colors hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
       >
         {registerLabel}
-      </a>
-      <a href="#how-it-works" className={heroLinkClassName}>
+      </SectionLink>
+      <SectionLink sectionId="how-it-works" className={heroLinkClassName}>
         {howItWorksLabel}
-      </a>
+      </SectionLink>
     </div>
   );
 }
