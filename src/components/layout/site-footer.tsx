@@ -4,7 +4,6 @@ import { neetrinoCreditHref } from '@/lib/brand/site';
 import { Link } from '@/i18n/navigation';
 
 const NEETRINO_URL = neetrinoCreditHref();
-const FOOTER_LOCALE = 'en';
 
 const footerLinkClassName =
   'rounded-sm underline decoration-white/50 underline-offset-4 transition-colors hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none';
@@ -26,7 +25,7 @@ function CreatorLink({ children }: { children: ReactNode }) {
 }
 
 export async function SiteFooter() {
-  const t = await getTranslations({ locale: FOOTER_LOCALE, namespace: 'landing' });
+  const t = await getTranslations('landing');
 
   return (
     <footer className="border-t border-white/10 bg-primary text-white">

@@ -11,6 +11,10 @@ const geistSans = Geist({
   variable: '--font-geist-sans',
 });
 
+/** Removes a fragment before paint so refresh does not jump to an in-page anchor. */
+const STRIP_LOCATION_HASH_SCRIPT =
+  'if(location.hash){history.replaceState(history.state,"",location.pathname+location.search);scrollTo(0,0);document.addEventListener("DOMContentLoaded",function(){scrollTo(0,0)});addEventListener("load",function(){scrollTo(0,0)})}';
+
 export const viewport: Viewport = {
   themeColor: '#00303D',
 };
@@ -46,6 +50,10 @@ export default function RootLayout({
   return (
     <html lang="hy" suppressHydrationWarning>
       <head>
+        <script
+          id="strip-location-hash"
+          dangerouslySetInnerHTML={{ __html: STRIP_LOCATION_HASH_SCRIPT }}
+        />
         {metaPixelSnippet ? (
           <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: metaPixelSnippet }} />
         ) : null}

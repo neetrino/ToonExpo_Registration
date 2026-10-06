@@ -1,8 +1,9 @@
 {
   "common": {
-    "siteName": "TOON EXPO",
+    "siteName": "TOON EXPO.Invest 2026 Vol.2",
     "privacy": "Конфиденциальность",
-    "languageSwitcher": "Язык"
+    "languageSwitcher": "Язык",
+    "registration": "Регистрация"
   },
   "landing": {
     "eyebrow": "Выставка недвижимости и инвестиций",
@@ -38,7 +39,26 @@
     "copyright": "Авторские права © 2026 Toon Expo. Все права защищены. Создано <creator>Neetrino</creator>",
     "aboutToggle": "О выставке",
     "titleBrand": "TOON EXPO",
-    "titleEvent": "Invest 2026 Vol. 2"
+    "titleEvent": "Invest 2026 Vol. 2",
+    "heroTitle": "TOON EXPO",
+    "heroTitleAccent": "крупнейшая в регионе выставка недвижимости",
+    "heroPosterAlt": "TOON EXPO Real Estate Expo 2026, 13, 14 и 15 ноября. Живёте в России и планируете купить квартиру в Армении?",
+    "heroHoursValue": "11:00–21:00",
+    "heroVenueValue": "Ереван, Меридиан Экспо Центр",
+    "freeEntry": "Вход бесплатный. Регистрация обязательна.",
+    "heroAdvantages": [
+      { "lead": "", "text": "Специальные предложения" },
+      { "lead": "", "text": "Эксклюзивные скидки" },
+      { "lead": "", "text": "Гибкие условия оплаты" },
+      { "lead": "150+", "text": "проектов из Армении и других стран" }
+    ],
+    "howItWorksTitle": "Как это работает",
+    "howItWorksSteps": [
+      "Живёте в России и планируете купить квартиру в Армении или за рубежом?",
+      "13-15 ноября приезжайте на TOON EXPO — застройщики и их проекты в одном месте.",
+      "Зарегистрируйтесь заранее и ознакомьтесь с проектами на сайте.",
+      "Получайте специальные предложения и уведомления о выставке."
+    ]
   },
   "privacy": {
     "title": "Политика конфиденциальности персональных данных",
@@ -119,10 +139,13 @@
   "form": {
     "firstName": "Имя",
     "firstNamePlaceholder": "John",
+    "rfFirstNamePlaceholder": "Иван",
     "lastName": "Фамилия",
     "lastNamePlaceholder": "Doe",
+    "rfLastNamePlaceholder": "Иванов",
     "email": "Эл. почта",
     "emailPlaceholder": "john.doe@gmail.com",
+    "rfEmailPlaceholder": "ivanIvanov@your-email.com",
     "phone": "Телефон",
     "phoneCountry": "Код страны",
     "phoneCountrySearch": "Поиск по стране или коду",

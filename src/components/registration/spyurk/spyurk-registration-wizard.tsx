@@ -266,6 +266,11 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
               state={state}
               errors={stepProps.errors}
               disabled={stepProps.disabled}
+              placeholders={{
+                firstName: tForm('rfFirstNamePlaceholder'),
+                lastName: tForm('rfLastNamePlaceholder'),
+                email: tForm('rfEmailPlaceholder'),
+              }}
               onUpdate={(key, value) => {
                 updateField(key, value as never);
               }}

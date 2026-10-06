@@ -1,19 +1,20 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { ToonExpoLogo } from '@/components/brand/toon-expo-logo';
 import { LocaleSwitcher } from '@/components/layout/locale-switcher';
+import { SectionLink } from '@/components/layout/section-link';
 
 export function SiteHeader() {
   const t = useTranslations('common');
 
   return (
     <header className="border-b border-white/10 bg-primary">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5">
         <Link
           href="/"
-          className="group flex items-center gap-2.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+          className="group flex min-w-0 items-center gap-2.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
         >
           <ToonExpoLogo
             size={36}
@@ -21,12 +22,31 @@ export function SiteHeader() {
             priority
             className="shrink-0 transition-transform duration-200 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
-          <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
+          <span className="min-w-0 font-display text-xs font-bold leading-tight tracking-tight text-white sm:text-sm">
             {t('siteName')}
           </span>
         </Link>
-        <LocaleSwitcher tone="inverse" />
+        <div className="flex shrink-0 items-center gap-2">
+          <HeaderRegistrationLink label={t('registration')} />
+          <LocaleSwitcher tone="inverse" />
+        </div>
       </div>
     </header>
+  );
+}
+
+function HeaderRegistrationLink({ label }: { label: string }) {
+  const pathname = usePathname();
+  if (pathname !== '/rf') {
+    return null;
+  }
+
+  return (
+    <SectionLink
+      sectionId="registration"
+      className="inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full bg-cta px-3 text-xs font-semibold text-white transition-[filter] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:px-4 sm:text-sm"
+    >
+      {label}
+    </SectionLink>
   );
 }
