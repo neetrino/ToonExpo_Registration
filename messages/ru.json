@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "TOON EXPO",
+    "siteName": "TOON EXPO.Invest 2026 Vol.2",
     "privacy": "Конфиденциальность",
     "languageSwitcher": "Язык",
     "registration": "Регистрация"
@@ -45,7 +45,7 @@
     "heroPosterAlt": "TOON EXPO Real Estate Expo 2026, 13, 14 и 15 ноября. Живёте в России и планируете купить квартиру в Армении?",
     "heroHoursValue": "11:00–21:00",
     "heroVenueValue": "Ереван, Меридиан Экспо Центр",
-    "freeEntry": "Вход бесплатный",
+    "freeEntry": "Вход бесплатный. Регистрация обязательна.",
     "heroAdvantages": [
       { "lead": "", "text": "Специальные предложения" },
       { "lead": "", "text": "Эксклюзивные скидки" },
@@ -139,10 +139,13 @@
   "form": {
     "firstName": "Имя",
     "firstNamePlaceholder": "John",
+    "rfFirstNamePlaceholder": "Иван",
     "lastName": "Фамилия",
     "lastNamePlaceholder": "Doe",
+    "rfLastNamePlaceholder": "Иванов",
     "email": "Эл. почта",
     "emailPlaceholder": "john.doe@gmail.com",
+    "rfEmailPlaceholder": "ivanIvanov@your-email.com",
     "phone": "Телефон",
     "phoneCountry": "Код страны",
     "phoneCountrySearch": "Поиск по стране или коду",

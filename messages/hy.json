@@ -1,6 +1,6 @@
 {
   "common": {
-    "siteName": "TOON EXPO",
+    "siteName": "TOON EXPO.Invest 2026 Vol.2",
     "privacy": "Գաղտնիություն",
     "languageSwitcher": "Լեզու",
     "registration": "Գրանցում"
@@ -45,7 +45,7 @@
     "heroPosterAlt": "TOON EXPO Real Estate Expo 2026, նոյեմբերի 13, 14 և 15։ Ապրում եք Ռուսաստանում և պլանավորում եք բնակարան գնել Հայաստանում՞",
     "heroHoursValue": "11:00–21:00",
     "heroVenueValue": "Երևան, Մերիդիան Էքսպո կենտրոն",
-    "freeEntry": "Մուտքն անվճար է",
+    "freeEntry": "Մուտքն անվճար է։ Գրանցումը պարտադիր է։",
     "heroAdvantages": [
       { "lead": "", "text": "Հատուկ առաջարկներ" },
       { "lead": "", "text": "Բացառիկ զեղչեր" },
@@ -139,10 +139,13 @@
   "form": {
     "firstName": "Անուն",
     "firstNamePlaceholder": "John",
+    "rfFirstNamePlaceholder": "Иван",
     "lastName": "Ազգանուն",
     "lastNamePlaceholder": "Doe",
+    "rfLastNamePlaceholder": "Иванов",
     "email": "Էլ. փոստ",
     "emailPlaceholder": "john.doe@gmail.com",
+    "rfEmailPlaceholder": "ivanIvanov@your-email.com",
     "phone": "Հեռախոս",
     "phoneCountry": "Երկրի կոդ",
     "phoneCountrySearch": "Որոնել ըստ երկրի կամ կոդի",
