@@ -40,18 +40,17 @@
     "aboutToggle": "About the exhibition",
     "titleBrand": "TOON EXPO",
     "titleEvent": "Invest 2026 Vol. 2",
-    "heroTitle": "Want to buy a home in Armenia?",
-    "heroTitleAccent": "Choose it before the exhibition.",
-    "heroSubtitle": "Toon Expo is an exhibition of Armenia’s developers for Russian-speaking Armenians. Every project, price, and special offer — in one app before it starts.",
+    "heroTitle": "TOON EXPO",
+    "heroTitleAccent": "the largest real estate exhibition in the region",
     "heroPosterAlt": "TOON EXPO Real Estate Expo 2026, November 13, 14 and 15. Living in Russia and planning to buy an apartment in Armenia?",
     "heroHoursValue": "11:00–21:00",
     "heroVenueValue": "Yerevan, Meridian Expo Center",
     "freeEntry": "Free entry",
     "heroAdvantages": [
-      { "lead": "150+", "text": "projects in one place" },
-      { "lead": "", "text": "Prices and special offers before opening" },
-      { "lead": "", "text": "Armenia’s developers together" },
-      { "lead": "", "text": "Choose an apartment before the exhibition" }
+      { "lead": "", "text": "Special offers" },
+      { "lead": "", "text": "Exclusive discounts" },
+      { "lead": "", "text": "Flexible payment terms" },
+      { "lead": "150+", "text": "projects from Armenia and other countries" }
     ],
     "howItWorksTitle": "How it works",
     "howItWorksSteps": [
