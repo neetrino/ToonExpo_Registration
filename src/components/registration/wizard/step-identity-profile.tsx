@@ -23,11 +23,18 @@ type IdentityUpdater = (
   value: IdentityStepFields[keyof IdentityStepFields],
 ) => void;
 
+type IdentityPlaceholders = {
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
 type IdentityStepProps = {
   state: IdentityStepFields;
   errors: WizardFieldErrors;
   disabled: boolean;
   onUpdate: IdentityUpdater;
+  placeholders?: IdentityPlaceholders;
 };
 
 type StepProps = {
@@ -37,8 +44,17 @@ type StepProps = {
   onUpdate: <K extends keyof WizardState>(key: K, value: WizardState[K]) => void;
 };
 
-export function IdentityStep({ state, errors, disabled, onUpdate }: IdentityStepProps) {
+export function IdentityStep({
+  state,
+  errors,
+  disabled,
+  onUpdate,
+  placeholders,
+}: IdentityStepProps) {
   const tForm = useTranslations('form');
+  const firstNamePlaceholder = placeholders?.firstName ?? tForm('firstNamePlaceholder');
+  const lastNamePlaceholder = placeholders?.lastName ?? tForm('lastNamePlaceholder');
+  const emailPlaceholder = placeholders?.email ?? tForm('emailPlaceholder');
 
   return (
     <div className="space-y-5">
@@ -52,7 +68,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: IdentityStep
               id="firstName"
               name="firstName"
               autoComplete="given-name"
-              placeholder={tForm('firstNamePlaceholder')}
+              placeholder={firstNamePlaceholder}
               value={state.firstName}
               disabled={disabled}
               aria-invalid={Boolean(errors.firstName)}
@@ -69,7 +85,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: IdentityStep
               id="lastName"
               name="lastName"
               autoComplete="family-name"
-              placeholder={tForm('lastNamePlaceholder')}
+              placeholder={lastNamePlaceholder}
               value={state.lastName}
               disabled={disabled}
               aria-invalid={Boolean(errors.lastName)}
@@ -90,7 +106,7 @@ export function IdentityStep({ state, errors, disabled, onUpdate }: IdentityStep
             type="email"
             autoComplete="email"
             inputMode="email"
-            placeholder={tForm('emailPlaceholder')}
+            placeholder={emailPlaceholder}
             value={state.email}
             disabled={disabled}
             aria-invalid={Boolean(errors.email)}

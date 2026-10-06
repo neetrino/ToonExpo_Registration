@@ -139,10 +139,13 @@
   "form": {
     "firstName": "Անուն",
     "firstNamePlaceholder": "John",
+    "rfFirstNamePlaceholder": "Иван",
     "lastName": "Ազգանուն",
     "lastNamePlaceholder": "Doe",
+    "rfLastNamePlaceholder": "Иванов",
     "email": "Էլ. փոստ",
     "emailPlaceholder": "john.doe@gmail.com",
+    "rfEmailPlaceholder": "ivan.ivanov@gmail.com",
     "phone": "Հեռախոս",
     "phoneCountry": "Երկրի կոդ",
     "phoneCountrySearch": "Որոնել ըստ երկրի կամ կոդի",

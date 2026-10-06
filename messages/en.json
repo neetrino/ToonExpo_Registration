@@ -139,10 +139,13 @@
   "form": {
     "firstName": "First name",
     "firstNamePlaceholder": "John",
+    "rfFirstNamePlaceholder": "Иван",
     "lastName": "Last name",
     "lastNamePlaceholder": "Doe",
+    "rfLastNamePlaceholder": "Иванов",
     "email": "Email",
     "emailPlaceholder": "john.doe@gmail.com",
+    "rfEmailPlaceholder": "ivan.ivanov@gmail.com",
     "phone": "Phone",
     "phoneCountry": "Country code",
     "phoneCountrySearch": "Search by country or code",
