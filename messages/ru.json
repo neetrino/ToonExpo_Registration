@@ -145,7 +145,7 @@
     "rfLastNamePlaceholder": "Иванов",
     "email": "Эл. почта",
     "emailPlaceholder": "john.doe@gmail.com",
-    "rfEmailPlaceholder": "ivan.ivanov@gmail.com",
+    "rfEmailPlaceholder": "ivanIvanov@your-email.com",
     "phone": "Телефон",
     "phoneCountry": "Код страны",
     "phoneCountrySearch": "Поиск по стране или коду",
