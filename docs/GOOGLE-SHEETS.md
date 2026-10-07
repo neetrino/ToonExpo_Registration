@@ -79,6 +79,17 @@ Legacy English tab names `General` / `Spyurk RF` are renamed on the first succes
 
 ---
 
+## Rebuild tabs from Neon
+
+When a tab was cleared after rows were already marked sent, those rows are not appended again. Replace both tabs from Neon (TOON_EXPO only; Mootq stays out):
+
+```text
+pnpm exec tsx scripts/resync-sheets-from-db.ts
+pnpm exec tsx scripts/resync-sheets-from-db.ts --apply
+```
+
+The first command prints row counts. `--apply` calls Apps Script `action: "reset"` once per tab, then appends any TOON_EXPO registration created while the reset was running.
+
 ## Failure
 
 If the webhook is down, the registration is still saved. Fix the script / env, then cron (or a manual Bearer call to the internal process route) retries pending rows.
