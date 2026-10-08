@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/react';
 import { Geist } from 'next/font/google';
 import { buildMetaPixelSnippet, resolveMetaPixelId } from '@/lib/analytics/meta-pixel';
+import { buildYandexMetrikaSnippet, resolveYandexMetrikaId } from '@/lib/analytics/yandex-metrika';
 import { getMetadataBase, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from '@/lib/brand/site';
 import './fonts.css';
 import './globals.css';
@@ -46,6 +47,8 @@ export default function RootLayout({
 }>) {
   const metaPixelId = resolveMetaPixelId();
   const metaPixelSnippet = metaPixelId ? buildMetaPixelSnippet(metaPixelId) : '';
+  const yandexMetrikaId = resolveYandexMetrikaId();
+  const yandexMetrikaSnippet = yandexMetrikaId ? buildYandexMetrikaSnippet(yandexMetrikaId) : '';
 
   return (
     <html lang="hy" suppressHydrationWarning>
@@ -56,6 +59,9 @@ export default function RootLayout({
         />
         {metaPixelSnippet ? (
           <script id="meta-pixel" dangerouslySetInnerHTML={{ __html: metaPixelSnippet }} />
+        ) : null}
+        {yandexMetrikaSnippet ? (
+          <script id="yandex-metrika" dangerouslySetInnerHTML={{ __html: yandexMetrikaSnippet }} />
         ) : null}
       </head>
       <body className={`${geistSans.variable} min-h-dvh bg-primary antialiased`}>
