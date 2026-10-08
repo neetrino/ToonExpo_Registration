@@ -35,21 +35,38 @@ export function resolveYandexMetrikaId(
   return parseYandexMetrikaId(envValue);
 }
 
-/** Official Metrika loader + init. `counterId` must already be validated. */
+/**
+ * Official Metrika loader + init for public locale pages.
+ * `defer` skips the automatic hit so the app can send one hit per real navigation.
+ * `counterId` must already be validated.
+ */
 export function buildYandexMetrikaSnippet(counterId: string): string {
   const id = parseYandexMetrikaId(counterId);
   if (!id) {
     return '';
   }
 
-  return `(function(m,e,t,r,i,k,a){
-    m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-    m[i].l=1*new Date();
-    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-})(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${id}', 'ym');
-ym(${id}, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});`;
+  return `(function(){
+var p=location.pathname;
+if(p.indexOf('/admin')===0||p.indexOf('/ticket')===0)return;
+if(!/^\\/(hy|en|ru)(?:\\/|$)/.test(p))return;
+(function(m,e,t,r,i,k,a){
+m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();
+for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r)return;}
+k=e.createElement(t);a=e.getElementsByTagName(t)[0];k.async=1;k.src=r;a.parentNode.insertBefore(k,a);
+})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=${id}','ym');
+ym(${id},'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true,defer:true});
+})();`;
 }
+
+export type YandexMetrikaHitParams = {
+  title: string;
+  referer: string;
+};
+
+/** Previous page URL for the SPA hit chain. Empty until the first browser hit. */
+let previousMetricaUrl = '';
 
 export const YANDEX_QUESTION_VIEW_GOAL_PREFIX = 'rf_q_view_';
 export const YANDEX_QUESTION_DONE_GOAL_PREFIX = 'rf_q_done_';
@@ -66,8 +83,38 @@ function getYandexMetrikaCall(): YandexMetrikaCall | null {
   return (...args: unknown[]) => ym(Number(id), ...args);
 }
 
-export function hitYandexMetrika(url: string): void {
+export function hitYandexMetrika(url: string, params?: YandexMetrikaHitParams): void {
+  if (params) {
+    getYandexMetrikaCall()?.('hit', url, params);
+    return;
+  }
+
   getYandexMetrikaCall()?.('hit', url);
+}
+
+/**
+ * One Metrika page hit for the current URL.
+ * The first call uses `document.referrer`; later calls use the previous page URL.
+ * A repeated call for the same URL does not send another hit.
+ */
+export function trackYandexMetrikaPage(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const href = window.location.href;
+  if (href === previousMetricaUrl) {
+    return;
+  }
+
+  const referer = previousMetricaUrl || document.referrer;
+  hitYandexMetrika(href, { title: document.title, referer });
+  previousMetricaUrl = href;
+}
+
+/** Clears the SPA referer chain. Tests use this between cases. */
+export function resetYandexMetrikaPageTracking(): void {
+  previousMetricaUrl = '';
 }
 
 export function trackYandexRegistrationComplete(): void {

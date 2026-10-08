@@ -32,7 +32,7 @@
 - QR contains only the 13-character ticket code (`^(TE|MQ)[A-Z0-9]{11}$`) and no PII.
 - Hosted page uses a separate high-entropy token.
 - Ticket/PNG responses are private/no-store/noindex.
-- Use a restrictive referrer policy and keep ticket routes out of analytics. GTM loads on `[locale]` public routes. Meta Pixel is the general questionnaire only. Yandex Metrika is the Spyurk RF form (`/rf`) only. Neither loads on `/ticket` or `/admin`.
+- Use a restrictive referrer policy and keep ticket routes out of analytics. GTM loads on `[locale]` public routes. Meta Pixel is the general questionnaire only. Yandex Metrika is on public locale routes (general and Spyurk RF). Neither loads on `/ticket` or `/admin`.
 - Permit framing by `facebook.com` only on the general public questionnaire routes so Meta Event Setup Tool can run. Preserve clickjacking protection on admin, ticket, API and Spyurk routes.
 - Do not log codes, tokens or full URLs.
 - Screenshots can be forwarded; admission/duplicate-scan enforcement belongs to Mootq.

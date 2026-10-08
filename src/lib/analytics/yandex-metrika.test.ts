@@ -5,7 +5,9 @@ import {
   buildYandexMetrikaSnippet,
   hitYandexMetrika,
   parseYandexMetrikaId,
+  resetYandexMetrikaPageTracking,
   resolveYandexMetrikaId,
+  trackYandexMetrikaPage,
   trackYandexRegistrationComplete,
 } from '@/lib/analytics/yandex-metrika';
 
@@ -37,7 +39,10 @@ describe('buildYandexMetrikaSnippet', () => {
     const snippet = buildYandexMetrikaSnippet(DEFAULT_YANDEX_METRIKA_ID);
 
     expect(snippet).toContain(`tag.js?id=${DEFAULT_YANDEX_METRIKA_ID}`);
-    expect(snippet).toContain(`ym(${DEFAULT_YANDEX_METRIKA_ID}, 'init'`);
+    expect(snippet).toContain(`ym(${DEFAULT_YANDEX_METRIKA_ID},'init'`);
+    expect(snippet).toContain('defer:true');
+    expect(snippet).toContain("p.indexOf('/admin')===0");
+    expect(snippet).toContain("p.indexOf('/ticket')===0");
     expect(buildYandexMetrikaSnippet('not-an-id')).toBe('');
   });
 });
@@ -45,6 +50,7 @@ describe('buildYandexMetrikaSnippet', () => {
 describe('Yandex Metrika client calls', () => {
   afterEach(() => {
     delete window.ym;
+    resetYandexMetrikaPageTracking();
   });
 
   it('sends a hit and a registration goal when ym is present', () => {
@@ -69,5 +75,36 @@ describe('Yandex Metrika client calls', () => {
   it('no-ops when ym is missing', () => {
     expect(() => hitYandexMetrika('https://reg.toonexpo.com/hy')).not.toThrow();
     expect(() => trackYandexRegistrationComplete()).not.toThrow();
+  });
+
+  it('chains SPA hits from the external referrer to the previous page', () => {
+    const ym = vi.fn();
+    window.ym = ym;
+    document.title = 'Toon Expo';
+    Object.defineProperty(document, 'referrer', {
+      configurable: true,
+      value: 'https://example.com/from',
+    });
+
+    window.history.pushState({}, '', '/hy');
+    trackYandexMetrikaPage();
+    const firstHref = location.href;
+
+    expect(ym).toHaveBeenCalledWith(Number(DEFAULT_YANDEX_METRIKA_ID), 'hit', firstHref, {
+      title: 'Toon Expo',
+      referer: 'https://example.com/from',
+    });
+
+    document.title = 'Toon Expo EN';
+    window.history.pushState({}, '', '/en');
+    trackYandexMetrikaPage();
+
+    expect(ym).toHaveBeenLastCalledWith(Number(DEFAULT_YANDEX_METRIKA_ID), 'hit', location.href, {
+      title: 'Toon Expo EN',
+      referer: firstHref,
+    });
+
+    trackYandexMetrikaPage();
+    expect(ym).toHaveBeenCalledTimes(2);
   });
 });

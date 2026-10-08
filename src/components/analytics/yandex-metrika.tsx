@@ -1,10 +1,10 @@
-import Script from 'next/script';
-import { buildYandexMetrikaSnippet, parseYandexMetrikaId } from '@/lib/analytics/yandex-metrika';
+import { parseYandexMetrikaId } from '@/lib/analytics/yandex-metrika';
 
 type YandexMetrikaProps = {
   counterId: string;
 };
 
+/** Noscript beacon for visitors without JavaScript. The loader lives in the document head. */
 export function YandexMetrika({ counterId }: YandexMetrikaProps) {
   const safeId = parseYandexMetrikaId(counterId);
   if (!safeId) {
@@ -12,23 +12,16 @@ export function YandexMetrika({ counterId }: YandexMetrikaProps) {
   }
 
   return (
-    <>
-      <Script
-        id="yandex-metrika"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: buildYandexMetrikaSnippet(safeId) }}
-      />
-      <noscript>
-        <div>
-          {/* Tracking pixel: must be a raw img, not next/image. */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- Metrika noscript beacon */}
-          <img
-            src={`https://mc.yandex.ru/watch/${safeId}`}
-            style={{ position: 'absolute', left: '-9999px' }}
-            alt=""
-          />
-        </div>
-      </noscript>
-    </>
+    <noscript>
+      <div>
+        {/* Tracking pixel: must be a raw img, not next/image. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- Metrika noscript beacon */}
+        <img
+          src={`https://mc.yandex.ru/watch/${safeId}`}
+          style={{ position: 'absolute', left: '-9999px' }}
+          alt=""
+        />
+      </div>
+    </noscript>
   );
 }
