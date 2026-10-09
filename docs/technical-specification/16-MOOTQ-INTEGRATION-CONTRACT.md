@@ -141,42 +141,43 @@ Accept: application/json
 
 Mootq provides the full production and non-production URLs. The path above is the Mootq draft path.
 
-Example:
+**Update 2026-10-09.** Mootq replaced the registration body with this order payload. `per_user` keys are the question ids from their market-research example. `external_order_ref` is the Toon Expo registration id. Ticket code, locale, and UTM stay in Toon Expo and are not sent in this body. Question ids for the investment, own-residence, and Spyurk-only branches were not in that example, so those answers are not invented.
 
 ```json
 {
-  "ticketCode": "TE8D6N4T7C2X9",
-  "registeredAt": "2026-07-27T10:15:00.000Z",
-  "firstName": "Example",
-  "lastName": "Visitor",
-  "email": "visitor@example.com",
-  "phone": "+37400000000",
-  "locale": "hy",
-  "answers": {
-    "form_version": "2026-vis-reg-v2",
-    "form_channel": "GENERAL",
-    "age_band": "25-34",
-    "residence_scope": "yerevan",
-    "residence_district": "kentron",
-    "visit_purpose": "investment",
-    "investment_property_type": "apartment",
-    "location_seek_districts": ["kentron"],
-    "investment_goal": "rental_income",
-    "area_sqm": "70-90",
-    "purchase_method": "cash",
-    "investment_timeline": "6-12_months",
-    "investment_budget_usd": "150k-300k",
-    "prior_investment_experience": "no_first"
+  "event_id": 21,
+  "items": [{ "ticket_type_id": 56, "quantity": 1 }],
+  "buyer": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "+37499000001",
+    "email": "john.doe@example.com"
   },
-  "utmSource": "facebook",
-  "utmMedium": "video",
-  "utmCampaign": "tey26"
+  "answers": {
+    "per_order": {},
+    "per_user": {
+      "130": "John",
+      "131": "Doe",
+      "132": "+37499000001",
+      "133": "john.doe@example.com",
+      "134": "25-34 տարեկան",
+      "135": "Երևան",
+      "136": "Կենտրոն",
+      "139": "Շուկայի ուսումնասիրություն և ծանոթացում",
+      "167": ["Նորակառույց բնակարաններ"],
+      "168": "Ապագա բնակարան գնելու համար",
+      "169": "Երևան",
+      "170": ["Կենտրոն"],
+      "173": "Մինչև 3 ամսվա ընթացքում",
+      "152": "Ոչ"
+    },
+    "per_ticket": {}
+  },
+  "external_order_ref": "<sourceRegistrationId>"
 }
 ```
 
-`utmSource`, `utmMedium`, and `utmCampaign` are omitted when not captured. They are never sent as JSON `null`.
-
-`sourceRegistrationId` and `sourceSystem` must not appear in this body.
+The field table below describes the previous body and is kept for the signed-off contract history.
 
 ### 5.1 Fields
 

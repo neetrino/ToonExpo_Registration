@@ -85,10 +85,13 @@ function looksLikeSpyurk(answers: unknown): boolean {
 }
 
 function assignGeneralMappedFields(out: MootqAnswers, answers: QuestionnaireAnswers): void {
-  out[MOOTQ_FIELD.ageBand] = optionLabel('ageBand', answers.ageBand);
-  out[MOOTQ_FIELD.residenceScope] = optionLabel('locationSeekScope', answers.residence.scope);
+  out[MOOTQ_FIELD.ageBand] = toMootqOptionLabel('ageBand', answers.ageBand);
+  out[MOOTQ_FIELD.residenceScope] = toMootqOptionLabel(
+    'locationSeekScope',
+    answers.residence.scope,
+  );
   assignResidenceDetail(out, answers.residence);
-  out[MOOTQ_FIELD.visitPurpose] = optionLabel('visitPurpose', answers.visitPurpose);
+  out[MOOTQ_FIELD.visitPurpose] = toMootqOptionLabel('visitPurpose', answers.visitPurpose);
 
   switch (answers.visitPurpose) {
     case 'market_research':
@@ -108,33 +111,36 @@ function assignGeneralMappedFields(out: MootqAnswers, answers: QuestionnaireAnsw
 }
 
 function assignSpyurkMappedFields(out: MootqAnswers, answers: SpyurkQuestionnaireAnswers): void {
-  out[MOOTQ_FIELD.ageBand] = optionLabel('ageBand', answers.ageBand);
-  out[MOOTQ_FIELD.residenceScope] = optionLabel('locationSeekScope', 'abroad');
+  out[MOOTQ_FIELD.ageBand] = toMootqOptionLabel('ageBand', answers.ageBand);
+  out[MOOTQ_FIELD.residenceScope] = toMootqOptionLabel('locationSeekScope', 'abroad');
   out[MOOTQ_FIELD.residenceDetail] = `${answers.residence.city}, ${answers.residence.region}`;
-  out[MOOTQ_FIELD.visitPurpose] = optionLabel('visitPurpose', answers.visitPurpose);
+  out[MOOTQ_FIELD.visitPurpose] = toMootqOptionLabel('visitPurpose', answers.visitPurpose);
 
   if (answers.visitPurpose === 'market_research') {
     out[MOOTQ_FIELD.marketInterests] = answers.marketInterests.map((code) =>
-      optionLabel('marketInterest', code),
+      toMootqOptionLabel('marketInterest', code),
     );
-    out[MOOTQ_FIELD.researchGoal] = optionLabel('researchGoal', answers.researchGoal);
-    out[MOOTQ_FIELD.purchaseHorizon] = optionLabel('purchaseHorizon', answers.purchaseHorizon);
+    out[MOOTQ_FIELD.researchGoal] = toMootqOptionLabel('researchGoal', answers.researchGoal);
+    out[MOOTQ_FIELD.purchaseHorizon] = toMootqOptionLabel(
+      'purchaseHorizon',
+      answers.purchaseHorizon,
+    );
   }
 }
 
 function assignMarketResearchFields(out: MootqAnswers, answers: MarketResearchAnswers): void {
   out[MOOTQ_FIELD.marketInterests] = answers.marketInterests.map((code) =>
-    optionLabel('marketInterest', code),
+    toMootqOptionLabel('marketInterest', code),
   );
-  out[MOOTQ_FIELD.researchGoal] = optionLabel('researchGoal', answers.researchGoal);
-  out[MOOTQ_FIELD.purchaseHorizon] = optionLabel('purchaseHorizon', answers.purchaseHorizon);
+  out[MOOTQ_FIELD.researchGoal] = toMootqOptionLabel('researchGoal', answers.researchGoal);
+  out[MOOTQ_FIELD.purchaseHorizon] = toMootqOptionLabel('purchaseHorizon', answers.purchaseHorizon);
 }
 
 function assignInvestmentFields(out: MootqAnswers, answers: InvestmentAnswers): void {
   const propertyLabel =
     answers.investmentPropertyType === 'other' && answers.investmentPropertyTypeOther
       ? answers.investmentPropertyTypeOther
-      : optionLabel('investmentPropertyType', answers.investmentPropertyType);
+      : toMootqOptionLabel('investmentPropertyType', answers.investmentPropertyType);
   out[MOOTQ_FIELD.investmentPropertyType] = propertyLabel;
 
   assignLocationSeek(
@@ -144,36 +150,42 @@ function assignInvestmentFields(out: MootqAnswers, answers: InvestmentAnswers): 
     MOOTQ_FIELD.investmentLocationDetails,
   );
 
-  out[MOOTQ_FIELD.investmentGoal] = optionLabel('investmentGoal', answers.investmentGoal);
-  out[MOOTQ_FIELD.investmentAreaSqm] = optionLabel('areaSqm', answers.areaSqm);
-  out[MOOTQ_FIELD.investmentPurchaseMethod] = optionLabel('purchaseMethod', answers.purchaseMethod);
-  out[MOOTQ_FIELD.investmentTimeline] = optionLabel(
+  out[MOOTQ_FIELD.investmentGoal] = toMootqOptionLabel('investmentGoal', answers.investmentGoal);
+  out[MOOTQ_FIELD.investmentAreaSqm] = toMootqOptionLabel('areaSqm', answers.areaSqm);
+  out[MOOTQ_FIELD.investmentPurchaseMethod] = toMootqOptionLabel(
+    'purchaseMethod',
+    answers.purchaseMethod,
+  );
+  out[MOOTQ_FIELD.investmentTimeline] = toMootqOptionLabel(
     'investmentTimeline',
     answers.investmentTimeline,
   );
-  out[MOOTQ_FIELD.investmentBudgetUsd] = optionLabel(
+  out[MOOTQ_FIELD.investmentBudgetUsd] = toMootqOptionLabel(
     'investmentBudgetUsd',
     answers.investmentBudgetUsd,
   );
 
-  out[MOOTQ_FIELD.priorInvestmentExperience] = optionLabel(
+  out[MOOTQ_FIELD.priorInvestmentExperience] = toMootqOptionLabel(
     'priorInvestmentExperience',
     answers.priorInvestmentExperience,
   );
 }
 
 function assignOwnResidenceFields(out: MootqAnswers, answers: OwnResidenceAnswers): void {
-  out[MOOTQ_FIELD.interestType] = optionLabel('interestType', answers.interestType);
+  out[MOOTQ_FIELD.interestType] = toMootqOptionLabel('interestType', answers.interestType);
   assignLocationSeek(
     out,
     answers.locationSeek,
     MOOTQ_FIELD.residenceLocationScope,
     MOOTQ_FIELD.residenceLocationDetails,
   );
-  out[MOOTQ_FIELD.residenceAreaSqm] = optionLabel('areaSqm', answers.areaSqm);
-  out[MOOTQ_FIELD.residencePurchaseMethod] = optionLabel('purchaseMethod', answers.purchaseMethod);
-  out[MOOTQ_FIELD.monthlyBudget] = optionLabel('monthlyBudget', answers.monthlyBudget);
-  out[MOOTQ_FIELD.decisionStage] = optionLabel('decisionStage', answers.decisionStage);
+  out[MOOTQ_FIELD.residenceAreaSqm] = toMootqOptionLabel('areaSqm', answers.areaSqm);
+  out[MOOTQ_FIELD.residencePurchaseMethod] = toMootqOptionLabel(
+    'purchaseMethod',
+    answers.purchaseMethod,
+  );
+  out[MOOTQ_FIELD.monthlyBudget] = toMootqOptionLabel('monthlyBudget', answers.monthlyBudget);
+  out[MOOTQ_FIELD.decisionStage] = toMootqOptionLabel('decisionStage', answers.decisionStage);
 }
 
 function assignLocationSeek(
@@ -183,26 +195,28 @@ function assignLocationSeek(
   detailsField: string,
 ): void {
   if (location.yerevanDistricts.length > 0) {
-    out[scopeField] = optionLabel('locationSeekScope', 'yerevan');
+    out[scopeField] = toMootqOptionLabel('locationSeekScope', 'yerevan');
     out[detailsField] = location.yerevanDistricts.map((code) =>
-      optionLabel('yerevanDistrict', code),
+      toMootqOptionLabel('yerevanDistrict', code),
     );
     return;
   }
   if (location.marzRegions.length > 0) {
-    out[scopeField] = optionLabel('locationSeekScope', 'marz');
+    out[scopeField] = toMootqOptionLabel('locationSeekScope', 'marz');
     out[detailsField] = location.marzRegions.map((code) =>
       formatMarzSelectionLabel(code, location.marzCities, mootqMarzLabelers()),
     );
     return;
   }
   if (location.abroadCountries.length > 0) {
-    out[scopeField] = optionLabel('locationSeekScope', 'abroad');
-    out[detailsField] = location.abroadCountries.map((code) => optionLabel('abroadCountry', code));
+    out[scopeField] = toMootqOptionLabel('locationSeekScope', 'abroad');
+    out[detailsField] = location.abroadCountries.map((code) =>
+      toMootqOptionLabel('abroadCountry', code),
+    );
     return;
   }
   if (location.abroadCountriesOther) {
-    out[scopeField] = optionLabel('locationSeekScope', 'abroad');
+    out[scopeField] = toMootqOptionLabel('locationSeekScope', 'abroad');
     out[detailsField] = [location.abroadCountriesOther];
   }
 }
@@ -213,7 +227,7 @@ function assignResidenceDetail(out: MootqAnswers, residence: ResidencePlace): vo
     return;
   }
   if (residence.scope === 'yerevan') {
-    out[MOOTQ_FIELD.residenceDetail] = optionLabel('yerevanDistrict', residence.district);
+    out[MOOTQ_FIELD.residenceDetail] = toMootqOptionLabel('yerevanDistrict', residence.district);
     return;
   }
   out[MOOTQ_FIELD.residenceDetail] = formatResidenceMarzLabel(
@@ -229,14 +243,15 @@ function mootqMarzLabelers(): {
   city: (code: string) => string;
 } {
   return {
-    region: (code) => optionLabel('marzRegion', code),
-    city: (code) => optionLabel('marzCity', code),
+    region: (code) => toMootqOptionLabel('marzRegion', code),
+    city: (code) => toMootqOptionLabel('marzCity', code),
   };
 }
 
 type OptionGroupKey = keyof typeof questionnaireI18n.options;
 
-function optionLabel(group: OptionGroupKey, value: string): string {
+/** Armenian label Mootq stores for a questionnaire option code. */
+export function toMootqOptionLabel(group: OptionGroupKey, value: string): string {
   const override = MOOTQ_LABEL_OVERRIDES[`${group}.${value}`];
   if (override) {
     return override;

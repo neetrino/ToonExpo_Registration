@@ -14,10 +14,7 @@ import { logger } from '@/lib/logger';
 export type MootqPushClientResult =
   { ok: true } | { ok: false; reason: string; retryable: boolean };
 
-export type MootqPushClientInput = Omit<
-  BuildMootqPushPayloadInput,
-  'eventKey' | 'sourceRegistrationId'
-> & {
+export type MootqPushClientInput = Omit<BuildMootqPushPayloadInput, 'sourceRegistrationId'> & {
   registrationId: string;
 };
 
@@ -42,7 +39,6 @@ export async function pushRegistrationToMootq(
   }
 
   const payload = buildMootqPushPayload({
-    eventKey: config.eventKey,
     sourceRegistrationId: input.registrationId,
     ticketCode: input.ticketCode,
     registeredAt: input.registeredAt,

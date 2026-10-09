@@ -2,7 +2,6 @@ import { describe, expect, it, afterEach, vi } from 'vitest';
 import { executeMootqPushRequest } from '@/lib/integrations/mootq/push-client';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
-import { MOOTQ_FIELD } from '@/lib/integrations/mootq/mootq-field-ids';
 import {
   classifyMootqPushHttpStatus,
   resolvePartnerPushRetryDecision,
@@ -11,73 +10,78 @@ import {
 const registeredAt = new Date('2026-07-27T12:00:00.000Z');
 
 const fullPushInput = {
-  eventKey: 'toon-expo-2026',
   sourceRegistrationId: 'reg_abc',
   ticketCode: 'TEABCDEFGHIJK',
   registeredAt,
-  firstName: 'Example',
-  lastName: 'Visitor',
-  email: 'visitor@example.com',
-  phone: '+37499123456',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john.doe@example.com',
+  phone: '+37499000001',
   locale: 'hy' as const,
 };
 
 describe('buildMootqPushPayload', () => {
-  it('includes eventKey, sourceRegistrationId and identity answers', () => {
+  it('sends the partner order envelope', () => {
     const payload = buildMootqPushPayload(fullPushInput);
-    expect(payload.eventKey).toBe('toon-expo-2026');
-    expect(payload.sourceRegistrationId).toBe('reg_abc');
-    expect(payload.ticketCode).toBe('TEABCDEFGHIJK');
-    expect(payload.answers).toMatchObject({
-      first_name: 'Example',
-      last_name: 'Visitor',
-      email: 'visitor@example.com',
-      phone: '+37499123456',
+
+    expect(payload).toMatchObject({
+      event_id: 21,
+      items: [{ ticket_type_id: 56, quantity: 1 }],
+      buyer: {
+        first_name: 'John',
+        last_name: 'Doe',
+        phone: '+37499000001',
+        email: 'john.doe@example.com',
+      },
+      external_order_ref: 'reg_abc',
     });
+    expect(payload.answers.per_order).toEqual({});
+    expect(payload.answers.per_ticket).toEqual({});
+    expect(payload.answers.per_user).toMatchObject({
+      '130': 'John',
+      '131': 'Doe',
+      '132': '+37499000001',
+      '133': 'john.doe@example.com',
+    });
+    expect(payload).not.toHaveProperty('eventKey');
+    expect(payload).not.toHaveProperty('ticketCode');
   });
 
-  it('maps market_research answers to Mootq field_* labels', () => {
+  it('maps the confirmed market-research example into per_user ids', () => {
     const payload = buildMootqPushPayload({
       ...fullPushInput,
       formVersion: FORM_VERSION,
       answers: {
         ageBand: '25-34',
-        residence: { scope: 'abroad', country: 'Georgia' },
+        residence: { scope: 'yerevan', district: 'kentron' },
         visitPurpose: 'market_research',
         marketInterests: ['new_apartments'],
-        researchGoal: 'browse_offers',
+        researchGoal: 'future_purchase',
         researchLocation: {
           undecided: false,
-          yerevanDistricts: [],
+          yerevanDistricts: ['kentron'],
           marzRegions: [],
-          abroadCountry: 'Georgia',
         },
-        purchaseHorizon: 'no_plans',
+        purchaseHorizon: 'up_to_3_months',
         newsletter: false,
       },
-      utmSource: 'facebook',
-      utmMedium: null,
-      utmCampaign: 'tey26',
     });
 
-    expect(payload.answers[MOOTQ_FIELD.ageBand]).toBe('25-34 տարեկան');
-    expect(payload.answers[MOOTQ_FIELD.residenceScope]).toBe('Արտերկիր');
-    expect(payload.answers[MOOTQ_FIELD.residenceDetail]).toBe('Georgia');
-    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
-      'Շուկայի ուսումնասիրություն և ծանոթացում',
-    );
-    expect(payload.answers).not.toHaveProperty(MOOTQ_FIELD.newsletter);
-    expect(payload.answers[MOOTQ_FIELD.marketInterests]).toEqual(['Նորակառույց բնակարաններ']);
-    expect(payload.answers[MOOTQ_FIELD.researchGoal]).toBe(
-      'Պարզապես ցանկանում եմ ծանոթանալ առաջարկներին',
-    );
-    expect(payload.answers[MOOTQ_FIELD.purchaseHorizon]).toBe('Այս պահին նման պլան չունեմ');
-    expect(payload.utmSource).toBe('facebook');
-    expect(payload.utmCampaign).toBe('tey26');
-    expect(payload).not.toHaveProperty('utmMedium');
+    expect(payload.answers.per_user).toMatchObject({
+      '134': '25-34 տարեկան',
+      '135': 'Երևան',
+      '136': 'Կենտրոն',
+      '139': 'Շուկայի ուսումնասիրություն և ծանոթացում',
+      '167': ['Նորակառույց բնակարաններ'],
+      '168': 'Ապագա բնակարան գնելու համար',
+      '169': 'Երևան',
+      '170': ['Կենտրոն'],
+      '173': 'Մինչև 3 ամսվա ընթացքում',
+      '152': 'Ոչ',
+    });
   });
 
-  it('maps investment answers to Mootq field_* labels', () => {
+  it('sends shared answers for other branches and does not invent question ids', () => {
     const payload = buildMootqPushPayload({
       ...fullPushInput,
       formVersion: FORM_VERSION,
@@ -97,60 +101,14 @@ describe('buildMootqPushPayload', () => {
         investmentTimeline: 'up_to_3_months',
         investmentBudgetUsd: 'up_to_150k',
         priorInvestmentExperience: 'no_first',
-        newsletter: false,
       },
     });
 
-    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
-    expect(payload.answers[MOOTQ_FIELD.investmentPropertyType]).toBe('Բնակարան');
-    expect(payload.answers[MOOTQ_FIELD.investmentLocationScope]).toBe('Երևան');
-    expect(payload.answers[MOOTQ_FIELD.investmentLocationDetails]).toEqual(['Կենտրոն']);
-    expect(payload.answers[MOOTQ_FIELD.investmentGoal]).toBe(
-      'Վարձակալությունից պասիվ եկամուտ ստանալու համար',
-    );
-    expect(payload.answers[MOOTQ_FIELD.investmentAreaSqm]).toBe('50 - 70 քմ');
-    expect(payload.answers[MOOTQ_FIELD.investmentPurchaseMethod]).toBe('Կանխիկ (100% վճարում)');
-    expect(payload.answers[MOOTQ_FIELD.investmentTimeline]).toBe('Մինչև 3 ամսվա ընթացքում');
-    expect(payload.answers[MOOTQ_FIELD.investmentBudgetUsd]).toBe('Մինչև 150․000 ԱՄՆ դոլար');
-    expect(payload.answers[MOOTQ_FIELD.priorInvestmentExperience]).toBe(
-      'Ոչ. սա կլինի առաջին ներդրումս',
-    );
-  });
-
-  it('maps own_residence answers to Mootq field_* labels', () => {
-    const payload = buildMootqPushPayload({
-      ...fullPushInput,
-      formVersion: FORM_VERSION,
-      answers: {
-        ageBand: '25-34',
-        residence: { scope: 'abroad', country: 'Georgia' },
-        visitPurpose: 'own_residence',
-        interestType: 'apartment_new',
-        locationSeek: {
-          yerevanDistricts: ['kentron'],
-          marzRegions: [],
-          abroadCountries: [],
-        },
-        areaSqm: '50-70',
-        purchaseMethod: 'cash',
-        monthlyBudget: 'paying_cash',
-        decisionStage: 'ready_1_month',
-        newsletter: false,
-      },
-    });
-
-    expect(payload.answers[MOOTQ_FIELD.visitPurpose]).toBe(
-      'Անշարժ գույքի գնում սեփական բնակության համար',
-    );
-    expect(payload.answers[MOOTQ_FIELD.interestType]).toBe('Բնակարան կառուցապատողից (նորակառույց)');
-    expect(payload.answers[MOOTQ_FIELD.residenceLocationScope]).toBe('Երևան');
-    expect(payload.answers[MOOTQ_FIELD.residenceLocationDetails]).toEqual(['Կենտրոն']);
-    expect(payload.answers[MOOTQ_FIELD.residenceAreaSqm]).toBe('50 - 70 քմ');
-    expect(payload.answers[MOOTQ_FIELD.residencePurchaseMethod]).toBe('Կանխիկ (100% վճարում)');
-    expect(payload.answers[MOOTQ_FIELD.monthlyBudget]).toBe('Ձեռք եմ բերելու կանխիկ');
-    expect(payload.answers[MOOTQ_FIELD.decisionStage]).toBe(
-      'Պատրաստ եմ գործարք իրականացնել մոտ ժամանակում',
-    );
+    expect(payload.answers.per_user['139']).toBe('Հետաքրքրված եմ ներդրումներով');
+    expect(payload.answers.per_user['135']).toBe('Արտերկիր');
+    expect(payload.answers.per_user['136']).toBe('Georgia');
+    expect(payload.answers.per_user).not.toHaveProperty('167');
+    expect(payload.answers.per_user).not.toHaveProperty('168');
   });
 });
 
@@ -219,8 +177,8 @@ describe('executeMootqPushRequest', () => {
       });
       const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
       expect(body).toEqual(baseParams.payload);
-      expect(body.eventKey).toBe('toon-expo-2026');
-      expect(body.sourceRegistrationId).toBe('reg_abc');
+      expect(body.event_id).toBe(21);
+      expect(body.external_order_ref).toBe('reg_abc');
       expect(body).not.toHaveProperty('sourceSystem');
       return new Response(null, { status: 201 });
     });
