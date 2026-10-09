@@ -39,7 +39,7 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
           </div>
 
           <Suspense fallback={null}>
-            <SuccessTicketCard locale={locale} />
+            <SuccessTicketCard />
           </Suspense>
         </div>
       </div>

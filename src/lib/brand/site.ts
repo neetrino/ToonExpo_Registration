@@ -7,6 +7,9 @@ export const BRAND_PRIMARY = '#00303D';
 export const BRAND_ACCENT = '#2BA8B0';
 export const BRAND_HIGHLIGHT = '#FFD700';
 
+/** Public TOON EXPO Telegram channel. Used on the success screen and in the ticket email. */
+export const TELEGRAM_CHANNEL_URL = 'https://t.me/toonexpo';
+
 export function getMetadataBase(): URL {
   return new URL(process.env.SITE_URL ?? 'http://localhost:3000');
 }

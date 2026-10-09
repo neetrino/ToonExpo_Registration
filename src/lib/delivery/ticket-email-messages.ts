@@ -1,4 +1,5 @@
 import type { Locale } from '@/types/locale';
+import { BRAND_PRIMARY, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
 import { TICKET_QR_CONTENT_ID } from '@/lib/delivery/constants';
 
 export type TicketEmailMessageInput = {
@@ -33,6 +34,7 @@ type EmailCopy = {
   dates: string;
   venue: string;
   codeLabel: string;
+  telegramCta: string;
   downloadLead: string;
   downloadLink: string;
   footerLead: string;
@@ -49,6 +51,7 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     dates: 'Նոյեմբերի 13 | 14 | 15',
     venue: 'Մերիդիան Էքսպո Կենտրոն (Ոսկերիչների 1, Երևան)',
     codeLabel: 'Տոմսի կոդ',
+    telegramCta: 'Միանալ Telegram ալիքին',
     downloadLead: 'Մուտքի տոմսը կարող եք նաև ներբեռնել',
     downloadLink: 'այստեղ․',
     footerLead: 'Եթե այլևս չեք ցանկանում ստանալ այս նամակները, կարող եք',
@@ -63,6 +66,7 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     dates: 'November 13 | 14 | 15',
     venue: 'Meridian Expo Center (1 Voskerichneri, Yerevan)',
     codeLabel: 'Ticket code',
+    telegramCta: 'Join the Telegram channel',
     downloadLead: 'You can also download your entry ticket',
     downloadLink: 'here.',
     footerLead: 'If you no longer want these emails, you can',
@@ -77,6 +81,7 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     dates: '13 | 14 | 15 ноября',
     venue: 'Meridian Expo Center (ул. Воскеричнери 1, Ереван)',
     codeLabel: 'Код билета',
+    telegramCta: 'Присоединиться к каналу Telegram',
     downloadLead: 'Входной билет также можно скачать',
     downloadLink: 'здесь.',
     footerLead: 'Если вы больше не хотите получать эти письма, вы можете',
@@ -106,6 +111,7 @@ function buildPlainText(copy: EmailCopy, input: TicketEmailMessageInput): string
     copy.qrLabel,
     `${copy.codeLabel}: ${input.ticketCode}`,
     copy.saveQr,
+    `${copy.telegramCta}: ${TELEGRAM_CHANNEL_URL}`,
     EVENT_TITLE,
     copy.dates,
     EVENT_HOURS,
@@ -138,6 +144,7 @@ function buildHtml(locale: Locale, copy: EmailCopy, input: TicketEmailMessageInp
           <p style="margin:8px 0 0;font-size:16px;line-height:1.5;">${escapeHtml(copy.confirmed)}</p>
         </td></tr>
         ${qrSection(copy, code)}
+        ${telegramSection(copy)}
         ${eventSection(copy, mapUrl)}
         ${downloadSection(copy, ticketUrl)}
         ${footerSection(copy, unsubscribeUrl)}
@@ -155,6 +162,21 @@ function qrSection(copy: EmailCopy, ticketCode: string): string {
     <p style="margin:14px 0 0;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#4a5f66;">${escapeHtml(copy.codeLabel)}</p>
     <p style="margin:4px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;font-weight:700;letter-spacing:0.08em;">${ticketCode}</p>
     <p style="margin:16px 0 0;font-size:14px;line-height:1.5;color:#00303d;">${escapeHtml(copy.saveQr)}</p>
+  </td></tr>`;
+}
+
+function telegramSection(copy: EmailCopy): string {
+  const href = escapeHtml(TELEGRAM_CHANNEL_URL);
+  const label = escapeHtml(copy.telegramCta);
+
+  return `<tr><td align="center" style="padding:18px 28px 0;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td align="center" bgcolor="${BRAND_PRIMARY}" style="border-radius:999px;">
+          <a href="${href}" target="_blank" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:999px;">${label}</a>
+        </td>
+      </tr>
+    </table>
   </td></tr>`;
 }
 

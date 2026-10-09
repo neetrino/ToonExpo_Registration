@@ -125,10 +125,10 @@
     "title": "Registration received",
     "description": "Thank you for registering for TOON EXPO Invest 2026 Vol. 2. We have saved your details successfully.",
     "ticketTitle": "You're registered",
-    "ticketDescription": "Show this QR code at the entrance. You can also open or download your ticket anytime.",
+    "ticketDescription": "Show this QR code at the entrance. You can also download your ticket anytime.",
     "qrAlt": "Your TOON EXPO ticket QR code",
     "codeHint": "Readable ticket code",
-    "openTicket": "Open ticket page",
+    "joinTelegram": "Join Telegram",
     "downloadQr": "Download QR PNG",
     "backToHome": "Back to home"
   },
