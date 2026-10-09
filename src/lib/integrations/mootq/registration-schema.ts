@@ -1,86 +1,96 @@
+export type MootqRuleScalar = string | number | boolean | null;
+export type MootqRuleValue = MootqRuleScalar | MootqRuleScalar[];
+
 export type MootqVisibilityRule = {
-  parentQuestionId: number;
+  parentQuestionCode: string | null;
   operator: string;
-  expectedValue: string;
+  expectedValue: MootqRuleValue;
 };
 
 export type MootqSchemaQuestion = {
-  id: number;
   code: string;
   type: number;
+  required: boolean;
   options: string[];
+  maxSelections: number | null;
   visibilityRules: MootqVisibilityRule[];
 };
 
+/** Partner registration schema (`GET /api/v1/integrations/events/{eventKey}/registration-schema`). */
 export type MootqRegistrationSchema = {
-  perOrder: MootqSchemaQuestion[];
-  perUser: MootqSchemaQuestion[];
-  perTicket: MootqSchemaQuestion[];
+  eventKey: string;
+  identityAnswerCodes: Partial<Record<MootqIdentityField, string>>;
+  questions: MootqSchemaQuestion[];
 };
 
-export const MOOTQ_MULTI_SELECT_TYPE = 6;
+export type MootqIdentityField = 'firstName' | 'lastName' | 'email' | 'phone';
+
+const MOOTQ_IDENTITY_FIELDS: readonly MootqIdentityField[] = [
+  'firstName',
+  'lastName',
+  'email',
+  'phone',
+];
+
+/** MULTISELECT (5) and CHECKBOX (6) take an array of option values. */
+const MOOTQ_ARRAY_ANSWER_TYPES: ReadonlySet<number> = new Set([5, 6]);
 export const MOOTQ_OTHER_OPTION = 'Այլ';
 
-/** Parse the partner schema or the compact fixture. Returns null when the body is unusable. */
-export function parseRegistrationSchema(value: unknown): MootqRegistrationSchema | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const perUser = readQuestions(value.per_user ?? value.perUser);
-  const perOrder = readQuestions(value.per_order ?? value.perOrder ?? []);
-  const perTicket = readQuestions(value.per_ticket ?? value.perTicket ?? []);
-  if (!perUser || !perOrder || !perTicket) {
-    return null;
-  }
-
-  return { perUser, perOrder, perTicket };
+export function isMootqArrayAnswerType(type: number): boolean {
+  return MOOTQ_ARRAY_ANSWER_TYPES.has(type);
 }
 
-function readQuestions(value: unknown): MootqSchemaQuestion[] | null {
-  if (!Array.isArray(value)) {
+/** Parse the `200` body (or its `data` object). Returns null when the body is unusable. */
+export function parseRegistrationSchema(value: unknown): MootqRegistrationSchema | null {
+  const data = isRecord(value) && isRecord(value.data) ? value.data : value;
+  if (!isRecord(data) || typeof data.eventKey !== 'string' || !Array.isArray(data.questions)) {
     return null;
   }
 
   const questions: MootqSchemaQuestion[] = [];
-  for (const item of value) {
+  for (const item of data.questions) {
     const question = readQuestion(item);
     if (!question) {
       return null;
     }
     questions.push(question);
   }
-  return questions;
+
+  const submission = isRecord(data.submission) ? data.submission : {};
+  return {
+    eventKey: data.eventKey,
+    identityAnswerCodes: readIdentityCodes(submission.identityAnswerCodes),
+    questions,
+  };
 }
 
 function readQuestion(value: unknown): MootqSchemaQuestion | null {
-  if (!isRecord(value) || typeof value.id !== 'number' || typeof value.code !== 'string') {
-    return null;
-  }
-  if (typeof value.type !== 'number') {
+  if (!isRecord(value) || typeof value.code !== 'string' || typeof value.type !== 'number') {
     return null;
   }
 
   const options = readOptions(value.options);
-  const visibilityRules = readRules(value.visibility_rules ?? value.visibilityRules);
+  const visibilityRules = readRules(value.visibility_rules);
   if (!options || !visibilityRules) {
     return null;
   }
 
-  return { id: value.id, code: value.code, type: value.type, options, visibilityRules };
+  return {
+    code: value.code,
+    type: value.type,
+    required: value.required === true,
+    options,
+    maxSelections: readMaxSelections(value.config),
+    visibilityRules,
+  };
 }
 
 function readOptions(value: unknown): string[] | null {
   if (!Array.isArray(value)) {
     return null;
   }
-
   const options: string[] = [];
   for (const item of value) {
-    if (typeof item === 'string') {
-      options.push(item);
-      continue;
-    }
     if (!isRecord(item) || typeof item.value !== 'string') {
       return null;
     }
@@ -93,30 +103,52 @@ function readRules(value: unknown): MootqVisibilityRule[] | null {
   if (!Array.isArray(value)) {
     return null;
   }
-
   const rules: MootqVisibilityRule[] = [];
   for (const item of value) {
-    const rule = readRule(item);
-    if (!rule) {
+    if (!isRecord(item) || typeof item.operator !== 'string' || !isRuleValue(item.expected_value)) {
       return null;
     }
-    rules.push(rule);
+    const parent = item.parent_question_code;
+    rules.push({
+      parentQuestionCode: typeof parent === 'string' ? parent : null,
+      operator: item.operator,
+      expectedValue: item.expected_value,
+    });
   }
   return rules;
 }
 
-function readRule(value: unknown): MootqVisibilityRule | null {
-  if (!isRecord(value) || typeof value.operator !== 'string') {
+function readMaxSelections(config: unknown): number | null {
+  if (!isRecord(config)) {
     return null;
   }
+  const max = config.max_selections;
+  return typeof max === 'number' && Number.isInteger(max) && max >= 1 ? max : null;
+}
 
-  const parentQuestionId = value.parent_question_id ?? value.parentQuestionId;
-  const expectedValue = value.expected_value ?? value.expectedValue;
-  if (typeof parentQuestionId !== 'number' || typeof expectedValue !== 'string') {
-    return null;
+function readIdentityCodes(value: unknown): Partial<Record<MootqIdentityField, string>> {
+  const codes: Partial<Record<MootqIdentityField, string>> = {};
+  if (!isRecord(value)) {
+    return codes;
   }
+  for (const field of MOOTQ_IDENTITY_FIELDS) {
+    const code = value[field];
+    if (typeof code === 'string' && code.length > 0) {
+      codes[field] = code;
+    }
+  }
+  return codes;
+}
 
-  return { parentQuestionId, operator: value.operator, expectedValue };
+function isRuleValue(value: unknown): value is MootqRuleValue {
+  if (value === undefined) {
+    return false;
+  }
+  return Array.isArray(value) ? value.every(isRuleScalar) : isRuleScalar(value);
+}
+
+function isRuleScalar(value: unknown): value is MootqRuleScalar {
+  return value === null || ['string', 'number', 'boolean'].includes(typeof value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

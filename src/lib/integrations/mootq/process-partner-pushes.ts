@@ -210,6 +210,7 @@ async function processClaimedPartnerPush(
     pushResult.retryable,
     delivery.attemptCount,
     result,
+    pushResult.retryAfterSeconds,
   );
 }
 
@@ -219,10 +220,15 @@ async function markPartnerPushFailed(
   retryable: boolean,
   attemptCount: number,
   result: ProcessPartnerPushResult,
+  retryAfterSeconds?: number,
 ): Promise<void> {
   const prisma = getPrisma();
   const attemptedAt = new Date();
-  const decision = resolvePartnerPushRetryDecision({ retryable, attemptCount });
+  const decision = resolvePartnerPushRetryDecision({
+    retryable,
+    attemptCount,
+    retryAfterSeconds,
+  });
 
   try {
     if (decision.action === 'retry') {

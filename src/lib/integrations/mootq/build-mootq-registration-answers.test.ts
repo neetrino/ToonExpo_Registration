@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildMootqOrderPerUser } from '@/lib/integrations/mootq/build-mootq-order-answers';
+import { buildMootqRegistrationAnswers } from '@/lib/integrations/mootq/build-mootq-registration-answers';
 import { Q, mootqSchemaFixture } from '@/lib/integrations/mootq/registration-schema.fixture';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
@@ -34,8 +34,8 @@ const baseMarketResearch = {
   },
 };
 
-function perUser(answers: unknown, formVersion: string = FORM_VERSION) {
-  return buildMootqOrderPerUser({ ...identity, formVersion, answers }, mootqSchemaFixture);
+function mootqAnswers(answers: unknown, formVersion: string = FORM_VERSION) {
+  return buildMootqRegistrationAnswers({ ...identity, formVersion, answers }, mootqSchemaFixture);
 }
 
 function expectFilled(value: string | string[] | undefined): void {
@@ -51,9 +51,9 @@ function expectFilled(value: string | string[] | undefined): void {
 
 describe('Mootq order sub-questions', () => {
   it('maps every residence follow-up into the confirmed detail question', () => {
-    expect(perUser(baseMarketResearch)[Q.residenceYerevan]).toBe('Կենտրոն');
+    expect(mootqAnswers(baseMarketResearch)[Q.residenceYerevan]).toBe('Կենտրոն');
 
-    const marzCity = perUser({
+    const marzCity = mootqAnswers({
       ...baseMarketResearch,
       residence: {
         scope: 'marz',
@@ -65,7 +65,7 @@ describe('Mootq order sub-questions', () => {
     expect(marzCity[Q.residenceMarz]).toBe('Կոտայքի մարզ');
     expect(marzCity).not.toHaveProperty(Q.residenceYerevan);
 
-    const marzOther = perUser({
+    const marzOther = mootqAnswers({
       ...baseMarketResearch,
       residence: {
         scope: 'marz',
@@ -76,13 +76,13 @@ describe('Mootq order sub-questions', () => {
     });
     expect(marzOther[Q.residenceMarz]).toBe('Կոտայքի մարզ');
 
-    const marzOnly = perUser({
+    const marzOnly = mootqAnswers({
       ...baseMarketResearch,
       residence: { scope: 'marz', region: 'shirak' },
     });
     expect(marzOnly[Q.residenceMarz]).toBe('Շիրակի մարզ');
 
-    const abroad = perUser({
+    const abroad = mootqAnswers({
       ...baseMarketResearch,
       residence: { scope: 'abroad', country: 'Georgia' },
     });
@@ -91,7 +91,7 @@ describe('Mootq order sub-questions', () => {
   });
 
   it('maps market-research location follow-ups and omits details when undecided', () => {
-    const districts = perUser({
+    const districts = mootqAnswers({
       ...baseMarketResearch,
       marketInterests: ['new_apartments', 'price_trends'],
       researchLocation: {
@@ -107,7 +107,7 @@ describe('Mootq order sub-questions', () => {
     expect(districts[Q.researchLocationScope]).toBe('Երևան');
     expect(districts[Q.researchYerevan]).toEqual(['Կենտրոն', 'Արաբկիր']);
 
-    const marz = perUser({
+    const marz = mootqAnswers({
       ...baseMarketResearch,
       researchLocation: {
         undecided: false,
@@ -120,7 +120,7 @@ describe('Mootq order sub-questions', () => {
     expect(marz[Q.researchMarz]).toEqual(['Կոտայքի մարզ']);
     expect(marz).not.toHaveProperty(Q.researchYerevan);
 
-    const abroad = perUser({
+    const abroad = mootqAnswers({
       ...baseMarketResearch,
       researchLocation: {
         undecided: false,
@@ -132,7 +132,7 @@ describe('Mootq order sub-questions', () => {
     expect(abroad[Q.researchLocationScope]).toBe('Արտերկիր');
     expect(abroad[Q.researchAbroad]).toBe('Georgia');
 
-    const undecided = perUser({
+    const undecided = mootqAnswers({
       ...baseMarketResearch,
       researchLocation: {
         undecided: true,
@@ -165,7 +165,7 @@ describe('Mootq order sub-questions', () => {
   });
 
   it('keeps other visit purposes off the market-research question ids', () => {
-    const investment = perUser({
+    const investment = mootqAnswers({
       ageBand: '25-34',
       residence: { scope: 'yerevan', district: 'arabkir' },
       visitPurpose: 'investment',
@@ -191,7 +191,7 @@ describe('Mootq order sub-questions', () => {
     expect(investment).not.toHaveProperty(Q.researchYerevan);
     expectFilled(investment[Q.ageBand]);
 
-    const ownResidence = perUser({
+    const ownResidence = mootqAnswers({
       ageBand: '35-44',
       residence: { scope: 'abroad', country: 'UAE' },
       visitPurpose: 'own_residence',
@@ -215,7 +215,7 @@ describe('Mootq order sub-questions', () => {
   });
 
   it('maps Spyurk market research without throwing and keeps branch questions apart', () => {
-    const research = perUser(
+    const research = mootqAnswers(
       {
         ageBand: '35-44',
         residence: { city: 'Moscow', region: 'Moscow Oblast' },
@@ -238,7 +238,7 @@ describe('Mootq order sub-questions', () => {
     expect(research[Q.newsletter]).toBe('Այո');
     expect(research).not.toHaveProperty(Q.researchLocationScope);
 
-    const ownResidence = perUser(
+    const ownResidence = mootqAnswers(
       {
         ageBand: '35-44',
         residence: { city: 'Moscow', region: 'Moscow Oblast' },
@@ -264,14 +264,14 @@ describe('Mootq order sub-questions', () => {
     expectFilled(ownResidence[Q.residenceAbroad]);
   });
 
-  it('still builds an order when answers are missing or invalid', () => {
-    expect(perUser(undefined)).toMatchObject({
+  it('still builds a registration when answers are missing or invalid', () => {
+    expect(mootqAnswers(undefined)).toMatchObject({
       [Q.firstName]: 'John',
       [Q.email]: 'john.doe@example.com',
     });
-    expect(perUser({ visitPurpose: 'investment' })).not.toHaveProperty(Q.visitPurpose);
+    expect(mootqAnswers({ visitPurpose: 'investment' })).not.toHaveProperty(Q.visitPurpose);
 
-    const payload = buildMootqPushPayload(
+    const { payload } = buildMootqPushPayload(
       {
         ...identity,
         sourceRegistrationId: 'reg_case',
@@ -283,10 +283,10 @@ describe('Mootq order sub-questions', () => {
       },
       mootqSchemaFixture,
     );
-    expect(payload.event_id).toBe(21);
-    expect(payload.items).toEqual([{ ticket_type_id: 56, quantity: 1 }]);
-    expect(payload.external_order_ref).toBe('reg_case');
-    for (const value of Object.values(payload.answers.per_user)) {
+    expect(payload.eventKey).toBe('toon-expo-2026');
+    expect(payload.sourceRegistrationId).toBe('reg_case');
+    expect(payload.locale).toBe('ru');
+    for (const value of Object.values(payload.answers)) {
       expectFilled(value);
     }
   });

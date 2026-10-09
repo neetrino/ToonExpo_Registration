@@ -1,31 +1,31 @@
-import { applyMootqRegistrationSchema } from '@/lib/integrations/mootq/apply-registration-schema';
-import type { MootqCodedAnswer } from '@/lib/integrations/mootq/apply-registration-schema';
-import { buildMootqCodedAnswers } from '@/lib/integrations/mootq/build-mootq-coded-answers';
 import {
-  MOOTQ_EVENT_ID,
-  MOOTQ_TICKET_QUANTITY,
-  MOOTQ_TICKET_TYPE_ID,
-} from '@/lib/integrations/mootq/mootq-order-ids';
-import type { MootqRegistrationSchema } from '@/lib/integrations/mootq/registration-schema';
+  applyMootqRegistrationSchema,
+  type MootqCodedAnswers,
+} from '@/lib/integrations/mootq/apply-registration-schema';
+import { buildMootqCodedAnswers } from '@/lib/integrations/mootq/build-mootq-coded-answers';
+import type {
+  MootqIdentityField,
+  MootqRegistrationSchema,
+} from '@/lib/integrations/mootq/registration-schema';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 
 export type MootqPushLocale = QuestionnaireLocale;
 
+/** Partner Registration envelope (`POST /api/v1/integrations/registrations`). */
 export type MootqPushPayload = {
-  event_id: number;
-  items: Array<{ ticket_type_id: number; quantity: number }>;
-  buyer: {
-    first_name: string;
-    last_name: string;
-    phone: string;
-    email: string;
-  };
-  answers: {
-    per_order: Record<string, MootqCodedAnswer>;
-    per_user: Record<string, MootqCodedAnswer>;
-    per_ticket: Record<string, MootqCodedAnswer>;
-  };
-  external_order_ref: string;
+  eventKey: string;
+  sourceRegistrationId: string;
+  ticketCode: string;
+  registeredAt: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  locale: MootqPushLocale;
+  answers: MootqCodedAnswers;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 };
 
 export type BuildMootqPushPayloadInput = {
@@ -44,24 +44,61 @@ export type BuildMootqPushPayloadInput = {
   utmCampaign?: string | null;
 };
 
+export type MootqPushPayloadResult = {
+  payload: MootqPushPayload;
+  missingRequired: string[];
+};
+
 /**
- * Toon Expo → Mootq order body. Question ids come from the schema fetched for this send.
- * Ticket code, locale, and UTM stay in Toon Expo and are not part of this body.
+ * Build the registration body from the schema fetched for this send.
+ * `eventKey` and identity answer codes come from that schema.
  */
 export function buildMootqPushPayload(
   input: BuildMootqPushPayloadInput,
   schema: MootqRegistrationSchema,
-): MootqPushPayload {
-  return {
-    event_id: MOOTQ_EVENT_ID,
-    items: [{ ticket_type_id: MOOTQ_TICKET_TYPE_ID, quantity: MOOTQ_TICKET_QUANTITY }],
-    buyer: {
-      first_name: input.firstName,
-      last_name: input.lastName,
-      phone: input.phone,
-      email: input.email,
-    },
-    answers: applyMootqRegistrationSchema(schema, buildMootqCodedAnswers(input)),
-    external_order_ref: input.sourceRegistrationId,
+): MootqPushPayloadResult {
+  const coded = { ...buildMootqCodedAnswers(input), ...identityAnswers(input, schema) };
+  const { answers, missingRequired } = applyMootqRegistrationSchema(schema, coded);
+
+  const payload: MootqPushPayload = {
+    eventKey: schema.eventKey,
+    sourceRegistrationId: input.sourceRegistrationId,
+    ticketCode: input.ticketCode,
+    registeredAt: input.registeredAt.toISOString(),
+    firstName: input.firstName,
+    lastName: input.lastName,
+    email: input.email,
+    phone: input.phone,
+    locale: input.locale,
+    answers,
   };
+  assignOptionalUtm(payload, 'utmSource', input.utmSource);
+  assignOptionalUtm(payload, 'utmMedium', input.utmMedium);
+  assignOptionalUtm(payload, 'utmCampaign', input.utmCampaign);
+  return { payload, missingRequired };
+}
+
+function identityAnswers(
+  input: BuildMootqPushPayloadInput,
+  schema: MootqRegistrationSchema,
+): MootqCodedAnswers {
+  const answers: MootqCodedAnswers = {};
+  const fields: readonly MootqIdentityField[] = ['firstName', 'lastName', 'email', 'phone'];
+  for (const field of fields) {
+    const code = schema.identityAnswerCodes[field];
+    if (code) {
+      answers[code] = input[field];
+    }
+  }
+  return answers;
+}
+
+function assignOptionalUtm(
+  payload: MootqPushPayload,
+  key: 'utmSource' | 'utmMedium' | 'utmCampaign',
+  value: string | null | undefined,
+): void {
+  if (value) {
+    payload[key] = value;
+  }
 }

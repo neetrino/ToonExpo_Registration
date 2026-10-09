@@ -141,43 +141,38 @@ Accept: application/json
 
 Mootq provides the full production and non-production URLs. The path above is the Mootq draft path.
 
-**Update 2026-10-09.** Mootq replaced the registration body with an order payload. Before each send, Toon Expo loads the current registration schema and uses that response's question `id` as the `per_user` key. Confirmed schema URL: `GET https://api.v3.mootq.com/api/events/toon-expo-2026/registration-schema?items[]=56:1` with `Accept: application/json` and `Accept-Language: hy`. Option answers are the schema `value` (Armenian). Questions hidden by `visibility_rules` are omitted. `external_order_ref` is the Toon Expo registration id. Ticket code, locale, and UTM stay in Toon Expo and are not sent in this body. Spyurk-only questions that are not in this event schema are not invented.
+**Update 2026-10-09 (Mootq Partner Registration API 1.1.0).** Toon Expo sends the fixed Partner Registration envelope to `MOOTQ_PUSH_URL` (`POST /api/v1/integrations/registrations`) with `Authorization: Bearer <mqi_ key>`, `Idempotency-Key: <sourceRegistrationId>`, `Accept: application/json`. The External Sales order body (`event_id`, `items`, `buyer`, `per_user`, `external_order_ref`) is not used.
+
+Before each send, Toon Expo loads `GET /api/v1/integrations/events/{MOOTQ_EVENT_KEY}/registration-schema` on the same host with the same Bearer key. `answers` is one flat object keyed by question `code`; choice answers are the exact option `value` (array for MULTISELECT/CHECKBOX, limited by `max_selections`). Identity is repeated under `submission.identityAnswerCodes`. Questions hidden by `visibility_rules` (all operators, AND, recursive parents) are omitted. A choice-list parent satisfies a scalar `eq` rule when it contains that value. Visible required questions without an answer are logged by code; Mootq remains the validator. The public `/api/events/{slug}/registration-schema?items[]=...` endpoint is not used.
+
+Responses: `204` sent; `409` / `422` permanent (message and rejected field names are logged, not field texts); `429` retried no earlier than `Retry-After`; `5xx` / transport retried with the same identity and payload.
 
 ```json
 {
-  "event_id": 21,
-  "items": [{ "ticket_type_id": 56, "quantity": 1 }],
-  "buyer": {
+  "eventKey": "toon-expo-2026",
+  "sourceRegistrationId": "<registration id>",
+  "ticketCode": "TEABCDEFGHIJK",
+  "registeredAt": "2026-10-09T12:00:00.000Z",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "+37499000001",
+  "locale": "hy",
+  "answers": {
     "first_name": "John",
     "last_name": "Doe",
     "phone": "+37499000001",
-    "email": "john.doe@example.com"
+    "email": "john.doe@example.com",
+    "field_1788873742063": "25-34 տարեկան",
+    "field_1788874150015": "Երևան",
+    "field_1788874713038": "Կենտրոն",
+    "field_1788875916593": "Շուկայի ուսումնասիրություն և ծանոթացում",
+    "field_1788944465647": ["Նորակառույց բնակարաններ"]
   },
-  "answers": {
-    "per_order": {},
-    "per_user": {
-      "130": "John",
-      "131": "Doe",
-      "132": "+37499000001",
-      "133": "john.doe@example.com",
-      "134": "25-34 տարեկան",
-      "135": "Երևան",
-      "136": "Կենտրոն",
-      "139": "Շուկայի ուսումնասիրություն և ծանոթացում",
-      "167": ["Նորակառույց բնակարաններ"],
-      "168": "Ապագա բնակարան գնելու համար",
-      "169": "Երևան",
-      "170": ["Կենտրոն"],
-      "173": "Մինչև 3 ամսվա ընթացքում",
-      "152": "Ոչ"
-    },
-    "per_ticket": {}
-  },
-  "external_order_ref": "<sourceRegistrationId>"
+  "utmSource": "facebook"
 }
 ```
-
-The field table below describes the previous body and is kept for the signed-off contract history.
+The envelope fields below are current. For outbound sends, `answers` follows the live schema codes described above; Appendix A is kept as the signed-off catalog history.
 
 ### 5.1 Fields
 

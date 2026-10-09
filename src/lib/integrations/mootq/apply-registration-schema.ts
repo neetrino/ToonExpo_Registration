@@ -1,58 +1,82 @@
 import {
-  MOOTQ_MULTI_SELECT_TYPE,
+  isMootqQuestionVisible,
+  type MootqAnswerMap,
+  type MootqAnswerValue,
+} from '@/lib/integrations/mootq/evaluate-visibility';
+import {
+  isMootqArrayAnswerType,
   MOOTQ_OTHER_OPTION,
   type MootqRegistrationSchema,
   type MootqSchemaQuestion,
 } from '@/lib/integrations/mootq/registration-schema';
 
-export type MootqCodedAnswer = string | string[];
-export type MootqCodedAnswers = Record<string, MootqCodedAnswer>;
+export type MootqCodedAnswer = MootqAnswerValue;
+export type MootqCodedAnswers = MootqAnswerMap;
 
-export type MootqAnswerBuckets = {
-  per_order: Record<string, MootqCodedAnswer>;
-  per_user: Record<string, MootqCodedAnswer>;
-  per_ticket: Record<string, MootqCodedAnswer>;
+export type MootqSchemaAnswersResult = {
+  /** Flat `answers` body keyed by question code; hidden and blank answers removed. */
+  answers: MootqCodedAnswers;
+  /** Visible required questions left without a value. */
+  missingRequired: string[];
 };
 
 /**
- * Place coded answers onto the question ids from the current schema.
- * Hidden questions are omitted. Select values that are not in `options` are dropped,
- * or moved to the «Այլ» follow-up when that option exists.
+ * Fit coded answers to the current schema: exact option values, array vs scalar by type,
+ * `max_selections`, conditional visibility. Unknown choices go to «Այլ» + its text child
+ * when the question offers it; otherwise they are dropped.
  */
 export function applyMootqRegistrationSchema(
   schema: MootqRegistrationSchema,
   coded: MootqCodedAnswers,
-): MootqAnswerBuckets {
-  const answers = { ...coded };
-  const questions = allQuestions(schema);
-  fitSelectAnswers(questions, answers);
+): MootqSchemaAnswersResult {
+  const byCode = new Map(schema.questions.map((question) => [question.code, question]));
+  const fitted = { ...coded };
+  for (const question of schema.questions) {
+    fitQuestionAnswer(question, schema.questions, fitted);
+  }
 
-  return {
-    per_order: placeGroup(schema.perOrder, questions, answers),
-    per_user: placeGroup(schema.perUser, questions, answers),
-    per_ticket: placeGroup(schema.perTicket, questions, answers),
-  };
+  const answers: MootqCodedAnswers = {};
+  const missingRequired: string[] = [];
+  for (const question of schema.questions) {
+    if (!isMootqQuestionVisible(question, byCode, fitted)) {
+      continue;
+    }
+    const value = fitted[question.code];
+    if (value !== undefined && hasAnswer(value)) {
+      answers[question.code] = value;
+    } else if (question.required) {
+      missingRequired.push(question.code);
+    }
+  }
+  return { answers, missingRequired };
 }
 
-function fitSelectAnswers(
+function fitQuestionAnswer(
+  question: MootqSchemaQuestion,
   questions: readonly MootqSchemaQuestion[],
   answers: MootqCodedAnswers,
 ): void {
-  for (const question of questions) {
-    const current = answers[question.code];
-    if (current === undefined || question.options.length === 0) {
-      continue;
-    }
-    const fitted = fitSelectValue(question, questions, answers, current);
-    if (fitted === undefined) {
-      delete answers[question.code];
-      continue;
-    }
-    answers[question.code] = fitted;
+  const current = answers[question.code];
+  if (current === undefined) {
+    return;
   }
+  const fitted =
+    question.options.length > 0
+      ? fitChoiceValue(question, questions, answers, current)
+      : fitTextValue(current);
+  if (fitted === undefined) {
+    delete answers[question.code];
+    return;
+  }
+  answers[question.code] = fitted;
 }
 
-function fitSelectValue(
+function fitTextValue(current: MootqCodedAnswer): MootqCodedAnswer | undefined {
+  const text = (Array.isArray(current) ? current.join(', ') : current).trim();
+  return text.length > 0 ? text : undefined;
+}
+
+function fitChoiceValue(
   question: MootqSchemaQuestion,
   questions: readonly MootqSchemaQuestion[],
   answers: MootqCodedAnswers,
@@ -65,10 +89,14 @@ function fitSelectValue(
     known.push(MOOTQ_OTHER_OPTION);
     assignOtherText(question, questions, answers, unknown.join(', '));
   }
-  if (known.length === 0) {
+  const unique = [...new Set(known)];
+  if (unique.length === 0) {
     return undefined;
   }
-  return question.type === MOOTQ_MULTI_SELECT_TYPE ? known : known[0];
+  if (!isMootqArrayAnswerType(question.type)) {
+    return unique[0];
+  }
+  return question.maxSelections ? unique.slice(0, question.maxSelections) : unique;
 }
 
 function assignOtherText(
@@ -79,7 +107,8 @@ function assignOtherText(
 ): void {
   const child = questions.find((item) =>
     item.visibilityRules.some(
-      (rule) => rule.parentQuestionId === question.id && rule.expectedValue === MOOTQ_OTHER_OPTION,
+      (rule) =>
+        rule.parentQuestionCode === question.code && rule.expectedValue === MOOTQ_OTHER_OPTION,
     ),
   );
   if (!child || answers[child.code] !== undefined) {
@@ -88,59 +117,9 @@ function assignOtherText(
   answers[child.code] = text;
 }
 
-function placeGroup(
-  group: readonly MootqSchemaQuestion[],
-  questions: readonly MootqSchemaQuestion[],
-  answers: MootqCodedAnswers,
-): Record<string, MootqCodedAnswer> {
-  const placed: Record<string, MootqCodedAnswer> = {};
-  for (const question of group) {
-    if (!isQuestionVisible(question, questions, answers)) {
-      continue;
-    }
-    const value = answers[question.code];
-    if (!hasAnswer(value)) {
-      continue;
-    }
-    placed[String(question.id)] = value;
-  }
-  return placed;
-}
-
-function isQuestionVisible(
-  question: MootqSchemaQuestion,
-  questions: readonly MootqSchemaQuestion[],
-  answers: MootqCodedAnswers,
-): boolean {
-  return question.visibilityRules.every((rule) => {
-    if (rule.operator !== 'eq') {
-      return false;
-    }
-    const parent = questions.find((item) => item.id === rule.parentQuestionId);
-    if (!parent) {
-      return false;
-    }
-    return answerEquals(answers[parent.code], rule.expectedValue);
-  });
-}
-
-function answerEquals(value: MootqCodedAnswer | undefined, expected: string): boolean {
-  if (Array.isArray(value)) {
-    return value.includes(expected);
-  }
-  return value === expected;
-}
-
-function hasAnswer(value: MootqCodedAnswer | undefined): value is MootqCodedAnswer {
-  if (value === undefined) {
-    return false;
-  }
+function hasAnswer(value: MootqCodedAnswer): boolean {
   if (Array.isArray(value)) {
     return value.some((item) => item.trim().length > 0);
   }
   return value.trim().length > 0;
-}
-
-function allQuestions(schema: MootqRegistrationSchema): MootqSchemaQuestion[] {
-  return [...schema.perOrder, ...schema.perUser, ...schema.perTicket];
 }

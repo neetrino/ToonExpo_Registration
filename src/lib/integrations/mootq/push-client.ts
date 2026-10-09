@@ -6,14 +6,17 @@ import {
 } from '@/lib/integrations/mootq/push-payload';
 import {
   classifyMootqPushHttpStatus,
+  parseRetryAfterSeconds,
   partnerPushErrorCodeForHttpStatus,
+  summarizeMootqRejection,
 } from '@/lib/integrations/mootq/push-outcome';
 import { getMootqPushConfig } from '@/lib/integrations/mootq/push-config';
 import { MOOTQ_PUSH_TIMEOUT_MS } from '@/lib/integrations/mootq/push-constants';
 import { logger } from '@/lib/logger';
 
 export type MootqPushClientResult =
-  { ok: true } | { ok: false; reason: string; retryable: boolean };
+  | { ok: true }
+  | { ok: false; reason: string; retryable: boolean; retryAfterSeconds?: number };
 
 export type MootqPushClientInput = Omit<BuildMootqPushPayloadInput, 'sourceRegistrationId'> & {
   registrationId: string;
@@ -24,8 +27,11 @@ export type MootqPushFetch = (
   init?: RequestInit,
 ) => Promise<Response>;
 
+const MOOTQ_PUSH_ACCEPT_LANGUAGE = 'en';
+
 /**
- * POST one registration to Mootq. Never throws; maps transport/HTTP to retry policy.
+ * Send one registration to Mootq Partner Registration. Never throws; maps transport/HTTP
+ * to retry policy. The schema is refetched for every send.
  */
 export async function pushRegistrationToMootq(
   input: MootqPushClientInput,
@@ -33,42 +39,37 @@ export async function pushRegistrationToMootq(
 ): Promise<MootqPushClientResult> {
   const config = getMootqPushConfig();
   if (!config.ok) {
-    logger.info('Mootq push skipped (NOT_CONFIGURED)', {
-      registrationId: input.registrationId,
-    });
+    logger.info('Mootq push skipped (NOT_CONFIGURED)', { registrationId: input.registrationId });
     return { ok: false, reason: 'NOT_CONFIGURED', retryable: true };
   }
 
-  const schemaResult = await fetchMootqRegistrationSchema();
+  const schemaResult = await fetchMootqRegistrationSchema({
+    pushUrl: config.url,
+    key: config.key,
+    eventKey: config.eventKey,
+    fetchImpl: options?.fetchImpl,
+  });
   if (!schemaResult.ok) {
-    logger.warn('Mootq push skipped (schema unavailable)', {
-      registrationId: input.registrationId,
-    });
+    logger.warn('Mootq push skipped (schema unavailable)', { registrationId: input.registrationId });
     return { ok: false, reason: 'schema_unavailable', retryable: true };
   }
 
-  const payload = buildMootqPushPayload(
-    {
-      sourceRegistrationId: input.registrationId,
-      ticketCode: input.ticketCode,
-      registeredAt: input.registeredAt,
-      firstName: input.firstName,
-      lastName: input.lastName,
-      email: input.email,
-      phone: input.phone,
-      locale: input.locale,
-      answers: input.answers,
-      formVersion: input.formVersion,
-      utmSource: input.utmSource,
-      utmMedium: input.utmMedium,
-      utmCampaign: input.utmCampaign,
-    },
+  const { registrationId, ...registration } = input;
+  const { payload, missingRequired } = buildMootqPushPayload(
+    { ...registration, sourceRegistrationId: registrationId },
     schemaResult.schema,
   );
+  if (missingRequired.length > 0) {
+    logger.warn('Mootq push has unanswered required questions', {
+      registrationId,
+      missingRequired: missingRequired.join(','),
+    });
+  }
+
   return executeMootqPushRequest({
     url: config.url,
     key: config.key,
-    registrationId: input.registrationId,
+    registrationId,
     payload,
     fetchImpl: options?.fetchImpl,
   });
@@ -83,9 +84,8 @@ export async function executeMootqPushRequest(params: {
   timeoutMs?: number;
 }): Promise<MootqPushClientResult> {
   const fetchImpl = params.fetchImpl ?? fetch;
-  const timeoutMs = params.timeoutMs ?? MOOTQ_PUSH_TIMEOUT_MS;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), params.timeoutMs ?? MOOTQ_PUSH_TIMEOUT_MS);
 
   try {
     const response = await fetchImpl(params.url, {
@@ -93,31 +93,14 @@ export async function executeMootqPushRequest(params: {
       headers: {
         Authorization: `Bearer ${params.key}`,
         'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-Language': MOOTQ_PUSH_ACCEPT_LANGUAGE,
         'Idempotency-Key': params.registrationId,
       },
       signal: controller.signal,
       body: JSON.stringify(params.payload),
     });
-
-    const outcome = classifyMootqPushHttpStatus(response.status);
-    if (outcome === 'success') {
-      return { ok: true };
-    }
-
-    const reason = partnerPushErrorCodeForHttpStatus(response.status);
-    if (outcome === 'retryable') {
-      logger.warn('Mootq push retryable HTTP failure', {
-        registrationId: params.registrationId,
-        status: response.status,
-      });
-      return { ok: false, reason, retryable: true };
-    }
-
-    logger.warn('Mootq push permanent HTTP failure', {
-      registrationId: params.registrationId,
-      status: response.status,
-    });
-    return { ok: false, reason, retryable: false };
+    return await toPushResult(response, params.registrationId);
   } catch (error: unknown) {
     if (isAbortError(error)) {
       logger.warn('Mootq push timed out', { registrationId: params.registrationId });
@@ -127,6 +110,44 @@ export async function executeMootqPushRequest(params: {
     return { ok: false, reason: 'network_error', retryable: true };
   } finally {
     clearTimeout(timer);
+  }
+}
+
+async function toPushResult(
+  response: Response,
+  registrationId: string,
+): Promise<MootqPushClientResult> {
+  const outcome = classifyMootqPushHttpStatus(response.status);
+  if (outcome === 'success') {
+    return { ok: true };
+  }
+
+  const reason = partnerPushErrorCodeForHttpStatus(response.status);
+  const rejection = summarizeMootqRejection(await readBodySafely(response));
+  if (outcome === 'retryable') {
+    const retryAfterSeconds = parseRetryAfterSeconds(response.headers.get('Retry-After'));
+    logger.warn('Mootq push retryable HTTP failure', {
+      registrationId,
+      status: response.status,
+      retryAfterSeconds,
+      ...rejection,
+    });
+    return { ok: false, reason, retryable: true, retryAfterSeconds };
+  }
+
+  logger.warn('Mootq push permanent HTTP failure', {
+    registrationId,
+    status: response.status,
+    ...rejection,
+  });
+  return { ok: false, reason, retryable: false };
+}
+
+async function readBodySafely(response: Response): Promise<string> {
+  try {
+    return await response.text();
+  } catch {
+    return '';
   }
 }
 
