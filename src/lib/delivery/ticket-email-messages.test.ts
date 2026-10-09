@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BRAND_PRIMARY, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
 import { buildTicketEmailMessage } from '@/lib/delivery/ticket-email-messages';
 import { TICKET_QR_CONTENT_ID } from '@/lib/delivery/constants';
 import { locales } from '@/types/locale';
@@ -21,9 +22,11 @@ describe('buildTicketEmailMessage', () => {
     expect(message.text).toContain(sampleInput.ticketUrl);
     expect(message.html).toContain(`cid:${TICKET_QR_CONTENT_ID}`);
     expect(message.html).toContain(sampleInput.ticketCode);
+    expect(message.html).toContain(TELEGRAM_CHANNEL_URL);
+    expect(message.text).toContain(TELEGRAM_CHANNEL_URL);
     expect(message.html).toContain('https://yandex.com/maps/-/CThIYFMT');
     expect(message.html).toContain('mailto:hi@mail.toonexpo.com');
-    expect(message.html).not.toContain('bgcolor="#00303d"');
+    expect(message.html).toContain(`bgcolor="${BRAND_PRIMARY}"`);
     expect(message.text).toContain('11:00–21:00');
   });
 
@@ -34,6 +37,8 @@ describe('buildTicketEmailMessage', () => {
     expect(message.text).toContain('Հարգելի Ani Petrosyan,');
     expect(message.text).toContain('Նոյեմբերի 13 | 14 | 15');
     expect(message.html).toContain('ապաբաժանորդագրվել');
+    expect(message.html).toContain('Միանալ Telegram ալիքին');
+    expect(message.text).toContain('Միանալ Telegram ալիքին');
   });
 
   it('uses Russian copy when the visitor selected Russian', () => {

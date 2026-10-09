@@ -125,10 +125,10 @@
     "title": "Регистрация получена",
     "description": "Спасибо за регистрацию на TOON EXPO Invest 2026 Vol. 2. Ваши данные успешно сохранены.",
     "ticketTitle": "Вы зарегистрированы",
-    "ticketDescription": "Покажите этот QR-код на входе. Также можно открыть или скачать билет.",
+    "ticketDescription": "Покажите этот QR-код на входе. Также можно скачать билет.",
     "qrAlt": "QR-код вашего билета TOON EXPO",
     "codeHint": "Читаемый код билета",
-    "openTicket": "Открыть страницу билета",
+    "joinTelegram": "Присоединиться к Telegram",
     "downloadQr": "Скачать QR PNG",
     "backToHome": "На главную"
   },

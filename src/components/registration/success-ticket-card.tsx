@@ -4,18 +4,15 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
+import { TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
 import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import { takeTicketHandoff, type TicketHandoff } from '@/components/registration/ticket-handoff';
-
-type SuccessTicketCardProps = {
-  locale: string;
-};
 
 /**
  * Client ticket preview on the success page.
  * Reads a one-shot sessionStorage handoff so tokens never appear in the URL.
  */
-export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
+export function SuccessTicketCard() {
   const t = useTranslations('success');
   const [handoff, setHandoff] = useState<TicketHandoff | null>(null);
   const [ready, setReady] = useState(false);
@@ -53,7 +50,6 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
   }
 
   const qrSrc = `/ticket/${encodeURIComponent(handoff.ticketViewToken)}/qr.png`;
-  const ticketHref = `/ticket/${encodeURIComponent(handoff.ticketViewToken)}`;
 
   return (
     <>
@@ -76,8 +72,8 @@ export function SuccessTicketCard({ locale }: SuccessTicketCardProps) {
 
       <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
         <Button asChild size="lg">
-          <a href={ticketHref} hrefLang={locale}>
-            {t('openTicket')}
+          <a href={TELEGRAM_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
+            {t('joinTelegram')}
           </a>
         </Button>
         <Button asChild size="lg" variant="outline">
