@@ -1,27 +1,34 @@
-import { buildMootqPartnerAnswers } from '@/lib/integrations/mootq/build-mootq-partner-answers';
-import type { MootqAnswers } from '@/lib/integrations/mootq/flatten-answers';
+import { applyMootqRegistrationSchema } from '@/lib/integrations/mootq/apply-registration-schema';
+import type { MootqCodedAnswer } from '@/lib/integrations/mootq/apply-registration-schema';
+import { buildMootqCodedAnswers } from '@/lib/integrations/mootq/build-mootq-coded-answers';
+import {
+  MOOTQ_EVENT_ID,
+  MOOTQ_TICKET_QUANTITY,
+  MOOTQ_TICKET_TYPE_ID,
+} from '@/lib/integrations/mootq/mootq-order-ids';
+import type { MootqRegistrationSchema } from '@/lib/integrations/mootq/registration-schema';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 
 export type MootqPushLocale = QuestionnaireLocale;
 
 export type MootqPushPayload = {
-  eventKey: string;
-  sourceRegistrationId: string;
-  ticketCode: string;
-  registeredAt: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  locale: MootqPushLocale;
-  answers: MootqAnswers;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
+  event_id: number;
+  items: Array<{ ticket_type_id: number; quantity: number }>;
+  buyer: {
+    first_name: string;
+    last_name: string;
+    phone: string;
+    email: string;
+  };
+  answers: {
+    per_order: Record<string, MootqCodedAnswer>;
+    per_user: Record<string, MootqCodedAnswer>;
+    per_ticket: Record<string, MootqCodedAnswer>;
+  };
+  external_order_ref: string;
 };
 
 export type BuildMootqPushPayloadInput = {
-  eventKey: string;
   sourceRegistrationId: string;
   ticketCode: string;
   registeredAt: Date;
@@ -38,43 +45,23 @@ export type BuildMootqPushPayloadInput = {
 };
 
 /**
- * Toon Expo → Mootq registration body (partner live schema, 2026-09).
- * Includes eventKey + sourceRegistrationId and CRM field_* answers.
+ * Toon Expo → Mootq order body. Question ids come from the schema fetched for this send.
+ * Ticket code, locale, and UTM stay in Toon Expo and are not part of this body.
  */
-export function buildMootqPushPayload(input: BuildMootqPushPayloadInput): MootqPushPayload {
-  const payload: MootqPushPayload = {
-    eventKey: input.eventKey,
-    sourceRegistrationId: input.sourceRegistrationId,
-    ticketCode: input.ticketCode,
-    registeredAt: input.registeredAt.toISOString(),
-    firstName: input.firstName,
-    lastName: input.lastName,
-    email: input.email,
-    phone: input.phone,
-    locale: input.locale,
-    answers: buildMootqPartnerAnswers({
-      firstName: input.firstName,
-      lastName: input.lastName,
-      email: input.email,
+export function buildMootqPushPayload(
+  input: BuildMootqPushPayloadInput,
+  schema: MootqRegistrationSchema,
+): MootqPushPayload {
+  return {
+    event_id: MOOTQ_EVENT_ID,
+    items: [{ ticket_type_id: MOOTQ_TICKET_TYPE_ID, quantity: MOOTQ_TICKET_QUANTITY }],
+    buyer: {
+      first_name: input.firstName,
+      last_name: input.lastName,
       phone: input.phone,
-      locale: input.locale,
-      formVersion: input.formVersion,
-      answers: input.answers,
-    }),
+      email: input.email,
+    },
+    answers: applyMootqRegistrationSchema(schema, buildMootqCodedAnswers(input)),
+    external_order_ref: input.sourceRegistrationId,
   };
-
-  assignOptionalUtm(payload, 'utmSource', input.utmSource);
-  assignOptionalUtm(payload, 'utmMedium', input.utmMedium);
-  assignOptionalUtm(payload, 'utmCampaign', input.utmCampaign);
-  return payload;
-}
-
-function assignOptionalUtm(
-  payload: MootqPushPayload,
-  key: 'utmSource' | 'utmMedium' | 'utmCampaign',
-  value: string | null | undefined,
-): void {
-  if (value) {
-    payload[key] = value;
-  }
 }
