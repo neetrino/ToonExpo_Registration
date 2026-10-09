@@ -2,6 +2,7 @@ import { describe, expect, it, afterEach, vi } from 'vitest';
 import { executeMootqPushRequest } from '@/lib/integrations/mootq/push-client';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
+import { Q, mootqSchemaFixture } from '@/lib/integrations/mootq/registration-schema.fixture';
 import {
   classifyMootqPushHttpStatus,
   resolvePartnerPushRetryDecision,
@@ -22,7 +23,7 @@ const fullPushInput = {
 
 describe('buildMootqPushPayload', () => {
   it('sends the partner order envelope', () => {
-    const payload = buildMootqPushPayload(fullPushInput);
+    const payload = buildMootqPushPayload(fullPushInput, mootqSchemaFixture);
 
     expect(payload).toMatchObject({
       event_id: 21,
@@ -38,77 +39,84 @@ describe('buildMootqPushPayload', () => {
     expect(payload.answers.per_order).toEqual({});
     expect(payload.answers.per_ticket).toEqual({});
     expect(payload.answers.per_user).toMatchObject({
-      '130': 'John',
-      '131': 'Doe',
-      '132': '+37499000001',
-      '133': 'john.doe@example.com',
+      [Q.firstName]: 'John',
+      [Q.lastName]: 'Doe',
+      [Q.phone]: '+37499000001',
+      [Q.email]: 'john.doe@example.com',
     });
     expect(payload).not.toHaveProperty('eventKey');
     expect(payload).not.toHaveProperty('ticketCode');
   });
 
   it('maps the confirmed market-research example into per_user ids', () => {
-    const payload = buildMootqPushPayload({
-      ...fullPushInput,
-      formVersion: FORM_VERSION,
-      answers: {
-        ageBand: '25-34',
-        residence: { scope: 'yerevan', district: 'kentron' },
-        visitPurpose: 'market_research',
-        marketInterests: ['new_apartments'],
-        researchGoal: 'future_purchase',
-        researchLocation: {
-          undecided: false,
-          yerevanDistricts: ['kentron'],
-          marzRegions: [],
+    const payload = buildMootqPushPayload(
+      {
+        ...fullPushInput,
+        formVersion: FORM_VERSION,
+        answers: {
+          ageBand: '25-34',
+          residence: { scope: 'yerevan', district: 'kentron' },
+          visitPurpose: 'market_research',
+          marketInterests: ['new_apartments'],
+          researchGoal: 'future_purchase',
+          researchLocation: {
+            undecided: false,
+            yerevanDistricts: ['kentron'],
+            marzRegions: [],
+          },
+          purchaseHorizon: 'up_to_3_months',
+          newsletter: false,
         },
-        purchaseHorizon: 'up_to_3_months',
-        newsletter: false,
       },
-    });
+      mootqSchemaFixture,
+    );
 
     expect(payload.answers.per_user).toMatchObject({
-      '134': '25-34 տարեկան',
-      '135': 'Երևան',
-      '136': 'Կենտրոն',
-      '139': 'Շուկայի ուսումնասիրություն և ծանոթացում',
-      '167': ['Նորակառույց բնակարաններ'],
-      '168': 'Ապագա բնակարան գնելու համար',
-      '169': 'Երևան',
-      '170': ['Կենտրոն'],
-      '173': 'Մինչև 3 ամսվա ընթացքում',
-      '152': 'Ոչ',
+      [Q.ageBand]: '25-34 տարեկան',
+      [Q.residenceScope]: 'Երևան',
+      [Q.residenceYerevan]: 'Կենտրոն',
+      [Q.visitPurpose]: 'Շուկայի ուսումնասիրություն և ծանոթացում',
+      [Q.marketInterests]: ['Նորակառույց բնակարաններ'],
+      [Q.researchGoal]: 'Ապագա բնակարան գնելու համար',
+      [Q.researchLocationScope]: 'Երևան',
+      [Q.researchYerevan]: ['Կենտրոն'],
+      [Q.purchaseHorizon]: 'Մինչև 3 ամսվա ընթացքում',
+      [Q.newsletter]: 'Ոչ',
     });
   });
 
   it('sends shared answers for other branches and does not invent question ids', () => {
-    const payload = buildMootqPushPayload({
-      ...fullPushInput,
-      formVersion: FORM_VERSION,
-      answers: {
-        ageBand: '25-34',
-        residence: { scope: 'abroad', country: 'Georgia' },
-        visitPurpose: 'investment',
-        investmentPropertyType: 'apartment',
-        locationSeek: {
-          yerevanDistricts: ['kentron'],
-          marzRegions: [],
-          abroadCountries: [],
+    const payload = buildMootqPushPayload(
+      {
+        ...fullPushInput,
+        formVersion: FORM_VERSION,
+        answers: {
+          ageBand: '25-34',
+          residence: { scope: 'abroad', country: 'Georgia' },
+          visitPurpose: 'investment',
+          investmentPropertyType: 'apartment',
+          locationSeek: {
+            yerevanDistricts: ['kentron'],
+            marzRegions: [],
+            abroadCountries: [],
+          },
+          investmentGoal: 'rental_income',
+          areaSqm: '50-70',
+          purchaseMethod: 'cash',
+          investmentTimeline: 'up_to_3_months',
+          investmentBudgetUsd: 'up_to_150k',
+          priorInvestmentExperience: 'no_first',
         },
-        investmentGoal: 'rental_income',
-        areaSqm: '50-70',
-        purchaseMethod: 'cash',
-        investmentTimeline: 'up_to_3_months',
-        investmentBudgetUsd: 'up_to_150k',
-        priorInvestmentExperience: 'no_first',
       },
-    });
+      mootqSchemaFixture,
+    );
 
-    expect(payload.answers.per_user['139']).toBe('Հետաքրքրված եմ ներդրումներով');
-    expect(payload.answers.per_user['135']).toBe('Արտերկիր');
-    expect(payload.answers.per_user['136']).toBe('Georgia');
-    expect(payload.answers.per_user).not.toHaveProperty('167');
-    expect(payload.answers.per_user).not.toHaveProperty('168');
+    expect(payload.answers.per_user[Q.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
+    expect(payload.answers.per_user[Q.residenceScope]).toBe('Արտերկիր');
+    expect(payload.answers.per_user[Q.residenceAbroad]).toBe('Georgia');
+    expect(payload.answers.per_user[Q.investmentPropertyType]).toBe('Բնակարան');
+    expect(payload.answers.per_user).not.toHaveProperty(Q.marketInterests);
+    expect(payload.answers.per_user).not.toHaveProperty(Q.researchGoal);
   });
 });
 
@@ -164,7 +172,7 @@ describe('executeMootqPushRequest', () => {
     url: 'https://mootq.example/push',
     key: 'k'.repeat(32),
     registrationId: 'reg_abc',
-    payload: buildMootqPushPayload(fullPushInput),
+    payload: buildMootqPushPayload(fullPushInput, mootqSchemaFixture),
   };
 
   it('sends Authorization, Idempotency-Key, and partner body fields', async () => {

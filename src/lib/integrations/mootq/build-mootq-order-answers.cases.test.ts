@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildMootqOrderPerUser } from '@/lib/integrations/mootq/build-mootq-order-answers';
 import { toMootqOptionLabel } from '@/lib/integrations/mootq/build-mootq-partner-answers';
-import { MOOTQ_QUESTION } from '@/lib/integrations/mootq/mootq-order-ids';
+import { Q, mootqSchemaFixture } from '@/lib/integrations/mootq/registration-schema.fixture';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { MARZ_CITY_OPTIONS, MARZ_CITY_REGIONS } from '@/lib/questionnaire/marz-cities';
 import {
@@ -65,16 +65,20 @@ function assertAnswerValues(label: string, answers: unknown, formVersion: string
       : questionnaireAnswersSchema.safeParse(answers);
   expect(parsed.success, `${label} fixture rejected`).toBe(true);
 
-  const perUser = buildMootqOrderPerUser({ ...identity, formVersion, answers });
-  expect(perUser[MOOTQ_QUESTION.firstName], label).toBe('John');
-  expect(perUser[MOOTQ_QUESTION.email], label).toBe(identity.email);
+  const perUser = buildMootqOrderPerUser({ ...identity, formVersion, answers }, mootqSchemaFixture);
+  expect(perUser[Q.firstName], label).toBe('John');
+  expect(perUser[Q.email], label).toBe(identity.email);
 
   for (const [key, value] of Object.entries(perUser)) {
     const items = Array.isArray(value) ? value : [value];
+    const question = mootqSchemaFixture.perUser.find((item) => String(item.id) === key);
     expect(items.length, `${label} ${key}`).toBeGreaterThan(0);
     for (const item of items) {
       expect(item.trim().length, `${label} ${key}`).toBeGreaterThan(0);
       expect(isRawCode(item), `${label} ${key} sent raw code ${item}`).toBe(false);
+      if (question && question.options.length > 0) {
+        expect(question.options, `${label} ${key}`).toContain(item);
+      }
     }
   }
 }
@@ -84,7 +88,7 @@ describe('every Mootq questionnaire case', () => {
     for (const ageBand of AGE_BANDS) {
       const answers = perMarket({ ageBand });
       assertAnswerValues(`age ${ageBand}`, answers, FORM_VERSION);
-      expect(perUser(answers)[MOOTQ_QUESTION.ageBand]).toBe(toMootqOptionLabel('ageBand', ageBand));
+      expect(perUser(answers)[Q.ageBand]).toBe(toMootqOptionLabel('ageBand', ageBand));
     }
 
     for (const district of YEREVAN_DISTRICTS) {
@@ -98,18 +102,14 @@ describe('every Mootq questionnaire case', () => {
       });
       assertAnswerValues(`district ${district}`, answers, FORM_VERSION);
       const mapped = perUser(answers);
-      expect(mapped[MOOTQ_QUESTION.residenceDetail]).toBe(
-        toMootqOptionLabel('yerevanDistrict', district),
-      );
-      expect(mapped[MOOTQ_QUESTION.researchLocationDetails]).toEqual([
-        toMootqOptionLabel('yerevanDistrict', district),
-      ]);
+      expect(mapped[Q.residenceYerevan]).toBe(toMootqOptionLabel('yerevanDistrict', district));
+      expect(mapped[Q.researchYerevan]).toEqual([toMootqOptionLabel('yerevanDistrict', district)]);
     }
 
     for (const interest of MARKET_INTERESTS) {
       const answers = perMarket({ marketInterests: [interest] });
       assertAnswerValues(`interest ${interest}`, answers, FORM_VERSION);
-      expect(perUser(answers)[MOOTQ_QUESTION.marketInterests]).toEqual([
+      expect(perUser(answers)[Q.marketInterests]).toEqual([
         toMootqOptionLabel('marketInterest', interest),
       ]);
     }
@@ -117,7 +117,7 @@ describe('every Mootq questionnaire case', () => {
     for (const researchGoal of RESEARCH_GOALS) {
       const answers = perMarket({ researchGoal });
       assertAnswerValues(`goal ${researchGoal}`, answers, FORM_VERSION);
-      expect(perUser(answers)[MOOTQ_QUESTION.researchGoal]).toBe(
+      expect(perUser(answers)[Q.researchGoal]).toBe(
         toMootqOptionLabel('researchGoal', researchGoal),
       );
     }
@@ -125,7 +125,7 @@ describe('every Mootq questionnaire case', () => {
     for (const purchaseHorizon of PURCHASE_HORIZONS) {
       const answers = perMarket({ purchaseHorizon });
       assertAnswerValues(`horizon ${purchaseHorizon}`, answers, FORM_VERSION);
-      expect(perUser(answers)[MOOTQ_QUESTION.purchaseHorizon]).toBe(
+      expect(perUser(answers)[Q.purchaseHorizon]).toBe(
         toMootqOptionLabel('purchaseHorizon', purchaseHorizon),
       );
     }
@@ -137,9 +137,7 @@ describe('every Mootq questionnaire case', () => {
       if (!cityRegion) {
         const answers = perMarket({ residence: { scope: 'marz', region } });
         assertAnswerValues(`marz ${region}`, answers, FORM_VERSION);
-        expect(perUser(answers)[MOOTQ_QUESTION.residenceDetail]).toBe(
-          toMootqOptionLabel('marzRegion', region),
-        );
+        expect(perUser(answers)[Q.residenceMarz]).toBe(toMootqOptionLabel('marzRegion', region));
         continue;
       }
 
@@ -150,13 +148,8 @@ describe('every Mootq questionnaire case', () => {
             : { scope: 'marz' as const, region, city };
         const answers = perMarket({ residence });
         assertAnswerValues(`marz ${region}/${city}`, answers, FORM_VERSION);
-        const detail = String(perUser(answers)[MOOTQ_QUESTION.residenceDetail]);
-        expect(detail.startsWith(toMootqOptionLabel('marzRegion', region))).toBe(true);
-        if (city === 'other') {
-          expect(detail).toContain('Գառնի');
-        } else {
-          expect(detail).toContain(toMootqOptionLabel('marzCity', city));
-        }
+        const detail = String(perUser(answers)[Q.residenceMarz]);
+        expect(detail).toBe(toMootqOptionLabel('marzRegion', region));
       }
     }
   });
@@ -170,11 +163,7 @@ describe('every Mootq questionnaire case', () => {
       },
     });
     assertAnswerValues('three districts', threeDistricts, FORM_VERSION);
-    expect(perUser(threeDistricts)[MOOTQ_QUESTION.researchLocationDetails]).toEqual([
-      'Կենտրոն',
-      'Արաբկիր',
-      'Աջափնյակ',
-    ]);
+    expect(perUser(threeDistricts)[Q.researchYerevan]).toEqual(['Կենտրոն', 'Արաբկիր', 'Աջափնյակ']);
 
     const marz = perMarket({
       researchLocation: {
@@ -188,10 +177,7 @@ describe('every Mootq questionnaire case', () => {
       },
     });
     assertAnswerValues('two marzes', marz, FORM_VERSION);
-    expect(perUser(marz)[MOOTQ_QUESTION.researchLocationDetails]).toEqual([
-      'Արագածոտնի մարզ — Աշտարակ',
-      'Տավուշի մարզ — Բերդ',
-    ]);
+    expect(perUser(marz)[Q.researchMarz]).toEqual(['Արագածոտնի մարզ', 'Տավուշի մարզ']);
 
     for (const country of ['Georgia', 'UAE', 'Հունաստան']) {
       const answers = perMarket({
@@ -204,8 +190,8 @@ describe('every Mootq questionnaire case', () => {
         },
       });
       assertAnswerValues(`abroad ${country}`, answers, FORM_VERSION);
-      expect(perUser(answers)[MOOTQ_QUESTION.residenceDetail]).toBe(country);
-      expect(perUser(answers)[MOOTQ_QUESTION.researchLocationDetails]).toEqual([country]);
+      expect(perUser(answers)[Q.residenceAbroad]).toBe(country);
+      expect(perUser(answers)[Q.researchAbroad]).toBe(country);
     }
   });
 
@@ -233,9 +219,10 @@ describe('every Mootq questionnaire case', () => {
       };
       assertAnswerValues(`investment ${propertyType}`, answers, FORM_VERSION);
       const mapped = perUser(answers);
-      expect(mapped).not.toHaveProperty(MOOTQ_QUESTION.marketInterests);
-      expect(mapped).not.toHaveProperty(MOOTQ_QUESTION.researchLocationDetails);
-      expect(mapped[MOOTQ_QUESTION.residenceDetail]).toBe('Կենտրոն');
+      expect(mapped).not.toHaveProperty(Q.marketInterests);
+      expect(mapped).not.toHaveProperty(Q.researchYerevan);
+      expect(mapped[Q.residenceYerevan]).toBe('Կենտրոն');
+      expect(mapped[Q.investmentKotaykCities]).toEqual(['Աբովյան']);
     }
 
     for (const interestType of INTEREST_TYPES) {
@@ -261,8 +248,8 @@ describe('every Mootq questionnaire case', () => {
         decisionStage: DECISION_STAGES[0],
       };
       assertAnswerValues(`own residence ${interestType}`, answers, FORM_VERSION);
-      expect(perUser(answers)[MOOTQ_QUESTION.residenceDetail]).toBe('Spain');
-      expect(perUser(answers)).not.toHaveProperty(MOOTQ_QUESTION.marketInterests);
+      expect(perUser(answers)[Q.residenceAbroad]).toBe('Spain');
+      expect(perUser(answers)).not.toHaveProperty(Q.marketInterests);
     }
   });
 
@@ -281,9 +268,16 @@ describe('every Mootq questionnaire case', () => {
         armeniaVisitTiming: 'not_planning' as const,
       };
       assertAnswerValues(`spyurk goal ${researchGoal}`, answers, SPYURK_FORM_VERSION);
-      expect(perUser(answers, SPYURK_FORM_VERSION)[MOOTQ_QUESTION.researchGoal]).toBe(
-        getSpyurkOptionLabel('researchGoal', researchGoal, 'hy'),
+      const label = getSpyurkOptionLabel('researchGoal', researchGoal, 'hy');
+      const mapped = perUser(answers, SPYURK_FORM_VERSION);
+      const goalQuestion = mootqSchemaFixture.perUser.find(
+        (item) => item.id === Number(Q.researchGoal),
       );
+      if (goalQuestion?.options.includes(label)) {
+        expect(mapped[Q.researchGoal]).toBe(label);
+      } else {
+        expect(mapped).not.toHaveProperty(Q.researchGoal);
+      }
     }
 
     for (const interest of SPYURK_INTEREST_TYPES) {
@@ -325,9 +319,7 @@ describe('every Mootq questionnaire case', () => {
         armeniaVisitTiming: 'within_1_year' as const,
       };
       assertAnswerValues(`spyurk invest ${goal}`, answers, SPYURK_FORM_VERSION);
-      expect(perUser(answers, SPYURK_FORM_VERSION)).not.toHaveProperty(
-        MOOTQ_QUESTION.marketInterests,
-      );
+      expect(perUser(answers, SPYURK_FORM_VERSION)).not.toHaveProperty(Q.marketInterests);
     }
   });
 });
@@ -337,5 +329,5 @@ function perMarket(patch: Record<string, unknown>) {
 }
 
 function perUser(answers: unknown, formVersion: string = FORM_VERSION) {
-  return buildMootqOrderPerUser({ ...identity, formVersion, answers });
+  return buildMootqOrderPerUser({ ...identity, formVersion, answers }, mootqSchemaFixture);
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildMootqOrderPerUser } from '@/lib/integrations/mootq/build-mootq-order-answers';
-import { MOOTQ_QUESTION } from '@/lib/integrations/mootq/mootq-order-ids';
+import { Q, mootqSchemaFixture } from '@/lib/integrations/mootq/registration-schema.fixture';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import {
@@ -35,7 +35,7 @@ const baseMarketResearch = {
 };
 
 function perUser(answers: unknown, formVersion: string = FORM_VERSION) {
-  return buildMootqOrderPerUser({ ...identity, formVersion, answers });
+  return buildMootqOrderPerUser({ ...identity, formVersion, answers }, mootqSchemaFixture);
 }
 
 function expectFilled(value: string | string[] | undefined): void {
@@ -51,7 +51,7 @@ function expectFilled(value: string | string[] | undefined): void {
 
 describe('Mootq order sub-questions', () => {
   it('maps every residence follow-up into the confirmed detail question', () => {
-    expect(perUser(baseMarketResearch)[MOOTQ_QUESTION.residenceDetail]).toBe('Կենտրոն');
+    expect(perUser(baseMarketResearch)[Q.residenceYerevan]).toBe('Կենտրոն');
 
     const marzCity = perUser({
       ...baseMarketResearch,
@@ -61,8 +61,9 @@ describe('Mootq order sub-questions', () => {
         city: 'abovyan',
       },
     });
-    expect(marzCity[MOOTQ_QUESTION.residenceScope]).toBe('Մարզ');
-    expect(marzCity[MOOTQ_QUESTION.residenceDetail]).toBe('Կոտայքի մարզ — Աբովյան');
+    expect(marzCity[Q.residenceScope]).toBe('Մարզ');
+    expect(marzCity[Q.residenceMarz]).toBe('Կոտայքի մարզ');
+    expect(marzCity).not.toHaveProperty(Q.residenceYerevan);
 
     const marzOther = perUser({
       ...baseMarketResearch,
@@ -73,20 +74,20 @@ describe('Mootq order sub-questions', () => {
         cityOther: 'Գառնի',
       },
     });
-    expect(marzOther[MOOTQ_QUESTION.residenceDetail]).toBe('Կոտայքի մարզ — Գառնի');
+    expect(marzOther[Q.residenceMarz]).toBe('Կոտայքի մարզ');
 
     const marzOnly = perUser({
       ...baseMarketResearch,
       residence: { scope: 'marz', region: 'shirak' },
     });
-    expect(marzOnly[MOOTQ_QUESTION.residenceDetail]).toBe('Շիրակի մարզ');
+    expect(marzOnly[Q.residenceMarz]).toBe('Շիրակի մարզ');
 
     const abroad = perUser({
       ...baseMarketResearch,
       residence: { scope: 'abroad', country: 'Georgia' },
     });
-    expect(abroad[MOOTQ_QUESTION.residenceScope]).toBe('Արտերկիր');
-    expect(abroad[MOOTQ_QUESTION.residenceDetail]).toBe('Georgia');
+    expect(abroad[Q.residenceScope]).toBe('Արտերկիր');
+    expect(abroad[Q.residenceAbroad]).toBe('Georgia');
   });
 
   it('maps market-research location follow-ups and omits details when undecided', () => {
@@ -99,12 +100,12 @@ describe('Mootq order sub-questions', () => {
         marzRegions: [],
       },
     });
-    expect(districts[MOOTQ_QUESTION.marketInterests]).toEqual([
+    expect(districts[Q.marketInterests]).toEqual([
       'Նորակառույց բնակարաններ',
       'Շուկայի գնային միտումներ',
     ]);
-    expect(districts[MOOTQ_QUESTION.researchLocationScope]).toBe('Երևան');
-    expect(districts[MOOTQ_QUESTION.researchLocationDetails]).toEqual(['Կենտրոն', 'Արաբկիր']);
+    expect(districts[Q.researchLocationScope]).toBe('Երևան');
+    expect(districts[Q.researchYerevan]).toEqual(['Կենտրոն', 'Արաբկիր']);
 
     const marz = perUser({
       ...baseMarketResearch,
@@ -115,8 +116,9 @@ describe('Mootq order sub-questions', () => {
         marzCities: { kotayk: { city: 'other', other: 'Գառնի' } },
       },
     });
-    expect(marz[MOOTQ_QUESTION.researchLocationScope]).toBe('Մարզ');
-    expect(marz[MOOTQ_QUESTION.researchLocationDetails]).toEqual(['Կոտայքի մարզ — Գառնի']);
+    expect(marz[Q.researchLocationScope]).toBe('Մարզ');
+    expect(marz[Q.researchMarz]).toEqual(['Կոտայքի մարզ']);
+    expect(marz).not.toHaveProperty(Q.researchYerevan);
 
     const abroad = perUser({
       ...baseMarketResearch,
@@ -127,8 +129,8 @@ describe('Mootq order sub-questions', () => {
         abroadCountry: 'Georgia',
       },
     });
-    expect(abroad[MOOTQ_QUESTION.researchLocationScope]).toBe('Արտերկիր');
-    expect(abroad[MOOTQ_QUESTION.researchLocationDetails]).toEqual(['Georgia']);
+    expect(abroad[Q.researchLocationScope]).toBe('Արտերկիր');
+    expect(abroad[Q.researchAbroad]).toBe('Georgia');
 
     const undecided = perUser({
       ...baseMarketResearch,
@@ -138,8 +140,10 @@ describe('Mootq order sub-questions', () => {
         marzRegions: [],
       },
     });
-    expect(undecided[MOOTQ_QUESTION.researchLocationScope]).toBe('Դեռ չեմ կողմնորոշվել');
-    expect(undecided).not.toHaveProperty(MOOTQ_QUESTION.researchLocationDetails);
+    expect(undecided[Q.researchLocationScope]).toBe('Դեռ չեմ կողմնորոշվել');
+    expect(undecided).not.toHaveProperty(Q.researchYerevan);
+    expect(undecided).not.toHaveProperty(Q.researchMarz);
+    expect(undecided).not.toHaveProperty(Q.researchAbroad);
   });
 
   it('uses an Armenian label for every mapped option code', () => {
@@ -181,11 +185,11 @@ describe('Mootq order sub-questions', () => {
       priorInvestmentExperience: 'no_first',
     });
 
-    expect(investment[MOOTQ_QUESTION.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
-    expect(investment[MOOTQ_QUESTION.residenceDetail]).toBe('Արաբկիր');
-    expect(investment).not.toHaveProperty(MOOTQ_QUESTION.marketInterests);
-    expect(investment).not.toHaveProperty(MOOTQ_QUESTION.researchLocationDetails);
-    expectFilled(investment[MOOTQ_QUESTION.ageBand]);
+    expect(investment[Q.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
+    expect(investment[Q.residenceYerevan]).toBe('Արաբկիր');
+    expect(investment).not.toHaveProperty(Q.marketInterests);
+    expect(investment).not.toHaveProperty(Q.researchYerevan);
+    expectFilled(investment[Q.ageBand]);
 
     const ownResidence = perUser({
       ageBand: '35-44',
@@ -205,11 +209,9 @@ describe('Mootq order sub-questions', () => {
       decisionStage: 'searching_6_months',
     });
 
-    expect(ownResidence[MOOTQ_QUESTION.visitPurpose]).toBe(
-      'Անշարժ գույքի գնում սեփական բնակության համար',
-    );
-    expect(ownResidence[MOOTQ_QUESTION.residenceDetail]).toBe('UAE');
-    expect(ownResidence).not.toHaveProperty(MOOTQ_QUESTION.marketInterests);
+    expect(ownResidence[Q.visitPurpose]).toBe('Անշարժ գույքի գնում սեփական բնակության համար');
+    expect(ownResidence[Q.residenceAbroad]).toBe('UAE');
+    expect(ownResidence).not.toHaveProperty(Q.marketInterests);
   });
 
   it('maps Spyurk market research without throwing and keeps branch questions apart', () => {
@@ -230,13 +232,11 @@ describe('Mootq order sub-questions', () => {
       SPYURK_FORM_VERSION,
     );
 
-    expect(research[MOOTQ_QUESTION.residenceScope]).toBe('Արտերկիր');
-    expect(research[MOOTQ_QUESTION.residenceDetail]).toBe('Moscow, Moscow Oblast');
-    expect(research[MOOTQ_QUESTION.researchGoal]).toBe(
-      'Հնարավոր տեղափոխության համար դեպի Հայաստան',
-    );
-    expect(research[MOOTQ_QUESTION.newsletter]).toBe('Այո');
-    expect(research).not.toHaveProperty(MOOTQ_QUESTION.researchLocationScope);
+    expect(research[Q.residenceScope]).toBe('Արտերկիր');
+    expect(research[Q.residenceAbroad]).toBe('Moscow, Moscow Oblast');
+    expect(research).not.toHaveProperty(Q.researchGoal);
+    expect(research[Q.newsletter]).toBe('Այո');
+    expect(research).not.toHaveProperty(Q.researchLocationScope);
 
     const ownResidence = perUser(
       {
@@ -259,29 +259,30 @@ describe('Mootq order sub-questions', () => {
       SPYURK_FORM_VERSION,
     );
 
-    expect(ownResidence[MOOTQ_QUESTION.visitPurpose]).toBe(
-      'Անշարժ գույքի գնում սեփական բնակության համար',
-    );
-    expect(ownResidence).not.toHaveProperty(MOOTQ_QUESTION.marketInterests);
-    expectFilled(ownResidence[MOOTQ_QUESTION.residenceDetail]);
+    expect(ownResidence[Q.visitPurpose]).toBe('Անշարժ գույքի գնում սեփական բնակության համար');
+    expect(ownResidence).not.toHaveProperty(Q.marketInterests);
+    expectFilled(ownResidence[Q.residenceAbroad]);
   });
 
   it('still builds an order when answers are missing or invalid', () => {
     expect(perUser(undefined)).toMatchObject({
-      [MOOTQ_QUESTION.firstName]: 'John',
-      [MOOTQ_QUESTION.email]: 'john.doe@example.com',
+      [Q.firstName]: 'John',
+      [Q.email]: 'john.doe@example.com',
     });
-    expect(perUser({ visitPurpose: 'investment' })).not.toHaveProperty(MOOTQ_QUESTION.visitPurpose);
+    expect(perUser({ visitPurpose: 'investment' })).not.toHaveProperty(Q.visitPurpose);
 
-    const payload = buildMootqPushPayload({
-      ...identity,
-      sourceRegistrationId: 'reg_case',
-      ticketCode: 'TEABCDEFGHIJK',
-      registeredAt: new Date('2026-10-09T07:00:00.000Z'),
-      locale: 'ru',
-      formVersion: FORM_VERSION,
-      answers: baseMarketResearch,
-    });
+    const payload = buildMootqPushPayload(
+      {
+        ...identity,
+        sourceRegistrationId: 'reg_case',
+        ticketCode: 'TEABCDEFGHIJK',
+        registeredAt: new Date('2026-10-09T07:00:00.000Z'),
+        locale: 'ru',
+        formVersion: FORM_VERSION,
+        answers: baseMarketResearch,
+      },
+      mootqSchemaFixture,
+    );
     expect(payload.event_id).toBe(21);
     expect(payload.items).toEqual([{ ticket_type_id: 56, quantity: 1 }]);
     expect(payload.external_order_ref).toBe('reg_case');

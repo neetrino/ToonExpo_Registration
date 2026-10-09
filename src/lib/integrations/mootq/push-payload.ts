@@ -1,10 +1,12 @@
-import { buildMootqOrderPerUser } from '@/lib/integrations/mootq/build-mootq-order-answers';
-import type { MootqOrderAnswerValue } from '@/lib/integrations/mootq/build-mootq-order-answers';
+import { applyMootqRegistrationSchema } from '@/lib/integrations/mootq/apply-registration-schema';
+import type { MootqCodedAnswer } from '@/lib/integrations/mootq/apply-registration-schema';
+import { buildMootqCodedAnswers } from '@/lib/integrations/mootq/build-mootq-coded-answers';
 import {
   MOOTQ_EVENT_ID,
   MOOTQ_TICKET_QUANTITY,
   MOOTQ_TICKET_TYPE_ID,
 } from '@/lib/integrations/mootq/mootq-order-ids';
+import type { MootqRegistrationSchema } from '@/lib/integrations/mootq/registration-schema';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 
 export type MootqPushLocale = QuestionnaireLocale;
@@ -19,9 +21,9 @@ export type MootqPushPayload = {
     email: string;
   };
   answers: {
-    per_order: Record<string, MootqOrderAnswerValue>;
-    per_user: Record<string, MootqOrderAnswerValue>;
-    per_ticket: Record<string, MootqOrderAnswerValue>;
+    per_order: Record<string, MootqCodedAnswer>;
+    per_user: Record<string, MootqCodedAnswer>;
+    per_ticket: Record<string, MootqCodedAnswer>;
   };
   external_order_ref: string;
 };
@@ -43,10 +45,13 @@ export type BuildMootqPushPayloadInput = {
 };
 
 /**
- * Toon Expo → Mootq order body confirmed by the partner example on 2026-10-09.
+ * Toon Expo → Mootq order body. Question ids come from the schema fetched for this send.
  * Ticket code, locale, and UTM stay in Toon Expo and are not part of this body.
  */
-export function buildMootqPushPayload(input: BuildMootqPushPayloadInput): MootqPushPayload {
+export function buildMootqPushPayload(
+  input: BuildMootqPushPayloadInput,
+  schema: MootqRegistrationSchema,
+): MootqPushPayload {
   return {
     event_id: MOOTQ_EVENT_ID,
     items: [{ ticket_type_id: MOOTQ_TICKET_TYPE_ID, quantity: MOOTQ_TICKET_QUANTITY }],
@@ -56,11 +61,7 @@ export function buildMootqPushPayload(input: BuildMootqPushPayloadInput): MootqP
       phone: input.phone,
       email: input.email,
     },
-    answers: {
-      per_order: {},
-      per_user: buildMootqOrderPerUser(input),
-      per_ticket: {},
-    },
+    answers: applyMootqRegistrationSchema(schema, buildMootqCodedAnswers(input)),
     external_order_ref: input.sourceRegistrationId,
   };
 }

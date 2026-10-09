@@ -33,7 +33,18 @@ const MOOTQ_LABEL_LOCALE: QuestionnaireLocale = 'hy';
  * Keys: `${optionGroup}.${code}`.
  */
 const MOOTQ_LABEL_OVERRIDES: Record<string, string> = {
-  'investmentBudgetUsd.up_to_150k': 'Մինչև 150․000 ԱՄՆ դոլար',
+  'ageBand.65_plus': '65 +',
+  'purchaseMethod.cash': 'Կանխիկ',
+  'purchaseMethod.installment': 'Տարաժամկետ վճարում (Կառուցապատողի ապառիկ)',
+  'investmentTimeline.3-6_months': '3 - 6  ամսվա ընթացքում',
+  'purchaseHorizon.3-6_months': '3 - 6  ամսվա ընթացքում',
+  'investmentBudgetUsd.up_to_150k': 'Մինչև 150\u2024000 ԱՄՆ դոլար',
+  'investmentBudgetUsd.150k-300k': '150\u2024000 - 300\u2024000 ԱՄՆ դոլար',
+  'investmentBudgetUsd.300k-500k': '300\u2024000 - 500\u2024000 ԱՄՆ դոլար',
+  'investmentBudgetUsd.500k_plus': '500\u2024000 ԱՄՆ դոլար+',
+  'priorInvestmentExperience.yes_armenia': 'Այո. Հայաստանում',
+  'priorInvestmentExperience.yes_abroad': 'Այո. արտերկրում',
+  'priorInvestmentExperience.yes_both': 'Այո. և Հայաստանում. և արտերկրում',
   'priorInvestmentExperience.no_first': 'Ոչ. սա կլինի առաջին ներդրումս',
   'decisionStage.ready_1_month': 'Պատրաստ եմ գործարք իրականացնել մոտ ժամանակում',
 };

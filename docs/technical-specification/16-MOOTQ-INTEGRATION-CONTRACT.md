@@ -141,7 +141,7 @@ Accept: application/json
 
 Mootq provides the full production and non-production URLs. The path above is the Mootq draft path.
 
-**Update 2026-10-09.** Mootq replaced the registration body with this order payload. `per_user` keys are the question ids from their market-research example. `external_order_ref` is the Toon Expo registration id. Ticket code, locale, and UTM stay in Toon Expo and are not sent in this body. Question ids for the investment, own-residence, and Spyurk-only branches were not in that example, so those answers are not invented.
+**Update 2026-10-09.** Mootq replaced the registration body with an order payload. Before each send, Toon Expo loads the current registration schema and uses that response's question `id` as the `per_user` key. Confirmed schema URL: `GET https://api.v3.mootq.com/api/events/toon-expo-2026/registration-schema?items[]=56:1` with `Accept: application/json` and `Accept-Language: hy`. Option answers are the schema `value` (Armenian). Questions hidden by `visibility_rules` are omitted. `external_order_ref` is the Toon Expo registration id. Ticket code, locale, and UTM stay in Toon Expo and are not sent in this body. Spyurk-only questions that are not in this event schema are not invented.
 
 ```json
 {

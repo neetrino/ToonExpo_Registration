@@ -1,3 +1,4 @@
+import { fetchMootqRegistrationSchema } from '@/lib/integrations/mootq/fetch-registration-schema';
 import {
   buildMootqPushPayload,
   type BuildMootqPushPayloadInput,
@@ -38,21 +39,32 @@ export async function pushRegistrationToMootq(
     return { ok: false, reason: 'NOT_CONFIGURED', retryable: true };
   }
 
-  const payload = buildMootqPushPayload({
-    sourceRegistrationId: input.registrationId,
-    ticketCode: input.ticketCode,
-    registeredAt: input.registeredAt,
-    firstName: input.firstName,
-    lastName: input.lastName,
-    email: input.email,
-    phone: input.phone,
-    locale: input.locale,
-    answers: input.answers,
-    formVersion: input.formVersion,
-    utmSource: input.utmSource,
-    utmMedium: input.utmMedium,
-    utmCampaign: input.utmCampaign,
-  });
+  const schemaResult = await fetchMootqRegistrationSchema();
+  if (!schemaResult.ok) {
+    logger.warn('Mootq push skipped (schema unavailable)', {
+      registrationId: input.registrationId,
+    });
+    return { ok: false, reason: 'schema_unavailable', retryable: true };
+  }
+
+  const payload = buildMootqPushPayload(
+    {
+      sourceRegistrationId: input.registrationId,
+      ticketCode: input.ticketCode,
+      registeredAt: input.registeredAt,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      phone: input.phone,
+      locale: input.locale,
+      answers: input.answers,
+      formVersion: input.formVersion,
+      utmSource: input.utmSource,
+      utmMedium: input.utmMedium,
+      utmCampaign: input.utmCampaign,
+    },
+    schemaResult.schema,
+  );
   return executeMootqPushRequest({
     url: config.url,
     key: config.key,
