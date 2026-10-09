@@ -81,7 +81,11 @@ function looksLikeSpyurk(answers: unknown): boolean {
     return false;
   }
   const residence = answers.residence;
-  return residence !== null && typeof residence === 'object' && 'city' in residence;
+  if (!residence || typeof residence !== 'object') {
+    return false;
+  }
+  const record = residence as Record<string, unknown>;
+  return typeof record.city === 'string' && typeof record.scope !== 'string';
 }
 
 function assignGeneralMappedFields(out: MootqAnswers, answers: QuestionnaireAnswers): void {
