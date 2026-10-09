@@ -3,6 +3,7 @@ import {
   assignMootqCountryList,
   assignMootqLocationChoice,
 } from '@/lib/integrations/mootq/assign-mootq-location-answers';
+import { assignMootqSpyurkAnswers } from '@/lib/integrations/mootq/assign-mootq-spyurk-answers';
 import { toMootqOptionLabel } from '@/lib/integrations/mootq/build-mootq-partner-answers';
 import {
   INVESTMENT_CITY_QUESTIONS,
@@ -10,8 +11,6 @@ import {
   OWN_RESIDENCE_CITY_QUESTIONS,
 } from '@/lib/integrations/mootq/mootq-question-codes';
 import { isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
-import { getSpyurkOptionLabel } from '@/lib/questionnaire/spyurk/i18n';
-import type { SpyurkQuestionnaireAnswers } from '@/lib/questionnaire/spyurk/types';
 import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import type {
   InvestmentAnswers,
@@ -47,7 +46,7 @@ export function buildMootqCodedAnswers(input: BuildMootqCodedAnswersInput): Moot
   if (isSpyurkAnswers(input.formVersion, input.answers)) {
     const parsed = spyurkQuestionnaireAnswersSchema.safeParse(input.answers);
     if (parsed.success) {
-      assignSpyurkAnswers(coded, parsed.data);
+      assignMootqSpyurkAnswers(coded, parsed.data);
     }
     return coded;
   }
@@ -195,21 +194,6 @@ function assignOwnResidence(coded: MootqCodedAnswers, answers: OwnResidenceAnswe
   coded[CODE.ownPurchaseMethod] = toMootqOptionLabel('purchaseMethod', answers.purchaseMethod);
   coded[CODE.monthlyBudget] = toMootqOptionLabel('monthlyBudget', answers.monthlyBudget);
   coded[CODE.decisionStage] = toMootqOptionLabel('decisionStage', answers.decisionStage);
-}
-
-function assignSpyurkAnswers(coded: MootqCodedAnswers, answers: SpyurkQuestionnaireAnswers): void {
-  coded[CODE.ageBand] = toMootqOptionLabel('ageBand', answers.ageBand);
-  coded[CODE.residenceScope] = toMootqOptionLabel('locationSeekScope', 'abroad');
-  coded[CODE.residenceAbroad] = `${answers.residence.city}, ${answers.residence.region}`;
-  coded[CODE.visitPurpose] = toMootqOptionLabel('visitPurpose', answers.visitPurpose);
-  if (answers.visitPurpose !== 'market_research') {
-    return;
-  }
-  coded[CODE.marketInterests] = answers.marketInterests.map((code) =>
-    toMootqOptionLabel('marketInterest', code),
-  );
-  coded[CODE.researchGoal] = getSpyurkOptionLabel('researchGoal', answers.researchGoal, 'hy');
-  coded[CODE.purchaseHorizon] = toMootqOptionLabel('purchaseHorizon', answers.purchaseHorizon);
 }
 
 function isSpyurkAnswers(formVersion: string | null | undefined, answers: unknown): boolean {
