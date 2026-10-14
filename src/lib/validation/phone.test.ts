@@ -66,3 +66,19 @@ describe('formatNationalPhoneInput', () => {
     expect(nextNationalPhoneDigits('(965', '965', 'RU')).toBe('96');
   });
 });
+
+describe('normalizePhone', () => {
+  it('accepts real Armenian operator prefixes', () => {
+    expect(normalizePhone('+374 99 123456')).toEqual({
+      phone: '+374 99 123456',
+      phoneNormalized: '+37499123456',
+    });
+    expect(normalizePhone('77123456')?.phoneNormalized).toBe('+37477123456');
+  });
+
+  it('rejects numbers whose length fits but whose operator prefix does not exist', () => {
+    for (const phone of ['+374 37 477882', '+374 39 360137', '+374 14 684343', '+374 87 877878']) {
+      expect(normalizePhone(phone), phone).toBeNull();
+    }
+  });
+});
