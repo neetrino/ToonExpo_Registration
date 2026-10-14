@@ -22,6 +22,7 @@
     "hoursValue": "11:00-21:00",
     "venueLabel": "Место",
     "venueValue": "Выставочный центр «Меридиан» (ул. Воскеричнери, 1)",
+    "registrationIntro": "Заполните регистрационную анкету и получите Ваш входной билет на TOON EXPO",
     "attentionTitle": "ВНИМАНИЕ",
     "attentionParagraphs": [
       "Уважаемый гость,",
@@ -126,10 +127,12 @@
     "description": "Спасибо за регистрацию на TOON EXPO Invest 2026 Vol. 2. Ваши данные успешно сохранены.",
     "ticketTitle": "Вы зарегистрированы",
     "ticketDescription": "Покажите этот QR-код на входе. Также можно скачать билет.",
+    "emailNotice": "Ваш QR-код для входа также отправлен на Ваш адрес электронной почты.",
     "qrAlt": "QR-код вашего билета TOON EXPO",
     "codeHint": "Читаемый код билета",
     "joinTelegram": "Присоединиться к Telegram",
     "downloadQr": "Скачать QR PNG",
+    "addToCalendar": "Добавить в календарь",
     "backToHome": "На главную"
   },
   "admin": {

@@ -48,6 +48,8 @@ import {
   type SpyurkWizardStepId,
 } from './types';
 import { validateSpyurkWizardStep } from './validation';
+import { nextButtonToneClass } from '../wizard/next-button-tone';
+import { cn } from '@/lib/utils';
 
 type SpyurkRegistrationWizardProps = {
   locale: Locale;
@@ -136,6 +138,8 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
   const isFirstStep = safeStepIndex <= 0;
   const isLastStep = safeStep === 'finish';
   const showErrors = attemptedNext || isLastStep;
+  const isStepComplete =
+    Object.keys(validateSpyurkWizardStep(safeStep, state, errorTranslator)).length === 0;
   const { trackQuestionComplete } = useQuestionnaireStepTracking({
     ready: draftReady,
     questionId: safeStep,
@@ -332,7 +336,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
           size="lg"
           onClick={() => void goNext()}
           disabled={isSubmitting}
-          className="w-full sm:w-auto"
+          className={cn('w-full sm:w-auto', nextButtonToneClass(isStepComplete))}
         >
           {isLastStep ? (isSubmitting ? tForm('submitting') : tForm('submit')) : tWizard('next')}
         </Button>

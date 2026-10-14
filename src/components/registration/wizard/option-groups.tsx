@@ -6,7 +6,8 @@ type OptionRadioGroupProps<T extends string> = {
   value: T | '';
   options: readonly T[];
   getLabel: (value: T) => string;
-  onChange: (value: T) => void;
+  /** Receives `''` when the selected option is clicked again. */
+  onChange: (value: T | '') => void;
   disabled?: boolean;
   error?: boolean;
   /** Extra controls shown directly under a selected option. */
@@ -56,6 +57,11 @@ export function OptionRadioGroup<T extends string>({
                 disabled={disabled}
                 className="mt-0.5 size-4 shrink-0 accent-highlight"
                 onChange={() => onChange(option)}
+                onClick={() => {
+                  if (checked) {
+                    onChange('');
+                  }
+                }}
               />
               <span
                 className={cn('text-sm leading-snug', checked ? 'font-medium' : 'text-foreground')}
@@ -158,7 +164,7 @@ type YesNoRadioGroupProps = {
   value: boolean | null;
   yesLabel: string;
   noLabel: string;
-  onChange: (value: boolean) => void;
+  onChange: (value: boolean | null) => void;
   disabled?: boolean;
   error?: boolean;
 };
@@ -178,7 +184,7 @@ export function YesNoRadioGroup({
       value={value === null ? '' : value ? 'yes' : 'no'}
       options={['yes', 'no'] as const}
       getLabel={(option) => (option === 'yes' ? yesLabel : noLabel)}
-      onChange={(option) => onChange(option === 'yes')}
+      onChange={(option) => onChange(option === '' ? null : option === 'yes')}
       disabled={disabled}
       error={error}
     />

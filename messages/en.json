@@ -22,6 +22,7 @@
     "hoursValue": "11:00-21:00",
     "venueLabel": "Venue",
     "venueValue": "Meridian Exhibition Center (Voskerichneri Street, 1)",
+    "registrationIntro": "Fill out the registration form and get your TOON EXPO entry ticket",
     "attentionTitle": "ATTENTION",
     "attentionParagraphs": [
       "Dear visitor,",
@@ -126,10 +127,12 @@
     "description": "Thank you for registering for TOON EXPO Invest 2026 Vol. 2. We have saved your details successfully.",
     "ticketTitle": "You're registered",
     "ticketDescription": "Show this QR code at the entrance. You can also download your ticket anytime.",
+    "emailNotice": "Your entry QR code has also been sent to your email address.",
     "qrAlt": "Your TOON EXPO ticket QR code",
     "codeHint": "Readable ticket code",
     "joinTelegram": "Join Telegram",
     "downloadQr": "Download QR PNG",
+    "addToCalendar": "Add to calendar",
     "backToHome": "Back to home"
   },
   "admin": {

@@ -1,5 +1,5 @@
 import type { Locale } from '@/types/locale';
-import { BRAND_PRIMARY, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
+import { BRAND_PRIMARY, EVENT_CALENDAR_URL, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
 import { TICKET_QR_CONTENT_ID } from '@/lib/delivery/constants';
 
 export type TicketEmailMessageInput = {
@@ -23,6 +23,7 @@ export const TICKET_EMAIL_LIST_UNSUBSCRIBE = `<mailto:${TICKET_EMAIL_UNSUBSCRIBE
 
 const EVENT_MAP_URL = 'https://yandex.com/maps/-/CThIYFMT';
 const EVENT_TITLE = 'TOON EXPO․ INVEST 2026 Vol. 2';
+const EMAIL_EVENT_NAME = 'TOON EXPO Invest 2026 Vol. 2';
 const EVENT_HOURS = '11:00–21:00';
 
 type EmailCopy = {
@@ -37,13 +38,16 @@ type EmailCopy = {
   telegramCta: string;
   downloadLead: string;
   downloadLink: string;
+  calendarCta: string;
   footerLead: string;
   footerLink: string;
 };
 
+type CtaVariant = 'solid' | 'outline';
+
 const copyByLocale: Record<Locale, EmailCopy> = {
   hy: {
-    subject: 'TOON EXPO - Ձեր գրանցումը հաստատված է',
+    subject: `${EMAIL_EVENT_NAME} - Ձեր գրանցումը հաստատված է`,
     greeting: (name) => `Հարգելի ${name},`,
     confirmed: 'Ձեր գրանցումը հաստատված է:',
     qrLabel: 'Ձեր մուտքի QR կոդը',
@@ -54,11 +58,12 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     telegramCta: 'Միանալ Telegram ալիքին',
     downloadLead: 'Մուտքի տոմսը կարող եք նաև ներբեռնել',
     downloadLink: 'այստեղ․',
+    calendarCta: 'Ավելացնել օրացույցում',
     footerLead: 'Եթե այլևս չեք ցանկանում ստանալ այս նամակները, կարող եք',
     footerLink: 'ապաբաժանորդագրվել',
   },
   en: {
-    subject: 'TOON EXPO - Your registration is confirmed',
+    subject: `${EMAIL_EVENT_NAME} - Your registration is confirmed`,
     greeting: (name) => `Dear ${name},`,
     confirmed: 'Your registration is confirmed.',
     qrLabel: 'Your entry QR code',
@@ -69,11 +74,12 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     telegramCta: 'Join the Telegram channel',
     downloadLead: 'You can also download your entry ticket',
     downloadLink: 'here.',
+    calendarCta: 'Add to calendar',
     footerLead: 'If you no longer want these emails, you can',
     footerLink: 'unsubscribe',
   },
   ru: {
-    subject: 'TOON EXPO - Ваша регистрация подтверждена',
+    subject: `${EMAIL_EVENT_NAME} - Ваша регистрация подтверждена`,
     greeting: (name) => `Здравствуйте, ${name},`,
     confirmed: 'Ваша регистрация подтверждена.',
     qrLabel: 'Ваш QR-код для входа',
@@ -84,6 +90,7 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     telegramCta: 'Присоединиться к каналу Telegram',
     downloadLead: 'Входной билет также можно скачать',
     downloadLink: 'здесь.',
+    calendarCta: 'Добавить в календарь',
     footerLead: 'Если вы больше не хотите получать эти письма, вы можете',
     footerLink: 'отписаться',
   },
@@ -117,6 +124,7 @@ function buildPlainText(copy: EmailCopy, input: TicketEmailMessageInput): string
     EVENT_HOURS,
     `${copy.venue}: ${EVENT_MAP_URL}`,
     `${copy.downloadLead} ${copy.downloadLink} ${input.ticketUrl}`,
+    `${copy.calendarCta}: ${EVENT_CALENDAR_URL}`,
     `${copy.footerLead} ${copy.footerLink}: mailto:${TICKET_EMAIL_UNSUBSCRIBE_ADDRESS}`,
     '— TOON EXPO',
   ].join('\n\n');
@@ -147,6 +155,7 @@ function buildHtml(locale: Locale, copy: EmailCopy, input: TicketEmailMessageInp
         ${telegramSection(copy)}
         ${eventSection(copy, mapUrl)}
         ${downloadSection(copy, ticketUrl)}
+        ${calendarSection(copy)}
         ${footerSection(copy, unsubscribeUrl)}
       </table>
     </td></tr>
@@ -166,18 +175,34 @@ function qrSection(copy: EmailCopy, ticketCode: string): string {
 }
 
 function telegramSection(copy: EmailCopy): string {
-  const href = escapeHtml(TELEGRAM_CHANNEL_URL);
-  const label = escapeHtml(copy.telegramCta);
-
   return `<tr><td align="center" style="padding:18px 28px 0;font-family:Arial,Helvetica,sans-serif;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+    ${ctaButton(TELEGRAM_CHANNEL_URL, copy.telegramCta, 'solid')}
+  </td></tr>`;
+}
+
+function calendarSection(copy: EmailCopy): string {
+  return `<tr><td align="center" style="padding:16px 28px 0;font-family:Arial,Helvetica,sans-serif;">
+    ${ctaButton(EVENT_CALENDAR_URL, `📅 ${copy.calendarCta}`, 'outline')}
+  </td></tr>`;
+}
+
+/** Table-wrapped pill link; Outlook ignores padding and radius on bare anchors. */
+function ctaButton(url: string, label: string, variant: CtaVariant): string {
+  const solid = variant === 'solid';
+  const cellStyle = solid
+    ? 'border-radius:999px;'
+    : `border-radius:999px;border:2px solid ${BRAND_PRIMARY};`;
+  const bgcolor = solid ? BRAND_PRIMARY : '#ffffff';
+  const color = solid ? '#ffffff' : BRAND_PRIMARY;
+  const padding = solid ? '12px 24px' : '10px 22px';
+
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0">
       <tr>
-        <td align="center" bgcolor="${BRAND_PRIMARY}" style="border-radius:999px;">
-          <a href="${href}" target="_blank" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:999px;">${label}</a>
+        <td align="center" bgcolor="${bgcolor}" style="${cellStyle}">
+          <a href="${escapeHtml(url)}" target="_blank" style="display:inline-block;padding:${padding};font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;line-height:1.2;color:${color};text-decoration:none;border-radius:999px;">${escapeHtml(label)}</a>
         </td>
       </tr>
-    </table>
-  </td></tr>`;
+    </table>`;
 }
 
 function eventSection(copy: EmailCopy, mapUrl: string): string {

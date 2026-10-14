@@ -22,6 +22,7 @@
     "hoursValue": "11:00-21:00",
     "venueLabel": "Վայրը",
     "venueValue": "Մերիդիան ցուցահանդեսային կենտրոն (Ոսկերիչների փողոց, 1)",
+    "registrationIntro": "Լրացրեք գրանցման հարցաշարը և ստացեք TOON EXPO-ի մուտքի Ձեր տոմսը",
     "attentionTitle": "ՈՒՇԱԴՐՈՒԹՅՈՒՆ",
     "attentionParagraphs": [
       "Հարգելի այցելու,",
@@ -126,10 +127,12 @@
     "description": "Շնորհակալություն TOON EXPO Invest 2026 Vol. 2-ի գրանցման համար։ Ձեր տվյալները հաջողությամբ պահպանվել են։",
     "ticketTitle": "Դուք գրանցված եք",
     "ticketDescription": "Ցույց տվեք այս QR կոդը մուտքի մոտ։ Կարող եք նաև ներբեռնել տոմսը։",
+    "emailNotice": "Ձեր մուտքի QR կոդը ուղարկվել է նաև Ձեր էլեկտրոնային փոստի հասցեին։",
     "qrAlt": "Ձեր TOON EXPO տոմսի QR կոդը",
     "codeHint": "Ընթեռնելի տոմսի կոդ",
     "joinTelegram": "Միանալ Telegram-ին",
     "downloadQr": "Ներբեռնել QR PNG",
+    "addToCalendar": "Ավելացնել օրացույցում",
     "backToHome": "Վերադառնալ գլխավոր էջ"
   },
   "admin": {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BRAND_PRIMARY, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
+import { BRAND_PRIMARY, EVENT_CALENDAR_URL, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
 import { buildTicketEmailMessage } from '@/lib/delivery/ticket-email-messages';
 import { TICKET_QR_CONTENT_ID } from '@/lib/delivery/constants';
 import { locales } from '@/types/locale';
@@ -24,6 +24,11 @@ describe('buildTicketEmailMessage', () => {
     expect(message.html).toContain(sampleInput.ticketCode);
     expect(message.html).toContain(TELEGRAM_CHANNEL_URL);
     expect(message.text).toContain(TELEGRAM_CHANNEL_URL);
+    expect(message.html).toContain(EVENT_CALENDAR_URL);
+    expect(message.text).toContain(EVENT_CALENDAR_URL);
+    expect(message.html.indexOf(EVENT_CALENDAR_URL)).toBeGreaterThan(
+      message.html.indexOf(sampleInput.ticketUrl),
+    );
     expect(message.html).toContain('https://yandex.com/maps/-/CThIYFMT');
     expect(message.html).toContain('mailto:hi@mail.toonexpo.com');
     expect(message.html).toContain(`bgcolor="${BRAND_PRIMARY}"`);
@@ -33,18 +38,19 @@ describe('buildTicketEmailMessage', () => {
   it('uses the approved Armenian subject and confirmation copy', () => {
     const message = buildTicketEmailMessage('hy', sampleInput);
 
-    expect(message.subject).toBe('TOON EXPO - Ձեր գրանցումը հաստատված է');
+    expect(message.subject).toBe('TOON EXPO Invest 2026 Vol. 2 - Ձեր գրանցումը հաստատված է');
     expect(message.text).toContain('Հարգելի Ani Petrosyan,');
     expect(message.text).toContain('Նոյեմբերի 13 | 14 | 15');
     expect(message.html).toContain('ապաբաժանորդագրվել');
     expect(message.html).toContain('Միանալ Telegram ալիքին');
     expect(message.text).toContain('Միանալ Telegram ալիքին');
+    expect(message.html).toContain('Ավելացնել օրացույցում');
   });
 
   it('uses Russian copy when the visitor selected Russian', () => {
     const message = buildTicketEmailMessage('ru', sampleInput);
 
-    expect(message.subject).toBe('TOON EXPO - Ваша регистрация подтверждена');
+    expect(message.subject).toBe('TOON EXPO Invest 2026 Vol. 2 - Ваша регистрация подтверждена');
     expect(message.text).toContain('Здравствуйте, Ani Petrosyan,');
     expect(message.text).toContain('Ваша регистрация подтверждена.');
     expect(message.html).toContain('Ваш QR-код для входа');
@@ -57,7 +63,7 @@ describe('buildTicketEmailMessage', () => {
   it('uses English copy when the visitor selected English', () => {
     const message = buildTicketEmailMessage('en', sampleInput);
 
-    expect(message.subject).toBe('TOON EXPO - Your registration is confirmed');
+    expect(message.subject).toBe('TOON EXPO Invest 2026 Vol. 2 - Your registration is confirmed');
     expect(message.text).toContain('Dear Ani Petrosyan,');
     expect(message.text).not.toContain('Հարգելի');
     expect(message.html).not.toContain('Ձեր գրանցումը հաստատված է');

@@ -8,9 +8,10 @@ type LandingBrandProps = {
   titleBrand: string;
   titleEvent: string;
   meta: LandingBrandMetaItem[];
+  intro?: string;
 };
 
-export function LandingBrand({ title, titleBrand, titleEvent, meta }: LandingBrandProps) {
+export function LandingBrand({ title, titleBrand, titleEvent, meta, intro }: LandingBrandProps) {
   return (
     <header className="landing-brand mx-auto w-full max-w-3xl min-w-0 text-center">
       <h1 className="font-display font-extrabold tracking-tight text-white">
@@ -40,6 +41,11 @@ export function LandingBrand({ title, titleBrand, titleEvent, meta }: LandingBra
           </span>
         ))}
       </p>
+      {intro ? (
+        <p className="mx-auto mt-8 max-w-md border-t border-white/15 px-2 pt-6 text-balance text-base leading-relaxed text-white/85 sm:max-w-lg sm:text-lg">
+          {intro}
+        </p>
+      ) : null}
     </header>
   );
 }

@@ -1,17 +1,14 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import {
+  PrivacyPolicyContent,
+  type PrivacySection,
+} from '@/components/legal/privacy-policy-content';
 import { Button } from '@/components/ui/button';
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 
 type PrivacyPageProps = {
   params: Promise<{ locale: string }>;
-};
-
-type PrivacySection = {
-  title: string;
-  body: string;
-  items?: string[];
-  closing?: string;
 };
 
 export default async function PrivacyPage({ params }: PrivacyPageProps) {
@@ -56,23 +53,8 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
             </div>
           </header>
 
-          <div className="mt-6 space-y-6 text-base leading-relaxed text-muted-foreground">
-            <p className="whitespace-pre-line">{t('intro')}</p>
-
-            {sections.map((section) => (
-              <section key={section.title} className="space-y-2">
-                <h2 className="font-display text-lg font-bold text-foreground">{section.title}</h2>
-                <p className="whitespace-pre-line">{section.body}</p>
-                {section.items && section.items.length > 0 ? (
-                  <ul className="list-disc space-y-1 pl-5">
-                    {section.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                ) : null}
-                {section.closing ? <p className="whitespace-pre-line">{section.closing}</p> : null}
-              </section>
-            ))}
+          <div className="mt-6">
+            <PrivacyPolicyContent intro={t('intro')} sections={sections} />
           </div>
 
           <div className="mt-8">

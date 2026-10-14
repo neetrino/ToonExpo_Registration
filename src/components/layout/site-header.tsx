@@ -10,7 +10,7 @@ export function SiteHeader() {
   const t = useTranslations('common');
 
   return (
-    <header className="border-b border-white/10 bg-primary">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-primary">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5">
         <Link
           href="/"

@@ -29,6 +29,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
             { label: t('hoursLabel'), value: t('hoursValue') },
             { label: t('venueLabel'), value: t('venueValue') },
           ]}
+          intro={t('registrationIntro')}
         />
 
         <LandingRegistrationCard locale={resolvedLocale} />
