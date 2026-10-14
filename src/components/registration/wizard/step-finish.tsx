@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { PRIVACY_POLICY_PANEL_ID, PrivacyPolicyPanel } from './privacy-policy-panel';
@@ -15,17 +15,24 @@ type StepProps = {
   onUpdate: (key: 'privacyConsent', value: boolean) => void;
 };
 
-function ConsentDocumentReference({ children }: { children: ReactNode }) {
+function ConsentDocumentReference({
+  children,
+  expanded,
+  onOpen,
+}: {
+  children: ReactNode;
+  expanded: boolean;
+  onOpen: () => void;
+}) {
   return (
     <a
       href={`#${PRIVACY_POLICY_PANEL_ID}`}
+      aria-controls={PRIVACY_POLICY_PANEL_ID}
+      aria-expanded={expanded}
       className="inline font-medium text-secondary underline underline-offset-4 hover:text-primary"
       onClick={(event) => {
         event.preventDefault();
-        const panel = document.getElementById(PRIVACY_POLICY_PANEL_ID);
-        panel?.scrollTo({ top: 0 });
-        panel?.focus({ preventScroll: true });
-        panel?.scrollIntoView({ block: 'nearest' });
+        onOpen();
       }}
     >
       {children}
@@ -33,12 +40,37 @@ function ConsentDocumentReference({ children }: { children: ReactNode }) {
   );
 }
 
+/** Opens the policy panel and brings its top into view once it has rendered. */
+function usePolicyPanel(): { open: boolean; toggle: () => void; reveal: () => void } {
+  const [open, setOpen] = useState(false);
+  const [revealRequest, setRevealRequest] = useState(0);
+
+  useEffect(() => {
+    if (revealRequest === 0) {
+      return;
+    }
+    const panel = document.getElementById(PRIVACY_POLICY_PANEL_ID);
+    panel?.scrollTo({ top: 0 });
+    panel?.focus({ preventScroll: true });
+    panel?.scrollIntoView({ block: 'nearest' });
+  }, [revealRequest]);
+
+  return {
+    open,
+    toggle: () => setOpen((current) => !current),
+    reveal: () => {
+      setOpen(true);
+      setRevealRequest((current) => current + 1);
+    },
+  };
+}
+
 export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
   const tForm = useTranslations('form');
+  const policy = usePolicyPanel();
 
   return (
     <div className="space-y-3">
-      <PrivacyPolicyPanel />
       <div
         className={cn(
           'flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors duration-200 motion-reduce:transition-none',
@@ -66,8 +98,16 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
           className="cursor-pointer text-sm leading-snug text-muted-foreground"
         >
           {tForm.rich('consent', {
-            terms: (chunks) => <ConsentDocumentReference>{chunks}</ConsentDocumentReference>,
-            privacy: (chunks) => <ConsentDocumentReference>{chunks}</ConsentDocumentReference>,
+            terms: (chunks) => (
+              <ConsentDocumentReference expanded={policy.open} onOpen={policy.reveal}>
+                {chunks}
+              </ConsentDocumentReference>
+            ),
+            privacy: (chunks) => (
+              <ConsentDocumentReference expanded={policy.open} onOpen={policy.reveal}>
+                {chunks}
+              </ConsentDocumentReference>
+            ),
           })}
         </label>
       </div>
@@ -76,6 +116,7 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
           {errors.privacyConsent}
         </p>
       ) : null}
+      <PrivacyPolicyPanel open={policy.open} onToggle={policy.toggle} />
     </div>
   );
 }
