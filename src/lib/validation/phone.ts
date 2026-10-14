@@ -1,9 +1,9 @@
 import {
   getCountryCallingCode,
   Metadata,
-  parsePhoneNumberFromString,
   type CountryCode,
 } from 'libphonenumber-js';
+import { parsePhoneNumberFromString as parseWithFullMetadata } from 'libphonenumber-js/max';
 import { DEFAULT_PHONE_COUNTRY, PHONE_MAX_LENGTH } from '@/lib/validation/constants';
 
 export type NormalizedPhone = {
@@ -260,6 +260,7 @@ function stripCountryPrefix(digits: string, country: CountryCode, limit: number)
 /**
  * Parse a phone number to E.164.
  * Uses `defaultCountry` when the input has no international prefix (e.g. local Armenian digits).
+ * Validity uses full metadata (operator prefixes, not only length), matching Mootq's check.
  */
 export function normalizePhone(
   value: string,
@@ -270,7 +271,7 @@ export function normalizePhone(
     return null;
   }
 
-  const parsed = parsePhoneNumberFromString(trimmed, defaultCountry);
+  const parsed = parseWithFullMetadata(trimmed, defaultCountry);
   if (!parsed || !parsed.isValid()) {
     return null;
   }
