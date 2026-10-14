@@ -37,7 +37,6 @@ export function AdminLoginForm() {
           name="email"
           type="email"
           autoComplete="username"
-          placeholder="admin@toonexpo.com"
           required
           maxLength={254}
           className="bg-background"
@@ -50,7 +49,6 @@ export function AdminLoginForm() {
           name="password"
           type="password"
           autoComplete="current-password"
-          placeholder="••••••••"
           required
           maxLength={256}
           className="bg-background"
