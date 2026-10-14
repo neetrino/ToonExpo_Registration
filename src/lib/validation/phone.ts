@@ -1,8 +1,4 @@
-import {
-  getCountryCallingCode,
-  Metadata,
-  type CountryCode,
-} from 'libphonenumber-js';
+import { getCountryCallingCode, Metadata, type CountryCode } from 'libphonenumber-js';
 import { parsePhoneNumberFromString as parseWithFullMetadata } from 'libphonenumber-js/max';
 import { DEFAULT_PHONE_COUNTRY, PHONE_MAX_LENGTH } from '@/lib/validation/constants';
 
