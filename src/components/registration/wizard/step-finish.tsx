@@ -18,11 +18,11 @@ type StepProps = {
 function ConsentDocumentReference({
   children,
   expanded,
-  onOpen,
+  onToggle,
 }: {
   children: ReactNode;
   expanded: boolean;
-  onOpen: () => void;
+  onToggle: () => void;
 }) {
   return (
     <a
@@ -32,7 +32,7 @@ function ConsentDocumentReference({
       className="inline font-medium text-secondary underline underline-offset-4 hover:text-primary"
       onClick={(event) => {
         event.preventDefault();
-        onOpen();
+        onToggle();
       }}
     >
       {children}
@@ -40,29 +40,20 @@ function ConsentDocumentReference({
   );
 }
 
-/** Opens the policy panel and brings its top into view once it has rendered. */
-function usePolicyPanel(): { open: boolean; toggle: () => void; reveal: () => void } {
+/** Toggles the policy panel and scrolls the whole panel into view whenever it opens. */
+function usePolicyPanel(): { open: boolean; toggle: () => void } {
   const [open, setOpen] = useState(false);
-  const [revealRequest, setRevealRequest] = useState(0);
 
   useEffect(() => {
-    if (revealRequest === 0) {
+    if (!open) {
       return;
     }
     const panel = document.getElementById(PRIVACY_POLICY_PANEL_ID);
-    panel?.scrollTo({ top: 0 });
     panel?.focus({ preventScroll: true });
-    panel?.scrollIntoView({ block: 'nearest' });
-  }, [revealRequest]);
+    panel?.closest('section')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [open]);
 
-  return {
-    open,
-    toggle: () => setOpen((current) => !current),
-    reveal: () => {
-      setOpen(true);
-      setRevealRequest((current) => current + 1);
-    },
-  };
+  return { open, toggle: () => setOpen((current) => !current) };
 }
 
 export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
@@ -99,12 +90,12 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
         >
           {tForm.rich('consent', {
             terms: (chunks) => (
-              <ConsentDocumentReference expanded={policy.open} onOpen={policy.reveal}>
+              <ConsentDocumentReference expanded={policy.open} onToggle={policy.toggle}>
                 {chunks}
               </ConsentDocumentReference>
             ),
             privacy: (chunks) => (
-              <ConsentDocumentReference expanded={policy.open} onOpen={policy.reveal}>
+              <ConsentDocumentReference expanded={policy.open} onToggle={policy.toggle}>
                 {chunks}
               </ConsentDocumentReference>
             ),
