@@ -23,6 +23,7 @@ export const TICKET_EMAIL_LIST_UNSUBSCRIBE = `<mailto:${TICKET_EMAIL_UNSUBSCRIBE
 
 const EVENT_MAP_URL = 'https://yandex.com/maps/-/CThIYFMT';
 const EVENT_TITLE = 'TOON EXPO․ INVEST 2026 Vol. 2';
+const EMAIL_EVENT_NAME = 'TOON EXPO Invest 2026 Vol. 2';
 const EVENT_HOURS = '11:00–21:00';
 
 type EmailCopy = {
@@ -46,7 +47,7 @@ type CtaVariant = 'solid' | 'outline';
 
 const copyByLocale: Record<Locale, EmailCopy> = {
   hy: {
-    subject: 'TOON EXPO - Ձեր գրանցումը հաստատված է',
+    subject: `${EMAIL_EVENT_NAME} - Ձեր գրանցումը հաստատված է`,
     greeting: (name) => `Հարգելի ${name},`,
     confirmed: 'Ձեր գրանցումը հաստատված է:',
     qrLabel: 'Ձեր մուտքի QR կոդը',
@@ -62,7 +63,7 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     footerLink: 'ապաբաժանորդագրվել',
   },
   en: {
-    subject: 'TOON EXPO - Your registration is confirmed',
+    subject: `${EMAIL_EVENT_NAME} - Your registration is confirmed`,
     greeting: (name) => `Dear ${name},`,
     confirmed: 'Your registration is confirmed.',
     qrLabel: 'Your entry QR code',
@@ -78,7 +79,7 @@ const copyByLocale: Record<Locale, EmailCopy> = {
     footerLink: 'unsubscribe',
   },
   ru: {
-    subject: 'TOON EXPO - Ваша регистрация подтверждена',
+    subject: `${EMAIL_EVENT_NAME} - Ваша регистрация подтверждена`,
     greeting: (name) => `Здравствуйте, ${name},`,
     confirmed: 'Ваша регистрация подтверждена.',
     qrLabel: 'Ваш QR-код для входа',

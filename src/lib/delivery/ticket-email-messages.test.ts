@@ -38,7 +38,7 @@ describe('buildTicketEmailMessage', () => {
   it('uses the approved Armenian subject and confirmation copy', () => {
     const message = buildTicketEmailMessage('hy', sampleInput);
 
-    expect(message.subject).toBe('TOON EXPO - Ձեր գրանցումը հաստատված է');
+    expect(message.subject).toBe('TOON EXPO Invest 2026 Vol. 2 - Ձեր գրանցումը հաստատված է');
     expect(message.text).toContain('Հարգելի Ani Petrosyan,');
     expect(message.text).toContain('Նոյեմբերի 13 | 14 | 15');
     expect(message.html).toContain('ապաբաժանորդագրվել');
@@ -50,7 +50,7 @@ describe('buildTicketEmailMessage', () => {
   it('uses Russian copy when the visitor selected Russian', () => {
     const message = buildTicketEmailMessage('ru', sampleInput);
 
-    expect(message.subject).toBe('TOON EXPO - Ваша регистрация подтверждена');
+    expect(message.subject).toBe('TOON EXPO Invest 2026 Vol. 2 - Ваша регистрация подтверждена');
     expect(message.text).toContain('Здравствуйте, Ani Petrosyan,');
     expect(message.text).toContain('Ваша регистрация подтверждена.');
     expect(message.html).toContain('Ваш QR-код для входа');
@@ -63,7 +63,7 @@ describe('buildTicketEmailMessage', () => {
   it('uses English copy when the visitor selected English', () => {
     const message = buildTicketEmailMessage('en', sampleInput);
 
-    expect(message.subject).toBe('TOON EXPO - Your registration is confirmed');
+    expect(message.subject).toBe('TOON EXPO Invest 2026 Vol. 2 - Your registration is confirmed');
     expect(message.text).toContain('Dear Ani Petrosyan,');
     expect(message.text).not.toContain('Հարգելի');
     expect(message.html).not.toContain('Ձեր գրանցումը հաստատված է');
