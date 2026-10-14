@@ -85,8 +85,9 @@ describe('isMootqQuestionVisible', () => {
 
   it('hides on unknown operators, missing parents, hidden parents, and cycles', () => {
     expect(visible(question('child', rule('matches', 'a')), { parent: 'a' })).toBe(false);
-    expect(visible(question('child', [{ parent: null, operator: 'exists', expected: null }]), {}))
-      .toBe(false);
+    expect(
+      visible(question('child', [{ parent: null, operator: 'exists', expected: null }]), {}),
+    ).toBe(false);
     expect(
       visible(question('child', [{ parent: 'ghost', operator: 'eq', expected: 'a' }]), {}),
     ).toBe(false);

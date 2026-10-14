@@ -75,9 +75,10 @@ describe('Spyurk Mootq answers', () => {
 });
 
 function expectIdentityOnly(label: string, answers: Record<string, unknown>): void {
-  expect(spyurkQuestionnaireAnswersSchema.safeParse(answers).success, `${label} fixture rejected`).toBe(
-    true,
-  );
+  expect(
+    spyurkQuestionnaireAnswersSchema.safeParse(answers).success,
+    `${label} fixture rejected`,
+  ).toBe(true);
   const mapped = buildMootqRegistrationAnswers(
     { ...identity, formVersion: SPYURK_FORM_VERSION, answers },
     mootqSchemaFixture,

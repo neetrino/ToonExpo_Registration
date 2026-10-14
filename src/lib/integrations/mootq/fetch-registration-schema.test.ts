@@ -52,18 +52,15 @@ describe('fetchMootqRegistrationSchema', () => {
     const fetchImpl = vi.fn(async () => jsonResponse(200, schemaBody));
     const result = await fetchMootqRegistrationSchema({ ...params, fetchImpl });
 
-    expect(fetchImpl).toHaveBeenCalledWith(
-      mootqRegistrationSchemaUrl(pushUrl, 'toon-expo-2026'),
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${key}`,
-          Accept: 'application/json',
-          'Accept-Language': 'hy',
-        },
-        signal: expect.any(AbortSignal) as AbortSignal,
+    expect(fetchImpl).toHaveBeenCalledWith(mootqRegistrationSchemaUrl(pushUrl, 'toon-expo-2026'), {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        Accept: 'application/json',
+        'Accept-Language': 'hy',
       },
-    );
+      signal: expect.any(AbortSignal) as AbortSignal,
+    });
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;

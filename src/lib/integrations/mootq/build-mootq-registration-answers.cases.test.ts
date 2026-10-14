@@ -127,7 +127,9 @@ describe('every Mootq questionnaire case', () => {
       if (!cityRegion) {
         const answers = perMarket({ residence: { scope: 'marz', region } });
         assertAnswerValues(`marz ${region}`, answers, FORM_VERSION);
-        expect(mootqAnswers(answers)[Q.residenceMarz]).toBe(toMootqOptionLabel('marzRegion', region));
+        expect(mootqAnswers(answers)[Q.residenceMarz]).toBe(
+          toMootqOptionLabel('marzRegion', region),
+        );
         continue;
       }
 
@@ -153,7 +155,11 @@ describe('every Mootq questionnaire case', () => {
       },
     });
     assertAnswerValues('three districts', threeDistricts, FORM_VERSION);
-    expect(mootqAnswers(threeDistricts)[Q.researchYerevan]).toEqual(['Կենտրոն', 'Արաբկիր', 'Աջափնյակ']);
+    expect(mootqAnswers(threeDistricts)[Q.researchYerevan]).toEqual([
+      'Կենտրոն',
+      'Արաբկիր',
+      'Աջափնյակ',
+    ]);
 
     const marz = perMarket({
       researchLocation: {

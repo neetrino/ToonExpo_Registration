@@ -78,26 +78,24 @@ describe('buildMootqPushPayload', () => {
     expect(missingRequired).toEqual([]);
   });
   it('maps the confirmed market-research example to question codes', () => {
-    const payload = payloadFor(
-      {
-        ...fullPushInput,
-        formVersion: FORM_VERSION,
-        answers: {
-          ageBand: '25-34',
-          residence: { scope: 'yerevan', district: 'kentron' },
-          visitPurpose: 'market_research',
-          marketInterests: ['new_apartments'],
-          researchGoal: 'future_purchase',
-          researchLocation: {
-            undecided: false,
-            yerevanDistricts: ['kentron'],
-            marzRegions: [],
-          },
-          purchaseHorizon: 'up_to_3_months',
-          newsletter: false,
+    const payload = payloadFor({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '25-34',
+        residence: { scope: 'yerevan', district: 'kentron' },
+        visitPurpose: 'market_research',
+        marketInterests: ['new_apartments'],
+        researchGoal: 'future_purchase',
+        researchLocation: {
+          undecided: false,
+          yerevanDistricts: ['kentron'],
+          marzRegions: [],
         },
+        purchaseHorizon: 'up_to_3_months',
+        newsletter: false,
       },
-    );
+    });
 
     expect(payload.answers).toMatchObject({
       [Q.ageBand]: '25-34 տարեկան',
@@ -114,29 +112,27 @@ describe('buildMootqPushPayload', () => {
   });
 
   it('sends shared answers for other branches and does not invent question codes', () => {
-    const payload = payloadFor(
-      {
-        ...fullPushInput,
-        formVersion: FORM_VERSION,
-        answers: {
-          ageBand: '25-34',
-          residence: { scope: 'abroad', country: 'Georgia' },
-          visitPurpose: 'investment',
-          investmentPropertyType: 'apartment',
-          locationSeek: {
-            yerevanDistricts: ['kentron'],
-            marzRegions: [],
-            abroadCountries: [],
-          },
-          investmentGoal: 'rental_income',
-          areaSqm: '50-70',
-          purchaseMethod: 'cash',
-          investmentTimeline: 'up_to_3_months',
-          investmentBudgetUsd: 'up_to_150k',
-          priorInvestmentExperience: 'no_first',
+    const payload = payloadFor({
+      ...fullPushInput,
+      formVersion: FORM_VERSION,
+      answers: {
+        ageBand: '25-34',
+        residence: { scope: 'abroad', country: 'Georgia' },
+        visitPurpose: 'investment',
+        investmentPropertyType: 'apartment',
+        locationSeek: {
+          yerevanDistricts: ['kentron'],
+          marzRegions: [],
+          abroadCountries: [],
         },
+        investmentGoal: 'rental_income',
+        areaSqm: '50-70',
+        purchaseMethod: 'cash',
+        investmentTimeline: 'up_to_3_months',
+        investmentBudgetUsd: 'up_to_150k',
+        priorInvestmentExperience: 'no_first',
       },
-    );
+    });
 
     expect(payload.answers[Q.visitPurpose]).toBe('Հետաքրքրված եմ ներդրումներով');
     expect(payload.answers[Q.residenceScope]).toBe('Արտերկիր');

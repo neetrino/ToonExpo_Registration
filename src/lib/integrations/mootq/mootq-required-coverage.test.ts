@@ -106,7 +106,10 @@ const spyurkBranches: Record<string, Record<string, unknown>> = {
 
 function generalPayload(answers: Record<string, unknown>) {
   expect(questionnaireAnswersSchema.safeParse(answers).success).toBe(true);
-  return buildMootqPushPayload({ ...identity, formVersion: FORM_VERSION, answers }, mootqSchemaFixture);
+  return buildMootqPushPayload(
+    { ...identity, formVersion: FORM_VERSION, answers },
+    mootqSchemaFixture,
+  );
 }
 
 describe('Mootq required question coverage (requireAllAnswers 0)', () => {
@@ -122,20 +125,17 @@ describe('Mootq required question coverage (requireAllAnswers 0)', () => {
     },
   );
 
-  it.each(Object.entries(spyurkBranches))(
-    'Spyurk %s: sends identity only',
-    (_branch, answers) => {
-      expect(spyurkQuestionnaireAnswersSchema.safeParse(answers).success).toBe(true);
-      const { payload, missingRequired } = buildMootqPushPayload(
-        { ...identity, formVersion: SPYURK_FORM_VERSION, answers },
-        mootqSchemaFixture,
-      );
-      expect(payload.requireAllAnswers).toBe(0);
-      expect(payload.answers).toEqual(identityAnswers);
-      expect(missingRequired).toEqual([]);
-      expect(payload.ticketCode).toBe('TEABCDEFGHIJK');
-    },
-  );
+  it.each(Object.entries(spyurkBranches))('Spyurk %s: sends identity only', (_branch, answers) => {
+    expect(spyurkQuestionnaireAnswersSchema.safeParse(answers).success).toBe(true);
+    const { payload, missingRequired } = buildMootqPushPayload(
+      { ...identity, formVersion: SPYURK_FORM_VERSION, answers },
+      mootqSchemaFixture,
+    );
+    expect(payload.requireAllAnswers).toBe(0);
+    expect(payload.answers).toEqual(identityAnswers);
+    expect(missingRequired).toEqual([]);
+    expect(payload.ticketCode).toBe('TEABCDEFGHIJK');
+  });
 
   it('documents the strict-mode gap: only the newsletter would be missing for the general form', () => {
     for (const answers of Object.values(generalBranches)) {

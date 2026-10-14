@@ -15,8 +15,7 @@ import { MOOTQ_PUSH_TIMEOUT_MS } from '@/lib/integrations/mootq/push-constants';
 import { logger } from '@/lib/logger';
 
 export type MootqPushClientResult =
-  | { ok: true }
-  | { ok: false; reason: string; retryable: boolean; retryAfterSeconds?: number };
+  { ok: true } | { ok: false; reason: string; retryable: boolean; retryAfterSeconds?: number };
 
 export type MootqPushClientInput = Omit<BuildMootqPushPayloadInput, 'sourceRegistrationId'> & {
   registrationId: string;
@@ -50,7 +49,9 @@ export async function pushRegistrationToMootq(
     fetchImpl: options?.fetchImpl,
   });
   if (!schemaResult.ok) {
-    logger.warn('Mootq push skipped (schema unavailable)', { registrationId: input.registrationId });
+    logger.warn('Mootq push skipped (schema unavailable)', {
+      registrationId: input.registrationId,
+    });
     return { ok: false, reason: 'schema_unavailable', retryable: true };
   }
 

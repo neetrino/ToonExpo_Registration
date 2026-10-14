@@ -23,7 +23,9 @@ export function isMootqQuestionVisible(
   }
   const path = new Set(visiting).add(question.code);
   return question.visibilityRules.every((rule) => {
-    const parent = rule.parentQuestionCode ? questionsByCode.get(rule.parentQuestionCode) : undefined;
+    const parent = rule.parentQuestionCode
+      ? questionsByCode.get(rule.parentQuestionCode)
+      : undefined;
     if (!parent || !isMootqQuestionVisible(parent, questionsByCode, answers, path)) {
       return false;
     }
@@ -101,7 +103,8 @@ function compareNumbers(
   expected: MootqRuleValue,
 ): boolean {
   const left = typeof answer === 'string' ? toNumber(answer) : null;
-  const right = typeof expected === 'string' || typeof expected === 'number' ? toNumber(expected) : null;
+  const right =
+    typeof expected === 'string' || typeof expected === 'number' ? toNumber(expected) : null;
   if (left === null || right === null) {
     return false;
   }
