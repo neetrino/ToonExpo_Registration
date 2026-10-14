@@ -7,6 +7,7 @@ import {
   isMootqArrayAnswerType,
   MOOTQ_OTHER_OPTION,
   type MootqRegistrationSchema,
+  type MootqRequireAllAnswers,
   type MootqSchemaQuestion,
 } from '@/lib/integrations/mootq/registration-schema';
 
@@ -16,7 +17,7 @@ export type MootqCodedAnswers = MootqAnswerMap;
 export type MootqSchemaAnswersResult = {
   /** Flat `answers` body keyed by question code; hidden and blank answers removed. */
   answers: MootqCodedAnswers;
-  /** Visible required questions left without a value. */
+  /** Visible questions required in the chosen `requireAllAnswers` mode, left without a value. */
   missingRequired: string[];
 };
 
@@ -28,6 +29,7 @@ export type MootqSchemaAnswersResult = {
 export function applyMootqRegistrationSchema(
   schema: MootqRegistrationSchema,
   coded: MootqCodedAnswers,
+  requireAllAnswers: MootqRequireAllAnswers,
 ): MootqSchemaAnswersResult {
   const byCode = new Map(schema.questions.map((question) => [question.code, question]));
   const fitted = { ...coded };
@@ -44,7 +46,7 @@ export function applyMootqRegistrationSchema(
     const value = fitted[question.code];
     if (value !== undefined && hasAnswer(value)) {
       answers[question.code] = value;
-    } else if (question.required) {
+    } else if (isRequiredInMode(question, requireAllAnswers)) {
       missingRequired.push(question.code);
     }
   }
@@ -115,6 +117,13 @@ function assignOtherText(
     return;
   }
   answers[child.code] = text;
+}
+
+function isRequiredInMode(
+  question: MootqSchemaQuestion,
+  requireAllAnswers: MootqRequireAllAnswers,
+): boolean {
+  return requireAllAnswers === 1 ? question.required : question.requiredInIdentityOnlyMode;
 }
 
 function hasAnswer(value: MootqCodedAnswer): boolean {

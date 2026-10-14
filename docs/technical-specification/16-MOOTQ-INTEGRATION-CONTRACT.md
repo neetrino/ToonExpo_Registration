@@ -145,6 +145,8 @@ Mootq provides the full production and non-production URLs. The path above is th
 
 Before each send, Toon Expo loads `GET /api/v1/integrations/events/{MOOTQ_EVENT_KEY}/registration-schema` on the same host with the same Bearer key. `answers` is one flat object keyed by question `code`; choice answers are the exact option `value` (array for MULTISELECT/CHECKBOX, limited by `max_selections`). Identity is repeated under `submission.identityAnswerCodes`. Questions hidden by `visibility_rules` (all operators, AND, recursive parents) are omitted. A choice-list parent satisfies a scalar `eq` rule when it contains that value. Visible required questions without an answer are logged by code; Mootq remains the validator. The public `/api/events/{slug}/registration-schema?items[]=...` endpoint is not used.
 
+**Update 2026-10-14 (API 1.2.0).** Every send uses `requireAllAnswers: 0`: Mootq requires only the four identity answers and still validates and stores every supplied answer. General-form registrations send all mapped answers. Spyurk registrations send identity only (`first_name`, `last_name`, `phone`, `email`) plus the envelope, including `ticketCode` (the QR payload); Spyurk questionnaire answers are not shared with Mootq. The test suite also checks that in strict mode (`1`) only the newsletter question would be missing for the general form.
+
 Responses: `204` sent; `409` / `422` permanent (message and rejected field names are logged, not field texts); `429` retried no earlier than `Retry-After`; `5xx` / transport retried with the same identity and payload.
 
 ```json
@@ -239,6 +241,8 @@ Accept: application/json
 Toon Expo will provide the matching non-production URL with the credential. The token is issued by Toon Expo, is bound to one event, and has write scope.
 
 The request body uses the same contract, but `ticketCode` starts with `MQ`, and `sourceRegistrationId` is required in the body.
+
+**Update 2026-10-14 (Mootq `MootqDeliveredRegistration`, API 1.2.0).** `answers: []` is treated as no answers; `locale: null` is stored as `hy`; `registeredAt: null` uses the receipt time; `metadata` and other extra keys are ignored. Null `firstName`, `lastName`, `email`, or `phone` is rejected with `400`, because a Toon Expo ticket cannot be issued without contacts.
 
 ```json
 {

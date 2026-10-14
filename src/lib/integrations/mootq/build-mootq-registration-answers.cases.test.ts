@@ -1,11 +1,7 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { buildMootqRegistrationAnswers } from '@/lib/integrations/mootq/build-mootq-registration-answers';
 import { toMootqOptionLabel } from '@/lib/integrations/mootq/build-mootq-partner-answers';
-import {
-  Q,
-  fixtureQuestion,
-  mootqSchemaFixture,
-} from '@/lib/integrations/mootq/registration-schema.fixture';
+import { Q, mootqSchemaFixture } from '@/lib/integrations/mootq/registration-schema.fixture';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
 import { MARZ_CITY_OPTIONS, MARZ_CITY_REGIONS } from '@/lib/questionnaire/marz-cities';
 import {
@@ -27,14 +23,6 @@ import {
   RESEARCH_GOALS,
   YEREVAN_DISTRICTS,
 } from '@/lib/questionnaire/options';
-import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
-import { getSpyurkOptionLabel } from '@/lib/questionnaire/spyurk/i18n';
-import {
-  SPYURK_INVESTMENT_GOALS,
-  SPYURK_INTEREST_TYPES,
-  SPYURK_RESEARCH_GOALS,
-} from '@/lib/questionnaire/spyurk/options';
-import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 
 const identity = {
@@ -63,10 +51,7 @@ function isRawCode(value: string): boolean {
 }
 
 function assertAnswerValues(label: string, answers: unknown, formVersion: string): void {
-  const parsed =
-    formVersion === SPYURK_FORM_VERSION
-      ? spyurkQuestionnaireAnswersSchema.safeParse(answers)
-      : questionnaireAnswersSchema.safeParse(answers);
+  const parsed = questionnaireAnswersSchema.safeParse(answers);
   expect(parsed.success, `${label} fixture rejected`).toBe(true);
 
   const mapped = mootqAnswers(answers, formVersion);
@@ -255,73 +240,6 @@ describe('every Mootq questionnaire case', () => {
       assertAnswerValues(`own residence ${interestType}`, answers, FORM_VERSION);
       expect(mootqAnswers(answers)[Q.residenceAbroad]).toBe('Spain');
       expect(mootqAnswers(answers)).not.toHaveProperty(Q.marketInterests);
-    }
-  });
-
-  it('maps every Spyurk research goal and does not throw on the other branches', () => {
-    for (const researchGoal of SPYURK_RESEARCH_GOALS) {
-      const answers = {
-        ageBand: '35-44' as const,
-        residence: { city: 'Moscow', region: 'Moscow Oblast' },
-        armeniaConnection: 'family_from_armenia' as const,
-        purchaseMotives: ['own_stays'] as const,
-        visitPurpose: 'market_research' as const,
-        marketInterests: ['foreign_property'] as const,
-        researchGoal,
-        propertyCountry: { scope: 'other' as const, country: 'Georgia' },
-        purchaseHorizon: 'no_plans' as const,
-        armeniaVisitTiming: 'not_planning' as const,
-      };
-      assertAnswerValues(`spyurk goal ${researchGoal}`, answers, SPYURK_FORM_VERSION);
-      const label = getSpyurkOptionLabel('researchGoal', researchGoal, 'hy');
-      const mapped = mootqAnswers(answers, SPYURK_FORM_VERSION);
-      if (fixtureQuestion(Q.researchGoal).options.includes(label)) {
-        expect(mapped[Q.researchGoal]).toBe(label);
-      } else {
-        expect(mapped).not.toHaveProperty(Q.researchGoal);
-      }
-    }
-
-    for (const interest of SPYURK_INTEREST_TYPES) {
-      const answers = {
-        ageBand: '35-44' as const,
-        residence: { city: 'Sochi', region: 'Krasnodar' },
-        armeniaConnection: 'other' as const,
-        armeniaConnectionOther: 'Ընկերներ',
-        purchaseMotives: ['other'] as const,
-        purchaseMotivesOther: 'Աշխատանք',
-        visitPurpose: 'own_residence' as const,
-        interestTypes: [interest],
-        ...(interest === 'other' ? { interestTypesOther: 'Ավտոտնակ' } : {}),
-        propertyCountry: { scope: 'armenia' as const },
-        areaSqm: '70-90' as const,
-        purchaseMethod: 'cash' as const,
-        purchaseBudgetUsd: '150k-250k' as const,
-        decisionStage: 'just_researching' as const,
-        armeniaVisitTiming: 'within_3_months' as const,
-      };
-      assertAnswerValues(`spyurk home ${interest}`, answers, SPYURK_FORM_VERSION);
-    }
-
-    for (const goal of SPYURK_INVESTMENT_GOALS) {
-      const answers = {
-        ageBand: '45-54' as const,
-        residence: { city: 'Lyon', region: 'Auvergne' },
-        armeniaConnection: 'born_in_armenia' as const,
-        purchaseMotives: ['investment_income'] as const,
-        visitPurpose: 'investment' as const,
-        investmentPropertyTypes: ['land'] as const,
-        propertyCountry: { scope: 'armenia' as const },
-        investmentGoal: goal,
-        purchaseMethod: 'cash' as const,
-        investmentTimeline: '6-12_months' as const,
-        investmentBudgetUsd: '150k-300k' as const,
-        priorInvestmentExperience: 'yes_both' as const,
-        priorInvestmentExperienceOther: 'UAE',
-        armeniaVisitTiming: 'within_1_year' as const,
-      };
-      assertAnswerValues(`spyurk invest ${goal}`, answers, SPYURK_FORM_VERSION);
-      expect(mootqAnswers(answers, SPYURK_FORM_VERSION)).not.toHaveProperty(Q.marketInterests);
     }
   });
 });

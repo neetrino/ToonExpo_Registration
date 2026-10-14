@@ -4,7 +4,10 @@ import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from '@/lib/valida
 import { normalizeEmail, normalizeName, trimEmail } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
 import { MOOTQ_SOURCE_REGISTRATION_ID_MAX } from '@/lib/integrations/mootq/constants';
-import { normalizeRegistrationLocale } from '@/lib/validation/locale';
+import { normalizeRegistrationLocale, type RegistrationLocale } from '@/lib/validation/locale';
+
+/** Mootq may send `locale: null` when the profile has none (contract 1.2.0). */
+const MOOTQ_INBOUND_DEFAULT_LOCALE: RegistrationLocale = 'hy';
 
 const localeSchema = z.preprocess(coerceInboundLocale, z.enum(['hy', 'en', 'ru']));
 
@@ -13,10 +16,12 @@ export type MootqInboundAnswerValue = string | number | boolean | null | Array<s
 export type MootqInboundAnswers = Record<string, MootqInboundAnswerValue>;
 
 /**
- * Mootq → Toon Expo registration body (contract 16).
- * Unknown top-level keys (`eventKey`, `sourceSystem`, UTM) are ignored.
+ * Mootq → Toon Expo registration body (contract 16, Mootq `MootqDeliveredRegistration`).
+ * Unknown top-level keys (`eventKey`, `sourceSystem`, UTM, `metadata`) are ignored.
  * Source is assigned from the credential, not the body.
- * Unknown answers keys are kept; nested objects are dropped.
+ * Unknown answers keys are kept; nested objects are dropped. An empty answers map may arrive as `[]`.
+ * `locale: null` falls back to `hy`; `registeredAt: null` falls back to the receipt time.
+ * Contacts stay required: a ticket cannot be issued without them.
  */
 export const mootqInboundBodySchema = z
   .object({
@@ -41,9 +46,12 @@ export const mootqInboundBodySchema = z
       .pipe(z.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH)),
     email: z.string().transform(trimEmail).pipe(z.string().email().max(EMAIL_MAX_LENGTH)),
     phone: z.string().min(1).max(64),
-    locale: localeSchema,
-    registeredAt: z.string().datetime({ offset: true }),
-    answers: z.unknown().optional(),
+    locale: z.union([
+      z.null().transform((): RegistrationLocale => MOOTQ_INBOUND_DEFAULT_LOCALE),
+      localeSchema,
+    ]),
+    registeredAt: z.string().datetime({ offset: true }).nullable(),
+    answers: z.unknown().optional().transform(dropEmptyAnswerList),
   })
   .superRefine((data, ctx) => {
     const phone = normalizePhone(data.phone);
@@ -79,7 +87,7 @@ export const mootqInboundBodySchema = z
       phone: phone.phone,
       phoneNormalized: phone.phoneNormalized,
       locale: data.locale,
-      registeredAt: new Date(data.registeredAt),
+      registeredAt: data.registeredAt ? new Date(data.registeredAt) : new Date(),
       answers: sanitizeInboundAnswers(data.answers),
     };
   });
@@ -101,6 +109,10 @@ export function sanitizeInboundAnswers(value: unknown): MootqInboundAnswers | un
     }
   }
   return sanitized;
+}
+
+function dropEmptyAnswerList(value: unknown): unknown {
+  return Array.isArray(value) && value.length === 0 ? undefined : value;
 }
 
 function coerceInboundLocale(value: unknown): unknown {

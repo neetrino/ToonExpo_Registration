@@ -214,7 +214,13 @@ describe('Mootq order sub-questions', () => {
     expect(ownResidence).not.toHaveProperty(Q.marketInterests);
   });
 
-  it('maps Spyurk market research without throwing and keeps branch questions apart', () => {
+  it('sends only identity for Spyurk registrations, whatever the branch', () => {
+    const identityOnly = {
+      [Q.firstName]: 'John',
+      [Q.lastName]: 'Doe',
+      [Q.phone]: '+37499000001',
+      [Q.email]: 'john.doe@example.com',
+    };
     const research = mootqAnswers(
       {
         ageBand: '35-44',
@@ -231,12 +237,7 @@ describe('Mootq order sub-questions', () => {
       },
       SPYURK_FORM_VERSION,
     );
-
-    expect(research[Q.residenceScope]).toBe('Արտերկիր');
-    expect(research[Q.residenceAbroad]).toBe('Moscow, Moscow Oblast');
-    expect(research).not.toHaveProperty(Q.researchGoal);
-    expect(research[Q.newsletter]).toBe('Այո');
-    expect(research).not.toHaveProperty(Q.researchLocationScope);
+    expect(research).toEqual(identityOnly);
 
     const ownResidence = mootqAnswers(
       {
@@ -258,10 +259,7 @@ describe('Mootq order sub-questions', () => {
       },
       SPYURK_FORM_VERSION,
     );
-
-    expect(ownResidence[Q.visitPurpose]).toBe('Անշարժ գույքի գնում սեփական բնակության համար');
-    expect(ownResidence).not.toHaveProperty(Q.marketInterests);
-    expectFilled(ownResidence[Q.residenceAbroad]);
+    expect(ownResidence).toEqual(identityOnly);
   });
 
   it('still builds a registration when answers are missing or invalid', () => {

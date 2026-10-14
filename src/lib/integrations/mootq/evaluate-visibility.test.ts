@@ -16,6 +16,7 @@ function question(
     code,
     type: 1,
     required: true,
+    requiredInIdentityOnlyMode: false,
     options: [],
     maxSelections: null,
     visibilityRules: rules.map((rule) => ({

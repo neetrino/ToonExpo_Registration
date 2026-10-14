@@ -3,9 +3,11 @@ import {
   type MootqCodedAnswers,
 } from '@/lib/integrations/mootq/apply-registration-schema';
 import { buildMootqCodedAnswers } from '@/lib/integrations/mootq/build-mootq-coded-answers';
-import type {
-  MootqIdentityField,
-  MootqRegistrationSchema,
+import {
+  MOOTQ_REQUIRE_ALL_ANSWERS,
+  type MootqIdentityField,
+  type MootqRegistrationSchema,
+  type MootqRequireAllAnswers,
 } from '@/lib/integrations/mootq/registration-schema';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 
@@ -22,6 +24,7 @@ export type MootqPushPayload = {
   email: string;
   phone: string;
   locale: MootqPushLocale;
+  requireAllAnswers: MootqRequireAllAnswers;
   answers: MootqCodedAnswers;
   utmSource?: string;
   utmMedium?: string;
@@ -58,7 +61,11 @@ export function buildMootqPushPayload(
   schema: MootqRegistrationSchema,
 ): MootqPushPayloadResult {
   const coded = { ...buildMootqCodedAnswers(input), ...identityAnswers(input, schema) };
-  const { answers, missingRequired } = applyMootqRegistrationSchema(schema, coded);
+  const { answers, missingRequired } = applyMootqRegistrationSchema(
+    schema,
+    coded,
+    MOOTQ_REQUIRE_ALL_ANSWERS,
+  );
 
   const payload: MootqPushPayload = {
     eventKey: schema.eventKey,
@@ -70,6 +77,7 @@ export function buildMootqPushPayload(
     email: input.email,
     phone: input.phone,
     locale: input.locale,
+    requireAllAnswers: MOOTQ_REQUIRE_ALL_ANSWERS,
     answers,
   };
   assignOptionalUtm(payload, 'utmSource', input.utmSource);

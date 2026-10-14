@@ -3,7 +3,6 @@ import {
   assignMootqCountryList,
   assignMootqLocationChoice,
 } from '@/lib/integrations/mootq/assign-mootq-location-answers';
-import { assignMootqSpyurkAnswers } from '@/lib/integrations/mootq/assign-mootq-spyurk-answers';
 import { toMootqOptionLabel } from '@/lib/integrations/mootq/build-mootq-partner-answers';
 import {
   INVESTMENT_CITY_QUESTIONS,
@@ -11,7 +10,6 @@ import {
   OWN_RESIDENCE_CITY_QUESTIONS,
 } from '@/lib/integrations/mootq/mootq-question-codes';
 import { isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
-import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import type {
   InvestmentAnswers,
   MarketResearchAnswers,
@@ -33,7 +31,10 @@ export type BuildMootqCodedAnswersInput = {
   answers?: unknown;
 };
 
-/** Map a registration onto stable question codes. Ids are applied later from the live schema. */
+/**
+ * Map a registration onto stable question codes; the live schema fits them later.
+ * Spyurk questionnaires are not shared with Mootq: only identity is sent for them.
+ */
 export function buildMootqCodedAnswers(input: BuildMootqCodedAnswersInput): MootqCodedAnswers {
   const coded: MootqCodedAnswers = {
     [CODE.firstName]: input.firstName,
@@ -41,16 +42,11 @@ export function buildMootqCodedAnswers(input: BuildMootqCodedAnswersInput): Moot
     [CODE.phone]: input.phone,
     [CODE.email]: input.email,
   };
-  assignNewsletter(coded, input.answers);
-
   if (isSpyurkAnswers(input.formVersion, input.answers)) {
-    const parsed = spyurkQuestionnaireAnswersSchema.safeParse(input.answers);
-    if (parsed.success) {
-      assignMootqSpyurkAnswers(coded, parsed.data);
-    }
     return coded;
   }
 
+  assignNewsletter(coded, input.answers);
   const parsed = questionnaireAnswersSchema.safeParse(input.answers);
   if (parsed.success) {
     assignGeneralAnswers(coded, parsed.data);

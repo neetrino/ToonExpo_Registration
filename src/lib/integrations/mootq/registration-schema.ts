@@ -10,7 +10,10 @@ export type MootqVisibilityRule = {
 export type MootqSchemaQuestion = {
   code: string;
   type: number;
+  /** Required while visible when `requireAllAnswers` is 1. */
   required: boolean;
+  /** Required while visible when `requireAllAnswers` is 0 (identity questions only). */
+  requiredInIdentityOnlyMode: boolean;
   options: string[];
   maxSelections: number | null;
   visibilityRules: MootqVisibilityRule[];
@@ -31,6 +34,16 @@ const MOOTQ_IDENTITY_FIELDS: readonly MootqIdentityField[] = [
   'email',
   'phone',
 ];
+
+/** `requireAllAnswers`: 1 = every visible `required` question, 0 = identity questions only. */
+export type MootqRequireAllAnswers = 0 | 1;
+
+/**
+ * Toon Expo validates its own forms and Mootq requiredness does not match them (newsletter,
+ * Spyurk). Mode 0 still makes Mootq validate and store every supplied answer.
+ * Switching modes for an already accepted registration returns 409.
+ */
+export const MOOTQ_REQUIRE_ALL_ANSWERS: MootqRequireAllAnswers = 0;
 
 /** MULTISELECT (5) and CHECKBOX (6) take an array of option values. */
 const MOOTQ_ARRAY_ANSWER_TYPES: ReadonlySet<number> = new Set([5, 6]);
@@ -79,6 +92,7 @@ function readQuestion(value: unknown): MootqSchemaQuestion | null {
     code: value.code,
     type: value.type,
     required: value.required === true,
+    requiredInIdentityOnlyMode: value.requiredInIdentityOnlyMode === true,
     options,
     maxSelections: readMaxSelections(value.config),
     visibilityRules,

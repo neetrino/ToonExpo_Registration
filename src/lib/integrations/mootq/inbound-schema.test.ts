@@ -71,6 +71,32 @@ describe('mootqInboundBodySchema', () => {
     }
   });
 
+  it('treats an empty answers list as no answers', () => {
+    const parsed = mootqInboundBodySchema.safeParse({ ...validBody, answers: [] });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.answers).toBeUndefined();
+    }
+  });
+
+  it('falls back to hy and the receipt time for null locale and registeredAt', () => {
+    const before = Date.now();
+    const parsed = mootqInboundBodySchema.safeParse({
+      ...validBody,
+      locale: null,
+      registeredAt: null,
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.locale).toBe('hy');
+      expect(parsed.data.registeredAt.getTime()).toBeGreaterThanOrEqual(before);
+    }
+  });
+
+  it.each(['firstName', 'lastName', 'email', 'phone'])('still rejects a null %s', (field) => {
+    expect(mootqInboundBodySchema.safeParse({ ...validBody, [field]: null }).success).toBe(false);
+  });
+
   it('rejects answers that are not an object', () => {
     expect(
       mootqInboundBodySchema.safeParse({

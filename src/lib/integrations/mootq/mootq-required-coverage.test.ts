@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { applyMootqRegistrationSchema } from '@/lib/integrations/mootq/apply-registration-schema';
+import { buildMootqCodedAnswers } from '@/lib/integrations/mootq/build-mootq-coded-answers';
 import { MOOTQ_QUESTION_CODE as CODE } from '@/lib/integrations/mootq/mootq-question-codes';
 import { buildMootqPushPayload } from '@/lib/integrations/mootq/push-payload';
 import { mootqSchemaFixture } from '@/lib/integrations/mootq/registration-schema.fixture';
@@ -10,12 +12,55 @@ import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 const identity = {
   sourceRegistrationId: 'reg_cover',
   ticketCode: 'TEABCDEFGHIJK',
-  registeredAt: new Date('2026-10-09T10:00:00.000Z'),
+  registeredAt: new Date('2026-10-14T10:00:00.000Z'),
   firstName: 'John',
   lastName: 'Doe',
   email: 'john.doe@example.com',
   phone: '+37499000001',
   locale: 'hy' as const,
+};
+
+const identityAnswers = {
+  [CODE.firstName]: 'John',
+  [CODE.lastName]: 'Doe',
+  [CODE.phone]: '+37499000001',
+  [CODE.email]: 'john.doe@example.com',
+};
+
+const location = { yerevanDistricts: ['kentron'], marzRegions: [], abroadCountries: [] };
+const generalShared = { ageBand: '25-34', residence: { scope: 'yerevan', district: 'kentron' } };
+
+const generalBranches: Record<string, Record<string, unknown>> = {
+  market_research: {
+    ...generalShared,
+    visitPurpose: 'market_research',
+    marketInterests: ['new_apartments'],
+    researchGoal: 'future_purchase',
+    researchLocation: { undecided: false, yerevanDistricts: ['kentron'], marzRegions: [] },
+    purchaseHorizon: 'up_to_3_months',
+  },
+  own_residence: {
+    ...generalShared,
+    visitPurpose: 'own_residence',
+    interestType: 'apartment_new',
+    locationSeek: location,
+    areaSqm: '70-90',
+    purchaseMethod: 'mortgage',
+    monthlyBudget: '300k-500k',
+    decisionStage: 'searching_6_months',
+  },
+  investment: {
+    ...generalShared,
+    visitPurpose: 'investment',
+    investmentPropertyType: 'apartment',
+    locationSeek: location,
+    investmentGoal: 'rental_income',
+    areaSqm: '70-90',
+    purchaseMethod: 'cash',
+    investmentTimeline: '6-12_months',
+    investmentBudgetUsd: '150k-300k',
+    priorInvestmentExperience: 'no_first',
+  },
 };
 
 const spyurkShared = {
@@ -26,159 +71,77 @@ const spyurkShared = {
   armeniaVisitTiming: 'within_3_months',
 };
 
-const spyurkOwn = {
-  ...spyurkShared,
-  visitPurpose: 'own_residence',
-  interestTypes: ['apartment_new'],
-  propertyCountry: { scope: 'armenia' },
-  areaSqm: '70-90',
-  purchaseMethod: 'mortgage',
-  purchaseBudgetUsd: '150k-250k',
-  decisionStage: 'searching_6_months',
+const spyurkBranches: Record<string, Record<string, unknown>> = {
+  market_research: {
+    ...spyurkShared,
+    visitPurpose: 'market_research',
+    marketInterests: ['new_apartments'],
+    researchGoal: 'future_purchase_armenia',
+    propertyCountry: { scope: 'armenia' },
+    purchaseHorizon: 'up_to_3_months',
+  },
+  own_residence: {
+    ...spyurkShared,
+    visitPurpose: 'own_residence',
+    interestTypes: ['apartment_new'],
+    propertyCountry: { scope: 'armenia' },
+    areaSqm: '70-90',
+    purchaseMethod: 'mortgage',
+    purchaseBudgetUsd: '150k-250k',
+    decisionStage: 'searching_6_months',
+  },
+  investment: {
+    ...spyurkShared,
+    visitPurpose: 'investment',
+    investmentPropertyTypes: ['apartment'],
+    propertyCountry: { scope: 'other', country: 'UAE' },
+    investmentGoal: 'rental_income',
+    areaSqm: '50-70',
+    purchaseMethod: 'cash',
+    investmentTimeline: '6-12_months',
+    investmentBudgetUsd: '150k-300k',
+    priorInvestmentExperience: 'no_first',
+  },
 };
 
-const spyurkInvestment = {
-  ...spyurkShared,
-  visitPurpose: 'investment',
-  investmentPropertyTypes: ['apartment'],
-  propertyCountry: { scope: 'armenia' },
-  investmentGoal: 'rental_income',
-  areaSqm: '50-70',
-  purchaseMethod: 'cash',
-  investmentTimeline: '6-12_months',
-  investmentBudgetUsd: '150k-300k',
-  priorInvestmentExperience: 'yes_abroad',
-  priorInvestmentExperienceOther: 'Spain',
-};
-
-function generalCase(answers: Record<string, unknown>) {
-  const parsed = questionnaireAnswersSchema.safeParse(answers);
-  expect(parsed.success).toBe(true);
-  return buildMootqPushPayload(
-    { ...identity, formVersion: FORM_VERSION, answers: parsed.success ? parsed.data : answers },
-    mootqSchemaFixture,
-  );
+function generalPayload(answers: Record<string, unknown>) {
+  expect(questionnaireAnswersSchema.safeParse(answers).success).toBe(true);
+  return buildMootqPushPayload({ ...identity, formVersion: FORM_VERSION, answers }, mootqSchemaFixture);
 }
 
-function spyurkCase(answers: Record<string, unknown>) {
-  const parsed = spyurkQuestionnaireAnswersSchema.safeParse(answers);
-  expect(parsed.success).toBe(true);
-  return buildMootqPushPayload(
-    { ...identity, formVersion: SPYURK_FORM_VERSION, answers },
-    mootqSchemaFixture,
+describe('Mootq required question coverage (requireAllAnswers 0)', () => {
+  it.each(Object.entries(generalBranches))(
+    'general %s: sends every answer and nothing required is missing',
+    (_branch, answers) => {
+      const { payload, missingRequired } = generalPayload(answers);
+      expect(payload.requireAllAnswers).toBe(0);
+      expect(missingRequired).toEqual([]);
+      expect(payload.answers).toMatchObject(identityAnswers);
+      expect(payload.answers[CODE.ageBand]).toBe('25-34 տարեկան');
+      expect(payload.answers[CODE.visitPurpose]).toBeDefined();
+    },
   );
-}
 
-const location = { yerevanDistricts: ['kentron'], marzRegions: [], abroadCountries: [] };
-const generalShared = {
-  ageBand: '25-34',
-  residence: { scope: 'yerevan', district: 'kentron' },
-};
+  it.each(Object.entries(spyurkBranches))(
+    'Spyurk %s: sends identity only',
+    (_branch, answers) => {
+      expect(spyurkQuestionnaireAnswersSchema.safeParse(answers).success).toBe(true);
+      const { payload, missingRequired } = buildMootqPushPayload(
+        { ...identity, formVersion: SPYURK_FORM_VERSION, answers },
+        mootqSchemaFixture,
+      );
+      expect(payload.requireAllAnswers).toBe(0);
+      expect(payload.answers).toEqual(identityAnswers);
+      expect(missingRequired).toEqual([]);
+      expect(payload.ticketCode).toBe('TEABCDEFGHIJK');
+    },
+  );
 
-/**
- * Required questions our forms do not collect. Mootq is asked to make them optional;
- * refresh the schema fixture when they do, and this list must shrink.
- */
-describe('Mootq required question coverage', () => {
-  it('general form leaves only the newsletter unanswered in every branch', () => {
-    const branches = [
-      {
-        ...generalShared,
-        visitPurpose: 'market_research',
-        marketInterests: ['new_apartments'],
-        researchGoal: 'future_purchase',
-        researchLocation: { undecided: false, yerevanDistricts: ['kentron'], marzRegions: [] },
-        purchaseHorizon: 'up_to_3_months',
-      },
-      {
-        ...generalShared,
-        visitPurpose: 'own_residence',
-        interestType: 'apartment_new',
-        locationSeek: location,
-        areaSqm: '70-90',
-        purchaseMethod: 'mortgage',
-        monthlyBudget: '300k-500k',
-        decisionStage: 'searching_6_months',
-      },
-      {
-        ...generalShared,
-        visitPurpose: 'investment',
-        investmentPropertyType: 'apartment',
-        locationSeek: location,
-        investmentGoal: 'rental_income',
-        areaSqm: '70-90',
-        purchaseMethod: 'cash',
-        investmentTimeline: '6-12_months',
-        investmentBudgetUsd: '150k-300k',
-        priorInvestmentExperience: 'no_first',
-      },
-    ];
-    for (const answers of branches) {
-      expect(generalCase(answers).missingRequired).toEqual([CODE.newsletter]);
+  it('documents the strict-mode gap: only the newsletter would be missing for the general form', () => {
+    for (const answers of Object.values(generalBranches)) {
+      const coded = buildMootqCodedAnswers({ ...identity, formVersion: FORM_VERSION, answers });
+      const strict = applyMootqRegistrationSchema(mootqSchemaFixture, coded, 1);
+      expect(strict.missingRequired).toEqual([CODE.newsletter]);
     }
-  });
-
-  it('Spyurk own residence in Armenia: location scope and monthly AMD budget are not collected', () => {
-    const { payload, missingRequired } = spyurkCase(spyurkOwn);
-    expect(missingRequired).toEqual([CODE.ownLocationScope, CODE.monthlyBudget, CODE.newsletter]);
-    expect(payload.answers).toMatchObject({
-      [CODE.interestType]: 'Բնակարան կառուցապատողից (նորակառույց)',
-      [CODE.ownArea]: '70 - 90 քմ',
-      [CODE.ownPurchaseMethod]: 'Բնակարանային հիփոթեք',
-    });
-    expect(payload.answers[CODE.decisionStage]).toBeDefined();
-  });
-
-  it('Spyurk own residence abroad sends the country as property abroad', () => {
-    const { payload, missingRequired } = spyurkCase({
-      ...spyurkOwn,
-      propertyCountry: { scope: 'other', country: 'Грузия' },
-    });
-    expect(missingRequired).toEqual([CODE.monthlyBudget, CODE.newsletter]);
-    expect(payload.answers).toMatchObject({
-      [CODE.interestType]: 'Գույք արտերկրում',
-      [CODE.ownAbroadCountries]: ['Այլ'],
-      [CODE.ownAbroadCountryOther]: 'Грузия',
-      [CODE.ownLocationScope]: 'Արտերկիր',
-      [CODE.ownAbroadSeek]: ['Այլ'],
-      [CODE.ownAbroadSeekOther]: 'Грузия',
-    });
-  });
-
-  it('Spyurk own residence leaves the property type unanswered when it has no Mootq match', () => {
-    const { missingRequired } = spyurkCase({ ...spyurkOwn, interestTypes: ['apartments', 'land_for_house'] });
-    expect(missingRequired).toContain(CODE.interestType);
-  });
-
-  it('Spyurk investment in Armenia: only the location scope is not collected', () => {
-    const { payload, missingRequired } = spyurkCase(spyurkInvestment);
-    expect(missingRequired).toEqual([CODE.investmentLocationScope, CODE.newsletter]);
-    expect(payload.answers).toMatchObject({
-      [CODE.investmentPropertyType]: 'Բնակարան',
-      [CODE.investmentGoal]: 'Վարձակալությունից պասիվ եկամուտ ստանալու համար',
-      [CODE.investmentArea]: '50 - 70 քմ',
-      [CODE.investmentPurchaseMethod]: 'Կանխիկ',
-      [CODE.investmentBudget]: '150․000 - 300․000 ԱՄՆ դոլար',
-      [CODE.priorExperience]: 'Այո. արտերկրում',
-      [CODE.priorExperienceCountry]: 'Spain',
-    });
-  });
-
-  it('Spyurk investment with several types sends «Այլ» with every type spelled out', () => {
-    const { payload, missingRequired } = spyurkCase({
-      ...spyurkInvestment,
-      investmentPropertyTypes: ['land', 'other'],
-      investmentPropertyTypeOther: 'Ավտոտնակ',
-      areaSqm: undefined,
-      propertyCountry: { scope: 'other', country: 'UAE' },
-    });
-    expect(payload.answers).toMatchObject({
-      [CODE.investmentPropertyType]: 'Այլ',
-      [CODE.investmentPropertyOther]: 'Հողատարածք, Ավտոտնակ',
-      [CODE.investmentLocationScope]: 'Արտերկիր',
-      [CODE.investmentAbroad]: ['Այլ'],
-      [CODE.investmentAbroadOther]: 'UAE',
-    });
-    expect(missingRequired).toEqual([CODE.investmentArea, CODE.newsletter]);
   });
 });

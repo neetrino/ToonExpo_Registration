@@ -1,7 +1,7 @@
 {
   "data": {
     "eventKey": "toon-expo-2026",
-    "schemaVersion": 11,
+    "schemaVersion": 16,
     "registrationAnswersLatinOnly": false,
     "submission": {
       "method": "POST",
@@ -18,6 +18,16 @@
         "phone",
         "locale"
       ],
+      "optionalFields": {
+        "requireAllAnswers": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ],
+          "default": 1
+        }
+      },
       "identityAnswerCodes": {
         "firstName": "first_name",
         "lastName": "last_name",
@@ -31,6 +41,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": true,
         "config": null,
         "options": [],
         "visibility_rules": []
@@ -40,6 +51,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": true,
         "config": null,
         "options": [],
         "visibility_rules": []
@@ -49,6 +61,7 @@
         "type": 10,
         "typeName": "PHONE",
         "required": true,
+        "requiredInIdentityOnlyMode": true,
         "config": null,
         "options": [],
         "visibility_rules": []
@@ -58,6 +71,7 @@
         "type": 2,
         "typeName": "EMAIL",
         "required": true,
+        "requiredInIdentityOnlyMode": true,
         "config": null,
         "options": [],
         "visibility_rules": []
@@ -67,6 +81,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "18–24",
@@ -101,6 +116,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Yerevan",
@@ -126,6 +142,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Kentron",
@@ -184,6 +201,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Aragatsotn",
@@ -236,6 +254,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Please specify the country",
@@ -257,6 +276,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Purchasing real estate for personal residence",
@@ -282,6 +302,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Apartment from a developer / New-build apartment",
@@ -313,6 +334,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Russian Federation",
@@ -359,6 +381,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "country",
@@ -380,6 +403,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Yerevan",
@@ -411,6 +435,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Kentron",
@@ -470,6 +495,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Aragatsotn",
@@ -523,6 +549,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Ashtarak",
@@ -551,6 +578,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "please specify",
@@ -572,6 +600,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Artashat",
@@ -603,6 +632,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "please specify",
@@ -624,6 +654,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Abovyan",
@@ -655,6 +686,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "please specify",
@@ -676,6 +708,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Russian Federation",
@@ -723,6 +756,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "country",
@@ -744,6 +778,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Up to 50 sq. m",
@@ -781,6 +816,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Cash",
@@ -815,6 +851,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Up to AMD 300,000",
@@ -855,6 +892,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "I am ready to complete a transaction in the near future — within 1 month",
@@ -889,6 +927,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Apartment",
@@ -932,6 +971,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "please specify",
@@ -953,6 +993,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Yerevan",
@@ -984,6 +1025,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Kentron",
@@ -1025,6 +1067,9 @@
           },
           {
             "value": "Նուբարաշեն"
+          },
+          {
+            "value": "dfghj"
           }
         ],
         "visibility_rules": [
@@ -1040,6 +1085,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Aragatsotn",
@@ -1093,6 +1139,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Abovyan",
@@ -1127,6 +1174,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "please specify",
@@ -1148,6 +1196,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Dilijan",
@@ -1176,6 +1225,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "please specify",
@@ -1197,6 +1247,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Russia",
@@ -1244,6 +1295,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "specify the country",
@@ -1265,6 +1317,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "To generate passive rental income",
@@ -1302,6 +1355,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Up to 50 sq. m",
@@ -1339,6 +1393,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Cash",
@@ -1373,6 +1428,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Within 3 months",
@@ -1407,6 +1463,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Up to USD 150․000",
@@ -1441,6 +1498,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Yes, in Armenia",
@@ -1475,6 +1533,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "specify the country",
@@ -1496,6 +1555,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "New-build apartments",
@@ -1543,6 +1603,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "To purchase a home in the future",
@@ -1577,6 +1638,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Yerevan",
@@ -1611,6 +1673,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Kentron",
@@ -1670,6 +1733,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Within 3 months",
@@ -1707,6 +1771,7 @@
         "type": 6,
         "typeName": "CHECKBOX",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Aragatsotn",
@@ -1760,6 +1825,7 @@
         "type": 1,
         "typeName": "TEXT",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "specify the country",
@@ -1781,6 +1847,7 @@
         "type": 7,
         "typeName": "RADIO",
         "required": true,
+        "requiredInIdentityOnlyMode": false,
         "config": {
           "placeholder": {
             "en": "Yes",

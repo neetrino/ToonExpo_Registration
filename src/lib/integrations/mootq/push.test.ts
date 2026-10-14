@@ -48,6 +48,7 @@ describe('buildMootqPushPayload', () => {
       email: 'john.doe@example.com',
       phone: '+37499000001',
       locale: 'hy',
+      requireAllAnswers: 0,
       answers: {
         first_name: 'John',
         last_name: 'Doe',
@@ -72,12 +73,10 @@ describe('buildMootqPushPayload', () => {
     expect(payload.answers.given_name).toBe('John');
   });
 
-  it('reports visible required questions that have no answer', () => {
+  it('needs only identity in requireAllAnswers 0 mode', () => {
     const { missingRequired } = buildMootqPushPayload(fullPushInput, mootqSchemaFixture);
-    expect(missingRequired).toContain(Q.ageBand);
-    expect(missingRequired).not.toContain(Q.residenceYerevan);
+    expect(missingRequired).toEqual([]);
   });
-
   it('maps the confirmed market-research example to question codes', () => {
     const payload = payloadFor(
       {
