@@ -14,7 +14,7 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
   return (
     <div className="flex flex-1 flex-col items-center px-4 py-4 md:py-6">
       <RegistrationCompleteTracker />
-      <div className="success-card-enter w-full max-w-md">
+      <div className="success-card-enter my-auto w-full max-w-md">
         <div
           role="status"
           className="flex flex-col items-center rounded-2xl border border-border/80 bg-card px-5 py-4 text-center shadow-[0_8px_32px_rgba(0,48,61,0.12)] md:px-8 md:py-6"
