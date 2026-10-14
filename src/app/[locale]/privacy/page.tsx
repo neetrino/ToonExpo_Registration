@@ -1,6 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { PrivacyPolicyContent, type PrivacySection } from '@/components/legal/privacy-policy-content';
+import {
+  PrivacyPolicyContent,
+  type PrivacySection,
+} from '@/components/legal/privacy-policy-content';
 import { Button } from '@/components/ui/button';
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 

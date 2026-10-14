@@ -1,5 +1,8 @@
 import { useTranslations } from 'next-intl';
-import { PrivacyPolicyContent, type PrivacySection } from '@/components/legal/privacy-policy-content';
+import {
+  PrivacyPolicyContent,
+  type PrivacySection,
+} from '@/components/legal/privacy-policy-content';
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 import { cn } from '@/lib/utils';
 
