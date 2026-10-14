@@ -58,7 +58,36 @@ describe('POST /api/v1/integrations/mootq/registrations locale', () => {
     expect(importMootqRegistration.mock.calls[0]?.[0].locale).toBe(stored);
   });
 
-  it.each([undefined, null, '', 'fr', 'am-ET', 1])(
+  it('stores hy when Mootq sends locale null', async () => {
+    const response = await POST(inboundRequest({ ...validBody, locale: null }));
+
+    expect(response.status).toBe(204);
+    expect(importMootqRegistration.mock.calls[0]?.[0].locale).toBe('hy');
+  });
+
+  it('accepts a Mootq 1.2.0 delivery with empty answers [], null registeredAt, and metadata', async () => {
+    const before = Date.now();
+    const response = await POST(
+      inboundRequest({
+        ...validBody,
+        eventKey: 'toon-expo-2026',
+        registeredAt: null,
+        answers: [],
+        utmSource: null,
+        metadata: { mootqOrderId: 321, mootqTicketId: 987 },
+      }),
+    );
+
+    expect(response.status).toBe(204);
+    const imported = importMootqRegistration.mock.calls[0]?.[0] as {
+      answers?: unknown;
+      registeredAt: Date;
+    };
+    expect(imported.answers).toBeUndefined();
+    expect(imported.registeredAt.getTime()).toBeGreaterThanOrEqual(before);
+  });
+
+  it.each([undefined, '', 'fr', 'am-ET', 1])(
     'returns the partner 400 when locale is %j',
     async (locale) => {
       const response = await POST(inboundRequest({ ...validBody, locale }));

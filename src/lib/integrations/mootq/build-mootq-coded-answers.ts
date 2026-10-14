@@ -10,9 +10,6 @@ import {
   OWN_RESIDENCE_CITY_QUESTIONS,
 } from '@/lib/integrations/mootq/mootq-question-codes';
 import { isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
-import { getSpyurkOptionLabel } from '@/lib/questionnaire/spyurk/i18n';
-import type { SpyurkQuestionnaireAnswers } from '@/lib/questionnaire/spyurk/types';
-import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import type {
   InvestmentAnswers,
   MarketResearchAnswers,
@@ -34,7 +31,10 @@ export type BuildMootqCodedAnswersInput = {
   answers?: unknown;
 };
 
-/** Map a registration onto stable question codes. Ids are applied later from the live schema. */
+/**
+ * Map a registration onto stable question codes; the live schema fits them later.
+ * Spyurk questionnaires are not shared with Mootq: only identity is sent for them.
+ */
 export function buildMootqCodedAnswers(input: BuildMootqCodedAnswersInput): MootqCodedAnswers {
   const coded: MootqCodedAnswers = {
     [CODE.firstName]: input.firstName,
@@ -42,16 +42,11 @@ export function buildMootqCodedAnswers(input: BuildMootqCodedAnswersInput): Moot
     [CODE.phone]: input.phone,
     [CODE.email]: input.email,
   };
-  assignNewsletter(coded, input.answers);
-
   if (isSpyurkAnswers(input.formVersion, input.answers)) {
-    const parsed = spyurkQuestionnaireAnswersSchema.safeParse(input.answers);
-    if (parsed.success) {
-      assignSpyurkAnswers(coded, parsed.data);
-    }
     return coded;
   }
 
+  assignNewsletter(coded, input.answers);
   const parsed = questionnaireAnswersSchema.safeParse(input.answers);
   if (parsed.success) {
     assignGeneralAnswers(coded, parsed.data);
@@ -195,21 +190,6 @@ function assignOwnResidence(coded: MootqCodedAnswers, answers: OwnResidenceAnswe
   coded[CODE.ownPurchaseMethod] = toMootqOptionLabel('purchaseMethod', answers.purchaseMethod);
   coded[CODE.monthlyBudget] = toMootqOptionLabel('monthlyBudget', answers.monthlyBudget);
   coded[CODE.decisionStage] = toMootqOptionLabel('decisionStage', answers.decisionStage);
-}
-
-function assignSpyurkAnswers(coded: MootqCodedAnswers, answers: SpyurkQuestionnaireAnswers): void {
-  coded[CODE.ageBand] = toMootqOptionLabel('ageBand', answers.ageBand);
-  coded[CODE.residenceScope] = toMootqOptionLabel('locationSeekScope', 'abroad');
-  coded[CODE.residenceAbroad] = `${answers.residence.city}, ${answers.residence.region}`;
-  coded[CODE.visitPurpose] = toMootqOptionLabel('visitPurpose', answers.visitPurpose);
-  if (answers.visitPurpose !== 'market_research') {
-    return;
-  }
-  coded[CODE.marketInterests] = answers.marketInterests.map((code) =>
-    toMootqOptionLabel('marketInterest', code),
-  );
-  coded[CODE.researchGoal] = getSpyurkOptionLabel('researchGoal', answers.researchGoal, 'hy');
-  coded[CODE.purchaseHorizon] = toMootqOptionLabel('purchaseHorizon', answers.purchaseHorizon);
 }
 
 function isSpyurkAnswers(formVersion: string | null | undefined, answers: unknown): boolean {

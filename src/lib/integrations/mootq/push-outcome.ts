@@ -33,6 +33,8 @@ export function resolvePartnerPushRetryDecision(input: {
   retryable: boolean;
   attemptCount: number;
   maxAttempts?: number;
+  /** Server `Retry-After`; the wait is never shorter than this. */
+  retryAfterSeconds?: number;
 }): PartnerPushRetryDecision {
   const maxAttempts = input.maxAttempts ?? MOOTQ_PUSH_MAX_ATTEMPTS;
   if (!input.retryable || input.attemptCount >= maxAttempts) {
@@ -40,10 +42,50 @@ export function resolvePartnerPushRetryDecision(input: {
   }
 
   const backoffIndex = Math.min(input.attemptCount - 1, MOOTQ_PUSH_BACKOFF_SECONDS.length - 1);
-  const delaySeconds = MOOTQ_PUSH_BACKOFF_SECONDS[backoffIndex] ?? 3600;
-  return { action: 'retry', delaySeconds };
+  const backoffSeconds = MOOTQ_PUSH_BACKOFF_SECONDS[backoffIndex] ?? 3600;
+  return { action: 'retry', delaySeconds: Math.max(backoffSeconds, input.retryAfterSeconds ?? 0) };
 }
 
 export function partnerPushErrorCodeForHttpStatus(status: number): string {
   return `http_${status}`;
+}
+
+const REJECTION_MESSAGE_MAX_LENGTH = 300;
+const REJECTION_FIELDS_MAX = 30;
+
+export type MootqRejectionSummary = { message?: string; errorFields?: string };
+
+/**
+ * Loggable part of a Mootq error body: `message` and the rejected field names.
+ * Field error texts are not kept because they may echo submitted personal data.
+ */
+export function summarizeMootqRejection(body: string): MootqRejectionSummary {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return {};
+  }
+  if (typeof parsed !== 'object' || parsed === null) {
+    return {};
+  }
+
+  const summary: MootqRejectionSummary = {};
+  const { message, errors } = parsed as { message?: unknown; errors?: unknown };
+  if (typeof message === 'string') {
+    summary.message = message.slice(0, REJECTION_MESSAGE_MAX_LENGTH);
+  }
+  if (typeof errors === 'object' && errors !== null && !Array.isArray(errors)) {
+    summary.errorFields = Object.keys(errors).slice(0, REJECTION_FIELDS_MAX).join(',');
+  }
+  return summary;
+}
+
+/** `Retry-After` in whole seconds (delta form only); undefined when absent or invalid. */
+export function parseRetryAfterSeconds(header: string | null): number | undefined {
+  if (!header || !/^\d+$/.test(header.trim())) {
+    return undefined;
+  }
+  const seconds = Number(header.trim());
+  return seconds >= 1 ? seconds : undefined;
 }

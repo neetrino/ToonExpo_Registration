@@ -1,17 +1,10 @@
 import { logger } from '@/lib/logger';
-import {
-  MOOTQ_TICKET_QUANTITY,
-  MOOTQ_TICKET_TYPE_ID,
-} from '@/lib/integrations/mootq/mootq-order-ids';
 import { MOOTQ_PUSH_TIMEOUT_MS } from '@/lib/integrations/mootq/push-constants';
 import {
   parseRegistrationSchema,
   type MootqRegistrationSchema,
 } from '@/lib/integrations/mootq/registration-schema';
 
-/** Partner catalog confirmed 2026-10-09. No auth header. */
-const MOOTQ_SCHEMA_ORIGIN = 'https://api.v3.mootq.com';
-const MOOTQ_SCHEMA_EVENT_SLUG = 'toon-expo-2026';
 const MOOTQ_SCHEMA_ACCEPT_LANGUAGE = 'hy';
 
 export type MootqSchemaFetch = (
@@ -22,20 +15,28 @@ export type MootqSchemaFetch = (
 export type FetchMootqRegistrationSchemaResult =
   { ok: true; schema: MootqRegistrationSchema } | { ok: false };
 
-/** Current question ids for event 21 / ticket 56. Never throws. */
-export async function fetchMootqRegistrationSchema(options?: {
+export type FetchMootqRegistrationSchemaParams = {
+  /** `MOOTQ_PUSH_URL`; the schema lives on the same Partner Registration API host. */
+  pushUrl: string;
+  key: string;
+  eventKey: string;
   fetchImpl?: MootqSchemaFetch;
   timeoutMs?: number;
-}): Promise<FetchMootqRegistrationSchemaResult> {
-  const fetchImpl = options?.fetchImpl ?? fetch;
-  const timeoutMs = options?.timeoutMs ?? MOOTQ_PUSH_TIMEOUT_MS;
+};
+
+/** Current questionnaire for the mapped event (Bearer `mqi_` key). Never throws. */
+export async function fetchMootqRegistrationSchema(
+  params: FetchMootqRegistrationSchemaParams,
+): Promise<FetchMootqRegistrationSchemaResult> {
+  const fetchImpl = params.fetchImpl ?? fetch;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), params.timeoutMs ?? MOOTQ_PUSH_TIMEOUT_MS);
 
   try {
-    const response = await fetchImpl(mootqRegistrationSchemaUrl(), {
+    const response = await fetchImpl(mootqRegistrationSchemaUrl(params.pushUrl, params.eventKey), {
       method: 'GET',
       headers: {
+        Authorization: `Bearer ${params.key}`,
         Accept: 'application/json',
         'Accept-Language': MOOTQ_SCHEMA_ACCEPT_LANGUAGE,
       },
@@ -45,8 +46,7 @@ export async function fetchMootqRegistrationSchema(options?: {
       logger.warn('Mootq registration schema request failed', { status: response.status });
       return { ok: false };
     }
-    const body: unknown = JSON.parse(await response.text());
-    const schema = parseRegistrationSchema(body);
+    const schema = parseRegistrationSchema(JSON.parse(await response.text()));
     if (!schema) {
       logger.warn('Mootq registration schema response was not usable');
       return { ok: false };
@@ -62,7 +62,8 @@ export async function fetchMootqRegistrationSchema(options?: {
   }
 }
 
-export function mootqRegistrationSchemaUrl(): string {
-  const items = `${MOOTQ_TICKET_TYPE_ID}:${MOOTQ_TICKET_QUANTITY}`;
-  return `${MOOTQ_SCHEMA_ORIGIN}/api/events/${MOOTQ_SCHEMA_EVENT_SLUG}/registration-schema?items[]=${items}`;
+/** `{origin}/api/v1/integrations/events/{eventKey}/registration-schema`. */
+export function mootqRegistrationSchemaUrl(pushUrl: string, eventKey: string): string {
+  const path = `/api/v1/integrations/events/${encodeURIComponent(eventKey)}/registration-schema`;
+  return new URL(path, pushUrl).toString();
 }
