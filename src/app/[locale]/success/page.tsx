@@ -12,21 +12,21 @@ export default async function SuccessPage({ params }: SuccessPageProps) {
   setRequestLocale(locale);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:py-16">
+    <div className="flex flex-1 flex-col items-center px-4 py-4 md:py-6">
       <RegistrationCompleteTracker />
       <div className="success-card-enter w-full max-w-md">
         <div
           role="status"
-          className="flex flex-col items-center rounded-2xl border border-border/80 bg-card px-6 py-10 text-center shadow-[0_8px_32px_rgba(0,48,61,0.12)] md:px-8 md:py-12"
+          className="flex flex-col items-center rounded-2xl border border-border/80 bg-card px-5 py-4 text-center shadow-[0_8px_32px_rgba(0,48,61,0.12)] md:px-8 md:py-6"
         >
           <div
-            className="success-check-enter flex size-20 items-center justify-center rounded-full bg-success/15 md:size-24"
+            className="success-check-enter flex size-11 items-center justify-center rounded-full bg-success/15 md:size-14"
             aria-hidden="true"
           >
-            <div className="flex size-14 items-center justify-center rounded-full bg-success md:size-16">
+            <div className="flex size-8 items-center justify-center rounded-full bg-success md:size-10">
               <svg
                 viewBox="0 0 24 24"
-                className="size-8 text-white md:size-9"
+                className="size-5 text-white md:size-6"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.75"
