@@ -10,6 +10,9 @@ export const BRAND_HIGHLIGHT = '#FFD700';
 /** Public TOON EXPO Telegram channel. Used on the success screen and in the ticket email. */
 export const TELEGRAM_CHANNEL_URL = 'https://t.me/toonexpo';
 
+/** Organizer-provided Google Calendar event. Used on the success screen and in the ticket email. */
+export const EVENT_CALENDAR_URL = 'https://calendar.app.google/rEg3Njpjw85Vu2ix7';
+
 export function getMetadataBase(): URL {
   return new URL(process.env.SITE_URL ?? 'http://localhost:3000');
 }

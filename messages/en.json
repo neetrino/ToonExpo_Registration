@@ -131,6 +131,7 @@
     "codeHint": "Readable ticket code",
     "joinTelegram": "Join Telegram",
     "downloadQr": "Download QR PNG",
+    "addToCalendar": "Add to calendar",
     "backToHome": "Back to home"
   },
   "admin": {

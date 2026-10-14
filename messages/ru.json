@@ -131,6 +131,7 @@
     "codeHint": "Читаемый код билета",
     "joinTelegram": "Присоединиться к Telegram",
     "downloadQr": "Скачать QR PNG",
+    "addToCalendar": "Добавить в календарь",
     "backToHome": "На главную"
   },
   "admin": {

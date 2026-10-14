@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
+import { EVENT_CALENDAR_URL, TELEGRAM_CHANNEL_URL } from '@/lib/brand/site';
 import { isValidTicketCode } from '@/lib/tickets/ticket-code-format';
 import { takeTicketHandoff, type TicketHandoff } from '@/components/registration/ticket-handoff';
 
@@ -83,8 +83,10 @@ export function SuccessTicketCard() {
         </Button>
       </div>
 
-      <Button asChild variant="ghost" className="mt-4">
-        <Link href="/">{t('backToHome')}</Link>
+      <Button asChild size="lg" variant="outline" className="mt-3 w-full sm:w-auto">
+        <a href={EVENT_CALENDAR_URL} target="_blank" rel="noopener noreferrer">
+          {t('addToCalendar')}
+        </a>
       </Button>
     </>
   );
