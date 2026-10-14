@@ -9,8 +9,8 @@ function L(hy: string, en: string, ru: string): Localized {
 /** Question prompts and option labels for form version 2026-vis-reg-v2. */
 export const questionnaireI18n = {
   questions: {
-    ageBand: L('Տարիք', 'Age', 'Возраст'),
-    residence: L('Բնակության վայր', 'Place of Residence', 'Место проживания'),
+    ageBand: L('Ձեր տարիքը', 'Age', 'Возраст'),
+    residence: L('Ձեր բնակության վայրը', 'Place of Residence', 'Место проживания'),
     residenceDistrict: L('Երևան', 'Yerevan', 'Ереван'),
     residenceRegion: L('Մարզ', 'Region', 'Области Армении'),
     residenceCountry: L(
