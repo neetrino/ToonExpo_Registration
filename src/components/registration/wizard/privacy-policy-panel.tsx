@@ -22,7 +22,7 @@ export function PrivacyPolicyPanel({ open, onToggle }: PrivacyPolicyPanelProps) 
   return (
     <section
       aria-labelledby={titleId}
-      className="scroll-mb-4 overflow-hidden rounded-xl border border-border bg-muted/40"
+      className="overflow-hidden rounded-xl border border-border bg-muted/40"
     >
       <h3 className="m-0">
         <button

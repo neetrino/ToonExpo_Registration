@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { PRIVACY_POLICY_PANEL_ID, PrivacyPolicyPanel } from './privacy-policy-panel';
@@ -40,28 +40,32 @@ function ConsentDocumentReference({
   );
 }
 
-/** Toggles the policy panel and scrolls the whole panel into view whenever it opens. */
-function usePolicyPanel(): { open: boolean; toggle: () => void } {
+/** Toggles the policy panel; on open, scrolls the consent block to the top so the policy is fully visible. */
+function usePolicyPanel(): {
+  open: boolean;
+  toggle: () => void;
+  anchorRef: RefObject<HTMLDivElement | null>;
+} {
   const [open, setOpen] = useState(false);
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) {
       return;
     }
-    const panel = document.getElementById(PRIVACY_POLICY_PANEL_ID);
-    panel?.focus({ preventScroll: true });
-    panel?.closest('section')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    document.getElementById(PRIVACY_POLICY_PANEL_ID)?.focus({ preventScroll: true });
+    anchorRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }, [open]);
 
-  return { open, toggle: () => setOpen((current) => !current) };
+  return { open, toggle: () => setOpen((current) => !current), anchorRef };
 }
 
 export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
   const tForm = useTranslations('form');
-  const policy = usePolicyPanel();
+  const { open: policyOpen, toggle: togglePolicy, anchorRef } = usePolicyPanel();
 
   return (
-    <div className="space-y-3">
+    <div ref={anchorRef} className="scroll-mt-20 space-y-3 md:scroll-mt-24">
       <div
         className={cn(
           'flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors duration-200 motion-reduce:transition-none',
@@ -90,12 +94,12 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
         >
           {tForm.rich('consent', {
             terms: (chunks) => (
-              <ConsentDocumentReference expanded={policy.open} onToggle={policy.toggle}>
+              <ConsentDocumentReference expanded={policyOpen} onToggle={togglePolicy}>
                 {chunks}
               </ConsentDocumentReference>
             ),
             privacy: (chunks) => (
-              <ConsentDocumentReference expanded={policy.open} onToggle={policy.toggle}>
+              <ConsentDocumentReference expanded={policyOpen} onToggle={togglePolicy}>
                 {chunks}
               </ConsentDocumentReference>
             ),
@@ -107,7 +111,7 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
           {errors.privacyConsent}
         </p>
       ) : null}
-      <PrivacyPolicyPanel open={policy.open} onToggle={policy.toggle} />
+      <PrivacyPolicyPanel open={policyOpen} onToggle={togglePolicy} />
     </div>
   );
 }
