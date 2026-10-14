@@ -29,9 +29,9 @@ const { locationChoice } = QUESTIONNAIRE_DEFINITION;
 
 function applyLocationSeekScope(
   onUpdate: LocationChoiceFieldsProps['onUpdate'],
-  scope: LocationSeekScope,
+  scope: LocationSeekScope | '',
 ): void {
-  onUpdate('locationSeekScopes', [scope]);
+  onUpdate('locationSeekScopes', scope === '' ? [] : [scope]);
   if (scope !== 'yerevan') {
     onUpdate('yerevanDistricts', []);
   }

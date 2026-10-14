@@ -112,6 +112,11 @@ export function withMarzCitySelection(
 }
 
 function writeMarzCity(draft: MarzCityDraft, region: MarzCityRegion, value: string): boolean {
+  if (value === '') {
+    draft[region] = '';
+    return true;
+  }
+
   switch (region) {
     case 'aragatsotn':
       if (value === 'ashtarak' || value === 'other') {

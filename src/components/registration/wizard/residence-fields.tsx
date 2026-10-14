@@ -110,6 +110,10 @@ export function ResidenceFields({
                 cityErrorKey={() => 'residenceMarzCity'}
                 otherErrorKey={() => 'residenceMarzCityOther'}
                 onCityChange={(_region, value) => {
+                  if (value === '') {
+                    clearResidenceCity(onUpdate);
+                    return;
+                  }
                   if (!isMarzCityCode(value)) {
                     return;
                   }

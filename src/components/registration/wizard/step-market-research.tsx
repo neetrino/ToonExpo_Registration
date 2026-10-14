@@ -28,8 +28,11 @@ type StepProps = {
 const { market_research: marketResearch } = QUESTIONNAIRE_DEFINITION.branches;
 const { locationChoice } = QUESTIONNAIRE_DEFINITION;
 
-function applyResearchScope(onUpdate: StepProps['onUpdate'], scope: ResearchLocationScope): void {
-  onUpdate('researchScopes', [scope]);
+function applyResearchScope(
+  onUpdate: StepProps['onUpdate'],
+  scope: ResearchLocationScope | '',
+): void {
+  onUpdate('researchScopes', scope === '' ? [] : [scope]);
   if (scope !== 'yerevan') {
     onUpdate('yerevanDistricts', []);
   }
