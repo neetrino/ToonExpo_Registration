@@ -209,7 +209,10 @@ describe('resendRegistrationTicket', () => {
     });
     expect(deliveryJobCreate).toHaveBeenCalledTimes(1);
     expect(deliveryJobCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({ channel: 'SMS', templateVersion: TICKET_SMS_TEMPLATE_VERSION }),
+      data: expect.objectContaining({
+        channel: 'SMS',
+        templateVersion: TICKET_SMS_TEMPLATE_VERSION,
+      }),
     });
   });
 
