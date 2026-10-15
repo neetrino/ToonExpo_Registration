@@ -1,3 +1,4 @@
+import type { Prisma } from '@/generated/prisma';
 import { getPrisma } from '@/lib/db';
 import { evaluateTicketResend } from '@/lib/admin/resend-ticket-guards';
 import {
@@ -5,17 +6,52 @@ import {
   TICKET_EMAIL_TEMPLATE_VERSION,
   TICKET_SMS_TEMPLATE_VERSION,
 } from '@/lib/delivery/constants';
-import { createTicketDeliveryJobs } from '@/lib/delivery/create-ticket-delivery-jobs';
 import { processDueDeliveryJobs } from '@/lib/delivery/process-delivery-jobs';
-import { isTicketSmsDeliveryEnabled } from '@/lib/delivery/ticket-sms-policy';
 import { getDexatelSmsConfig } from '@/lib/integrations/dexatel/config';
 
 export type ResendTicketResult =
   { ok: true; emailQueued: boolean; smsQueued: boolean } | { ok: false; error: string };
 
+type TicketChannel = 'EMAIL' | 'SMS';
+
+const TEMPLATE_VERSION_BY_CHANNEL: Record<TicketChannel, string> = {
+  EMAIL: TICKET_EMAIL_TEMPLATE_VERSION,
+  SMS: TICKET_SMS_TEMPLATE_VERSION,
+};
+
+async function requeueTicketJob(
+  tx: Prisma.TransactionClient,
+  input: { registrationId: string; channel: TicketChannel; existingJobId?: string; now: Date },
+): Promise<void> {
+  if (input.existingJobId) {
+    await tx.deliveryJob.update({
+      where: { id: input.existingJobId },
+      data: {
+        status: 'PENDING',
+        nextAttemptAt: input.now,
+        attemptCount: 0,
+        claimedAt: null,
+        lastErrorCode: null,
+      },
+    });
+    return;
+  }
+
+  await tx.deliveryJob.create({
+    data: {
+      registrationId: input.registrationId,
+      channel: input.channel,
+      templateVersion: TEMPLATE_VERSION_BY_CHANNEL[input.channel],
+      status: 'PENDING',
+      nextAttemptAt: input.now,
+    },
+  });
+}
+
 /**
- * Re-queue the existing ticket email for one registration (same QR, same hosted link).
- * SMS is re-queued only when ticket SMS delivery is enabled.
+ * Admin manual resend of the existing ticket (same QR, same hosted link).
+ * Always re-queues email. Also re-queues SMS when Dexatel is configured,
+ * even while automatic ticket SMS for public registrations is paused.
  */
 export async function resendRegistrationTicket(
   registrationId: string,
@@ -47,12 +83,7 @@ export async function resendRegistrationTicket(
       })
     : null;
 
-  const guard = evaluateTicketResend({
-    hasActiveEvent: Boolean(event),
-    registration,
-    now,
-  });
-
+  const guard = evaluateTicketResend({ hasActiveEvent: Boolean(event), registration, now });
   if (!guard.ok) {
     return guard;
   }
@@ -61,66 +92,38 @@ export async function resendRegistrationTicket(
     return { ok: false, error: 'Registration not found.' };
   }
 
-  const smsEnabled = isTicketSmsDeliveryEnabled() && getDexatelSmsConfig().ok;
-  const emailJob = registration.deliveryJobs.find((job) => job.channel === 'EMAIL');
-  const smsJob = registration.deliveryJobs.find((job) => job.channel === 'SMS');
+  const smsQueued = getDexatelSmsConfig().ok;
+  const jobIdFor = (channel: TicketChannel): string | undefined =>
+    registration.deliveryJobs.find((job) => job.channel === channel)?.id;
 
   await prisma.$transaction(async (tx) => {
-    const resetData = {
-      status: 'PENDING' as const,
-      nextAttemptAt: now,
-      attemptCount: 0,
-      claimedAt: null,
-      lastErrorCode: null,
-    };
+    await requeueTicketJob(tx, {
+      registrationId: registration.id,
+      channel: 'EMAIL',
+      existingJobId: jobIdFor('EMAIL'),
+      now,
+    });
 
-    if (!emailJob && !smsJob) {
-      await createTicketDeliveryJobs(tx, registration.id);
-    } else {
-      if (emailJob) {
-        await tx.deliveryJob.update({ where: { id: emailJob.id }, data: resetData });
-      } else {
-        await tx.deliveryJob.create({
-          data: {
-            registrationId: registration.id,
-            channel: 'EMAIL',
-            templateVersion: TICKET_EMAIL_TEMPLATE_VERSION,
-            status: 'PENDING',
-            nextAttemptAt: now,
-          },
-        });
-      }
-
-      if (smsEnabled) {
-        if (smsJob) {
-          await tx.deliveryJob.update({ where: { id: smsJob.id }, data: resetData });
-        } else {
-          await tx.deliveryJob.create({
-            data: {
-              registrationId: registration.id,
-              channel: 'SMS',
-              templateVersion: TICKET_SMS_TEMPLATE_VERSION,
-              status: 'PENDING',
-              nextAttemptAt: now,
-            },
-          });
-        }
-      }
+    if (smsQueued) {
+      await requeueTicketJob(tx, {
+        registrationId: registration.id,
+        channel: 'SMS',
+        existingJobId: jobIdFor('SMS'),
+        now,
+      });
     }
 
     await tx.registration.update({
       where: { id: registration.id },
-      data: {
-        emailDeliveryStatus: 'PENDING',
-        emailLastAttemptAt: now,
-      },
+      data: { emailDeliveryStatus: 'PENDING', emailLastAttemptAt: now },
     });
   });
 
   await processDueDeliveryJobs({
     registrationId: registration.id,
     limit: DELIVERY_CLAIM_BATCH_SIZE_AFTER_CREATE,
+    includeSms: smsQueued,
   });
 
-  return { ok: true, emailQueued: true, smsQueued: smsEnabled };
+  return { ok: true, emailQueued: true, smsQueued };
 }
