@@ -111,7 +111,7 @@ Applies only to Toon Expo-origin registrations.
 
 - Generate the QR image in memory from `ticketCode`.
 - Email through Resend includes inline QR, readable code and hosted-ticket link.
-- SMS through Dexatel includes the hosted-ticket link. Ticket SMS is paused (`TICKET_SMS_DELIVERY_ENABLED` in `src/lib/delivery/ticket-sms-policy.ts`): QR goes out by email only, and pending SMS jobs are not dispatched. Turn the flag on for the pre-expo SMS send.
+- SMS through Dexatel includes the hosted-ticket link. Ticket SMS is paused (`TICKET_SMS_DELIVERY_ENABLED` in `src/lib/delivery/ticket-sms-policy.ts`): QR goes out by email only, and pending SMS jobs are not dispatched. Turn the flag on for the pre-expo SMS send. Exception: the admin **Send QR** button always sends both email and SMS for that one registration (when Dexatel is configured), regardless of the flag.
 - The hosted page shows the same QR and provides PNG download.
 - Registration/import success does not wait for provider delivery.
 - A `DeliveryJob` record tracks pending, processing, sent and failed work.

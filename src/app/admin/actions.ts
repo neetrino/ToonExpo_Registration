@@ -82,7 +82,8 @@ export async function deleteRegistrationAction(
 export type ResendTicketActionResult = { ok: true } | { ok: false; error: string };
 
 /**
- * Re-send the existing ticket QR by email. SMS is included only when ticket SMS is enabled.
+ * Re-send the existing ticket QR by email and SMS (SMS requires Dexatel to be configured).
+ * Manual admin resends send SMS even while automatic ticket SMS is paused.
  */
 export async function resendTicketAction(
   registrationId: string,

@@ -7,7 +7,7 @@
 3. A database transaction assigns `sourceSystem=TOON_EXPO` and stores the registration, `TE…` ticket code (`^(TE|MQ)[A-Z0-9]{11}$`), ticket token, an email delivery job and one fast-feed event. An SMS job is stored only when ticket SMS delivery is enabled.
 4. Browser receives the code and opens the success/ticket state.
 5. QR and readable code appear immediately.
-6. Delivery processing sends the QR by email asynchronously. SMS is not sent while ticket SMS delivery is paused.
+6. Delivery processing sends the QR by email asynchronously. SMS is not sent while ticket SMS delivery is paused. An admin **Send QR** resend sends the same QR by email and SMS (hosted-ticket link) even while automatic SMS is paused.
 7. Mootq later pulls the Toon Expo-origin fast-feed item with explicit source.
 
 ## Mootq visitor

@@ -19,21 +19,32 @@ export type ProcessDeliveryResult = {
   retried: number;
 };
 
-/**
- * Process due ticket delivery jobs, optionally limited to one registration.
- * SMS jobs stay queued and are not claimed while ticket SMS is paused.
- */
-export async function processDueDeliveryJobs(options?: {
+export type ProcessDeliveryOptions = {
   registrationId?: string;
   limit?: number;
-}): Promise<ProcessDeliveryResult> {
+  /**
+   * Claim SMS jobs even while ticket SMS is paused (admin manual resend).
+   * Ignored unless `registrationId` is set, so batch runs never send paused SMS.
+   */
+  includeSms?: boolean;
+};
+
+/**
+ * Process due ticket delivery jobs, optionally limited to one registration.
+ * SMS jobs stay queued and are not claimed while ticket SMS is paused,
+ * unless a single-registration run explicitly opts in via `includeSms`.
+ */
+export async function processDueDeliveryJobs(
+  options?: ProcessDeliveryOptions,
+): Promise<ProcessDeliveryResult> {
   const prisma = getPrisma();
   const limit = options?.limit ?? DELIVERY_CLAIM_BATCH_SIZE;
   const now = new Date();
 
-  const channels = isTicketSmsDeliveryEnabled()
-    ? (['EMAIL', 'SMS'] as const)
-    : (['EMAIL'] as const);
+  const smsAllowed =
+    isTicketSmsDeliveryEnabled() ||
+    (Boolean(options?.registrationId) && options?.includeSms === true);
+  const channels = smsAllowed ? (['EMAIL', 'SMS'] as const) : (['EMAIL'] as const);
 
   const candidates = await prisma.deliveryJob.findMany({
     where: {

@@ -116,4 +116,33 @@ describe('processDueDeliveryJobs', () => {
     expect(sendTicketEmail).not.toHaveBeenCalled();
     expect(result.sent).toBe(1);
   });
+
+  it('claims SMS for one registration on manual resend while ticket SMS is paused', async () => {
+    const { findMany } = createPrismaMock();
+    findMany.mockResolvedValue([]);
+
+    await processDueDeliveryJobs({ registrationId: REGISTRATION_ID, includeSms: true });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          channel: { in: ['EMAIL', 'SMS'] },
+          registrationId: REGISTRATION_ID,
+        }),
+      }),
+    );
+  });
+
+  it('ignores includeSms for batch runs while ticket SMS is paused', async () => {
+    const { findMany } = createPrismaMock();
+    findMany.mockResolvedValue([]);
+
+    await processDueDeliveryJobs({ includeSms: true });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ channel: { in: ['EMAIL'] } }),
+      }),
+    );
+  });
 });
