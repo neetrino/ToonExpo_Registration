@@ -93,11 +93,6 @@ export function FinishStep({ state, errors, disabled, onUpdate }: StepProps) {
           className="cursor-pointer text-sm leading-snug text-muted-foreground"
         >
           {tForm.rich('consent', {
-            terms: (chunks) => (
-              <ConsentDocumentReference expanded={policyOpen} onToggle={togglePolicy}>
-                {chunks}
-              </ConsentDocumentReference>
-            ),
             privacy: (chunks) => (
               <ConsentDocumentReference expanded={policyOpen} onToggle={togglePolicy}>
                 {chunks}
