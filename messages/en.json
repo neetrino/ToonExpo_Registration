@@ -62,12 +62,12 @@
     ]
   },
   "privacy": {
-    "title": "Personal data privacy policy",
+    "title": "Policy on the collection, use, storage, and processing of personal data",
     "status": "Version {version}",
-    "intro": "This policy describes how TOON EXPO collects, uses, and stores users’ personal data through our website and application.\n\nThis policy details the collection, use, protection, and transfer of personal data related to your participation in TOON EXPO. By participating in TOON EXPO and providing the relevant confirmation in the electronic and/or paper form presented to you, you consent to the collection, processing, and transfer of your personal data (to persons designated by you) as set out in this Policy, and you agree to their protection in accordance with applicable data protection legislation.",
+    "intro": "This Policy describes the procedure by which TOON EXPO collects, uses, stores, and processes your (the Users’) personal data in accordance with applicable legal norms. By participating in TOON EXPO and making the relevant mark in the electronic and/or paper notice presented to you, you consent to the collection, storage, and transfer of your personal data (to the range of persons specified in this Policy) as set out in this Policy, and you agree to their processing in accordance with applicable data protection legislation.",
     "sections": [
       {
-        "title": "1. Data we collect",
+        "title": "1. Data processed",
         "body": "Within the scope of this Policy, the User’s personal information includes:\n\n1.1 Personal information that the User provides about themselves when completing and submitting application forms, subscribing to updates, or using the Services.\n\n1.2 Data automatically transmitted to the Website’s services during use via software installed on the User’s device (IP address, cookie files, browser data, date and time of access).\n\n1.3 This Privacy Policy applies only to the toonexpo.com Website. The Website does not control and is not responsible for third-party websites that the User may visit through links available on the Website.\n\nDuring your registration and participation in TOON EXPO, we collect and process the following categories of personal data.",
         "items": [
           "Basic information (required for registration): first name, last name, email address, phone number, date of birth.",
@@ -79,12 +79,12 @@
         ]
       },
       {
-        "title": "2. Purpose of data collection and related actions",
-        "body": "The personal data we collect is processed for the following purposes.\n\n2.1 Event management: enabling your registration, coordinating logistics, providing updates and messages, and addressing security matters.\n\n2.2 Optimizing event engagement: tracking participation and interactions to improve the TOON EXPO experience.\n\n2.3 Analytics: creating anonymous statistics for internal analysis to improve future events.\n\n2.4 Application features and personalization: providing, personalizing, and improving TOON EXPO mobile application features (personalized schedules, networking tools, and similar)."
+        "title": "2. Purposes of data processing and related actions",
+        "body": "2.1 Event management: enabling your registration, coordinating logistics, providing updates and messages, and addressing security matters.\n\n2.2 Optimizing event engagement: tracking participation and interactions to improve the TOON EXPO experience.\n\n2.3 Analytics: creating anonymous statistics for internal analysis to improve future events.\n\n2.4 Application features and personalization: providing, personalizing, and improving TOON EXPO mobile application features (personalized schedules, networking tools, and similar).\n\n2.5 Identifying visitors’ needs and interests and providing relevant offers: processing visitors’ personal data to identify their needs and interests, to provide matching information and offers regarding goods and services, and to ensure effective communication with TOON EXPO partner organizations. By reviewing this Policy and making the relevant “I agree” mark during registration, the User consents to the processing of personal data for these purposes and to its transfer to TOON EXPO partner organizations in the manner and under the conditions set out in clause 5.1 of this Policy."
       },
       {
         "title": "3. Legal bases for processing",
-        "body": "We process your personal data on the following legal bases.\n\n3.1 Legitimate interests: ensuring uninterrupted TOON EXPO operations and improving the participant experience.\n\n3.2 Compliance with legal obligations: we may process data to meet legislative or regulatory requirements, including under the RA Law “On Protection of Personal Data”."
+        "body": "We process your personal data on the following legal bases.\n\n3.1 Legitimate interests: ensuring uninterrupted TOON EXPO operations and improving the participant experience.\n\n3.2 Legal compliance: personal data is processed in accordance with the requirements of applicable legal norms and legislative acts and the principles they establish, including, but not limited to, the RA Law “On Protection of Personal Data”."
       },
       {
         "title": "4. Data retention",
@@ -92,20 +92,19 @@
       },
       {
         "title": "5. Transfer of personal data",
-        "body": "5.1 Service providers. We engage trusted third parties (IT services, payment processing, marketing services) that are obliged to maintain data confidentiality.\n\n5.2 Legal compliance. Data may be provided to law-enforcement or regulatory authorities in cases established by law.\n\n5.3 Business transfer. In the event of a merger or sale, data may be transferred to the new organization."
+        "body": "5.1 Partner and/or participating companies. To properly achieve the purposes set out in Section 2 of this Policy, your personal data may be transferred to TOON EXPO partner and/or participating companies (for processing, including, but not limited to, use and contacting Users through them, including by phone calls, email notifications and messages (SMS), and other means of communication, in order to deliver information to Users). The full list of these companies is available in the relevant section of the website.\n\n5.2 Legal compliance. Data may be provided to law-enforcement or regulatory authorities in cases established by law.\n\n5.3 Business transfer. In the event of a merger or sale, data may be transferred to the new organization."
       },
       {
         "title": "6. Your rights",
-        "body": "You have the following rights.",
+        "body": "In connection with the processing of your personal data, you have the right to:",
         "items": [
-          "Right of access to data",
-          "Right to rectification",
-          "Right to erasure (destruction)",
-          "Right to restriction of processing",
-          "Right to withdraw consent",
-          "Or the right to take another action related to processing"
+          "Obtain information at any time about your personal data and the processes of its processing;",
+          "Request at any time that your personal data be rectified, blocked, or destroyed if it is incomplete, inaccurate, or outdated;",
+          "Request at any time that the processing of your personal data be restricted;",
+          "Withdraw your consent at any time;",
+          "Exercise other rights related to data processing provided by law."
         ],
-        "closing": "To exercise these rights, please contact us using the contact details listed on the website or write to us at info@bigprojects.am. If a deletion (destruction) or withdrawal request is submitted, your data will be deleted within 3 (three) business days after receipt of the request without any consequences."
+        "closing": "To exercise the rights set out above, please contact us using the contact details listed on the website or write to us at info@bigprojects.am. If a deletion (destruction) or withdrawal request is submitted, your data will be deleted within 3 (three) business days after receipt of the request without any consequences."
       },
       {
         "title": "7. Changes to the policy",
@@ -154,7 +153,7 @@
     "phoneCountrySearch": "Search by country or code",
     "phoneCountryEmpty": "No countries found",
     "phoneHint": "Select your country, then enter the local number without the country code.",
-    "consent": "I have read and agree to the <terms>Terms of Use</terms> and the <privacy>Privacy Policy</privacy>",
+    "consent": "I agree to the <privacy>policy on the collection, use, storage, and processing of personal data</privacy>.",
     "submit": "Submit registration",
     "submitting": "Submitting…"
   },
@@ -170,7 +169,7 @@
     "required": "This field is required.",
     "invalidEmail": "Enter a valid email address.",
     "invalidPhone": "Enter a valid phone number. For example: {example}",
-    "consentRequired": "You must agree to the Terms of Use and the Privacy Policy.",
+    "consentRequired": "You must agree to the policy on the collection, use, storage, and processing of personal data.",
     "validation": "Please check the highlighted fields and try again.",
     "duplicate": "This email is already registered for the event.",
     "rateLimit": "Too many attempts. Please wait a moment and try again.",
