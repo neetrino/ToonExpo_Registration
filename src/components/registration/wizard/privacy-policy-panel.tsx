@@ -3,7 +3,7 @@ import {
   PrivacyPolicyContent,
   type PrivacySection,
 } from '@/components/legal/privacy-policy-content';
-import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
+import { PRIVACY_POLICY_VERSION_LABEL } from '@/lib/privacy';
 import { cn } from '@/lib/utils';
 
 export const PRIVACY_POLICY_PANEL_ID = 'privacyPolicyPanel';
@@ -42,7 +42,7 @@ export function PrivacyPolicyPanel({ open, onToggle }: PrivacyPolicyPanelProps) 
               {t('title')}
             </span>
             <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              {t('status', { version: PRIVACY_POLICY_VERSION })}
+              {t('status', { version: PRIVACY_POLICY_VERSION_LABEL })}
             </span>
           </span>
           <ChevronIcon open={open} />

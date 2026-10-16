@@ -5,7 +5,7 @@ import {
   type PrivacySection,
 } from '@/components/legal/privacy-policy-content';
 import { Button } from '@/components/ui/button';
-import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
+import { PRIVACY_POLICY_VERSION_LABEL } from '@/lib/privacy';
 
 type PrivacyPageProps = {
   params: Promise<{ locale: string }>;
@@ -45,7 +45,7 @@ export default async function PrivacyPage({ params }: PrivacyPageProps) {
 
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
-                {t('status', { version: PRIVACY_POLICY_VERSION })}
+                {t('status', { version: PRIVACY_POLICY_VERSION_LABEL })}
               </p>
               <h1 className="mt-1 font-display text-2xl font-extrabold text-primary md:text-3xl">
                 {t('title')}
