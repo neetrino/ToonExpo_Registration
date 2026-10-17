@@ -4,11 +4,11 @@ import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
 import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import {
+  ACCEPTED_PRIVACY_POLICY_VERSIONS,
   DEFAULT_PHONE_COUNTRY,
   EMAIL_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
-  PRIVACY_POLICY_VERSION,
   UTM_MAX_LENGTH,
   UTM_VALUE_PATTERN,
 } from '@/lib/validation/constants';
@@ -61,7 +61,7 @@ const identityFields = {
   phoneCountry: phoneCountrySchema,
   locale: localeSchema,
   privacyConsent: z.literal(true),
-  privacyPolicyVersion: z.literal(PRIVACY_POLICY_VERSION),
+  privacyPolicyVersion: z.enum(ACCEPTED_PRIVACY_POLICY_VERSIONS),
   website: z.string().max(200).optional().default(''),
   utmSource: optionalUtmFieldSchema,
   utmMedium: optionalUtmFieldSchema,

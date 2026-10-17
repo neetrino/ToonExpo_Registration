@@ -1,4 +1,8 @@
-export { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
+export {
+  ACCEPTED_PRIVACY_POLICY_VERSIONS,
+  PREVIOUS_PRIVACY_POLICY_VERSION,
+  PRIVACY_POLICY_VERSION,
+} from '@/lib/privacy';
 export { UTM_MAX_LENGTH, UTM_VALUE_PATTERN } from '@/lib/attribution/utm';
 
 export const NAME_MIN_LENGTH = 1;

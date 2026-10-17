@@ -3,7 +3,10 @@ import { FORM_VERSION } from '@/lib/questionnaire';
 import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import { normalizeEmail, normalizeName } from '@/lib/validation/normalize';
 import { normalizePhone } from '@/lib/validation/phone';
-import { PRIVACY_POLICY_VERSION } from '@/lib/validation/constants';
+import {
+  PREVIOUS_PRIVACY_POLICY_VERSION,
+  PRIVACY_POLICY_VERSION,
+} from '@/lib/validation/constants';
 import { registrationBodySchema } from '@/lib/validation/registration-schema';
 
 const validAnswers = {
@@ -119,6 +122,18 @@ describe('registrationBodySchema', () => {
   it('rejects missing consent', () => {
     const parsed = registrationBodySchema.safeParse({ ...valid, privacyConsent: false });
     expect(parsed.success).toBe(false);
+  });
+
+  it('accepts the previous privacy policy version from an already open form', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      privacyPolicyVersion: PREVIOUS_PRIVACY_POLICY_VERSION,
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.privacyPolicyVersion).toBe(PREVIOUS_PRIVACY_POLICY_VERSION);
   });
 
   it('rejects unknown privacy policy version', () => {
