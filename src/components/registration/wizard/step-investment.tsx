@@ -1,3 +1,4 @@
+import { IncomeTaxRefundField } from '@/components/registration/wizard/income-tax-refund-field';
 import { Input } from '@/components/ui/input';
 import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire/definition';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
@@ -5,7 +6,7 @@ import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
 import { LocationChoiceFields } from './location-choice-fields';
-import { OptionRadioGroup } from './option-groups';
+import { OptionCheckboxGroup, OptionRadioGroup } from './option-groups';
 import type { WizardFieldErrors, WizardState } from './types';
 
 type StepProps = {
@@ -82,9 +83,10 @@ export function InvestmentGoalStep({ state, errors, disabled, locale, onUpdate }
         legend={getQuestionLabel('investmentGoal', locale)}
         error={errors.investmentGoal}
       >
-        <OptionRadioGroup
+        <OptionCheckboxGroup
           name="investmentGoal"
-          value={state.investmentGoal}
+          values={state.investmentGoal}
+          max={4}
           options={investment.investmentGoal.options}
           getLabel={(value) => getOptionLabel('investmentGoal', value, locale)}
           onChange={(value) => onUpdate('investmentGoal', value)}
@@ -135,11 +137,22 @@ export function InvestmentSizeStep({ state, errors, disabled, locale, onUpdate }
           value={state.purchaseMethod}
           options={investment.purchaseMethod.options}
           getLabel={(value) => getOptionLabel('purchaseMethod', value, locale)}
-          onChange={(value) => onUpdate('purchaseMethod', value)}
+          onChange={(value) => {
+            onUpdate('purchaseMethod', value);
+            onUpdate('incomeTaxRefund', '');
+          }}
           disabled={disabled}
           error={Boolean(errors.purchaseMethod)}
         />
       </QuestionField>
+      <IncomeTaxRefundField
+        purchaseMethod={state.purchaseMethod}
+        value={state.incomeTaxRefund}
+        error={errors.incomeTaxRefund}
+        disabled={disabled}
+        locale={locale}
+        onChange={(value) => onUpdate('incomeTaxRefund', value)}
+      />
     </div>
   );
 }

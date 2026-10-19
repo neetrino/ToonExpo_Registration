@@ -8,14 +8,14 @@ const labels = {
 };
 
 describe('marz city choice', () => {
-  it('accepts Ashtarak for an Aragatsotn residence', () => {
+  it('rejects a city for a region-only residence', () => {
     const parsed = residencePlaceSchema.safeParse({
       scope: 'marz',
       region: 'aragatsotn',
       city: 'ashtarak',
     });
 
-    expect(parsed.success).toBe(true);
+    expect(parsed.success).toBe(false);
   });
 
   it('rejects a city on a region that has no city choice', () => {
@@ -28,14 +28,14 @@ describe('marz city choice', () => {
     expect(parsed.success).toBe(false);
   });
 
-  it('requires a city when Kotayk is selected', () => {
+  it('leaves city requirements to the branch validator', () => {
     const parsed = locationChoiceSchema.safeParse({
       yerevanDistricts: [],
       marzRegions: ['kotayk'],
       abroadCountries: [],
     });
 
-    expect(parsed.success).toBe(false);
+    expect(parsed.success).toBe(true);
   });
 
   it('requires the written place when Other is selected', () => {
@@ -49,7 +49,7 @@ describe('marz city choice', () => {
     expect(parsed.success).toBe(false);
   });
 
-  it('requires a city when Tavush is selected and accepts Dilijan', () => {
+  it('accepts optional Tavush cities at the shared location layer', () => {
     const missing = locationChoiceSchema.safeParse({
       yerevanDistricts: [],
       marzRegions: ['tavush'],
@@ -62,18 +62,18 @@ describe('marz city choice', () => {
       abroadCountries: [],
     });
 
-    expect(missing.success).toBe(false);
+    expect(missing.success).toBe(true);
     expect(selected.success).toBe(true);
   });
 
-  it('accepts Tsaghkadzor for Kotayk', () => {
+  it('rejects a city for a Kotayk residence', () => {
     const parsed = residencePlaceSchema.safeParse({
       scope: 'marz',
       region: 'kotayk',
       city: 'tsaghkadzor',
     });
 
-    expect(parsed.success).toBe(true);
+    expect(parsed.success).toBe(false);
   });
 
   it('accepts a named city and leaves regions without a city choice unchanged', () => {

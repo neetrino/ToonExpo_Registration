@@ -62,6 +62,7 @@ const validBody = {
     },
     areaSqm: '70-90',
     purchaseMethod: 'mortgage',
+    incomeTaxRefund: false,
     monthlyBudget: '300k-500k',
     decisionStage: 'searching_6_months',
     newsletter: true,

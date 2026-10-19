@@ -66,6 +66,20 @@ function normalizeSingleLocationScope(state: WizardState): WizardState {
 
   return {
     ...state,
+    investmentGoal: Array.isArray(state.investmentGoal)
+      ? state.investmentGoal.filter((goal) =>
+          ['rental_income', 'appreciation', 'diversification', 'citizenship_residency'].includes(
+            goal,
+          ),
+        )
+      : [],
+    purchaseMethod: ['cash', 'mortgage', 'installment'].includes(state.purchaseMethod)
+      ? state.purchaseMethod
+      : '',
+    incomeTaxRefund:
+      state.purchaseMethod === 'mortgage' && typeof state.incomeTaxRefund === 'boolean'
+        ? state.incomeTaxRefund
+        : '',
     locationSeekScopes,
     researchScopes,
     yerevanDistricts: activeScope === 'yerevan' ? state.yerevanDistricts : [],

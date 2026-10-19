@@ -58,6 +58,11 @@ export const questionnaireI18n = {
       'What property size are you looking for?',
       'Какую площадь недвижимости вы ищете',
     ),
+    incomeTaxRefund: L(
+      'Եկամտային հարկի վերադարձո՞վ',
+      'Do you plan to benefit from the income tax refund program?',
+      'Планируете ли Вы воспользоваться возвратом подоходного налога?',
+    ),
     purchaseMethod: L(
       'Ո՞ր եղանակով եք ցանկանում ձեռք բերել անշարժ գույք',
       'How are you planning to purchase the property?',
@@ -231,6 +236,7 @@ export const questionnaireI18n = {
       tavush: L('Տավուշի մարզ', 'Tavush', 'Тавуш'),
     },
     marzCity: {
+      kanakeravan: L('Քանաքեռավան', 'Qanaqeravan', 'Канакераван'),
       ashtarak: L('Աշտարակ', 'Ashtarak', 'Аштарак'),
       artashat: L('Արտաշատ', 'Artashat', 'Арташат'),
       masis: L('Մասիս', 'Masis', 'Масис'),
@@ -246,6 +252,14 @@ export const questionnaireI18n = {
       '70-90': L('70 - 90 քմ', '70–90 sq. m', '70–90 кв. м'),
       '90-120': L('90 - 120 քմ', '90–120 sq. m', '90–120 кв. м'),
       '120_plus': L('120 քմ +', '120+ sq. m', '120 кв. м +'),
+    },
+    incomeTaxRefund: {
+      yes: L('Այո, պատրաստվում եմ օգտվել', 'Yes, I plan to use it', 'Да, планирую воспользоваться'),
+      no: L(
+        'Ոչ, չեմ նախատեսում օգտվել',
+        'No, I do not plan to use it',
+        'Нет, не планирую воспользоваться',
+      ),
     },
     purchaseMethod: {
       cash: L('Կանխիկ (100% վճարում)', 'Cash (100% payment)', 'Наличными (100% оплата)'),

@@ -68,6 +68,7 @@ describe('spyurkQuestionnaireAnswersSchema', () => {
       propertyCountry: propertyArmenia,
       investmentGoal: 'rental_income',
       purchaseMethod: 'mortgage',
+      incomeTaxRefund: false,
       investmentTimeline: 'up_to_3_months',
       investmentBudgetUsd: '150k-300k',
       priorInvestmentExperience: 'yes_abroad',
@@ -83,6 +84,7 @@ describe('spyurkQuestionnaireAnswersSchema', () => {
       investmentGoal: 'rental_income',
       areaSqm: '50-70',
       purchaseMethod: 'mortgage',
+      incomeTaxRefund: false,
       investmentTimeline: 'up_to_3_months',
       investmentBudgetUsd: '150k-300k',
       priorInvestmentExperience: 'yes_both',
@@ -103,5 +105,40 @@ describe('spyurkQuestionnaireAnswersSchema', () => {
       armeniaVisitTiming: 'not_planning',
     });
     expect(parsed.success).toBe(true);
+  });
+});
+
+describe('Spyurk mortgage refund question', () => {
+  const base = {
+    ageBand: '35-44',
+    residence: { city: 'Москва', region: 'Москва' },
+    armeniaConnection: 'born_in_armenia',
+    purchaseMotives: ['own_stays'],
+    visitPurpose: 'own_residence',
+    interestTypes: ['apartment_new'],
+    propertyCountry: { scope: 'armenia' },
+    areaSqm: '70-90',
+    purchaseMethod: 'mortgage',
+    purchaseBudgetUsd: '150k-250k',
+    decisionStage: 'searching_6_months',
+    armeniaVisitTiming: 'within_3_months',
+  };
+  it.each([true, false])('requires and stores %s', (incomeTaxRefund) => {
+    expect(spyurkQuestionnaireAnswersSchema.safeParse(base).success).toBe(false);
+    expect(spyurkQuestionnaireAnswersSchema.parse({ ...base, incomeTaxRefund })).toMatchObject({
+      incomeTaxRefund,
+    });
+  });
+  it('rejects the obsolete mixed payment and mortgage answers for cash purchases', () => {
+    expect(
+      spyurkQuestionnaireAnswersSchema.safeParse({ ...base, purchaseMethod: 'mixed' }).success,
+    ).toBe(false);
+    expect(
+      spyurkQuestionnaireAnswersSchema.safeParse({
+        ...base,
+        purchaseMethod: 'cash',
+        incomeTaxRefund: false,
+      }).success,
+    ).toBe(false);
   });
 });

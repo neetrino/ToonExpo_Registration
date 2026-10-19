@@ -54,6 +54,7 @@ export type SpyurkOwnResidenceAnswers = SpyurkSharedAnswers & {
   propertyCountry: SpyurkPropertyCountry;
   areaSqm: AreaSqmBand;
   purchaseMethod: PurchaseMethod;
+  incomeTaxRefund?: boolean;
   purchaseBudgetUsd: PurchaseBudgetUsd;
   decisionStage: DecisionStage;
   armeniaVisitTiming: ArmeniaVisitTiming;
@@ -67,6 +68,7 @@ export type SpyurkInvestmentAnswers = SpyurkSharedAnswers & {
   investmentGoal: SpyurkInvestmentGoal;
   areaSqm?: AreaSqmBand;
   purchaseMethod: PurchaseMethod;
+  incomeTaxRefund?: boolean;
   investmentTimeline: InvestmentTimeline;
   investmentBudgetUsd: InvestmentBudgetUsd;
   priorInvestmentExperience: PriorInvestmentExperience;

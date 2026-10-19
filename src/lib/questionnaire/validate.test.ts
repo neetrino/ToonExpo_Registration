@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { FORM_VERSION } from '@/lib/questionnaire/constants';
-import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
+import {
+  questionnaireAnswersSchema,
+  storedQuestionnaireAnswersSchema,
+} from '@/lib/questionnaire/validate';
 
 const residence = { scope: 'yerevan' as const, district: 'kentron' as const };
 
@@ -16,6 +19,7 @@ const sharedOwnResidence = {
   visitPurpose: 'own_residence' as const,
   areaSqm: '70-90' as const,
   purchaseMethod: 'mortgage' as const,
+  incomeTaxRefund: false,
   monthlyBudget: '300k-500k' as const,
   decisionStage: 'searching_6_months' as const,
   newsletter: true,
@@ -33,7 +37,7 @@ const validInvestment = {
   visitPurpose: 'investment' as const,
   investmentPropertyType: 'apartment' as const,
   locationSeek,
-  investmentGoal: 'rental_income' as const,
+  investmentGoal: ['rental_income'] as const,
   areaSqm: '70-90' as const,
   purchaseMethod: 'cash' as const,
   investmentTimeline: '6-12_months' as const,
@@ -224,5 +228,151 @@ describe('questionnaireAnswersSchema', () => {
 describe('FORM_VERSION', () => {
   it('is the active visitor registration version', () => {
     expect(FORM_VERSION).toBe('2026-vis-reg-v2');
+  });
+});
+
+describe('October 2026 questionnaire revision', () => {
+  it.each([true, false])(
+    'requires and preserves the mortgage refund answer %s',
+    (incomeTaxRefund) => {
+      expect(
+        questionnaireAnswersSchema.parse({ ...validOwnResidence, incomeTaxRefund }),
+      ).toMatchObject({ incomeTaxRefund });
+      expect(
+        questionnaireAnswersSchema.safeParse({ ...validOwnResidence, incomeTaxRefund: undefined })
+          .success,
+      ).toBe(false);
+      expect(
+        questionnaireAnswersSchema.safeParse({
+          ...validInvestment,
+          purchaseMethod: 'mortgage',
+          incomeTaxRefund,
+        }).success,
+      ).toBe(true);
+      expect(
+        questionnaireAnswersSchema.safeParse({ ...validInvestment, purchaseMethod: 'mortgage' })
+          .success,
+      ).toBe(false);
+    },
+  );
+
+  it.each(['cash', 'installment'])(
+    'does not accept a mortgage-only answer for %s',
+    (purchaseMethod) => {
+      expect(
+        questionnaireAnswersSchema.safeParse({
+          ...validOwnResidence,
+          purchaseMethod,
+          incomeTaxRefund: undefined,
+        }).success,
+      ).toBe(true);
+      expect(
+        questionnaireAnswersSchema.safeParse({
+          ...validOwnResidence,
+          purchaseMethod,
+          incomeTaxRefund: false,
+        }).success,
+      ).toBe(false);
+    },
+  );
+
+  it('removes the combined payment method', () => {
+    expect(
+      questionnaireAnswersSchema.safeParse({ ...validOwnResidence, purchaseMethod: 'mixed' })
+        .success,
+    ).toBe(false);
+  });
+
+  it('allows all four investment goals and rejects empty, repeated and obsolete choices', () => {
+    const investmentGoal = [
+      'rental_income',
+      'appreciation',
+      'diversification',
+      'citizenship_residency',
+    ];
+    expect(questionnaireAnswersSchema.parse({ ...validInvestment, investmentGoal })).toMatchObject({
+      investmentGoal,
+    });
+    for (const invalid of [[], ['rental_income', 'rental_income'], ['multiple'], 'rental_income']) {
+      expect(
+        questionnaireAnswersSchema.safeParse({ ...validInvestment, investmentGoal: invalid })
+          .success,
+      ).toBe(false);
+    }
+  });
+
+  it.each([
+    ['own_residence', 'aragatsotn', 'ashtarak'],
+    ['own_residence', 'ararat', 'masis'],
+    ['own_residence', 'kotayk', 'kanakeravan'],
+    ['investment', 'kotayk', 'tsaghkadzor'],
+    ['investment', 'kotayk', 'yeghvard'],
+    ['investment', 'tavush', 'dilijan'],
+  ])('validates %s city %s/%s in its own branch', (purpose, region, city) => {
+    const base = purpose === 'investment' ? validInvestment : validOwnResidence;
+    const locationSeek = {
+      yerevanDistricts: [],
+      marzRegions: [region],
+      abroadCountries: [],
+      marzCities: { [region]: { city } },
+    };
+    expect(questionnaireAnswersSchema.safeParse({ ...base, locationSeek }).success).toBe(true);
+    expect(
+      questionnaireAnswersSchema.safeParse({
+        ...base,
+        locationSeek: { ...locationSeek, marzCities: undefined },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('does not ask for cities in residence or research and rejects cities from another branch', () => {
+    expect(
+      questionnaireAnswersSchema.safeParse({
+        ...validOwnResidence,
+        residence: { scope: 'marz', region: 'kotayk' },
+      }).success,
+    ).toBe(true);
+    expect(
+      questionnaireAnswersSchema.safeParse({
+        ...validMarketResearch,
+        researchLocation: { undecided: false, yerevanDistricts: [], marzRegions: ['kotayk'] },
+      }).success,
+    ).toBe(true);
+    expect(
+      questionnaireAnswersSchema.safeParse({
+        ...validOwnResidence,
+        locationSeek: {
+          yerevanDistricts: [],
+          marzRegions: ['kotayk'],
+          abroadCountries: [],
+          marzCities: { kotayk: { city: 'tsaghkadzor' } },
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      questionnaireAnswersSchema.safeParse({
+        ...validInvestment,
+        locationSeek: {
+          yerevanDistricts: [],
+          marzRegions: ['kotayk'],
+          abroadCountries: [],
+          marzCities: { kotayk: { city: 'kanakeravan' } },
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it('keeps historical single goals, combined payments and missing refund answers readable without inventing answers', () => {
+    const legacy = { ...validInvestment, investmentGoal: 'multiple', purchaseMethod: 'mixed' };
+    expect(storedQuestionnaireAnswersSchema.parse(legacy)).toMatchObject({
+      investmentGoal: 'multiple',
+      purchaseMethod: 'mixed',
+    });
+    const oldMortgage = storedQuestionnaireAnswersSchema.parse({
+      ...validOwnResidence,
+      incomeTaxRefund: undefined,
+    });
+    expect(oldMortgage).not.toHaveProperty('incomeTaxRefund', false);
+    expect(oldMortgage).not.toHaveProperty('incomeTaxRefund', true);
   });
 });

@@ -46,6 +46,7 @@ const generalBranches: Record<string, Record<string, unknown>> = {
     locationSeek: location,
     areaSqm: '70-90',
     purchaseMethod: 'mortgage',
+    incomeTaxRefund: false,
     monthlyBudget: '300k-500k',
     decisionStage: 'searching_6_months',
   },
@@ -54,7 +55,7 @@ const generalBranches: Record<string, Record<string, unknown>> = {
     visitPurpose: 'investment',
     investmentPropertyType: 'apartment',
     locationSeek: location,
-    investmentGoal: 'rental_income',
+    investmentGoal: ['rental_income'],
     areaSqm: '70-90',
     purchaseMethod: 'cash',
     investmentTimeline: '6-12_months',
@@ -87,6 +88,7 @@ const spyurkBranches: Record<string, Record<string, unknown>> = {
     propertyCountry: { scope: 'armenia' },
     areaSqm: '70-90',
     purchaseMethod: 'mortgage',
+    incomeTaxRefund: false,
     purchaseBudgetUsd: '150k-250k',
     decisionStage: 'searching_6_months',
   },
@@ -144,4 +146,27 @@ describe('Mootq required question coverage (requireAllAnswers 0)', () => {
       expect(strict.missingRequired).toEqual([CODE.newsletter]);
     }
   });
+});
+
+it('sends multiple investment goals using the available partner schema type', () => {
+  const answers = {
+    ...generalBranches.investment,
+    investmentGoal: ['rental_income', 'appreciation'],
+  };
+  const result = generalPayload(answers);
+  expect(result.payload.answers[CODE.investmentGoal]).toBe('Միաժամանակ մի քանի նպատակով');
+  const multiSchema = {
+    ...mootqSchemaFixture,
+    questions: mootqSchemaFixture.questions.map((question) =>
+      question.code === CODE.investmentGoal ? { ...question, type: 6, maxSelections: 4 } : question,
+    ),
+  };
+  const multi = buildMootqPushPayload(
+    { ...identity, formVersion: FORM_VERSION, answers },
+    multiSchema,
+  );
+  expect(multi.payload.answers[CODE.investmentGoal]).toEqual([
+    'Վարձակալությունից պասիվ եկամուտ ստանալու համար',
+    'Գույքի արժեքի աճից շահույթ ստանալու համար',
+  ]);
 });

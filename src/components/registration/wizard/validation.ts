@@ -1,3 +1,5 @@
+import { isResidenceCountry } from '@/lib/questionnaire/residence-countries';
+import { refineIncomeTaxRefund } from '@/lib/questionnaire/purchase-financing';
 import { z } from 'zod';
 import {
   ABROAD_COUNTRIES,
@@ -25,7 +27,6 @@ import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { normalizePhone } from '@/lib/validation/phone';
 import { resolvePhoneCountry } from '@/lib/validation/phone-countries';
 import { locationChoiceStepSchema, researchLocationStepSchema } from './location-validation';
-import { addMarzCityDraftIssues, residenceCityDraft } from './marz-city-draft';
 import type { WizardFieldErrors, WizardState, WizardStepId } from './types';
 
 type ErrorTranslator = {
@@ -81,27 +82,9 @@ const profileStepSchema = z
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['residenceRegion'], message: 'required' });
     }
 
-    if (data.residenceScope === 'marz' && data.residenceRegion) {
-      const residenceCity = residenceCityDraft(
-        data.residenceRegion,
-        data.residenceMarzCity,
-        data.residenceMarzCityOther,
-      );
-      if (residenceCity) {
-        addMarzCityDraftIssues(
-          ctx,
-          residenceCity.regions,
-          residenceCity.city,
-          residenceCity.other,
-          () => 'residenceMarzCity',
-          () => 'residenceMarzCityOther',
-        );
-      }
-    }
-
     if (data.residenceScope === 'abroad') {
       const other = otherTextSchema.safeParse(data.residenceCountry);
-      if (!other.success) {
+      if (!other.success || !isResidenceCountry(data.residenceCountry)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['residenceCountry'],
@@ -140,10 +123,13 @@ const ownResidenceInterestSchema = z
 
 const ownResidenceLocationSchema = locationChoiceStepSchema;
 
-const ownResidenceSizeSchema = z.object({
-  areaSqm: z.enum(AREA_SQM_BANDS),
-  purchaseMethod: z.enum(PURCHASE_METHODS),
-});
+const ownResidenceSizeSchema = z
+  .object({
+    areaSqm: z.enum(AREA_SQM_BANDS),
+    purchaseMethod: z.enum(PURCHASE_METHODS),
+    incomeTaxRefund: z.boolean().or(z.literal('')).optional(),
+  })
+  .superRefine(refineIncomeTaxRefund);
 
 const ownResidenceBudgetSchema = z.object({
   monthlyBudget: z.enum(MONTHLY_BUDGETS),
@@ -170,13 +156,20 @@ const investmentTypeSchema = z
 
 const investmentLocationSchema = locationChoiceStepSchema;
 
-const investmentSizeSchema = z.object({
-  areaSqm: z.enum(AREA_SQM_BANDS),
-  purchaseMethod: z.enum(PURCHASE_METHODS),
-});
+const investmentSizeSchema = z
+  .object({
+    areaSqm: z.enum(AREA_SQM_BANDS),
+    purchaseMethod: z.enum(PURCHASE_METHODS),
+    incomeTaxRefund: z.boolean().or(z.literal('')).optional(),
+  })
+  .superRefine(refineIncomeTaxRefund);
 
 const investmentGoalSchema = z.object({
-  investmentGoal: z.enum(INVESTMENT_GOALS),
+  investmentGoal: z
+    .array(z.enum(INVESTMENT_GOALS))
+    .min(1)
+    .max(4)
+    .refine((values) => new Set(values).size === values.length, { message: 'unique' }),
   investmentTimeline: z.enum(INVESTMENT_TIMELINES),
 });
 
@@ -287,6 +280,7 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
     case 'own-residence-location':
     case 'investment-location':
       return {
+        visitPurpose: state.visitPurpose,
         locationSeekScopes: state.locationSeekScopes,
         locationSeekAbroadCountries: state.locationSeekAbroadCountries,
         locationSeekAbroadOther: state.locationSeekAbroadOther,
@@ -299,6 +293,7 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       return {
         areaSqm: state.areaSqm || undefined,
         purchaseMethod: state.purchaseMethod || undefined,
+        incomeTaxRefund: state.purchaseMethod === 'mortgage' ? state.incomeTaxRefund : undefined,
       };
     case 'own-residence-budget':
       return {
@@ -314,10 +309,11 @@ function pickState(stepId: WizardStepId, state: WizardState): Record<string, unk
       return {
         areaSqm: state.areaSqm || undefined,
         purchaseMethod: state.purchaseMethod || undefined,
+        incomeTaxRefund: state.purchaseMethod === 'mortgage' ? state.incomeTaxRefund : undefined,
       };
     case 'investment-goal':
       return {
-        investmentGoal: state.investmentGoal || undefined,
+        investmentGoal: state.investmentGoal,
         investmentTimeline: state.investmentTimeline || undefined,
       };
     case 'investment-budget':

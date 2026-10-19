@@ -63,6 +63,7 @@ function emptyBranchState(): Partial<SpyurkWizardState> {
     propertyCountryOther: '',
     areaSqm: '',
     purchaseMethod: '',
+    incomeTaxRefund: '',
     purchaseBudgetUsd: '',
     decisionStage: '',
     armeniaVisitTiming: '',

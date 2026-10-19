@@ -196,6 +196,12 @@ function formatOwnResidenceAnswers(a: Record<string, unknown>, rows: AnswerDispl
   if (typeof a.areaSqm === 'string') {
     pushRow(rows, questionLabel('areaSqm'), optionLabel('areaSqm', a.areaSqm));
   }
+  if (typeof a.incomeTaxRefund === 'boolean')
+    pushRow(
+      rows,
+      questionLabel('incomeTaxRefund'),
+      optionLabel('incomeTaxRefund', a.incomeTaxRefund ? 'yes' : 'no'),
+    );
   if (typeof a.purchaseMethod === 'string') {
     pushRow(rows, questionLabel('purchaseMethod'), optionLabel('purchaseMethod', a.purchaseMethod));
   }
@@ -236,6 +242,12 @@ function formatInvestmentAnswers(a: Record<string, unknown>, rows: AnswerDisplay
   if (typeof a.areaSqm === 'string') {
     pushRow(rows, questionLabel('areaSqm'), optionLabel('areaSqm', a.areaSqm));
   }
+  if (typeof a.incomeTaxRefund === 'boolean')
+    pushRow(
+      rows,
+      questionLabel('incomeTaxRefund'),
+      optionLabel('incomeTaxRefund', a.incomeTaxRefund ? 'yes' : 'no'),
+    );
   if (typeof a.purchaseMethod === 'string') {
     pushRow(rows, questionLabel('purchaseMethod'), optionLabel('purchaseMethod', a.purchaseMethod));
   }
@@ -244,6 +256,13 @@ function formatInvestmentAnswers(a: Record<string, unknown>, rows: AnswerDisplay
       rows,
       questionLabel('priorInvestmentExperienceOther'),
       a.priorInvestmentExperienceOther,
+    );
+  }
+  if (Array.isArray(a.investmentGoal)) {
+    pushRow(
+      rows,
+      questionLabel('investmentGoal'),
+      joinOptionLabels('investmentGoal', stringArray(a.investmentGoal)),
     );
   }
   if (typeof a.investmentGoal === 'string') {

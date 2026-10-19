@@ -71,6 +71,7 @@ const questionFallback = {
   visitPurpose: 'visitPurpose',
   areaSqm: 'areaSqm',
   purchaseMethod: 'purchaseMethod',
+  incomeTaxRefund: 'incomeTaxRefund',
   decisionStage: 'decisionStage',
   newsletter: 'newsletter',
   investmentPropertyTypeOther: 'investmentPropertyTypeOther',
@@ -174,7 +175,7 @@ const spyurkOptions = {
     other: L('Այլ երկրներ', 'Other countries', 'Другие страны'),
   },
   purchaseMethod: {
-    cash: L('Սեփական միջոցներով', 'Own funds', 'За собственные средства'),
+    cash: questionnaireI18n.options.purchaseMethod.cash,
     mortgage: L('Հիփոթեքային վարկ', 'Mortgage', 'Ипотечный кредит'),
     installment: L(
       'Տարաժամկետ վճարում (կառուցապատողի ապառիկ)',
@@ -243,6 +244,7 @@ const spyurkOptions = {
 } as const;
 
 const optionFallback = {
+  incomeTaxRefund: 'incomeTaxRefund',
   ageBand: 'ageBand',
   visitPurpose: 'visitPurpose',
   areaSqm: 'areaSqm',

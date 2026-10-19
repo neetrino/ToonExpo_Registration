@@ -198,6 +198,12 @@ function flattenOwnResidence(
   if (typeof a.areaSqm === 'string') {
     setColumn(columns, 'areaSqm', labels.optionLabel('areaSqm', a.areaSqm));
   }
+  if (typeof a.incomeTaxRefund === 'boolean')
+    setColumn(
+      columns,
+      'incomeTaxRefund',
+      labels.optionLabel('incomeTaxRefund', a.incomeTaxRefund ? 'yes' : 'no'),
+    );
   if (typeof a.purchaseMethod === 'string') {
     setColumn(columns, 'purchaseMethod', labels.optionLabel('purchaseMethod', a.purchaseMethod));
   }
@@ -234,6 +240,16 @@ function flattenInvestment(
   if (typeof a.investmentMarketOther === 'string') {
     setColumn(columns, 'investmentMarketOther', a.investmentMarketOther);
   }
+  if (Array.isArray(a.investmentGoal)) {
+    setColumn(
+      columns,
+      'investmentGoal',
+      a.investmentGoal
+        .filter((value): value is string => typeof value === 'string')
+        .map((value) => labels.optionLabel('investmentGoal', value))
+        .join(', '),
+    );
+  }
   if (typeof a.investmentGoal === 'string') {
     setColumn(columns, 'investmentGoal', labels.optionLabel('investmentGoal', a.investmentGoal));
   }
@@ -267,6 +283,12 @@ function flattenInvestment(
   if (typeof a.areaSqm === 'string') {
     setColumn(columns, 'areaSqm', labels.optionLabel('areaSqm', a.areaSqm));
   }
+  if (typeof a.incomeTaxRefund === 'boolean')
+    setColumn(
+      columns,
+      'incomeTaxRefund',
+      labels.optionLabel('incomeTaxRefund', a.incomeTaxRefund ? 'yes' : 'no'),
+    );
   if (typeof a.purchaseMethod === 'string') {
     setColumn(columns, 'purchaseMethod', labels.optionLabel('purchaseMethod', a.purchaseMethod));
   }

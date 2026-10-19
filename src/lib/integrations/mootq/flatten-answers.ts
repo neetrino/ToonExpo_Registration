@@ -11,7 +11,7 @@ import type {
   SpyurkQuestionnaireAnswers,
   SpyurkResidence,
 } from '@/lib/questionnaire/spyurk/types';
-import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
+import { storedSpyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
 import type {
   InvestmentAnswers,
   LocationChoice,
@@ -21,7 +21,7 @@ import type {
   ResearchLocation,
   ResidencePlace,
 } from '@/lib/questionnaire/types';
-import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
+import { storedQuestionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 
 export type MootqAnswerValue = string | number | boolean | readonly string[] | readonly number[];
 
@@ -40,7 +40,7 @@ export function flattenQuestionnaireAnswers(input: {
   }
 
   if (isSpyurkFormVersion(input.formVersion) || looksLikeSpyurkAnswers(input.answers)) {
-    const parsed = spyurkQuestionnaireAnswersSchema.safeParse(input.answers);
+    const parsed = storedSpyurkQuestionnaireAnswersSchema.safeParse(input.answers);
     if (!parsed.success) {
       return undefined;
     }
@@ -50,7 +50,7 @@ export function flattenQuestionnaireAnswers(input: {
     return flattened;
   }
 
-  const parsed = questionnaireAnswersSchema.safeParse(input.answers);
+  const parsed = storedQuestionnaireAnswersSchema.safeParse(input.answers);
   if (!parsed.success) {
     return undefined;
   }
@@ -105,6 +105,7 @@ function flattenOwnResidence(answers: OwnResidenceAnswers): MootqAnswers {
   flat.interest_type = answers.interestType;
   flat.area_sqm = answers.areaSqm;
   flat.purchase_method = answers.purchaseMethod;
+  assignOptional(flat, 'income_tax_refund', answers.incomeTaxRefund);
   flat.monthly_budget = answers.monthlyBudget;
   flat.decision_stage = answers.decisionStage;
   assignOptional(flat, 'abroad_countries', answers.abroadCountries);
@@ -119,6 +120,7 @@ function flattenInvestment(answers: InvestmentAnswers): MootqAnswers {
   flat.investment_goal = answers.investmentGoal;
   flat.area_sqm = answers.areaSqm;
   flat.purchase_method = answers.purchaseMethod;
+  assignOptional(flat, 'income_tax_refund', answers.incomeTaxRefund);
   flat.investment_timeline = answers.investmentTimeline;
   flat.investment_budget_usd = answers.investmentBudgetUsd;
   flat.prior_investment_experience = answers.priorInvestmentExperience;
@@ -224,6 +226,7 @@ function flattenSpyurkOwnResidence(
   flat.interest_types = answers.interestTypes;
   flat.area_sqm = answers.areaSqm;
   flat.purchase_method = answers.purchaseMethod;
+  assignOptional(flat, 'income_tax_refund', answers.incomeTaxRefund);
   flat.purchase_budget_usd = answers.purchaseBudgetUsd;
   flat.decision_stage = answers.decisionStage;
   flat.armenia_visit_timing = answers.armeniaVisitTiming;
@@ -239,6 +242,7 @@ function flattenSpyurkInvestment(
   flat.investment_property_types = answers.investmentPropertyTypes;
   flat.investment_goal = answers.investmentGoal;
   flat.purchase_method = answers.purchaseMethod;
+  assignOptional(flat, 'income_tax_refund', answers.incomeTaxRefund);
   flat.investment_timeline = answers.investmentTimeline;
   flat.investment_budget_usd = answers.investmentBudgetUsd;
   flat.prior_investment_experience = answers.priorInvestmentExperience;

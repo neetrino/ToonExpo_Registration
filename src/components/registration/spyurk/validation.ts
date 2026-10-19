@@ -1,3 +1,4 @@
+import { refineIncomeTaxRefund } from '@/lib/questionnaire/purchase-financing';
 import { z } from 'zod';
 import { MARKET_INTERESTS_MAX } from '@/lib/questionnaire/constants';
 import {
@@ -127,12 +128,15 @@ const ownInterestSchema = z
     refinePropertyCountry(data, ctx);
   });
 
-const ownDetailsSchema = z.object({
-  areaSqm: z.enum(AREA_SQM_BANDS),
-  purchaseMethod: z.enum(PURCHASE_METHODS),
-  purchaseBudgetUsd: z.enum(PURCHASE_BUDGETS_USD),
-  decisionStage: z.enum(DECISION_STAGES),
-});
+const ownDetailsSchema = z
+  .object({
+    areaSqm: z.enum(AREA_SQM_BANDS),
+    purchaseMethod: z.enum(PURCHASE_METHODS),
+    incomeTaxRefund: z.boolean().or(z.literal('')).optional(),
+    purchaseBudgetUsd: z.enum(PURCHASE_BUDGETS_USD),
+    decisionStage: z.enum(DECISION_STAGES),
+  })
+  .superRefine(refineIncomeTaxRefund);
 
 const followupSchema = z.object({
   armeniaVisitTiming: z.enum(ARMENIA_VISIT_TIMINGS),
@@ -170,10 +174,12 @@ const investmentDetailsSchema = z
     investmentPropertyTypes: z.array(z.enum(INVESTMENT_PROPERTY_TYPES)),
     areaSqm: z.enum(AREA_SQM_BANDS).or(z.literal('')),
     purchaseMethod: z.enum(PURCHASE_METHODS),
+    incomeTaxRefund: z.boolean().or(z.literal('')).optional(),
     investmentTimeline: z.enum(INVESTMENT_TIMELINES),
     investmentBudgetUsd: z.enum(INVESTMENT_BUDGETS_USD),
   })
   .superRefine((data, ctx) => {
+    refineIncomeTaxRefund(data, ctx);
     const needsArea = data.investmentPropertyTypes.some((type) =>
       (INVESTMENT_TYPES_REQUIRING_AREA as readonly string[]).includes(type),
     );
@@ -253,6 +259,7 @@ function pickState(stepId: SpyurkWizardStepId, state: SpyurkWizardState): Record
       return {
         areaSqm: state.areaSqm || undefined,
         purchaseMethod: state.purchaseMethod || undefined,
+        incomeTaxRefund: state.purchaseMethod === 'mortgage' ? state.incomeTaxRefund : undefined,
         purchaseBudgetUsd: state.purchaseBudgetUsd || undefined,
         decisionStage: state.decisionStage || undefined,
       };
@@ -274,6 +281,7 @@ function pickState(stepId: SpyurkWizardStepId, state: SpyurkWizardState): Record
         investmentPropertyTypes: state.investmentPropertyTypes,
         areaSqm: state.areaSqm,
         purchaseMethod: state.purchaseMethod || undefined,
+        incomeTaxRefund: state.purchaseMethod === 'mortgage' ? state.incomeTaxRefund : undefined,
         investmentTimeline: state.investmentTimeline || undefined,
         investmentBudgetUsd: state.investmentBudgetUsd || undefined,
       };
