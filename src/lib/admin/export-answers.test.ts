@@ -139,3 +139,17 @@ describe('flattenRegistrationAnswersForExport', () => {
     expect(Object.keys(result)).toHaveLength(CSV_ANSWER_COLUMNS.length);
   });
 });
+
+it('exports all selected investment goals and a negative mortgage refund answer', () => {
+  const result = flattenRegistrationAnswersForExport(
+    {
+      visitPurpose: 'investment',
+      investmentGoal: ['rental_income', 'appreciation'],
+      incomeTaxRefund: false,
+    },
+    'en',
+  );
+  expect(result.investmentGoal).toContain('rental');
+  expect(result.investmentGoal).toContain('appreciation');
+  expect(result.incomeTaxRefund).toBe('No, I do not plan to use it');
+});

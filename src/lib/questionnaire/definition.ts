@@ -3,7 +3,11 @@ import {
   LOCATION_CHOICE_MAX,
   MARKET_INTERESTS_MAX,
 } from '@/lib/questionnaire/constants';
-import { MARZ_CITY_OPTIONS } from '@/lib/questionnaire/marz-cities';
+import {
+  MARZ_CITY_OPTIONS,
+  OWN_RESIDENCE_CITY_OPTIONS,
+  INVESTMENT_CITY_OPTIONS,
+} from '@/lib/questionnaire/marz-cities';
 import {
   ABROAD_COUNTRIES,
   AGE_BANDS,
@@ -39,7 +43,6 @@ export const QUESTIONNAIRE_DEFINITION = {
       scopes: LOCATION_SEEK_SCOPES,
       yerevanDistricts: YEREVAN_DISTRICTS,
       marzRegions: MARZ_REGIONS,
-      marzCities: MARZ_CITY_OPTIONS,
     },
     visitPurpose: { options: VISIT_PURPOSES },
   },
@@ -54,17 +57,21 @@ export const QUESTIONNAIRE_DEFINITION = {
   branches: {
     own_residence: {
       interestType: { options: INTEREST_TYPES },
+      marzCities: OWN_RESIDENCE_CITY_OPTIONS,
       abroadCountries: { options: ABROAD_COUNTRIES, multi: true },
       areaSqm: { options: AREA_SQM_BANDS },
       purchaseMethod: { options: PURCHASE_METHODS },
+      incomeTaxRefund: { options: [true, false], when: 'mortgage' },
       monthlyBudget: { options: MONTHLY_BUDGETS },
       decisionStage: { options: DECISION_STAGES },
     },
     investment: {
       investmentPropertyType: { options: INVESTMENT_PROPERTY_TYPES },
-      investmentGoal: { options: INVESTMENT_GOALS },
+      marzCities: INVESTMENT_CITY_OPTIONS,
+      investmentGoal: { options: INVESTMENT_GOALS, multi: true, max: 4 },
       areaSqm: { options: AREA_SQM_BANDS },
       purchaseMethod: { options: PURCHASE_METHODS },
+      incomeTaxRefund: { options: [true, false], when: 'mortgage' },
       investmentTimeline: { options: INVESTMENT_TIMELINES },
       investmentBudgetUsd: { options: INVESTMENT_BUDGETS_USD },
       priorInvestmentExperience: { options: PRIOR_INVESTMENT_EXPERIENCES },

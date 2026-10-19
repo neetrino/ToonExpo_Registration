@@ -130,6 +130,16 @@ export function formatSpyurkAnswersForDisplay(
       getSpyurkOptionLabel('areaSqm', answers.areaSqm, locale),
     );
   }
+  if (typeof answers.incomeTaxRefund === 'boolean') {
+    rows.push({
+      label: getSpyurkQuestionLabel('incomeTaxRefund', locale),
+      value: getSpyurkOptionLabel(
+        'incomeTaxRefund',
+        answers.incomeTaxRefund ? 'yes' : 'no',
+        locale,
+      ),
+    });
+  }
   if (typeof answers.purchaseMethod === 'string') {
     push(
       getSpyurkQuestionLabel('purchaseMethod', locale),
@@ -295,6 +305,11 @@ export function flattenSpyurkAnswersForExport(
     set('areaSqm', getSpyurkOptionLabel('areaSqm', answers.areaSqm, locale));
   }
   if (typeof answers.purchaseMethod === 'string') {
+    if (typeof answers.incomeTaxRefund === 'boolean')
+      set(
+        'incomeTaxRefund',
+        getSpyurkOptionLabel('incomeTaxRefund', answers.incomeTaxRefund ? 'yes' : 'no', locale),
+      );
     set('purchaseMethod', getSpyurkOptionLabel('purchaseMethod', answers.purchaseMethod, locale));
   }
   if (typeof answers.purchaseBudgetUsd === 'string') {

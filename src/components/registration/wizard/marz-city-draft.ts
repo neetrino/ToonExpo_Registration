@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
-import { isMarzCityRegion, MARZ_CITY_REGIONS } from '@/lib/questionnaire/marz-cities';
+import {
+  getBranchCityOptions,
+  isMarzCityRegion,
+  MARZ_CITY_REGIONS,
+} from '@/lib/questionnaire/marz-cities';
 import type { MarzCityRegion } from '@/lib/questionnaire/marz-cities';
 import type { MarzRegion } from '@/lib/questionnaire/types';
 import type { WizardState } from './types';
@@ -10,7 +14,7 @@ type WizardUpdater = <K extends keyof WizardState>(key: K, value: WizardState[K]
 export type MarzCityDraft = {
   aragatsotn: '' | 'ashtarak' | 'other';
   ararat: '' | 'artashat' | 'masis' | 'other';
-  kotayk: '' | 'abovyan' | 'tsaghkadzor' | 'yeghvard' | 'other';
+  kotayk: '' | 'abovyan' | 'kanakeravan' | 'tsaghkadzor' | 'yeghvard' | 'other';
   tavush: '' | 'dilijan' | 'other';
 };
 
@@ -21,7 +25,7 @@ const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 export const marzCityDraftSchema = z.object({
   aragatsotn: z.enum(['', 'ashtarak', 'other']),
   ararat: z.enum(['', 'artashat', 'masis', 'other']),
-  kotayk: z.enum(['', 'abovyan', 'tsaghkadzor', 'yeghvard', 'other']),
+  kotayk: z.enum(['', 'abovyan', 'kanakeravan', 'tsaghkadzor', 'yeghvard', 'other']),
   tavush: z.enum(['', 'dilijan', 'other']),
 });
 
@@ -133,6 +137,7 @@ function writeMarzCity(draft: MarzCityDraft, region: MarzCityRegion, value: stri
     case 'kotayk':
       if (
         value === 'abovyan' ||
+        value === 'kanakeravan' ||
         value === 'tsaghkadzor' ||
         value === 'yeghvard' ||
         value === 'other'
@@ -205,13 +210,15 @@ export function addMarzCityDraftIssues(
   other: MarzCityOtherDraft,
   cityPath: (region: MarzCityRegion) => string,
   otherPath: (region: MarzCityRegion) => string,
+  purpose?: string,
 ): void {
   for (const region of MARZ_CITY_REGIONS) {
-    if (!regions.includes(region)) {
+    const options = purpose ? getBranchCityOptions(purpose)[region] : undefined;
+    if (!regions.includes(region) || (purpose && !options)) {
       continue;
     }
 
-    if (!city[region]) {
+    if (!city[region] || (options && !options.includes(city[region]))) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: [cityPath(region)],

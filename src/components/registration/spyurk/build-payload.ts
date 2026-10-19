@@ -64,6 +64,10 @@ export function buildSpyurkQuestionnaireAnswers(
       propertyCountry,
       areaSqm: state.areaSqm,
       purchaseMethod: state.purchaseMethod,
+      incomeTaxRefund:
+        state.purchaseMethod === 'mortgage' && typeof state.incomeTaxRefund === 'boolean'
+          ? state.incomeTaxRefund
+          : undefined,
       purchaseBudgetUsd: state.purchaseBudgetUsd,
       decisionStage: state.decisionStage,
       armeniaVisitTiming: state.armeniaVisitTiming,
@@ -91,6 +95,10 @@ export function buildSpyurkQuestionnaireAnswers(
       investmentGoal: state.investmentGoal,
       areaSqm: state.areaSqm || undefined,
       purchaseMethod: state.purchaseMethod,
+      incomeTaxRefund:
+        state.purchaseMethod === 'mortgage' && typeof state.incomeTaxRefund === 'boolean'
+          ? state.incomeTaxRefund
+          : undefined,
       investmentTimeline: state.investmentTimeline,
       investmentBudgetUsd: state.investmentBudgetUsd,
       priorInvestmentExperience: state.priorInvestmentExperience,

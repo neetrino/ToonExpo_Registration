@@ -13,6 +13,7 @@ const OPTION_GROUP_BY_FIELD = {
   abroadCountries: 'abroadCountry',
   areaSqm: 'areaSqm',
   purchaseMethod: 'purchaseMethod',
+  incomeTaxRefund: 'incomeTaxRefund',
   monthlyBudget: 'monthlyBudget',
   decisionStage: 'decisionStage',
   investmentPropertyType: 'investmentPropertyType',

@@ -5,9 +5,57 @@ import { OTHER_TEXT_MAX_LENGTH } from '@/lib/questionnaire/constants';
 export const MARZ_CITY_OPTIONS = {
   aragatsotn: ['ashtarak', 'other'],
   ararat: ['artashat', 'masis', 'other'],
+  kotayk: ['abovyan', 'kanakeravan', 'tsaghkadzor', 'yeghvard', 'other'],
+  tavush: ['dilijan', 'other'],
+} as const;
+
+export const OWN_RESIDENCE_CITY_OPTIONS = {
+  aragatsotn: ['ashtarak', 'other'],
+  ararat: ['artashat', 'masis', 'other'],
+  kotayk: ['abovyan', 'kanakeravan', 'other'],
+} as const;
+
+export const INVESTMENT_CITY_OPTIONS = {
   kotayk: ['abovyan', 'tsaghkadzor', 'yeghvard', 'other'],
   tavush: ['dilijan', 'other'],
 } as const;
+
+export function getBranchCityOptions(
+  purpose: string,
+): Partial<Record<MarzCityRegion, readonly string[]>> {
+  return purpose === 'own_residence'
+    ? OWN_RESIDENCE_CITY_OPTIONS
+    : purpose === 'investment'
+      ? INVESTMENT_CITY_OPTIONS
+      : {};
+}
+
+export function assertBranchMarzCities(
+  purpose: string,
+  regions: readonly string[],
+  cities: MarzCities | undefined,
+  ctx: z.RefinementCtx,
+): void {
+  const options = getBranchCityOptions(purpose);
+  for (const region of MARZ_CITY_REGIONS) {
+    const entry = cities?.[region];
+    const allowed = options[region];
+    if (regions.includes(region) && allowed) {
+      if (!entry || !allowed.includes(entry.city))
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['locationSeek', 'marzCities', region],
+          message: 'Select a city',
+        });
+    } else if (entry) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['locationSeek', 'marzCities', region],
+        message: 'City is not allowed for this question',
+      });
+    }
+  }
+}
 
 export const MARZ_CITY_REGIONS = ['aragatsotn', 'ararat', 'kotayk', 'tavush'] as const;
 
@@ -16,6 +64,7 @@ export const ALL_MARZ_CITY_CODES = [
   'artashat',
   'masis',
   'abovyan',
+  'kanakeravan',
   'tsaghkadzor',
   'yeghvard',
   'dilijan',

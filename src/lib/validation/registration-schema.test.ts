@@ -21,6 +21,7 @@ const validAnswers = {
   },
   areaSqm: '70-90' as const,
   purchaseMethod: 'mortgage' as const,
+  incomeTaxRefund: false,
   monthlyBudget: '300k-500k' as const,
   decisionStage: 'searching_6_months' as const,
   newsletter: true,

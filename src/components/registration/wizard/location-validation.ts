@@ -19,6 +19,7 @@ const otherTextSchema = z.string().trim().min(1).max(OTHER_TEXT_MAX_LENGTH);
 
 export const locationChoiceStepSchema = z
   .object({
+    visitPurpose: z.enum(['own_residence', 'investment']),
     locationSeekScopes: z.array(z.enum(LOCATION_SEEK_SCOPES)).min(1).max(1),
     locationSeekAbroadCountries: z.array(z.enum(ABROAD_COUNTRIES)),
     locationSeekAbroadOther: z.string(),
@@ -48,6 +49,7 @@ export const locationChoiceStepSchema = z
         data.marzCityOther,
         (region) => `marzCity_${region}`,
         (region) => `marzCityOther_${region}`,
+        data.visitPurpose,
       );
     }
 
@@ -114,17 +116,6 @@ export const researchLocationStepSchema = z
 
     if (data.researchScopes.includes('marz') && data.marzRegions.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['marzRegions'], message: 'required' });
-    }
-
-    if (data.researchScopes.includes('marz')) {
-      addMarzCityDraftIssues(
-        ctx,
-        data.marzRegions,
-        data.marzCity,
-        data.marzCityOther,
-        (region) => `marzCity_${region}`,
-        (region) => `marzCityOther_${region}`,
-      );
     }
 
     if (data.researchScopes.includes('abroad')) {

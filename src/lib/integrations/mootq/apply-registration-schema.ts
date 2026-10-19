@@ -1,3 +1,5 @@
+import { MOOTQ_QUESTION_CODE } from '@/lib/integrations/mootq/mootq-question-codes';
+import { toMootqOptionLabel } from '@/lib/integrations/mootq/build-mootq-partner-answers';
 import {
   isMootqQuestionVisible,
   type MootqAnswerMap,
@@ -96,6 +98,10 @@ function fitChoiceValue(
     return undefined;
   }
   if (!isMootqArrayAnswerType(question.type)) {
+    if (question.code === MOOTQ_QUESTION_CODE.investmentGoal && unique.length > 1) {
+      const multiple = toMootqOptionLabel('investmentGoal', 'multiple');
+      if (question.options.includes(multiple)) return multiple;
+    }
     return unique[0];
   }
   return question.maxSelections ? unique.slice(0, question.maxSelections) : unique;

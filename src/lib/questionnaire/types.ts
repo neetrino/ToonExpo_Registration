@@ -31,7 +31,8 @@ export type MarzRegion = (typeof MARZ_REGIONS)[number];
 export type LocationSeekScope = (typeof LOCATION_SEEK_SCOPES)[number];
 export type ResearchLocationScope = (typeof RESEARCH_LOCATION_SCOPES)[number];
 export type AreaSqmBand = (typeof AREA_SQM_BANDS)[number];
-export type PurchaseMethod = (typeof PURCHASE_METHODS)[number];
+/** Stored records may still contain mixed; new submissions use PURCHASE_METHODS. */
+export type PurchaseMethod = (typeof PURCHASE_METHODS)[number] | 'mixed';
 export type MonthlyBudget = (typeof MONTHLY_BUDGETS)[number];
 export type DecisionStage = (typeof DECISION_STAGES)[number];
 export type InvestmentPropertyType = (typeof INVESTMENT_PROPERTY_TYPES)[number];
@@ -77,6 +78,7 @@ export type OwnResidenceAnswers = SharedAnswers & {
   locationSeek: LocationChoice;
   areaSqm: AreaSqmBand;
   purchaseMethod: PurchaseMethod;
+  incomeTaxRefund?: boolean;
   monthlyBudget: MonthlyBudget;
   decisionStage: DecisionStage;
 };
@@ -86,9 +88,11 @@ export type InvestmentAnswers = SharedAnswers & {
   investmentPropertyType: InvestmentPropertyType;
   investmentPropertyTypeOther?: string;
   locationSeek: LocationChoice;
-  investmentGoal: InvestmentGoal;
+  /** Arrays are active answers; scalar values are preserved for historical records. */
+  investmentGoal: InvestmentGoal[] | InvestmentGoal | 'multiple';
   areaSqm: AreaSqmBand;
   purchaseMethod: PurchaseMethod;
+  incomeTaxRefund?: boolean;
   investmentTimeline: InvestmentTimeline;
   investmentBudgetUsd: InvestmentBudgetUsd;
   priorInvestmentExperience: PriorInvestmentExperience;

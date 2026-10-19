@@ -1,13 +1,8 @@
-import { Input } from '@/components/ui/input';
+import { ResidenceCountryField } from './residence-country-field';
 import { QUESTIONNAIRE_DEFINITION } from '@/lib/questionnaire';
-import { ALL_MARZ_CITY_CODES } from '@/lib/questionnaire/marz-cities';
-import type { MarzCityCode } from '@/lib/questionnaire/marz-cities';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
-import { getTextFieldPlaceholder } from '@/lib/questionnaire/placeholders';
 import { FormField, QuestionField } from './form-field';
 import { getOptionLabel, getQuestionLabel } from './labels';
-import { MarzCityFollowUp } from './marz-city-fields';
-import { emptyMarzCityDraft, emptyMarzCityOtherDraft, residenceCityDraft } from './marz-city-draft';
 import { OptionRadioGroup } from './option-groups';
 import type { WizardFieldErrors, WizardState } from './types';
 
@@ -21,10 +16,6 @@ type ResidenceFieldsProps = {
 
 const { residence } = QUESTIONNAIRE_DEFINITION.shared;
 
-function isMarzCityCode(value: string): value is MarzCityCode {
-  return (ALL_MARZ_CITY_CODES as readonly string[]).includes(value);
-}
-
 function clearResidenceCity(onUpdate: ResidenceFieldsProps['onUpdate']): void {
   onUpdate('residenceMarzCity', '');
   onUpdate('residenceMarzCityOther', '');
@@ -37,12 +28,6 @@ export function ResidenceFields({
   locale,
   onUpdate,
 }: ResidenceFieldsProps) {
-  const residenceCities = residenceCityDraft(
-    state.residenceRegion,
-    state.residenceMarzCity,
-    state.residenceMarzCityOther,
-  );
-
   return (
     <div className="space-y-8">
       <QuestionField legend={getQuestionLabel('residence', locale)} error={errors.residenceScope}>
@@ -98,33 +83,6 @@ export function ResidenceFields({
             }}
             disabled={disabled}
             error={Boolean(errors.residenceRegion)}
-            renderBelow={(region) => (
-              <MarzCityFollowUp
-                region={region}
-                namePrefix="residenceMarzCity"
-                city={residenceCities?.city ?? emptyMarzCityDraft()}
-                other={residenceCities?.other ?? emptyMarzCityOtherDraft()}
-                errors={errors}
-                disabled={disabled}
-                locale={locale}
-                cityErrorKey={() => 'residenceMarzCity'}
-                otherErrorKey={() => 'residenceMarzCityOther'}
-                onCityChange={(_region, value) => {
-                  if (value === '') {
-                    clearResidenceCity(onUpdate);
-                    return;
-                  }
-                  if (!isMarzCityCode(value)) {
-                    return;
-                  }
-                  onUpdate('residenceMarzCity', value);
-                  if (value !== 'other') {
-                    onUpdate('residenceMarzCityOther', '');
-                  }
-                }}
-                onOtherChange={(_region, value) => onUpdate('residenceMarzCityOther', value)}
-              />
-            )}
           />
         </QuestionField>
       ) : null}
@@ -135,13 +93,12 @@ export function ResidenceFields({
           label={getQuestionLabel('residenceCountry', locale)}
           error={errors.residenceCountry}
           input={
-            <Input
-              id="residenceCountry"
-              placeholder={getTextFieldPlaceholder('residenceAbroad', locale)}
+            <ResidenceCountryField
+              locale={locale}
               value={state.residenceCountry}
               disabled={disabled}
-              aria-invalid={Boolean(errors.residenceCountry)}
-              onChange={(event) => onUpdate('residenceCountry', event.target.value)}
+              invalid={Boolean(errors.residenceCountry)}
+              onChange={(value) => onUpdate('residenceCountry', value)}
             />
           }
         />

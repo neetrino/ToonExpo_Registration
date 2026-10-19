@@ -10,8 +10,8 @@ import {
   type QuestionnaireLocale,
 } from '@/lib/questionnaire/i18n';
 import { isSpyurkFormVersion } from '@/lib/questionnaire/form-channel';
-import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
-import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
+import { storedSpyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
+import { storedQuestionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 import type {
   InvestmentAnswers,
   LocationChoice,
@@ -71,14 +71,14 @@ export function buildMootqPartnerAnswers(input: BuildMootqPartnerAnswersInput): 
   };
 
   if (isSpyurkFormVersion(input.formVersion) || looksLikeSpyurk(input.answers)) {
-    const parsed = spyurkQuestionnaireAnswersSchema.safeParse(input.answers);
+    const parsed = storedSpyurkQuestionnaireAnswersSchema.safeParse(input.answers);
     if (parsed.success) {
       assignSpyurkMappedFields(out, parsed.data);
     }
     return out;
   }
 
-  const parsed = questionnaireAnswersSchema.safeParse(input.answers);
+  const parsed = storedQuestionnaireAnswersSchema.safeParse(input.answers);
   if (!parsed.success) {
     return out;
   }
@@ -165,7 +165,9 @@ function assignInvestmentFields(out: MootqAnswers, answers: InvestmentAnswers): 
     MOOTQ_FIELD.investmentLocationDetails,
   );
 
-  out[MOOTQ_FIELD.investmentGoal] = toMootqOptionLabel('investmentGoal', answers.investmentGoal);
+  out[MOOTQ_FIELD.investmentGoal] = Array.isArray(answers.investmentGoal)
+    ? answers.investmentGoal.map((goal) => toMootqOptionLabel('investmentGoal', goal))
+    : toMootqOptionLabel('investmentGoal', answers.investmentGoal);
   out[MOOTQ_FIELD.investmentAreaSqm] = toMootqOptionLabel('areaSqm', answers.areaSqm);
   out[MOOTQ_FIELD.investmentPurchaseMethod] = toMootqOptionLabel(
     'purchaseMethod',

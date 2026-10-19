@@ -23,7 +23,7 @@ import {
   RESEARCH_GOALS,
   YEREVAN_DISTRICTS,
 } from '@/lib/questionnaire/options';
-import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
+import { storedQuestionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 
 const identity = {
   firstName: 'John',
@@ -51,7 +51,7 @@ function isRawCode(value: string): boolean {
 }
 
 function assertAnswerValues(label: string, answers: unknown, formVersion: string): void {
-  const parsed = questionnaireAnswersSchema.safeParse(answers);
+  const parsed = storedQuestionnaireAnswersSchema.safeParse(answers);
   expect(parsed.success, `${label} fixture rejected`).toBe(true);
 
   const mapped = mootqAnswers(answers, formVersion);

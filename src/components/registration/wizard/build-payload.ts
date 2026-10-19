@@ -1,9 +1,6 @@
+import { getBranchCityOptions } from '@/lib/questionnaire/marz-cities';
 import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
-import {
-  hasStoredMarzCities,
-  isMarzCityRegion,
-  toStoredMarzCities,
-} from '@/lib/questionnaire/marz-cities';
+import { hasStoredMarzCities, toStoredMarzCities } from '@/lib/questionnaire/marz-cities';
 import type {
   LocationChoice,
   QuestionnaireAnswers,
@@ -12,7 +9,6 @@ import type {
 } from '@/lib/questionnaire/types';
 import { PRIVACY_POLICY_VERSION } from '@/lib/privacy';
 import type { Locale } from '@/types/locale';
-import { emptyMarzCityDraft, emptyMarzCityOtherDraft } from './marz-city-draft';
 import type { WizardState } from './types';
 
 function buildResidence(state: WizardState): ResidencePlace | null {
@@ -32,35 +28,17 @@ function buildResidence(state: WizardState): ResidencePlace | null {
 }
 
 function buildMarzResidence(state: WizardState): ResidencePlace | null {
-  const region = state.residenceRegion;
-  if (!region) {
-    return null;
-  }
-
-  if (!isMarzCityRegion(region)) {
-    return { scope: 'marz', region };
-  }
-
-  const stored = toStoredMarzCities(
-    [region],
-    { ...emptyMarzCityDraft(), [region]: state.residenceMarzCity },
-    { ...emptyMarzCityOtherDraft(), [region]: state.residenceMarzCityOther },
-  );
-  const entry = stored[region];
-  if (!entry) {
-    return { scope: 'marz', region };
-  }
-
-  return {
-    scope: 'marz',
-    region,
-    city: entry.city,
-    ...(entry.other ? { cityOther: entry.other } : {}),
-  };
+  return state.residenceRegion ? { scope: 'marz', region: state.residenceRegion } : null;
 }
 
 function buildLocationChoice(state: WizardState): LocationChoice {
-  const marzCities = toStoredMarzCities(state.marzRegions, state.marzCity, state.marzCityOther);
+  const applicableRegions = state.marzRegions.filter(
+    (region) =>
+      getBranchCityOptions(state.visitPurpose)[
+        region as keyof ReturnType<typeof getBranchCityOptions>
+      ],
+  );
+  const marzCities = toStoredMarzCities(applicableRegions, state.marzCity, state.marzCityOther);
 
   return {
     yerevanDistricts: state.yerevanDistricts,
@@ -74,13 +52,11 @@ function buildLocationChoice(state: WizardState): LocationChoice {
 function buildResearchLocation(state: WizardState): ResearchLocation {
   const undecided = state.researchScopes.includes('undecided');
   const marzRegions = undecided ? [] : state.marzRegions;
-  const marzCities = toStoredMarzCities(marzRegions, state.marzCity, state.marzCityOther);
 
   return {
     undecided,
     yerevanDistricts: undecided ? [] : state.yerevanDistricts,
     marzRegions,
-    ...(hasStoredMarzCities(marzCities) ? { marzCities } : {}),
     abroadCountry: undecided ? undefined : state.researchAbroadCountry.trim() || undefined,
   };
 }
@@ -122,6 +98,10 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
       locationSeek: buildLocationChoice(state),
       areaSqm: state.areaSqm,
       purchaseMethod: state.purchaseMethod,
+      incomeTaxRefund:
+        state.purchaseMethod === 'mortgage' && typeof state.incomeTaxRefund === 'boolean'
+          ? state.incomeTaxRefund
+          : undefined,
       monthlyBudget: state.monthlyBudget,
       decisionStage: state.decisionStage,
     };
@@ -133,7 +113,7 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
   if (state.visitPurpose === 'investment') {
     if (
       !state.investmentPropertyType ||
-      !state.investmentGoal ||
+      state.investmentGoal.length === 0 ||
       !state.areaSqm ||
       !state.purchaseMethod ||
       !state.investmentTimeline ||
@@ -152,6 +132,10 @@ export function buildQuestionnaireAnswers(state: WizardState): QuestionnaireAnsw
       investmentGoal: state.investmentGoal,
       areaSqm: state.areaSqm,
       purchaseMethod: state.purchaseMethod,
+      incomeTaxRefund:
+        state.purchaseMethod === 'mortgage' && typeof state.incomeTaxRefund === 'boolean'
+          ? state.incomeTaxRefund
+          : undefined,
       investmentTimeline: state.investmentTimeline,
       investmentBudgetUsd: state.investmentBudgetUsd,
       priorInvestmentExperience: state.priorInvestmentExperience,

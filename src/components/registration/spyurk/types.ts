@@ -59,6 +59,7 @@ export type SpyurkWizardState = {
   propertyCountryOther: string;
   areaSqm: AreaSqmBand | '';
   purchaseMethod: PurchaseMethod | '';
+  incomeTaxRefund: boolean | '';
   purchaseBudgetUsd: PurchaseBudgetUsd | '';
   decisionStage: DecisionStage | '';
   armeniaVisitTiming: ArmeniaVisitTiming | '';
@@ -98,6 +99,7 @@ export const initialSpyurkWizardState: SpyurkWizardState = {
   propertyCountryOther: '',
   areaSqm: '',
   purchaseMethod: '',
+  incomeTaxRefund: '',
   purchaseBudgetUsd: '',
   decisionStage: '',
   armeniaVisitTiming: '',

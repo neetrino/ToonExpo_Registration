@@ -46,6 +46,13 @@ export function loadSpyurkWizardDraft(): PersistedWizard | null {
     return {
       state: {
         ...merged,
+        purchaseMethod: ['cash', 'mortgage', 'installment'].includes(merged.purchaseMethod)
+          ? merged.purchaseMethod
+          : '',
+        incomeTaxRefund:
+          merged.purchaseMethod === 'mortgage' && typeof merged.incomeTaxRefund === 'boolean'
+            ? merged.incomeTaxRefund
+            : '',
         website: '',
         phoneCountry: isPhoneCountry(merged.phoneCountry)
           ? merged.phoneCountry

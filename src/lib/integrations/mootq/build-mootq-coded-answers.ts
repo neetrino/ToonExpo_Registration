@@ -18,7 +18,7 @@ import type {
   ResearchLocation,
   ResidencePlace,
 } from '@/lib/questionnaire/types';
-import { questionnaireAnswersSchema } from '@/lib/questionnaire/validate';
+import { storedQuestionnaireAnswersSchema } from '@/lib/questionnaire/validate';
 
 const CODE = MOOTQ_QUESTION_CODE;
 
@@ -47,7 +47,7 @@ export function buildMootqCodedAnswers(input: BuildMootqCodedAnswersInput): Moot
   }
 
   assignNewsletter(coded, input.answers);
-  const parsed = questionnaireAnswersSchema.safeParse(input.answers);
+  const parsed = storedQuestionnaireAnswersSchema.safeParse(input.answers);
   if (parsed.success) {
     assignGeneralAnswers(coded, parsed.data);
   }
@@ -144,7 +144,9 @@ function assignInvestment(coded: MootqCodedAnswers, answers: InvestmentAnswers):
     abroadOther: CODE.investmentAbroadOther,
     cities: INVESTMENT_CITY_QUESTIONS,
   });
-  coded[CODE.investmentGoal] = toMootqOptionLabel('investmentGoal', answers.investmentGoal);
+  coded[CODE.investmentGoal] = Array.isArray(answers.investmentGoal)
+    ? answers.investmentGoal.map((goal) => toMootqOptionLabel('investmentGoal', goal))
+    : toMootqOptionLabel('investmentGoal', answers.investmentGoal);
   coded[CODE.investmentArea] = toMootqOptionLabel('areaSqm', answers.areaSqm);
   coded[CODE.investmentPurchaseMethod] = toMootqOptionLabel(
     'purchaseMethod',

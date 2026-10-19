@@ -112,6 +112,7 @@ export function LocationChoiceFields({
             renderBelow={(region) => (
               <MarzCityFollowUp
                 region={region}
+                purpose={state.visitPurpose}
                 namePrefix="marzCity"
                 city={state.marzCity}
                 other={state.marzCityOther}

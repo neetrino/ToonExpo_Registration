@@ -67,11 +67,12 @@ export type WizardState = {
   marzCityOther: MarzCityOtherDraft;
   areaSqm: AreaSqmBand | '';
   purchaseMethod: PurchaseMethod | '';
+  incomeTaxRefund: boolean | '';
   monthlyBudget: MonthlyBudget | '';
   decisionStage: DecisionStage | '';
   investmentPropertyType: InvestmentPropertyType | '';
   investmentPropertyTypeOther: string;
-  investmentGoal: InvestmentGoal | '';
+  investmentGoal: InvestmentGoal[];
   investmentTimeline: InvestmentTimeline | '';
   investmentBudgetUsd: InvestmentBudgetUsd | '';
   priorInvestmentExperience: PriorInvestmentExperience | '';
@@ -113,11 +114,12 @@ export const initialWizardState: WizardState = {
   marzCityOther: { aragatsotn: '', ararat: '', kotayk: '', tavush: '' },
   areaSqm: '',
   purchaseMethod: '',
+  incomeTaxRefund: '',
   monthlyBudget: '',
   decisionStage: '',
   investmentPropertyType: '',
   investmentPropertyTypeOther: '',
-  investmentGoal: '',
+  investmentGoal: [],
   investmentTimeline: '',
   investmentBudgetUsd: '',
   priorInvestmentExperience: '',

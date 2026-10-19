@@ -49,7 +49,7 @@ export const RESEARCH_LOCATION_SCOPES = ['yerevan', 'marz', 'abroad', 'undecided
 
 export const AREA_SQM_BANDS = ['up_to_50', '50-70', '70-90', '90-120', '120_plus'] as const;
 
-export const PURCHASE_METHODS = ['cash', 'mortgage', 'installment', 'mixed'] as const;
+export const PURCHASE_METHODS = ['cash', 'mortgage', 'installment'] as const;
 
 export const MONTHLY_BUDGETS = [
   'up_to_300k',
@@ -82,7 +82,6 @@ export const INVESTMENT_GOALS = [
   'appreciation',
   'diversification',
   'citizenship_residency',
-  'multiple',
 ] as const;
 
 export const INVESTMENT_TIMELINES = [

@@ -62,6 +62,7 @@ export const CSV_ANSWER_COLUMNS = [
   { key: 'marzRegions', header: 'Region (marz)' },
   { key: 'areaSqm', header: 'Property size (sqm)' },
   { key: 'purchaseMethod', header: 'Purchase method' },
+  { key: 'incomeTaxRefund', header: 'Income tax refund' },
   { key: 'monthlyBudget', header: 'Monthly payment budget' },
   { key: 'decisionStage', header: 'Decision stage' },
   { key: 'investmentPropertyType', header: 'Investment property type' },
