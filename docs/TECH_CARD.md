@@ -78,7 +78,7 @@ The additional ticket and integration features do not justify a size-B reorganiz
 | Service    | Purpose                                          | Status                         |
 | ---------- | ------------------------------------------------ | ------------------------------ |
 | Resend Pro | Ticket email; pay-as-you-go in Pro; sender `hi@mail.toonexpo.com` | Approved; domain `mail.toonexpo.com` verified |
-| Dexatel    | Ticket-link SMS for Toon Expo-origin tickets (`TOONEXPO` sender)   | Approved; API verified 2026-07-28             |
+| Dexatel    | Ticket-link SMS for Toon Expo-origin tickets (transactional sender `TOONEXPO.`) | Approved; API verified 2026-07-28 |
 | Ticket host | Hosted ticket pages on `reg.toonexpo.com`                         | Approved (DNS confirm at release)             |
 
 Email displays the QR inline and includes readable code plus hosted-ticket link. SMS sends the hosted-ticket link. Delivery provider calls occur after the registration/import transaction and are retried from PostgreSQL records.

@@ -64,7 +64,7 @@ Not implemented:
 | Mootq fast exchange           | Start from draft contract; agree one document with Mootq                 |
 | Mootq full sync               | Start from same draft; agree with Mootq                                  |
 | Scanner format                | Confirmed by Mootq: `^(TE\|MQ)[A-Z0-9]{11}$` (`TE…` / `MQ…`)           |
-| Dexatel SMS                   | Approved; existing Toon Expo account (`TOONEXPO` sender)                 |
+| Dexatel SMS                   | Approved; transactional sender `TOONEXPO.`                               |
 | Resend                        | Pro + pay-as-you-go; sender `hi@mail.toonexpo.com`; domain verified      |
 | App registration rate limit   | Remove process-local limiter; rely on WAF / existing guards              |
 | Email/SMS copy                | Interim designed email OK; SMS short when enabled                        |

@@ -7,7 +7,7 @@ This sequence delivers only the agreed functionality. Owner decisions from 2026-
 1. ~~Confirm repeated-email behavior.~~ Allowed for email and phone; remove uniqueness constraint; use idempotency key.
 2. Send Mootq v1 contract for sign-off (`16-MOOTQ-INTEGRATION-CONTRACT.md` + `15-MOOTQ-HANDOFF.md`).
 3. ~~Confirm `TE`/`MQ` prefixed format.~~ Confirmed by Mootq: `^(TE|MQ)[A-Z0-9]{11}$`.
-4. ~~Dexatel SMS API.~~ Approved; existing Toon Expo account (`TOONEXPO` sender).
+4. ~~Dexatel SMS API.~~ Approved; existing Toon Expo account (transactional sender `TOONEXPO.`).
 5. ~~Confirm Resend Pro/pay-as-you-go/domain.~~ `hi@mail.toonexpo.com` / `mail.toonexpo.com` verified.
 6. Hosted ticket domain: `reg.toonexpo.com` (confirm DNS at release).
 7. No block/ban/revoke product scope.
