@@ -50,7 +50,7 @@
 | DEL-05 | Provider failures MUST NOT roll back the registration.               |
 | DEL-06 | Logical sends MUST be idempotent and retries bounded.                |
 | DEL-07 | Admin/operations MUST see pending and terminal failures.             |
-| DEL-08 | Dexatel SMS MUST use sender `TOONEXPO` via `POST /v1/messages`.      |
+| DEL-08 | Dexatel SMS MUST use transactional sender `TOONEXPO.` via `POST /v1/messages`. |
 
 ## Fast exchange
 

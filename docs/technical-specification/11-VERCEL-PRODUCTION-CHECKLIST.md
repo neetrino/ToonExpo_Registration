@@ -8,7 +8,7 @@ Owner/operator actions only. Documentation or implementation work does not autho
 - [ ] `TE`/`MQ` prefixed format (`^(TE|MQ)[A-Z0-9]{11}$`) and scanner test approved.
 - [ ] Mootq minimal inbound/fast/full schemas and credentials approved.
 - [ ] Fast-feed name/email/phone purpose and retention approved.
-- [ ] Dexatel API, sender (`TOONEXPO`), throughput and errors approved.
+- [ ] Dexatel API, transactional sender (`TOONEXPO.`), throughput and errors approved.
 - [ ] Resend Pro/pay-as-you-go/sender domain confirmed.
 - [ ] Data sharing, retention and deletion approved.
 

@@ -11,7 +11,7 @@
 - Mootq → TE: nightly full POST; Toon Expo stores only; no email/SMS to those visitors.
 - Cursor feed and full sync remain internal recovery tools; they are not v1 partner obligations.
 - Attendance inbound is not in v1.
-- SMS via Dexatel is approved (`TOONEXPO` sender; API verified 2026-07-28) for Toon Expo-origin tickets only.
+- SMS via Dexatel is approved (transactional sender `TOONEXPO.`; API verified 2026-07-28) for Toon Expo-origin tickets only.
 - Hosted ticket domain: `reg.toonexpo.com`. Resend from `hi@mail.toonexpo.com`.
 - No block/ban/revoke product features.
 
@@ -129,11 +129,11 @@ The current Resend Pro plan provides 50,000 monthly emails. Production readiness
 
 SMS copy stays Latin GSM-7 so one segment holds 160 characters: `TOON EXPO Toms:` (hy), `TOON EXPO Ticket:` (en), `TOON EXPO Bilet:` (ru), plus the absolute hosted-ticket link. A body that would exceed one segment falls back to the English wording so a resend still costs one SMS.
 
-Dexatel integration uses the existing Toon Expo account and alphanumeric sender `TOONEXPO`:
+Dexatel integration uses the existing Toon Expo account and transactional alphanumeric sender `TOONEXPO.`:
 
 - API authentication via `X-Dexatel-Key` (`DEXATEL_API_KEY`);
 - phone numbers as digits with country code (from E.164 `phoneNormalized`);
-- `POST /v1/messages` channel `SMS`, `from=TOONEXPO`;
+- `POST /v1/messages` channel `SMS`, `from=TOONEXPO.`;
 - retryable vs permanent errors from HTTP status (429/5xx vs 4xx);
 - provider message ID stored on `DeliveryJob` when available.
 

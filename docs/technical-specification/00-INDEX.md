@@ -43,7 +43,7 @@
 - PostgreSQL delivery jobs provide retry; no Redis, NATS or external broker is added.
 - Same email and same phone MAY register multiple participants; accidental retries use an idempotency key.
 - Hosted tickets use `reg.toonexpo.com`; Resend sender is `hi@mail.toonexpo.com`.
-- Dexatel SMS is approved (`TOONEXPO` sender; API verified 2026-07-28).
+- Dexatel SMS is approved (transactional sender `TOONEXPO.`; API verified 2026-07-28).
 - No visitor block/ban/revoke product workflow.
 
 ## Closed owner decisions (2026-07-27)
@@ -55,7 +55,7 @@
 | Accidental double-submit                          | Idempotency key                                                            |
 | Mootq partner API                                 | [`16-MOOTQ-INTEGRATION-CONTRACT.md`](./16-MOOTQ-INTEGRATION-CONTRACT.md); signed off 2026-08-31 |
 | `TE`/`MQ` prefixed scanner format (`^(TE\|MQ)[A-Z0-9]{11}$`) | Confirmed by Mootq with Toon Expo                                     |
-| Dexatel SMS API                                   | Approved; existing Toon Expo account (`TOONEXPO`)                      |
+| Dexatel SMS API                                   | Approved; existing Toon Expo account (transactional sender `TOONEXPO.`) |
 | Resend pay-as-you-go/domain                       | Pro includes pay-as-you-go; `mail.toonexpo.com` verified; from `hi@mail.toonexpo.com` |
 | Email/SMS copy and ticket domain                  | Interim designed email OK; SMS one segment (localized on new 128-bit links); domain `reg.toonexpo.com` |
 | Block/ban/deletion product features               | Out of scope — registration and ticket delivery only                       |
