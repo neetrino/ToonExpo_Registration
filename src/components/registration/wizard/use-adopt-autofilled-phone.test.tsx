@@ -1,10 +1,7 @@
 import { cleanup, render } from '@testing-library/react';
 import { useRef } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  AUTOFILL_PHONE_POLL_MS,
-  useAdoptAutofilledPhone,
-} from './use-adopt-autofilled-phone';
+import { AUTOFILL_PHONE_POLL_MS, useAdoptAutofilledPhone } from './use-adopt-autofilled-phone';
 
 afterEach(() => {
   cleanup();
