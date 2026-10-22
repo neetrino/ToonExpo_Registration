@@ -16,6 +16,8 @@ import {
   listPhoneCountries,
   resolvePhoneCountry,
 } from '@/lib/validation/phone-countries';
+import { adoptAutofilledPhoneDigits } from './adopt-autofilled-phone';
+import { useAdoptAutofilledPhone } from './use-adopt-autofilled-phone';
 
 type PhoneCountryFieldProps = {
   id: string;
@@ -56,6 +58,7 @@ export function PhoneCountryField({
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const selectedCountry = resolvePhoneCountry(phoneCountry);
@@ -98,6 +101,18 @@ export function PhoneCountryField({
       onPhoneChange(localNumber);
     }
   }, [localNumber, onPhoneChange, phone]);
+
+  useAdoptAutofilledPhone({
+    inputRef: phoneInputRef,
+    country: selectedCountry,
+    phoneDigits: localNumber,
+    onPhoneChange,
+  });
+
+  const phoneDigitsFromEdit = (rawValue: string): string => {
+    const adopted = adoptAutofilledPhoneDigits(rawValue, selectedCountry, localNumber);
+    return adopted ?? nextNationalPhoneDigits(rawValue, localNumber, selectedCountry);
+  };
 
   const selectCountry = (code: CountryCode) => {
     onCountryChange(code);
@@ -191,6 +206,7 @@ export function PhoneCountryField({
       </div>
 
       <Input
+        ref={phoneInputRef}
         id={id}
         name="phone"
         type="tel"
@@ -202,9 +218,7 @@ export function PhoneCountryField({
         value={formatNationalPhoneInput(localNumber, selectedCountry)}
         disabled={disabled}
         aria-invalid={invalid}
-        onChange={(event) =>
-          onPhoneChange(nextNationalPhoneDigits(event.target.value, localNumber, selectedCountry))
-        }
+        onChange={(event) => onPhoneChange(phoneDigitsFromEdit(event.target.value))}
       />
     </div>
   );
