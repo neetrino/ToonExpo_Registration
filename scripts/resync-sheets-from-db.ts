@@ -18,6 +18,7 @@ type SheetChannel = (typeof CHANNELS)[number];
  * Usage:
  *   pnpm exec tsx scripts/resync-sheets-from-db.ts
  *   pnpm exec tsx scripts/resync-sheets-from-db.ts --apply
+ *   pnpm exec tsx scripts/resync-sheets-from-db.ts --apply --channel=SPYURK_RF
  */
 async function loadChannel(channel: SheetChannel): Promise<SheetsRow[]> {
   const prisma = getPrisma();
@@ -137,6 +138,20 @@ function delay(ms: number): Promise<void> {
   });
 }
 
+/** `--channel=GENERAL|SPYURK_RF` limits the run to one tab; default is both. */
+function selectChannels(): readonly SheetChannel[] {
+  const flag = process.argv.find((arg) => arg.startsWith('--channel='));
+  if (!flag) {
+    return CHANNELS;
+  }
+
+  const requested = CHANNELS.find((channel) => channel === flag.slice('--channel='.length));
+  if (!requested) {
+    throw new Error(`unknown channel; use one of ${CHANNELS.join(', ')}`);
+  }
+  return [requested];
+}
+
 async function main(): Promise<void> {
   const apply = process.argv.includes('--apply');
   const config = getSheetsWebhookConfig();
@@ -147,7 +162,7 @@ async function main(): Promise<void> {
   const since = new Date();
   const writtenIds = new Set<string>();
 
-  for (const channel of CHANNELS) {
+  for (const channel of selectChannels()) {
     const rows = await loadChannel(channel);
     if (rows.length === 0) {
       throw new Error(`refusing to clear empty channel ${channel}`);
