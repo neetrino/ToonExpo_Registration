@@ -7,6 +7,12 @@ export const SHEETS_PUSH_TIMEOUT_MS = 25_000;
 
 export const SHEETS_PUSH_MIN_INTERVAL_MS = 200;
 
+/**
+ * A PROCESSING claim older than this is treated as abandoned (crashed or timed-out
+ * invocation) and returned to PENDING. Must stay well above SHEETS_PUSH_TIMEOUT_MS.
+ */
+export const SHEETS_PUSH_STALE_CLAIM_MS = 15 * 60 * 1000;
+
 export const SHEETS_PUSH_BACKOFF_SECONDS = [60, 300, 900, 3600, 7200] as const;
 
 /** Max cells accepted by the Apps Script webhook (headers + identity + answers). */

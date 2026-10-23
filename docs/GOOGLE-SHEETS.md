@@ -62,6 +62,9 @@ Set `SHEETS_PUSH_CRON_ENABLED=true` in production when the webhook is live.
    - `SPYURK_RF` → `Սփյուռք ՌԴ`
 6. Column headers and status fields use Armenian operator labels; questionnaire answers use the visitor's registration locale. Raw codes stay in Neon.
 
+7. Appends are idempotent: Apps Script skips a row whose `Գրանցման ID` already exists in the tab (under a script lock), so a retry after a timeout cannot create a duplicate. Redeploy Apps Script as a **new version** before relying on retries.
+8. A `PROCESSING` claim older than 15 minutes is returned to `PENDING` on the next cron run.
+
 Success from Apps Script is **body** `{ "ok": true }` (HTTP is often always 200).
 
 ---

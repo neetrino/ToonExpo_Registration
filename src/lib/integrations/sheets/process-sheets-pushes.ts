@@ -4,6 +4,7 @@ import { getSheetsWebhookConfig } from '@/lib/integrations/sheets/config';
 import {
   SHEETS_PUSH_CLAIM_BATCH_SIZE,
   SHEETS_PUSH_MIN_INTERVAL_MS,
+  SHEETS_PUSH_STALE_CLAIM_MS,
 } from '@/lib/integrations/sheets/constants';
 import { toSheetsRow } from '@/lib/integrations/sheets/map-row';
 import { resolveSheetsPushRetryDecision } from '@/lib/integrations/sheets/outcome';
@@ -41,6 +42,8 @@ export async function processDueSheetsPushes(options?: {
   const prisma = getPrisma();
   const limit = options?.limit ?? SHEETS_PUSH_CLAIM_BATCH_SIZE;
   const now = new Date();
+
+  await releaseStaleSheetsClaims(now);
 
   const candidates = await prisma.sheetsPushDelivery.findMany({
     where: {
@@ -89,6 +92,35 @@ export async function processDueSheetsPushes(options?: {
   }
 
   return result;
+}
+
+/**
+ * Return abandoned PROCESSING claims to PENDING so the next run retries them.
+ * Safe because the Apps Script webhook ignores a repeated registration id.
+ */
+async function releaseStaleSheetsClaims(now: Date): Promise<void> {
+  const prisma = getPrisma();
+  const staleBefore = new Date(now.getTime() - SHEETS_PUSH_STALE_CLAIM_MS);
+
+  try {
+    const released = await prisma.sheetsPushDelivery.updateMany({
+      where: { status: 'PROCESSING', claimedAt: { lt: staleBefore } },
+      data: {
+        status: 'PENDING',
+        claimedAt: null,
+        nextAttemptAt: now,
+        lastErrorCode: 'STALE_CLAIM',
+      },
+    });
+
+    if (released.count > 0) {
+      logger.warn('sheets.stale_claims_released', { count: released.count });
+    }
+  } catch (error: unknown) {
+    logger.error('Failed to release stale sheets claims', {
+      code: mapRegistrationError(error).code,
+    });
+  }
 }
 
 function delay(ms: number): Promise<void> {
