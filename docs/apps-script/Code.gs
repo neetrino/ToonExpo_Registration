@@ -24,6 +24,9 @@ const LEGACY_TABS = {
   SPYURK_RF: 'Spyurk RF',
 };
 
+/** "Գրանցման ID" is always the first column (SHEET_IDENTITY_COLUMNS[0]). */
+const IDENTITY_VALUE_INDEX = 0;
+const LOCK_WAIT_MS = 15000;
 const MAX_VALUES = 80;
 const MAX_CELL_CHARS = 500;
 const HEADER_BG = '#00303D';
@@ -66,14 +69,49 @@ function doPost(event) {
       return jsonResponse({ error: 'invalid' });
     }
 
-    const headerCount = Array.isArray(payload.headers) ? payload.headers.length : values.length;
-    ensureHeaders(sheet, payload.headers);
-    sheet.appendRow(values.map(sanitizeCell));
-    beautifyLastRow(sheet, headerCount);
-    return jsonResponse({ ok: true });
+    return appendRowOnce(sheet, payload.headers, values);
   } catch (error) {
     return jsonResponse({ error: 'failed' });
   }
+}
+
+/**
+ * Append one registration row exactly once per "Գրանցման ID".
+ * Retries from the server (timeout, 5xx) must not create a second row.
+ * The script lock serializes concurrent appends so the check-then-append is atomic.
+ */
+function appendRowOnce(sheet, headers, values) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(LOCK_WAIT_MS);
+  try {
+    const registrationId = String(values[IDENTITY_VALUE_INDEX] || '');
+    if (registrationId && hasRegistrationId(sheet, registrationId)) {
+      return jsonResponse({ ok: true, duplicate: true });
+    }
+
+    const headerCount = Array.isArray(headers) ? headers.length : values.length;
+    ensureHeaders(sheet, headers);
+    sheet.appendRow(values.map(sanitizeCell));
+    beautifyLastRow(sheet, headerCount);
+    return jsonResponse({ ok: true });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function hasRegistrationId(sheet, registrationId) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return false;
+  }
+
+  const idColumn = IDENTITY_VALUE_INDEX + 1;
+  const found = sheet
+    .getRange(2, idColumn, lastRow - 1, 1)
+    .createTextFinder(registrationId)
+    .matchEntireCell(true)
+    .findNext();
+  return found !== null;
 }
 
 /**
