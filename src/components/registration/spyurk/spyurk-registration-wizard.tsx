@@ -4,19 +4,14 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
 import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { nationalPhoneExample } from '@/lib/validation/phone';
 import type { Locale } from '@/types/locale';
 import { scrollWizardToTop, useScrollToFieldError } from '@/components/registration/scroll-wizard';
 import { submitRegistration } from '@/components/registration/submit-registration';
-import { clearRegistrationIdempotencyKey } from '@/components/registration/idempotency';
-import { storeTicketHandoff } from '@/components/registration/ticket-handoff';
-import {
-  captureAndPersistUtmFromLocation,
-  clearPersistedUtmAttribution,
-} from '@/components/registration/utm-attribution';
+import { completeRegistration } from '@/components/registration/complete-registration';
+import { captureAndPersistUtmFromLocation } from '@/components/registration/utm-attribution';
 import { mergeIdentityFieldsFromDom } from '@/components/registration/wizard/sync-identity-fields';
 import { IdentityStep } from '@/components/registration/wizard/step-identity-profile';
 import { FinishStep } from '@/components/registration/wizard/step-finish';
@@ -227,13 +222,7 @@ export function SpyurkRegistrationWizard({ locale }: SpyurkRegistrationWizardPro
 
     if (result.ok) {
       clearSpyurkWizardDraft();
-      clearRegistrationIdempotencyKey();
-      clearPersistedUtmAttribution();
-      rememberAnalyticsFormChannel('spyurk_rf');
-      storeTicketHandoff({
-        ticketCode: result.ticketCode,
-        ticketViewToken: result.ticketViewToken,
-      });
+      completeRegistration(result, 'spyurk_rf');
       router.push('/success');
       return;
     }

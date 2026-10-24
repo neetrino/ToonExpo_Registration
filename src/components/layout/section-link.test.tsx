@@ -32,7 +32,7 @@ function renderRfCtas(): void {
 
 describe('RF registration and how-it-works links', () => {
   beforeEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     window.history.replaceState(null, '', `/ru/rf${UTM_SEARCH}`);
     vi.stubGlobal('matchMedia', () => ({ matches: true }));
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -42,7 +42,7 @@ describe('RF registration and how-it-works links', () => {
   });
 
   afterEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     window.history.replaceState(null, '', '/');
     vi.unstubAllGlobals();
     vi.restoreAllMocks();

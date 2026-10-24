@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { normalizeUtmValue } from '@/lib/attribution';
 import { FORM_VERSION } from '@/lib/questionnaire';
 import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import { normalizeEmail, normalizeName } from '@/lib/validation/normalize';
@@ -196,10 +197,49 @@ describe('registrationBodySchema', () => {
     expect(parsed.data.utmMedium).toBeUndefined();
   });
 
+  it('accepts the same campaign names as client capture', () => {
+    const parsed = registrationBodySchema.safeParse({
+      ...valid,
+      utmSource: 'face  book',
+      utmMedium: 'վիդեո',
+      utmCampaign: 'SP Flexible',
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    expect(parsed.data.utmSource).toBe('face book');
+    expect(parsed.data.utmMedium).toBe('վիդեո');
+    expect(parsed.data.utmCampaign).toBe('SP Flexible');
+  });
+
+  it.each([
+    'facebook',
+    '  SP   Flexible ',
+    'SP\u00a0Flexible',
+    'C++ promo',
+    'Թունէքսպո 2026',
+    'Весна | ВК',
+    'Cafe\u0301',
+    'a'.repeat(128),
+    'a'.repeat(129),
+    'bad\nvalue',
+    'bad\u200bvalue',
+    '<script>',
+  ])('server UTM rule matches client capture for %j', (raw) => {
+    const client = normalizeUtmValue(raw);
+    const parsed = registrationBodySchema.safeParse({ ...valid, utmCampaign: raw });
+
+    expect(parsed.success).toBe(client !== undefined);
+    if (parsed.success) {
+      expect(parsed.data.utmCampaign).toBe(client);
+    }
+  });
+
   it('rejects invalid UTM charset', () => {
     const parsed = registrationBodySchema.safeParse({
       ...valid,
-      utmSource: 'face book',
+      utmSource: 'bad\nvalue',
     });
     expect(parsed.success).toBe(false);
   });

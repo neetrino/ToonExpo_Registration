@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { CountryCode } from 'libphonenumber-js';
+import { canonicalizeUtmValue } from '@/lib/attribution';
 import { FORM_VERSION, questionnaireAnswersSchema } from '@/lib/questionnaire';
 import { SPYURK_FORM_VERSION } from '@/lib/questionnaire/spyurk/constants';
 import { spyurkQuestionnaireAnswersSchema } from '@/lib/questionnaire/spyurk/validate';
@@ -29,8 +30,8 @@ const phoneCountrySchema = z
   .default(DEFAULT_PHONE_COUNTRY);
 
 /**
- * Optional marketing UTM label: trim, empty → absent, charset allowlist.
- * Does not accept or trust `sourceSystem` (server-assigned).
+ * Optional marketing UTM label: same canonicalization and charset as client capture,
+ * empty → absent. Does not accept or trust `sourceSystem` (server-assigned).
  */
 const optionalUtmFieldSchema = z.preprocess((value) => {
   if (value == null || value === '') {
@@ -39,8 +40,8 @@ const optionalUtmFieldSchema = z.preprocess((value) => {
   if (typeof value !== 'string') {
     return value;
   }
-  const trimmed = value.trim();
-  return trimmed === '' ? undefined : trimmed;
+  const canonical = canonicalizeUtmValue(value);
+  return canonical === '' ? undefined : canonical;
 }, z.string().max(UTM_MAX_LENGTH).regex(UTM_VALUE_PATTERN, 'Invalid UTM value').optional());
 
 /**

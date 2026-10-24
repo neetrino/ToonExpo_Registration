@@ -180,6 +180,33 @@ describe('POST /api/registrations', () => {
     expect(processDuePartnerPushes).not.toHaveBeenCalled();
   });
 
+  it('persists spaced and Unicode UTM values as captured on the client', async () => {
+    createRegistration.mockResolvedValue({
+      ok: true,
+      registrationId: REGISTRATION_ID,
+      ticketCode: TICKET_CODE,
+      ticketViewToken: TICKET_VIEW_TOKEN,
+    });
+
+    const response = await POST(
+      registrationRequest({
+        ...validBody,
+        utmSource: 'facebook',
+        utmMedium: 'վիդեո',
+        utmCampaign: 'SP Flexible',
+      }),
+    );
+
+    expect(response.status).toBe(201);
+    expect(createRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        utmSource: 'facebook',
+        utmMedium: 'վիդեո',
+        utmCampaign: 'SP Flexible',
+      }),
+    );
+  });
+
   it('does not schedule delivery on validation errors', async () => {
     const response = await POST(registrationRequest({ ...validBody, email: 'not-an-email' }));
 
