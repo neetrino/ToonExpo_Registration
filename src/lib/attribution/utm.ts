@@ -2,10 +2,13 @@
 export const UTM_MAX_LENGTH = 128;
 
 /**
- * Safe charset for analytics labels: alphanumeric plus common separators.
- * Rejects spaces and control characters.
+ * Printable Unicode text (letters in any script, digits, spaces, `+`, punctuation).
+ * Rejects control/format/line-separator characters and HTML angle brackets.
+ * Apply to canonicalized values only (see `canonicalizeUtmValue`).
  */
-export const UTM_VALUE_PATTERN = /^[A-Za-z0-9_.-]{1,128}$/;
+export const UTM_VALUE_PATTERN = /^[^\p{C}\p{Zl}\p{Zp}<>]{1,128}$/u;
+
+const UTM_SPACE_RUN_PATTERN = /\p{Zs}+/gu;
 
 export type UtmAttribution = {
   utmSource?: string;
@@ -20,23 +23,29 @@ const UTM_PARAM_KEYS = {
 } as const;
 
 /**
- * Trim and validate a raw UTM value. Empty or invalid → undefined (absent).
+ * Canonical UTM text shared by client capture and server validation:
+ * NFC-normalized, Unicode space runs collapsed to one space, trimmed.
+ * Returns an empty string for blank input. Does not validate.
+ */
+export function canonicalizeUtmValue(raw: string): string {
+  return raw.normalize('NFC').replace(UTM_SPACE_RUN_PATTERN, ' ').trim();
+}
+
+/**
+ * Canonicalize and validate a raw UTM value. Empty or invalid → undefined (absent).
+ * URL `+` is already decoded to a space by `URLSearchParams`.
  */
 export function normalizeUtmValue(raw: string | null | undefined): string | undefined {
   if (raw == null) {
     return undefined;
   }
 
-  const trimmed = raw.trim();
-  if (!trimmed || trimmed.length > UTM_MAX_LENGTH) {
+  const value = canonicalizeUtmValue(raw);
+  if (!value || value.length > UTM_MAX_LENGTH || !UTM_VALUE_PATTERN.test(value)) {
     return undefined;
   }
 
-  if (!UTM_VALUE_PATTERN.test(trimmed)) {
-    return undefined;
-  }
-
-  return trimmed;
+  return value;
 }
 
 /**
@@ -85,17 +94,15 @@ export function captureUtmFromSearchParams(params: URLSearchParams): UtmAttribut
 }
 
 /**
- * Merge attribution: first non-empty value wins per field (do not overwrite with empty).
+ * Last non-direct touch: a visit carrying any UTM replaces the whole set
+ * (fields from different campaigns are never mixed); a visit without UTM keeps `existing`.
  */
 export function mergeUtmAttribution(
   existing: UtmAttribution,
   incoming: UtmAttribution,
 ): UtmAttribution {
-  return {
-    utmSource: existing.utmSource ?? incoming.utmSource,
-    utmMedium: existing.utmMedium ?? incoming.utmMedium,
-    utmCampaign: existing.utmCampaign ?? incoming.utmCampaign,
-  };
+  const next = compactUtmAttribution(incoming);
+  return hasUtmAttribution(next) ? next : compactUtmAttribution(existing);
 }
 
 /**

@@ -7,15 +7,13 @@ import { Button } from '@/components/ui/button';
 import type { QuestionnaireLocale } from '@/lib/questionnaire/i18n';
 import { nationalPhoneExample } from '@/lib/validation/phone';
 import type { Locale } from '@/types/locale';
-import { rememberAnalyticsFormChannel } from '@/lib/analytics/form-channel-event';
 import { useQuestionnaireStepTracking } from '@/lib/analytics/use-questionnaire-step-tracking';
 import { submitRegistration } from './submit-registration';
 import { buildRegistrationPayload } from './wizard/build-payload';
 import { emptyMarzCityDraft, emptyMarzCityOtherDraft } from './wizard/marz-city-draft';
 import { clearWizardDraft, loadWizardDraft, saveWizardDraft } from './wizard/persist-draft';
-import { clearRegistrationIdempotencyKey } from './idempotency';
-import { storeTicketHandoff } from './ticket-handoff';
-import { captureAndPersistUtmFromLocation, clearPersistedUtmAttribution } from './utm-attribution';
+import { completeRegistration } from './complete-registration';
+import { captureAndPersistUtmFromLocation } from './utm-attribution';
 import { getWizardSteps } from './wizard/steps';
 import { FinishStep } from './wizard/step-finish';
 import { IdentityStep, ProfileStep } from './wizard/step-identity-profile';
@@ -252,13 +250,7 @@ export function RegistrationWizard({ locale }: RegistrationWizardProps) {
 
     if (result.ok) {
       clearWizardDraft();
-      clearRegistrationIdempotencyKey();
-      clearPersistedUtmAttribution();
-      rememberAnalyticsFormChannel('general');
-      storeTicketHandoff({
-        ticketCode: result.ticketCode,
-        ticketViewToken: result.ticketViewToken,
-      });
+      completeRegistration(result, 'general');
       router.push('/success');
       return;
     }

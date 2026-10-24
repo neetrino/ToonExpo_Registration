@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { getAdminPageItems, type AdminPageItem } from '@/lib/admin/pagination';
 import { cn } from '@/lib/utils';
 
 type AdminListPaginationProps = {
@@ -8,8 +9,7 @@ type AdminListPaginationProps = {
   total: number;
   page: number;
   totalPages: number;
-  prevHref: string;
-  nextHref: string;
+  hrefForPage: (page: number) => string;
 };
 
 function ChevronLeftIcon() {
@@ -78,38 +78,92 @@ function PageControl({
   );
 }
 
+function PageNumber({ page, href, current }: { page: number; href: string; current: boolean }) {
+  const className = cn(
+    'inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+    current ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-primary/10',
+  );
+
+  if (current) {
+    return (
+      <span className={className} aria-current="page">
+        {page}
+      </span>
+    );
+  }
+
+  return (
+    <Link href={href} aria-label={`Page ${page}`} className={className}>
+      {page}
+    </Link>
+  );
+}
+
+function PageEllipsis() {
+  return (
+    <span
+      className="inline-flex h-9 w-7 shrink-0 items-center justify-center text-sm text-muted-foreground"
+      aria-hidden="true"
+    >
+      …
+    </span>
+  );
+}
+
+function PageListItem({
+  item,
+  page,
+  hrefForPage,
+}: {
+  item: AdminPageItem;
+  page: number;
+  hrefForPage: (page: number) => string;
+}) {
+  if (item === 'ellipsis') {
+    return <PageEllipsis />;
+  }
+
+  return <PageNumber page={item} href={hrefForPage(item)} current={item === page} />;
+}
+
 export function AdminListPagination({
   from,
   to,
   total,
   page,
   totalPages,
-  prevHref,
-  nextHref,
+  hrefForPage,
 }: AdminListPaginationProps) {
+  const items = getAdminPageItems(page, totalPages);
+
   return (
     <div className="flex flex-col items-center justify-center gap-3 border-t border-border/70 bg-muted/40 px-4 py-5 sm:px-5">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Showing {from}–{to} of {total}
       </p>
 
-      <div
-        className="inline-flex items-center gap-0.5 rounded-full border border-border bg-background p-0.5 shadow-sm"
-        role="navigation"
+      <nav
+        className="flex max-w-full flex-wrap items-center justify-center gap-0.5 rounded-[1.75rem] border border-border bg-background p-0.5 shadow-sm"
         aria-label="Pagination"
       >
-        <PageControl href={prevHref} enabled={page > 1} label="Previous page">
+        <PageControl href={hrefForPage(page - 1)} enabled={page > 1} label="Previous page">
           <ChevronLeftIcon />
         </PageControl>
 
-        <span className="min-w-[3.75rem] rounded-full bg-primary px-3.5 py-1.5 text-center text-xs font-semibold tabular-nums tracking-wide text-primary-foreground">
-          {page} / {totalPages}
-        </span>
+        {items.map((item, index) => (
+          <PageListItem
+            key={item === 'ellipsis' ? `ellipsis-${index}` : item}
+            item={item}
+            page={page}
+            hrefForPage={hrefForPage}
+          />
+        ))}
 
-        <PageControl href={nextHref} enabled={page < totalPages} label="Next page">
+        <PageControl href={hrefForPage(page + 1)} enabled={page < totalPages} label="Next page">
           <ChevronRightIcon />
         </PageControl>
-      </div>
+      </nav>
     </div>
   );
 }
