@@ -197,8 +197,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
               total={data.filteredCount}
               page={data.page}
               totalPages={totalPages}
-              prevHref={listHref(data.page - 1)}
-              nextHref={listHref(data.page + 1)}
+              hrefForPage={listHref}
             />
           ) : null}
         </section>
